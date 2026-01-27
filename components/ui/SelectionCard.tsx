@@ -27,13 +27,13 @@ export function SelectionCard({
             onClick={onClick}
             disabled={disabled}
             className={cn(
-                `w-full p-5 rounded-[var(--radius-xl)] border-2 text-left
+                `w-full p-5 rounded-xl border-2 text-left
         transition-all duration-200 ease-out
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--accent)]
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent
         disabled:opacity-50 disabled:cursor-not-allowed`,
                 selected
-                    ? 'border-[var(--accent)] bg-[var(--accent-subtle)] shadow-[var(--shadow-sm)]'
-                    : 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--secondary-light)] hover:shadow-[var(--shadow-sm)]',
+                    ? 'border-accent bg-(--accent-subtle) shadow-(--shadow-sm)'
+                    : 'border-(--border) bg-(--surface) hover:border-(--secondary-light) hover:shadow-(--shadow-sm)',
                 className
             )}
         >
@@ -46,12 +46,12 @@ export function SelectionCard({
                 <div className="flex-1 min-w-0">
                     <h4 className={cn(
                         'font-semibold text-base',
-                        selected ? 'text-[var(--accent)]' : 'text-[var(--primary)]'
+                        selected ? 'text-accent' : 'text-(--primary)'
                     )}>
                         {label}
                     </h4>
                     {description && (
-                        <p className="mt-1 text-sm text-[var(--secondary)]">
+                        <p className="mt-1 text-sm text-(--secondary)">
                             {description}
                         </p>
                     )}
@@ -59,8 +59,8 @@ export function SelectionCard({
                 <div className={cn(
                     'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5',
                     selected
-                        ? 'border-[var(--accent)] bg-[var(--accent)]'
-                        : 'border-[var(--border)]'
+                        ? 'border-accent bg-accent'
+                        : 'border-(--border)'
                 )}>
                     {selected && (
                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 12 12">
@@ -83,7 +83,6 @@ export function MultiSelectCard({
     onToggle,
     emoji,
     label,
-    description,
     className,
     disabled = false,
 }: MultiSelectCardProps) {
@@ -93,13 +92,13 @@ export function MultiSelectCard({
             onClick={onToggle}
             disabled={disabled}
             className={cn(
-                `w-full p-4 rounded-[var(--radius-lg)] border-2 text-left
+                `w-full p-4 rounded-lg border-2 text-left
         transition-all duration-200 ease-out
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--accent)]
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent
         disabled:opacity-50 disabled:cursor-not-allowed`,
                 selected
-                    ? 'border-[var(--accent)] bg-[var(--accent-subtle)]'
-                    : 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--secondary-light)]',
+                    ? 'border-accent bg-(--accent-subtle)'
+                    : 'border-(--border) bg-(--surface) hover:border-(--secondary-light)',
                 className
             )}
         >
@@ -111,15 +110,15 @@ export function MultiSelectCard({
                 )}
                 <span className={cn(
                     'font-medium text-sm flex-1',
-                    selected ? 'text-[var(--accent)]' : 'text-[var(--primary)]'
+                    selected ? 'text-accent' : 'text-(--primary)'
                 )}>
                     {label}
                 </span>
                 <div className={cn(
                     'w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0',
                     selected
-                        ? 'border-[var(--accent)] bg-[var(--accent)]'
-                        : 'border-[var(--border)]'
+                        ? 'border-accent bg-accent'
+                        : 'border-(--border)'
                 )}>
                     {selected && (
                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 12 12">

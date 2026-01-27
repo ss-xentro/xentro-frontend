@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, ProgressIndicator } from '@/components/ui';
 import { OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus } from '@/lib/types';
@@ -47,7 +47,7 @@ export default function AddInstitutionPage() {
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
     const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
-    const [submitting, setSubmitting] = useState(false);
+    const [, setSubmitting] = useState(false);
 
     const updateFormData = <K extends keyof OnboardingFormData>(
         key: K,
@@ -67,6 +67,25 @@ export default function AddInstitutionPage() {
         if (currentStep > 1) {
             setDirection('backward');
             setCurrentStep((prev) => prev - 1);
+        }
+    };
+
+    const canProceed = (): boolean => {
+        switch (currentStep) {
+            case 1: return formData.type !== null;
+            case 2: return formData.name.trim().length > 0;
+            case 3: return formData.tagline.trim().length > 0;
+            case 4: return formData.city.trim().length > 0 && formData.country.length > 0;
+            case 5: return formData.operatingMode !== null;
+            case 6: return true; // Optional
+            case 7: return true; // Optional
+            case 8: return formData.sdgFocus.length > 0;
+            case 9: return formData.sectorFocus.length > 0;
+            case 10: return true; // Logo optional
+            case 11: return true; // Links optional
+            case 12: return formData.description.trim().length > 0;
+            case 13: return true;
+            default: return false;
         }
     };
 
@@ -94,8 +113,7 @@ export default function AddInstitutionPage() {
                     studentsMentored: formData.studentsMentored,
                     fundingFacilitated: formData.fundingFacilitated,
                     fundingCurrency: formData.fundingCurrency,
-                    // Logo upload is mock-only for now; avoid sending base64 payloads
-                    logo: null,
+                    logo: formData.logo,
                     website: formData.website,
                     linkedin: formData.linkedin,
                     description: formData.description,
@@ -118,24 +136,21 @@ export default function AddInstitutionPage() {
         }
     };
 
-    const canProceed = (): boolean => {
-        switch (currentStep) {
-            case 1: return formData.type !== null;
-            case 2: return formData.name.trim().length > 0;
-            case 3: return formData.tagline.trim().length > 0;
-            case 4: return formData.city.trim().length > 0 && formData.country.length > 0;
-            case 5: return formData.operatingMode !== null;
-            case 6: return true; // Optional
-            case 7: return true; // Optional
-            case 8: return formData.sdgFocus.length > 0;
-            case 9: return formData.sectorFocus.length > 0;
-            case 10: return true; // Logo optional
-            case 11: return true; // Links optional
-            case 12: return formData.description.trim().length > 0;
-            case 13: return true;
-            default: return false;
-        }
-    };
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                if (currentStep === TOTAL_STEPS && canProceed()) {
+                    handlePublish();
+                } else if (canProceed()) {
+                    handleNext();
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [currentStep, formData]);
 
     const renderSlide = () => {
         const animationClass = direction === 'forward' ? 'animate-slideInRight' : 'animate-slideInLeft';
@@ -274,7 +289,7 @@ export default function AddInstitutionPage() {
             </div>
 
             {/* Slide Content */}
-            <div className="min-h-[400px] flex flex-col">
+            <div className="min-h-100 flex flex-col">
                 <div className="flex-1" key={currentStep}>
                     {renderSlide()}
                 </div>
@@ -282,7 +297,7 @@ export default function AddInstitutionPage() {
 
             {/* Navigation */}
             {currentStep < 13 && (
-                <div className="flex items-center justify-between mt-8 pt-6 border-t border-[var(--border)]">
+                <div className="flex items-center justify-between mt-8 pt-6 border-t border-(--border)">
                     <Button
                         variant="ghost"
                         onClick={handleBack}

@@ -154,7 +154,7 @@ export default function ReviewPublishSlide({
                     Save as Draft
                 </Button>
                 <Button size="lg" onClick={onPublish} className="bg-[var(--success)] hover:bg-[#059669] shadow-[var(--shadow-lg)]">
-                    <span className="mr-2">🚀</span> Publish Institution
+                    <span className="mr-2">✓</span> Get Approval (Cmd+Enter)
                 </Button>
             </div>
         </div>

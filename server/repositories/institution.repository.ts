@@ -15,6 +15,10 @@ class InstitutionRepository {
       .orderBy(desc(institutions.createdAt));
   }
 
+  async listAll() {
+    return db.select().from(institutions).orderBy(desc(institutions.createdAt));
+  }
+
   async findById(id: string) {
     const results = await db.select().from(institutions).where(eq(institutions.id, id)).limit(1);
     return results[0] ?? null;
@@ -23,6 +27,15 @@ class InstitutionRepository {
   async create(payload: NewInstitutionEntity) {
     const [record] = await db.insert(institutions).values(payload).returning();
     return record;
+  }
+
+  async updateById(id: string, updates: Partial<NewInstitutionEntity>) {
+    const [record] = await db
+      .update(institutions)
+      .set(updates)
+      .where(eq(institutions.id, id))
+      .returning();
+    return record ?? null;
   }
 }
 

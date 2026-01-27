@@ -13,10 +13,10 @@ export default function LogoUploadSlide({ value, onChange, className }: LogoUplo
     return (
         <div className={cn('space-y-6', className)}>
             <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">
+                <h2 className="text-2xl font-bold text-(--primary) mb-2">
                     Upload their logo
                 </h2>
-                <p className="text-[var(--secondary)]">
+                <p className="text-(--secondary)">
                     A high-quality transparent PNG or SVG works best.
                 </p>
             </div>
@@ -27,6 +27,8 @@ export default function LogoUploadSlide({ value, onChange, className }: LogoUplo
                     onChange={onChange}
                     accept="image/png, image/jpeg, image/svg+xml"
                     maxSize={2} // 2MB
+                    folder="logos/institutions"
+                    entityType="institution"
                 />
             </div>
         </div>

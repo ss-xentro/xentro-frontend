@@ -45,6 +45,16 @@ const navItems = [
         ),
     },
     {
+        label: 'Institution Approvals',
+        href: '/dashboard/institution-approvals',
+        icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m-2-5h3a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h3" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 9a3 3 0 100-6 3 3 0 000 6z" />
+            </svg>
+        ),
+    },
+    {
         label: 'Settings',
         href: '/dashboard/settings',
         icon: (
@@ -57,20 +67,20 @@ const navItems = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const { user, isAuthenticated, logout } = useAuth();
+    const { user, isAuthenticated, isLoading, logout } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
 
     useEffect(() => {
-        if (!isAuthenticated) {
+        if (!isLoading && !isAuthenticated) {
             router.push('/login');
         }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated, isLoading, router]);
 
-    if (!isAuthenticated) {
+    if (isLoading || !isAuthenticated) {
         return (
-            <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
-                <div className="animate-pulse text-[var(--secondary)]">Loading...</div>
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="animate-pulse text-(--secondary)">Loading...</div>
             </div>
         );
     }
@@ -81,18 +91,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
 
     return (
-        <div className="min-h-screen bg-[var(--background)] flex">
+        <div className="min-h-screen bg-background flex">
             {/* Sidebar */}
-            <aside className="w-64 bg-[var(--surface)] border-r border-[var(--border)] flex flex-col">
+            <aside className="w-64 bg-(--surface) border-r border-(--border) flex flex-col">
                 {/* Logo */}
-                <div className="h-16 px-6 flex items-center border-b border-[var(--border)]">
+                <div className="h-16 px-6 flex items-center border-b border-(--border)">
                     <Link href="/dashboard" className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-[var(--radius-md)] bg-[var(--primary)] text-white flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-md bg-(--primary) text-white flex items-center justify-center">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                         </div>
-                        <span className="text-lg font-bold text-[var(--primary)]">XENTRO</span>
+                        <span className="text-lg font-bold text-(--primary)">XENTRO</span>
                     </Link>
                 </div>
 
@@ -105,10 +115,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 key={item.href}
                                 href={item.href}
                                 className={cn(
-                                    'flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium transition-all duration-200',
+                                    'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200',
                                     isActive
-                                        ? 'bg-[var(--primary)] text-white'
-                                        : 'text-[var(--secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]'
+                                        ? 'bg-(--primary) text-white'
+                                        : 'text-(--secondary) hover:bg-(--surface-hover) hover:text-(--primary)'
                                 )}
                             >
                                 {item.icon}
@@ -119,14 +129,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </nav>
 
                 {/* User Section */}
-                <div className="p-4 border-t border-[var(--border)]">
+                <div className="p-4 border-t border-(--border)">
                     <div className="flex items-center gap-3 px-2">
-                        <div className="w-9 h-9 rounded-full bg-[var(--accent-light)] text-[var(--accent)] flex items-center justify-center text-sm font-semibold">
+                        <div className="w-9 h-9 rounded-full bg-(--accent-light) text-accent flex items-center justify-center text-sm font-semibold">
                             {user?.name ? getInitials(user.name) : 'A'}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-[var(--primary)] truncate">{user?.name}</p>
-                            <p className="text-xs text-[var(--secondary)] truncate">{user?.email}</p>
+                            <p className="text-sm font-medium text-(--primary) truncate">{user?.name}</p>
+                            <p className="text-xs text-(--secondary) truncate">{user?.email}</p>
                         </div>
                     </div>
                 </div>
@@ -135,16 +145,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Main Content */}
             <div className="flex-1 flex flex-col">
                 {/* Top Bar */}
-                <header className="h-16 bg-[var(--surface)] border-b border-[var(--border)] px-6 flex items-center justify-between">
+                <header className="h-16 bg-(--surface) border-b border-(--border) px-6 flex items-center justify-between">
                     <div>
-                        <h1 className="text-lg font-semibold text-[var(--primary)]">
+                        <h1 className="text-lg font-semibold text-(--primary)">
                             {navItems.find((item) => item.href === pathname)?.label || 'Dashboard'}
                         </h1>
                     </div>
                     <div className="flex items-center gap-4">
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--secondary)] hover:text-[var(--primary)] hover:bg-[var(--surface-hover)] rounded-[var(--radius-md)] transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-md transition-colors"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

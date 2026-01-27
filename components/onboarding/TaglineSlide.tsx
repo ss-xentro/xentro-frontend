@@ -13,11 +13,11 @@ export default function TaglineSlide({ value, onChange, className }: TaglineSlid
     return (
         <div className={cn('space-y-6', className)}>
             <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">
+                <h2 className="text-2xl font-bold text-(--primary) mb-2">
                     Add a catchy tagline
                 </h2>
-                <p className="text-[var(--secondary)]">
-                    A short, one-sentence description of the institution's mission.
+                <p className="text-(--secondary)">
+                    A short, one-sentence description of the institution&apos;s mission.
                 </p>
             </div>
 

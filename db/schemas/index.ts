@@ -1,9 +1,11 @@
-import { pgEnum, pgTable, uuid, varchar, timestamp, boolean, text, integer, numeric, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, uuid, varchar, timestamp, boolean, text, integer, numeric, uniqueIndex, bigint } from 'drizzle-orm/pg-core';
 
-export const accountTypeEnum = pgEnum('account_type', ['explorer', 'startup', 'mentor', 'investor', 'institution']);
+export const accountTypeEnum = pgEnum('account_type', ['explorer', 'startup', 'mentor', 'investor', 'institution', 'admin', 'approver']);
 export const createdByTypeEnum = pgEnum('created_by_type', ['mentor', 'startup', 'institution', 'investor']);
 export const entityTypeEnum = pgEnum('entity_type', ['mentor', 'student', 'startup', 'investor', 'event']);
 export const resourceTypeEnum = pgEnum('resource_type', ['video', 'pdf', 'link', 'course']);
+export const authProviderEnum = pgEnum('auth_provider', ['credentials', 'google']);
+export const mentorStatusEnum = pgEnum('mentor_status', ['pending', 'approved', 'rejected']);
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -14,6 +16,17 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   emailUnique: uniqueIndex('users_email_idx').on(table.email),
+}));
+
+export const authAccounts = pgTable('auth_accounts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  provider: authProviderEnum('provider').notNull(),
+  providerAccountId: varchar('provider_account_id', { length: 320 }).notNull(),
+  passwordHash: text('password_hash'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  providerAccountUnique: uniqueIndex('auth_accounts_provider_account_idx').on(table.provider, table.providerAccountId),
 }));
 
 export const explorerProfiles = pgTable('explorer_profiles', {
@@ -49,7 +62,26 @@ export const mentorProfiles = pgTable('mentor_profiles', {
   expertise: text('expertise'),
   rate: numeric('rate', { precision: 12, scale: 2 }),
   verified: boolean('verified').default(false).notNull(),
+  status: mentorStatusEnum('status').default('pending').notNull(),
+  occupation: varchar('occupation', { length: 255 }),
+  packages: text('packages'),
+  achievements: text('achievements'),
+  availability: text('availability'),
+  approvedAt: timestamp('approved_at', { withTimezone: true }),
+  rejectedReason: text('rejected_reason'),
 });
+
+export const approvers = pgTable('approvers', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 320 }).notNull(),
+  mobile: varchar('mobile', { length: 50 }),
+  employeeId: varchar('employee_id', { length: 64 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  emailUnique: uniqueIndex('approvers_email_idx').on(table.email),
+  employeeIdUnique: uniqueIndex('approvers_employee_id_idx').on(table.employeeId),
+}));
 
 export const investorProfiles = pgTable('investor_profiles', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -83,6 +115,42 @@ export const institutions = pgTable('institutions', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const institutionApplications = pgTable('institution_applications', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 320 }).notNull(),
+  type: varchar('type', { length: 120 }).notNull(),
+  tagline: varchar('tagline', { length: 280 }),
+  city: varchar('city', { length: 180 }),
+  country: varchar('country', { length: 180 }),
+  website: varchar('website', { length: 255 }),
+  description: text('description'),
+  logo: varchar('logo', { length: 255 }),
+  status: varchar('status', { length: 32 }).default('pending').notNull(),
+  remark: text('remark'),
+  verificationToken: varchar('verification_token', { length: 255 }),
+  verified: boolean('verified').default(false).notNull(),
+  institutionId: uuid('institution_id').references(() => institutions.id, { onDelete: 'set null' }),
+  applicantUserId: uuid('applicant_user_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const mediaAssets = pgTable('media_assets', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  bucket: varchar('bucket', { length: 180 }).notNull(),
+  key: varchar('key', { length: 512 }).notNull(),
+  url: text('url').notNull(),
+  mimeType: varchar('mime_type', { length: 180 }),
+  size: bigint('size', { mode: 'number' }),
+  entityType: varchar('entity_type', { length: 120 }),
+  entityId: uuid('entity_id'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  keyBucketIdx: uniqueIndex('media_assets_bucket_key_idx').on(table.bucket, table.key),
+}));
 
 export const programs = pgTable('programs', {
   id: uuid('id').primaryKey().defaultRandom(),

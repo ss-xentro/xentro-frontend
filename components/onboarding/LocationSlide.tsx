@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 
 interface LocationSlideProps {
     city: string;
-    country: string;
     countryCode: string;
     onCityChange: (value: string) => void;
     onCountryChange: (country: string, code: string) => void;
@@ -15,7 +14,6 @@ interface LocationSlideProps {
 
 export default function LocationSlide({
     city,
-    country,
     countryCode,
     onCityChange,
     onCountryChange,
@@ -30,10 +28,10 @@ export default function LocationSlide({
     return (
         <div className={cn('space-y-6', className)}>
             <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">
+                <h2 className="text-2xl font-bold text-(--primary) mb-2">
                     Where are they located?
                 </h2>
-                <p className="text-[var(--secondary)]">
+                <p className="text-(--secondary)">
                     Specify the primary headquarters location.
                 </p>
             </div>

@@ -10,7 +10,7 @@ export type SDGFocus = 'sdg-4' | 'sdg-8' | 'sdg-9' | 'sdg-11' | 'sdg-17';
 
 export type SectorFocus = 'ai' | 'healthtech' | 'edtech' | 'climatetech' | 'fintech' | 'saas' | 'social-impact';
 
-export type InstitutionStatus = 'draft' | 'published' | 'archived';
+export type InstitutionStatus = 'draft' | 'published' | 'archived' | 'pending';
 
 export interface Institution {
   id: string;
@@ -33,6 +33,29 @@ export interface Institution {
   description?: string | null;
   status: InstitutionStatus;
   verified: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type InstitutionApplicationStatus = 'pending' | 'approved' | 'rejected';
+
+export interface InstitutionApplication {
+  id: string;
+  name: string;
+  email: string;
+  type: InstitutionType;
+  tagline?: string | null;
+  city?: string | null;
+  country?: string | null;
+  website?: string | null;
+  description?: string | null;
+  logo?: string | null;
+  status: InstitutionApplicationStatus;
+  remark?: string | null;
+  verified: boolean;
+  verificationToken?: string | null;
+  institutionId?: string | null;
+  applicantUserId?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }

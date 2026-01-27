@@ -14,16 +14,16 @@ export function ProgressIndicator({ currentStep, totalSteps, className }: Progre
     return (
         <div className={cn('w-full', className)}>
             <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-[var(--primary)]">
+                <span className="text-sm font-medium text-(--primary)">
                     Step {currentStep} of {totalSteps}
                 </span>
-                <span className="text-sm text-[var(--secondary)]">
+                <span className="text-sm text-(--secondary)">
                     {Math.round(progress)}% complete
                 </span>
             </div>
-            <div className="h-2 bg-[var(--border-light)] rounded-[var(--radius-full)] overflow-hidden">
+            <div className="h-2 bg-(--border-light) rounded-(--radius-full) overflow-hidden">
                 <div
-                    className="h-full bg-[var(--accent)] rounded-[var(--radius-full)] transition-all duration-500 ease-out"
+                    className="h-full bg-accent rounded-(--radius-full) transition-all duration-500 ease-out"
                     style={{ width: `${progress}%` }}
                 />
             </div>
@@ -47,10 +47,10 @@ export function StepDots({ currentStep, totalSteps, className }: StepDotsProps) 
                     className={cn(
                         'w-2 h-2 rounded-full transition-all duration-300',
                         step === currentStep
-                            ? 'w-6 bg-[var(--accent)]'
+                            ? 'w-6 bg-accent'
                             : step < currentStep
-                                ? 'bg-[var(--accent)]'
-                                : 'bg-[var(--border)]'
+                                ? 'bg-accent'
+                                : 'bg-(--border)'
                     )}
                 />
             ))}

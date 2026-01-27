@@ -47,7 +47,7 @@ export function Select({
     return (
         <div className={cn('w-full', className)} ref={containerRef}>
             {label && (
-                <label className="block text-sm font-medium text-[var(--primary)] mb-2">
+                <label className="block text-sm font-medium text-(--primary) mb-2">
                     {label}
                 </label>
             )}
@@ -57,24 +57,24 @@ export function Select({
                     onClick={() => setIsOpen(!isOpen)}
                     className={cn(
                         `w-full h-12 px-4 flex items-center justify-between
-            bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)]
+            bg-(--surface) border border-(--border) rounded-lg
             text-left transition-all duration-200
-            hover:border-[var(--secondary-light)]
-            focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-light)]`,
-                        error && 'border-[var(--error)]',
-                        isOpen && 'border-[var(--accent)] ring-2 ring-[var(--accent-light)]'
+            hover:border-(--secondary-light)
+            focus:outline-none focus:border-accent focus:ring-2 focus:ring-(--accent-light)`,
+                        error && 'border-error',
+                        isOpen && 'border-accent ring-2 ring-(--accent-light)'
                     )}
                 >
                     <span className={cn(
                         'flex items-center gap-2',
-                        selectedOption ? 'text-[var(--primary)]' : 'text-[var(--secondary-light)]'
+                        selectedOption ? 'text-(--primary)' : 'text-(--secondary-light)'
                     )}>
                         {selectedOption?.icon && <span>{selectedOption.icon}</span>}
                         {selectedOption?.label || placeholder}
                     </span>
                     <svg
                         className={cn(
-                            'w-5 h-5 text-[var(--secondary)] transition-transform duration-200',
+                            'w-5 h-5 text-(--secondary) transition-transform duration-200',
                             isOpen && 'rotate-180'
                         )}
                         fill="none"
@@ -86,7 +86,7 @@ export function Select({
                 </button>
 
                 {isOpen && (
-                    <div className="absolute z-50 w-full mt-2 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] animate-scaleIn">
+                    <div className="absolute z-50 w-full mt-2 py-2 bg-(--surface) border border-(--border) rounded-lg shadow-(--shadow-lg) animate-scaleIn">
                         {options.map((option) => (
                             <button
                                 key={option.value}
@@ -98,8 +98,8 @@ export function Select({
                                 className={cn(
                                     'w-full px-4 py-2.5 flex items-center gap-2 text-left transition-colors',
                                     option.value === value
-                                        ? 'bg-[var(--accent-subtle)] text-[var(--accent)]'
-                                        : 'text-[var(--primary)] hover:bg-[var(--surface-hover)]'
+                                        ? 'bg-(--accent-subtle) text-accent'
+                                        : 'text-(--primary) hover:bg-(--surface-hover)'
                                 )}
                             >
                                 {option.icon && <span>{option.icon}</span>}
@@ -110,7 +110,7 @@ export function Select({
                 )}
             </div>
             {error && (
-                <p className="mt-2 text-sm text-[var(--error)]">{error}</p>
+                <p className="mt-2 text-sm text-error">{error}</p>
             )}
         </div>
     );

@@ -18,7 +18,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         return (
             <div className="w-full">
                 {label && (
-                    <label className="block text-sm font-medium text-[var(--primary)] mb-2">
+                    <label className="block text-sm font-medium text-(--primary) mb-2">
                         {label}
                     </label>
                 )}
@@ -27,31 +27,31 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                     value={value}
                     maxLength={maxLength}
                     className={cn(
-                        `w-full min-h-[120px] px-4 py-3 text-[var(--primary)] bg-[var(--surface)]
-            border border-[var(--border)] rounded-[var(--radius-lg)]
-            placeholder:text-[var(--secondary-light)]
+                        `w-full min-h-30 px-4 py-3 text-(--primary) bg-(--surface)
+            border border-(--border) rounded-lg
+            placeholder:text-(--secondary-light)
             transition-all duration-200 ease-out
-            focus:outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-light)]
-            hover:border-[var(--secondary-light)]
-            disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[var(--surface-hover)]
+            focus:outline-none focus:border-accent focus:ring-2 focus:ring-(--accent-light)
+            hover:border-(--secondary-light)
+            disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-(--surface-hover)
             resize-none`,
-                        error && 'border-[var(--error)] focus:border-[var(--error)] focus:ring-[var(--error-light)]',
+                        error && 'border-error focus:border-error focus:ring-(--error-light)',
                         className
                     )}
                     {...props}
                 />
                 <div className="flex justify-between mt-2">
                     {error ? (
-                        <p className="text-sm text-[var(--error)]">{error}</p>
+                        <p className="text-sm text-error">{error}</p>
                     ) : hint ? (
-                        <p className="text-sm text-[var(--secondary)]">{hint}</p>
+                        <p className="text-sm text-(--secondary)">{hint}</p>
                     ) : (
                         <span />
                     )}
                     {characterCount && maxLength && (
                         <p className={cn(
                             "text-sm",
-                            currentLength >= maxLength ? 'text-[var(--error)]' : 'text-[var(--secondary)]'
+                            currentLength >= maxLength ? 'text-error' : 'text-(--secondary)'
                         )}>
                             {currentLength}/{maxLength}
                         </p>

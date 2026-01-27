@@ -26,16 +26,16 @@ export default function SDGFocusSlide({ value, onChange, className }: SDGFocusSl
     return (
         <div className={cn('space-y-6', className)}>
             <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">
+                <h2 className="text-2xl font-bold text-(--primary) mb-2">
                     Sustainable Development Goals
                 </h2>
-                <p className="text-[var(--secondary)]">
+                <p className="text-(--secondary)">
                     Select up to 3 SDGs that this institution primarily targets.
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 max-h-[500px] overflow-y-auto pr-2">
-                {options.map(([sdg, { label, fullName, color }]) => (
+            <div className="grid grid-cols-1 gap-3 max-h-125 overflow-y-auto pr-2">
+                {options.map(([sdg, { label, fullName }]) => (
                     <MultiSelectCard
                         key={sdg}
                         label={fullName}

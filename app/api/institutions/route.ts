@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server';
 import { institutionController } from '@/server/controllers/institution.controller';
 import { HttpError } from '@/server/controllers/http-error';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const data = await institutionController.listPublished();
+    const { searchParams } = new URL(request.url);
+    const scope = searchParams.get('scope');
+    const data = scope === 'all'
+      ? await institutionController.listAll()
+      : await institutionController.listPublished();
     return NextResponse.json({ data });
   } catch (error) {
     return handleError(error);
@@ -32,8 +36,7 @@ export async function POST(request: Request) {
       studentsMentored: Number(body.studentsMentored ?? 0),
       fundingFacilitated: body.fundingFacilitated != null ? Number(body.fundingFacilitated) : 0,
       fundingCurrency: body.fundingCurrency ?? 'USD',
-      // Ignore uploaded logo for now to avoid storing base64 strings in DB
-      logo: null,
+      logo: body.logo ?? null,
       website: body.website ?? null,
       linkedin: body.linkedin ?? null,
       description: body.description ?? null,

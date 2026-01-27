@@ -57,11 +57,12 @@ export function VerifiedBadge({ className }: { className?: string }) {
 }
 
 // Status Badge Component
-export function StatusBadge({ status }: { status: 'draft' | 'published' | 'archived' }) {
+export function StatusBadge({ status }: { status: 'draft' | 'published' | 'archived' | 'pending' }) {
     const statusConfig = {
         draft: { label: 'Draft', variant: 'warning' as const },
         published: { label: 'Published', variant: 'success' as const },
         archived: { label: 'Archived', variant: 'default' as const },
+        pending: { label: 'Pending', variant: 'info' as const },
     };
 
     const config = statusConfig[status];
