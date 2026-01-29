@@ -21,10 +21,10 @@ export default function ImpactMetricsSlide({
     return (
         <div className={cn('space-y-6', className)}>
             <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">
+                <h2 className="text-2xl font-bold text-(--primary) mb-2">
                     What is their impact?
                 </h2>
-                <p className="text-[var(--secondary)]">
+                <p className="text-(--secondary)">
                     Share key metrics to highlight their achievements.
                 </p>
             </div>

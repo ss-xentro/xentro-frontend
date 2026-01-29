@@ -117,4 +117,4 @@
 ## Final Gate (Launch Decision)
 - [ ] Would this embarrass us in 2 years? → NO
 - [ ] Would we proudly demo this on stage? → YES
-- [ ] Does this respect user time & attention? → YES
+- [ ] Does this respect user time & attention? → YESmake institute gmail primary key only one account per

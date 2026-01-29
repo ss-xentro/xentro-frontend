@@ -1,28 +1,56 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { institutionTypeLabels, operatingModeLabels, sdgLabels, sectorLabels } from '@/lib/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { Card, Button, Badge, VerifiedBadge, SDGBadge } from '@/components/ui';
-import { notFound } from 'next/navigation';
-import { institutionController } from '@/server/controllers/institution.controller';
-import { HttpError } from '@/server/controllers/http-error';
+import { InstitutionTabs } from '@/components/institution/InstitutionTabs';
+import { useRouter } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+type Institution = any; // Will be typed properly
+type Program = any;
+type Event = any;
+type Startup = any;
 
-export default async function InstitutionProfilePage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
+export default function InstitutionProfilePage({ params }: { params: Promise<{ id: string }> }) {
+    const router = useRouter();
+    const [id, setId] = useState<string>('');
+    const [institution, setInstitution] = useState<Institution | null>(null);
+    const [programs, setPrograms] = useState<Program[]>([]);
+    const [events, setEvents] = useState<Event[]>([]);
+    const [startups, setStartups] = useState<Startup[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    let payload: Awaited<ReturnType<typeof institutionController.getById>>;
-    try {
-        payload = await institutionController.getById(id);
-    } catch (error) {
-        if (error instanceof HttpError && error.status === 404) {
-            notFound();
-        }
-        throw error;
+    useEffect(() => {
+        params.then(p => {
+            setId(p.id);
+            fetch(`/api/institutions/${p.id}`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log('[Institution Page] Received data:', {
+                        institution: data.institution?.name,
+                        programsCount: data.programs?.length || 0,
+                        eventsCount: data.events?.length || 0,
+                        startupsCount: data.startups?.length || 0,
+                        startups: data.startups,
+                    });
+                    setInstitution(data.institution);
+                    setPrograms(data.programs || []);
+                    setEvents(data.events || []);
+                    setStartups(data.startups || []);
+                })
+                .catch(() => router.push('/404'))
+                .finally(() => setLoading(false));
+        });
+    }, [params, router]);
+
+    if (loading || !institution) {
+        return <div className="min-h-screen flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+        </div>;
     }
-
-    const { institution, programs, events } = payload;
     const typeInfo = institutionTypeLabels[institution.type] ?? { label: institution.type, emoji: '🏢', description: '' };
-    const modeInfo = institution.operatingMode ? operatingModeLabels[institution.operatingMode] : undefined;
+    const modeInfo = institution.operatingMode ? operatingModeLabels[institution.operatingMode as keyof typeof operatingModeLabels] : undefined;
 
     return (
         <div className="animate-fadeIn pb-20">
@@ -81,8 +109,34 @@ export default async function InstitutionProfilePage({ params }: { params: Promi
                         </div>
 
                         <div className="flex gap-3 shrink-0">
-                            <Button>Connect</Button>
-                            <Button variant="secondary">Share</Button>
+                            <Button 
+                                variant="secondary"
+                                onClick={() => {
+                                    if (navigator.share) {
+                                        navigator.share({
+                                            title: institution.name,
+                                            text: institution.tagline || `Check out ${institution.name} on Xentro`,
+                                            url: window.location.href
+                                        }).catch(() => {});
+                                    } else {
+                                        navigator.clipboard.writeText(window.location.href);
+                                        alert('Link copied to clipboard!');
+                                    }
+                                }}
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                </svg>
+                                Share
+                            </Button>
+                            <a href="/">
+                                <Button variant="ghost">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
+                                    Home
+                                </Button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -113,69 +167,16 @@ export default async function InstitutionProfilePage({ params }: { params: Promi
                                     <p className="text-sm text-(--secondary)">People Mentored</p>
                                 </Card>
                                 <Card className="text-center p-6 bg-(--surface-hover) border-none">
-                                    <p className="text-xl font-bold text-(--primary) mb-1 truncate" title={formatCurrency(institution.fundingFacilitated ?? 0, institution.fundingCurrency ?? 'USD')}>
-                                        {formatCurrency(institution.fundingFacilitated ?? 0, institution.fundingCurrency ?? 'USD')}
+                                    <p className="text-xl font-bold text-(--primary) mb-1 truncate" title={formatCurrency(Number(institution.fundingFacilitated ?? 0), institution.fundingCurrency ?? 'USD')}>
+                                        {formatCurrency(Number(institution.fundingFacilitated ?? 0), institution.fundingCurrency ?? 'USD')}
                                     </p>
                                     <p className="text-sm text-(--secondary)">Funding Facilitated</p>
                                 </Card>
                             </div>
                         </section>
 
-                        {/* Programs */}
-                        <section>
-                            <h2 className="text-xl font-bold text-(--primary) mb-4">Active Programs</h2>
-                            {programs.length > 0 ? (
-                                <div className="space-y-4">
-                                    {programs.map((program) => (
-                                        <Card key={program.id} className="flex gap-4 p-6" hoverable>
-                                            <div className="w-12 h-12 rounded-lg bg-(--accent-light) flex items-center justify-center text-accent shrink-0">
-                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                </svg>
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-(--primary) text-lg">{program.name}</h3>
-                                                <p className="text-(--secondary) mt-1 mb-3">{program.description ?? 'No description provided.'}</p>
-                                                <div className="flex gap-3">
-                                                    <Badge variant="outline">{program.type}</Badge>
-                                                    {program.duration && <Badge variant="info">{program.duration}</Badge>}
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-(--secondary) italic">No active programs listed.</p>
-                            )}
-                        </section>
-
-                        {/* Events */}
-                        <section>
-                            <h2 className="text-xl font-bold text-(--primary) mb-4">Upcoming Events</h2>
-                            {events.length > 0 ? (
-                                <div className="space-y-4">
-                                    {events.map((event) => (
-                                        <Card key={event.id} className="flex gap-4 p-6" hoverable>
-                                            <div className="w-12 h-12 rounded-lg bg-(--warning-light) flex items-center justify-center text-[#B45309] shrink-0 font-bold text-center leading-none">
-                                                <div>
-                                                    <span className="block text-xs uppercase">{event.startTime ? new Date(event.startTime).toLocaleString('default', { month: 'short' }) : '--'}</span>
-                                                    <span className="block text-xl">{event.startTime ? new Date(event.startTime).getDate() : '--'}</span>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-(--primary) text-lg">{event.name}</h3>
-                                                <p className="text-(--secondary) mt-1 mb-2">{event.description ?? 'No description provided.'}</p>
-                                                <p className="text-sm text-(--secondary) flex items-center gap-1">
-                                                    📍 {event.location ?? 'TBC'}
-                                                </p>
-                                            </div>
-                                        </Card>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-(--secondary) italic">No upcoming events listed.</p>
-                            )}
-                        </section>
+                        {/* Tabs for Programs, Startups, Projects, Team */}
+                        <InstitutionTabs programs={programs} events={events} startups={startups} />
                     </div>
 
                     {/* Sidebar */}
@@ -186,20 +187,24 @@ export default async function InstitutionProfilePage({ params }: { params: Promi
                             <div className="mb-6">
                                 <p className="text-sm text-(--secondary) mb-2 uppercase tracking-wider font-semibold">SDGs</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {(institution.sdgFocus ?? []).map((sdg) => (
-                                        <SDGBadge key={sdg} sdg={sdgLabels[sdg].label} color={sdgLabels[sdg].color} />
-                                    ))}
+                                    {(institution.sdgFocus ?? []).map((sdg) => {
+                                        const sdgInfo = sdgLabels[sdg as keyof typeof sdgLabels];
+                                        return sdgInfo ? <SDGBadge key={sdg} sdg={sdgInfo.label} color={sdgInfo.color} /> : null;
+                                    })}
                                 </div>
                             </div>
 
                             <div>
                                 <p className="text-sm text-(--secondary) mb-2 uppercase tracking-wider font-semibold">Sectors</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {(institution.sectorFocus ?? []).map((sector) => (
-                                        <Badge key={sector} variant="secondary" className="bg-(--surface-hover)">
-                                            {sectorLabels[sector].emoji} {sectorLabels[sector].label}
-                                        </Badge>
-                                    ))}
+                                    {(institution.sectorFocus ?? []).map((sector) => {
+                                        const sectorInfo = sectorLabels[sector as keyof typeof sectorLabels];
+                                        return sectorInfo ? (
+                                            <Badge key={sector} variant="secondary" className="bg-(--surface-hover)">
+                                                {sectorInfo.label}
+                                            </Badge>
+                                        ) : null;
+                                    })}
                                 </div>
                             </div>
                         </Card>
@@ -207,6 +212,32 @@ export default async function InstitutionProfilePage({ params }: { params: Promi
                         <Card>
                             <h3 className="font-semibold text-(--primary) mb-4">Contact</h3>
                             <div className="space-y-4">
+                                {institution.email && (
+                                    <a href={`mailto:${institution.email}`} className="flex items-center gap-3 text-(--secondary) hover:text-accent transition-colors">
+                                        <span className="w-8 h-8 rounded-full bg-(--surface-hover) flex items-center justify-center">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </span>
+                                        <div>
+                                            <p className="text-xs text-(--secondary) uppercase">Email</p>
+                                            <p className="text-sm font-medium">{institution.email}</p>
+                                        </div>
+                                    </a>
+                                )}
+                                {institution.phone && (
+                                    <a href={`tel:${institution.phone}`} className="flex items-center gap-3 text-(--secondary) hover:text-accent transition-colors">
+                                        <span className="w-8 h-8 rounded-full bg-(--surface-hover) flex items-center justify-center">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                            </svg>
+                                        </span>
+                                        <div>
+                                            <p className="text-xs text-(--secondary) uppercase">Phone</p>
+                                            <p className="text-sm font-medium">{institution.phone}</p>
+                                        </div>
+                                    </a>
+                                )}
                                 {institution.website && (
                                     <a href={institution.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-(--secondary) hover:text-accent transition-colors">
                                         <span className="w-8 h-8 rounded-full bg-(--surface-hover) flex items-center justify-center">

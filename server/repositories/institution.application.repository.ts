@@ -29,6 +29,15 @@ class InstitutionApplicationRepository {
     return record ?? null;
   }
 
+  async findByEmail(email: string) {
+    const [record] = await db
+      .select()
+      .from(institutionApplications)
+      .where(eq(institutionApplications.email, email))
+      .limit(1);
+    return record ?? null;
+  }
+
   async markVerified(token: string) {
     const [record] = await db
       .update(institutionApplications)

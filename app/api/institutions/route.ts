@@ -19,13 +19,15 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    if (!body?.name || !body?.type) {
-      throw new HttpError(400, 'Name and type are required');
+    if (!body?.name || !body?.type || !body?.email) {
+      throw new HttpError(400, 'Name, type, and email are required');
     }
 
     const record = await institutionController.create({
       name: body.name,
       type: body.type,
+      email: body.email,
+      phone: body.phone ?? null,
       tagline: body.tagline ?? null,
       city: body.city ?? null,
       country: body.country ?? null,
@@ -34,12 +36,15 @@ export async function POST(request: Request) {
       location: body.location ?? null,
       startupsSupported: Number(body.startupsSupported ?? 0),
       studentsMentored: Number(body.studentsMentored ?? 0),
-      fundingFacilitated: body.fundingFacilitated != null ? Number(body.fundingFacilitated) : 0,
+      fundingFacilitated: String(body.fundingFacilitated ?? 0),
       fundingCurrency: body.fundingCurrency ?? 'USD',
       logo: body.logo ?? null,
       website: body.website ?? null,
       linkedin: body.linkedin ?? null,
       description: body.description ?? null,
+      sdgFocus: body.sdgFocus ?? null,
+      sectorFocus: body.sectorFocus ?? null,
+      legalDocuments: body.legalDocuments ?? null,
       status: body.status ?? 'published',
       verified: Boolean(body.verified ?? false),
     });

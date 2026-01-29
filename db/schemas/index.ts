@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, uuid, varchar, timestamp, boolean, text, integer, numeric, uniqueIndex, bigint } from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, uuid, varchar, timestamp, boolean, text, integer, numeric, uniqueIndex, bigint, json } from 'drizzle-orm/pg-core';
 
 export const accountTypeEnum = pgEnum('account_type', ['explorer', 'startup', 'mentor', 'investor', 'institution', 'admin', 'approver']);
 export const createdByTypeEnum = pgEnum('created_by_type', ['mentor', 'startup', 'institution', 'investor']);
@@ -44,6 +44,7 @@ export const startups = pgTable('startups', {
   stage: varchar('stage', { length: 100 }),
   location: varchar('location', { length: 255 }),
   oneLiner: varchar('one_liner', { length: 280 }),
+  institutionId: uuid('institution_id').references(() => institutions.id, { onDelete: 'cascade' }),
   ownerId: uuid('owner_id').references(() => users.id, { onDelete: 'set null' }),
 });
 
@@ -109,7 +110,12 @@ export const institutions = pgTable('institutions', {
   logo: varchar('logo', { length: 255 }),
   website: varchar('website', { length: 255 }),
   linkedin: varchar('linkedin', { length: 255 }),
+  email: varchar('email', { length: 320 }).notNull().unique(),
+  phone: varchar('phone', { length: 50 }),
   description: text('description'),
+  sdgFocus: json('sdg_focus').$type<string[]>(),
+  sectorFocus: json('sector_focus').$type<string[]>(),
+  legalDocuments: json('legal_documents').$type<string[]>(), // Array of document URLs
   status: varchar('status', { length: 32 }).default('draft').notNull(),
   verified: boolean('verified').default(false).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -119,7 +125,7 @@ export const institutions = pgTable('institutions', {
 export const institutionApplications = pgTable('institution_applications', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
-  email: varchar('email', { length: 320 }).notNull(),
+  email: varchar('email', { length: 320 }).notNull().unique(),
   type: varchar('type', { length: 120 }).notNull(),
   tagline: varchar('tagline', { length: 280 }),
   city: varchar('city', { length: 180 }),
@@ -127,6 +133,17 @@ export const institutionApplications = pgTable('institution_applications', {
   website: varchar('website', { length: 255 }),
   description: text('description'),
   logo: varchar('logo', { length: 255 }),
+  phone: varchar('phone', { length: 50 }),
+  sdgFocus: json('sdg_focus').$type<string[]>(),
+  sectorFocus: json('sector_focus').$type<string[]>(),
+  operatingMode: varchar('operating_mode', { length: 50 }),
+  countryCode: varchar('country_code', { length: 4 }),
+  startupsSupported: integer('startups_supported').default(0),
+  studentsMentored: integer('students_mentored').default(0),
+  fundingFacilitated: numeric('funding_facilitated', { precision: 16, scale: 2 }).default('0'),
+  fundingCurrency: varchar('funding_currency', { length: 8 }),
+  linkedin: varchar('linkedin', { length: 255 }),
+  legalDocuments: json('legal_documents').$type<string[]>(), // Array of document URLs
   status: varchar('status', { length: 32 }).default('pending').notNull(),
   remark: text('remark'),
   verificationToken: varchar('verification_token', { length: 255 }),
@@ -135,6 +152,16 @@ export const institutionApplications = pgTable('institution_applications', {
   applicantUserId: uuid('applicant_user_id').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const institutionSessions = pgTable('institution_sessions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: varchar('email', { length: 320 }).notNull(),
+  otp: varchar('otp', { length: 10 }).notNull(),
+  institutionId: uuid('institution_id').references(() => institutions.id, { onDelete: 'cascade' }),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  verified: boolean('verified').default(false).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const mediaAssets = pgTable('media_assets', {

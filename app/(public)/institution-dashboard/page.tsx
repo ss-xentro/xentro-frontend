@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, ProgressIndicator } from '@/components/ui';
+import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus } from '@/lib/types';
 
 // Import all slides
@@ -18,10 +19,12 @@ import SDGFocusSlide from '@/components/onboarding/SDGFocusSlide';
 import SectorFocusSlide from '@/components/onboarding/SectorFocusSlide';
 import LogoUploadSlide from '@/components/onboarding/LogoUploadSlide';
 import WebsiteLinksSlide from '@/components/onboarding/WebsiteLinksSlide';
+import ContactDetailsSlide from '@/components/onboarding/ContactDetailsSlide';
+import LegalDocumentsSlide from '@/components/onboarding/LegalDocumentsSlide';
 import DescriptionSlide from '@/components/onboarding/DescriptionSlide';
 import ReviewPublishSlide from '@/components/onboarding/ReviewPublishSlide';
 
-const TOTAL_STEPS = 13;
+const TOTAL_STEPS = 15;
 
 const initialFormData: OnboardingFormData = {
   type: null,
@@ -40,7 +43,10 @@ const initialFormData: OnboardingFormData = {
   logo: null,
   website: '',
   linkedin: '',
+  email: '',
+  phone: '',
   description: '',
+  legalDocuments: [],
 };
 
 export default function InstitutionDashboardPage() {
@@ -93,18 +99,21 @@ export default function InstitutionDashboardPage() {
             tagline: latest.tagline ?? '',
             city: latest.city ?? '',
             country: latest.country ?? '',
-            countryCode: '',
-            operatingMode: null,
-            startupsSupported: 0,
-            studentsMentored: 0,
-            fundingFacilitated: 0,
-            fundingCurrency: 'USD',
-            sdgFocus: [],
-            sectorFocus: [],
+            countryCode: latest.countryCode ?? '',
+            operatingMode: (latest.operatingMode as OperatingMode) ?? null,
+            startupsSupported: latest.startupsSupported ?? 0,
+            studentsMentored: latest.studentsMentored ?? 0,
+            fundingFacilitated: Number(latest.fundingFacilitated ?? 0),
+            fundingCurrency: latest.fundingCurrency ?? 'USD',
+            sdgFocus: (latest.sdgFocus as SDGFocus[]) ?? [],
+            sectorFocus: (latest.sectorFocus as SectorFocus[]) ?? [],
             logo: latest.logo ?? null,
             website: latest.website ?? '',
-            linkedin: '',
+            linkedin: latest.linkedin ?? '',
+            email: latest.email ?? '',
+            phone: latest.phone ?? '',
             description: latest.description ?? '',
+            legalDocuments: (latest.legalDocuments as string[]) ?? [],
           });
         }
         setError(null);
@@ -122,7 +131,7 @@ export default function InstitutionDashboardPage() {
     key: K,
     value: OnboardingFormData[K]
   ) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    setFormData((prev: OnboardingFormData) => ({ ...prev, [key]: value }));
   };
 
   const handleNext = () => {
@@ -152,9 +161,21 @@ export default function InstitutionDashboardPage() {
           tagline: formData.tagline,
           city: formData.city,
           country: formData.country,
-          website: formData.website,
-          description: formData.description,
+          countryCode: formData.countryCode,
+          operatingMode: formData.operatingMode,
+          startupsSupported: formData.startupsSupported,
+          studentsMentored: formData.studentsMentored,
+          fundingFacilitated: formData.fundingFacilitated,
+          fundingCurrency: formData.fundingCurrency,
+          sdgFocus: formData.sdgFocus,
+          sectorFocus: formData.sectorFocus,
           logo: formData.logo,
+          website: formData.website,
+          linkedin: formData.linkedin,
+          email: formData.email,
+          phone: formData.phone,
+          description: formData.description,
+          legalDocuments: formData.legalDocuments,
         }),
       });
       if (!res.ok) throw new Error('Failed to save draft');
@@ -168,10 +189,26 @@ export default function InstitutionDashboardPage() {
 
   const handlePublish = async () => {
     if (!application?.id) return;
+    
+    // Validate all required fields before submission
+    const errors: string[] = [];
+    if (!formData.type) errors.push('Institution type');
+    if (!formData.name.trim()) errors.push('Institution name');
+    if (!formData.tagline.trim()) errors.push('Tagline');
+    if (!formData.city.trim()) errors.push('City');
+    if (!formData.country.trim()) errors.push('Country');
+    if (!formData.description.trim()) errors.push('Description');
+    
+    if (errors.length > 0) {
+      alert(`Please complete the following required fields:\\n- ${errors.join('\\n- ')}`);
+      return;
+    }
+    
     try {
       setSubmitting(true);
+      // Use POST endpoint for final submission with validation
       const res = await fetch(`/api/institution-applications/${application.id}`, {
-        method: 'PUT',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
@@ -179,16 +216,29 @@ export default function InstitutionDashboardPage() {
           tagline: formData.tagline,
           city: formData.city,
           country: formData.country,
-          website: formData.website,
-          description: formData.description,
+          countryCode: formData.countryCode,
+          operatingMode: formData.operatingMode,
+          startupsSupported: formData.startupsSupported,
+          studentsMentored: formData.studentsMentored,
+          fundingFacilitated: formData.fundingFacilitated,
+          fundingCurrency: formData.fundingCurrency,
+          sdgFocus: formData.sdgFocus,
+          sectorFocus: formData.sectorFocus,
           logo: formData.logo,
+          website: formData.website,
+          linkedin: formData.linkedin,
+          email: formData.email,
+          phone: formData.phone,
+          description: formData.description,
+          legalDocuments: formData.legalDocuments,
         }),
       });
       if (!res.ok) {
         const payload = await res.json().catch(() => ({}));
         throw new Error(payload.message || 'Failed to submit');
       }
-      alert('Institution details submitted for admin review!');
+      const result = await res.json();
+      alert(result.message || 'Application submitted for approval successfully!');
       setShowOnboarding(false);
       // Reload application to show updated status
       const reload = await fetch('/api/institution-applications');
@@ -218,8 +268,10 @@ export default function InstitutionDashboardPage() {
       case 9: return formData.sectorFocus.length > 0;
       case 10: return true;
       case 11: return true;
-      case 12: return formData.description.trim().length > 0;
-      case 13: return true;
+      case 12: return formData.email.trim().length > 0;
+      case 13: return true; // Legal documents optional
+      case 14: return formData.description.trim().length > 0;
+      case 15: return true;
       default: return false;
     }
   };
@@ -258,7 +310,6 @@ export default function InstitutionDashboardPage() {
           <LocationSlide
             {...slideProps}
             city={formData.city}
-            country={formData.country}
             countryCode={formData.countryCode}
             onCityChange={(city: string) => updateFormData('city', city)}
             onCountryChange={(country: string, code: string) => {
@@ -331,13 +382,30 @@ export default function InstitutionDashboardPage() {
         );
       case 12:
         return (
+          <ContactDetailsSlide
+            {...slideProps}
+            email={formData.email}
+            phone={formData.phone}
+            onEmailChange={(val: string) => updateFormData('email', val)}
+            onPhoneChange={(val: string) => updateFormData('phone', val)}
+          />
+        );
+      case 13:
+        return (
+          <LegalDocumentsSlide
+            formData={formData}
+            onChange={(updated: Partial<OnboardingFormData>) => setFormData({ ...formData, ...updated })}
+          />
+        );
+      case 14:
+        return (
           <DescriptionSlide
             {...slideProps}
             value={formData.description}
             onChange={(desc: string) => updateFormData('description', desc)}
           />
         );
-      case 13:
+      case 15:
         return (
           <ReviewPublishSlide
             {...slideProps}
@@ -354,70 +422,385 @@ export default function InstitutionDashboardPage() {
 
   if (showOnboarding) {
     return (
-      <main className="min-h-screen bg-background py-8 px-4">
-        <div className="max-w-4xl mx-auto space-y-6 animate-fadeIn">
-          <div className="flex items-center justify-between">
+      <main className="min-h-screen bg-background py-8 px-4" role="main">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-accent font-semibold text-sm">Complete Your Profile</p>
+              <p className="text-accent font-semibold text-sm uppercase tracking-wide">Phase 2: Complete Profile</p>
               <h1 className="text-2xl font-bold text-(--primary)">Institution Details</h1>
             </div>
-            <Button variant="ghost" onClick={() => setShowOnboarding(false)}>
-              Back to dashboard
+            <Button variant="ghost" onClick={() => setShowOnboarding(false)} aria-label="Back to dashboard">
+              ← Back to Dashboard
             </Button>
           </div>
 
-          <Card className="p-6 space-y-6">
-            <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />
-            
-            <div className="min-h-[400px]">
-              {renderSlide()}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Form Area */}
+            <div className="lg:col-span-2 space-y-6 animate-fadeIn">
+              <Card className="p-6 space-y-6">
+                <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />
+                
+                <div className="min-h-100">
+                  {renderSlide()}
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-(--border)">
+                  <Button
+                    variant="ghost"
+                    onClick={handleBack}
+                    disabled={currentStep === 1 || submitting}
+                    aria-label="Go to previous step"
+                    className="min-h-11"
+                  >
+                    ← Back
+                  </Button>
+                  <div className="flex gap-2">
+                    {currentStep < TOTAL_STEPS && (
+                      <Button
+                        onClick={handleNext}
+                        disabled={!canProceed() || submitting}
+                        aria-label="Go to next step"
+                        className="min-h-11"
+                      >
+                        Next →
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </Card>
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-(--border)">
-              <Button
-                variant="ghost"
-                onClick={handleBack}
-                disabled={currentStep === 1 || submitting}
-              >
-                Back
-              </Button>
-              <div className="flex gap-2">
-                {currentStep < TOTAL_STEPS && (
-                  <Button
-                    onClick={handleNext}
-                    disabled={!canProceed() || submitting}
-                  >
-                    Next
-                  </Button>
-                )}
-              </div>
+            {/* Live Preview Sidebar */}
+            <div className="lg:col-span-1 space-y-6 animate-fadeIn stagger-1">
+              <Card className="p-6 sticky top-6">
+                <h3 className="text-sm font-semibold text-(--secondary) uppercase tracking-wide mb-4">Live Preview</h3>
+                
+                <div className="space-y-4">
+                  {/* Institution Logo & Name */}
+                  <div className="flex items-start gap-3 pb-4 border-b border-(--border)">
+                    <div className="w-16 h-16 rounded-lg bg-(--surface) border border-(--border) flex items-center justify-center overflow-hidden shrink-0">
+                      {formData.logo ? (
+                        <img src={formData.logo} alt="Logo preview" className="w-full h-full object-contain" />
+                      ) : (
+                        <span className="text-2xl" aria-hidden="true">🏛️</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-(--primary) truncate">
+                        {formData.name || 'Institution Name'}
+                      </h4>
+                      {formData.type && (
+                        <p className="text-xs text-(--secondary) mt-1">
+                          {formData.type.charAt(0).toUpperCase() + formData.type.slice(1)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Tagline */}
+                  {formData.tagline && (
+                    <div>
+                      <p className="text-xs font-medium text-(--secondary) mb-1">Tagline</p>
+                      <p className="text-sm text-(--primary) italic">\"{formData.tagline}\"</p>
+                    </div>
+                  )}
+
+                  {/* Location */}
+                  {(formData.city || formData.country) && (
+                    <div>
+                      <p className="text-xs font-medium text-(--secondary) mb-1">Location</p>
+                      <div className="flex items-center gap-1 text-sm text-(--primary)">
+                        <svg className="w-4 h-4 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>{[formData.city, formData.country].filter(Boolean).join(', ') || 'Not specified'}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Website */}
+                  {formData.website && (
+                    <div>
+                      <p className="text-xs font-medium text-(--secondary) mb-1">Website</p>
+                      <a 
+                        href={formData.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-sm text-accent hover:underline break-all"
+                      >
+                        {formData.website}
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Description */}
+                  {formData.description && (
+                    <div>
+                      <p className="text-xs font-medium text-(--secondary) mb-1">Description</p>
+                      <p className="text-sm text-(--primary) line-clamp-4">{formData.description}</p>
+                    </div>
+                  )}
+
+                  {/* SDG Focus */}
+                  {formData.sdgFocus.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-(--secondary) mb-2">SDG Focus</p>
+                      <div className="flex flex-wrap gap-1">
+                        {formData.sdgFocus.map((sdg: SDGFocus) => (
+                          <span key={sdg} className="text-xs px-2 py-1 rounded-full bg-(--surface-hover) text-(--primary)">
+                            {sdg}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sector Focus */}
+                  {formData.sectorFocus.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-(--secondary) mb-2">Sectors</p>
+                      <div className="flex flex-wrap gap-1">
+                        {formData.sectorFocus.map((sector: SectorFocus) => (
+                          <span key={sector} className="text-xs px-2 py-1 rounded-full bg-(--accent-light) text-accent">
+                            {sector}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Completion Status */}
+                  <div className="pt-4 border-t border-(--border)">
+                    <div className="flex items-center justify-between text-xs mb-2">
+                      <span className="text-(--secondary)">Profile Completion</span>
+                      <span className="font-semibold text-(--primary)">
+                        {Math.round((
+                          (formData.type ? 1 : 0) +
+                          (formData.name.trim() ? 1 : 0) +
+                          (formData.tagline.trim() ? 1 : 0) +
+                          (formData.city.trim() ? 1 : 0) +
+                          (formData.country.trim() ? 1 : 0) +
+                          (formData.description.trim() ? 1 : 0)
+                        ) / 6 * 100)}%
+                      </span>
+                    </div>
+                    <div className="h-2 bg-(--surface-hover) rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-accent transition-all duration-300"
+                        style={{
+                          width: `${Math.round((
+                            (formData.type ? 1 : 0) +
+                            (formData.name.trim() ? 1 : 0) +
+                            (formData.tagline.trim() ? 1 : 0) +
+                            (formData.city.trim() ? 1 : 0) +
+                            (formData.country.trim() ? 1 : 0) +
+                            (formData.description.trim() ? 1 : 0)
+                          ) / 6 * 100)}%`
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Card>
             </div>
-          </Card>
+          </div>
         </div>
       </main>
     );
   }
 
+  // If application is approved, show dashboard with sidebar
+  if (application?.status === 'approved' && !showOnboarding) {
+    return (
+      <DashboardSidebar>
+        <div className="p-8 space-y-6 animate-fadeIn">
+          {/* Header */}
+          <div>
+            <h1 className="text-3xl font-bold text-(--primary) mb-2">Welcome back! 👋</h1>
+            <p className="text-(--secondary)">
+              Manage your institution profile, programs, and team members
+            </p>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                  <span className="text-2xl">🚀</span>
+                </div>
+                <div>
+                  <p className="text-sm text-(--secondary)">Active Programs</p>
+                  <p className="text-2xl font-bold text-(--primary)">0</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span className="text-2xl">👥</span>
+                </div>
+                <div>
+                  <p className="text-sm text-(--secondary)">Team Members</p>
+                  <p className="text-2xl font-bold text-(--primary)">0</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                  <span className="text-2xl">📊</span>
+                </div>
+                <div>
+                  <p className="text-sm text-(--secondary)">Profile Views</p>
+                  <p className="text-2xl font-bold text-(--primary)">0</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Institution Profile Card */}
+          <Card className="p-6">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-(--primary) mb-1">Institution Profile</h2>
+                <p className="text-sm text-(--secondary)">Your institution is live on the platform</p>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">
+                ✓ Published
+              </span>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="flex gap-4">
+                {application.logo && (
+                  <div className="w-20 h-20 rounded-lg border border-(--border) bg-(--surface) flex items-center justify-center overflow-hidden shrink-0">
+                    <img src={application.logo} alt={application.name} className="w-full h-full object-contain" />
+                  </div>
+                )}
+                <div>
+                  <h3 className="font-semibold text-(--primary) text-lg">{application.name}</h3>
+                  {application.tagline && (
+                    <p className="text-sm text-(--secondary) mb-2">{application.tagline}</p>
+                  )}
+                  {application.city && application.country && (
+                    <p className="text-sm text-(--secondary)">📍 {application.city}, {application.country}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-(--secondary)">Email</span>
+                  <span className="text-sm text-(--primary)">{application.email}</span>
+                </div>
+                {application.phone && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-(--secondary)">Phone</span>
+                    <span className="text-sm text-(--primary)">{application.phone}</span>
+                  </div>
+                )}
+                {application.website && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-(--secondary)">Website</span>
+                    <a href={application.website} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline">
+                      Visit →
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6 pt-6 border-t border-(--border)">
+              <Link href="/institution-edit">
+                <Button>Edit Profile</Button>
+              </Link>
+              {application.institutionId && (
+                <Link href={`/institutions/${application.institutionId}`}>
+                  <Button variant="ghost">View Public Profile →</Button>
+                </Link>
+              )}
+            </div>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card className="p-6">
+            <h2 className="text-lg font-bold text-(--primary) mb-4">Quick Actions</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Link href="/institution-dashboard/startups" className="p-4 rounded-lg border border-(--border) hover:border-accent hover:bg-(--surface-hover) transition-all group">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🚀</span>
+                  <div>
+                    <p className="font-semibold text-(--primary) group-hover:text-accent">Add Startup</p>
+                    <p className="text-sm text-(--secondary)">Register startups you're supporting</p>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/institution-dashboard/projects" className="p-4 rounded-lg border border-(--border) hover:border-accent hover:bg-(--surface-hover) transition-all group">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📁</span>
+                  <div>
+                    <p className="font-semibold text-(--primary) group-hover:text-accent">Add Project</p>
+                    <p className="text-sm text-(--secondary)">Showcase your initiatives</p>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/institution-dashboard/team" className="p-4 rounded-lg border border-(--border) hover:border-accent hover:bg-(--surface-hover) transition-all group">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">👥</span>
+                  <div>
+                    <p className="font-semibold text-(--primary) group-hover:text-accent">Add Team Member</p>
+                    <p className="text-sm text-(--secondary)">Build your team directory</p>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/institution-dashboard/analytics" className="p-4 rounded-lg border border-(--border) hover:border-accent hover:bg-(--surface-hover) transition-all group">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📈</span>
+                  <div>
+                    <p className="font-semibold text-(--primary) group-hover:text-accent">View Analytics</p>
+                    <p className="text-sm text-(--secondary)">Track your impact</p>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </Card>
+        </div>
+      </DashboardSidebar>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-background py-16 px-4">
+    <main className="min-h-screen bg-background py-16 px-4" role="main">
       <div className="max-w-5xl mx-auto space-y-6 animate-fadeIn">
         <div>
-          <p className="text-accent font-semibold text-sm">Institution Dashboard</p>
-          <h1 className="text-3xl font-bold text-(--primary)">Welcome, institution manager</h1>
-          <p className="text-(--secondary)">Your email is verified. Complete your institution details and submit for admin approval to get listed on the platform.</p>
+          <p className="text-accent font-semibold text-sm uppercase tracking-wide">Phase 1 Complete ✓</p>
+          <h1 className="text-3xl font-bold text-(--primary)">Institution Dashboard</h1>
+          <p className="text-(--secondary)">Your email is verified. Complete Phase 2 by filling in all institution details and submitting for admin approval.</p>
         </div>
 
         {loading && <p className="text-(--secondary)">Loading your application…</p>}
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900" role="alert">
+            {error}
+          </div>
+        )}
 
         {application && (
           <Card className="p-6 space-y-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-(--secondary)">Institution</p>
+                <p className="text-sm text-(--secondary)">Institution Name</p>
                 <h2 className="text-xl font-semibold text-(--primary)">{application.name}</h2>
+                <p className="text-xs text-(--secondary) mt-1">Email: {application.email}</p>
               </div>
-              <span className={`text-sm px-3 py-1 rounded-full ${
+              <span className={`text-sm px-3 py-1.5 rounded-full font-medium ${
                 application.status === 'approved' 
                   ? 'bg-green-100 text-green-800'
                   : application.status === 'rejected'
@@ -429,33 +812,41 @@ export default function InstitutionDashboardPage() {
             </div>
             
             {application.remark && (
-              <div className="bg-(--surface-hover) border-l-4 border-accent p-3 rounded">
-                <p className="text-sm font-semibold text-(--primary)">Admin Remark:</p>
-                <p className="text-sm text-(--secondary)">{application.remark}</p>
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded" role="status">
+                <p className="text-sm font-semibold text-blue-900">Admin Feedback:</p>
+                <p className="text-sm text-blue-800 mt-1">{application.remark}</p>
               </div>
             )}
             
             <p className="text-(--secondary) text-sm">
-              {application.status === 'pending' && 'Your application is being reviewed by our team.'}
-              {application.status === 'approved' && 'Your institution has been approved and will appear on the platform soon.'}
-              {application.status === 'rejected' && 'Please review the feedback and update your application.'}
+              {application.status === 'pending' && !application.description && (
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  Complete Phase 2 onboarding to submit your application for admin review.
+                </span>
+              )}
+              {application.status === 'pending' && application.description && "Your application has been submitted and is being reviewed by our team. You'll be notified once a decision is made."}
+              {application.status === 'approved' && 'Congratulations! Your institution has been approved and is now published on the platform.'}
+              {application.status === 'rejected' && 'Your application needs updates. Please review the admin feedback above and resubmit.'}
             </p>
             
             {application.logo && (
-              <div className="w-28 h-28 rounded-lg border border-(--border) bg-(--surface) flex items-center justify-center">
+              <div className="w-28 h-28 rounded-lg border border-(--border) bg-(--surface) flex items-center justify-center overflow-hidden">
                 <img src={application.logo} alt={application.name} className="w-full h-full object-contain" />
               </div>
             )}
             
             <div className="pt-4 border-t border-(--border) flex gap-3">
               {application.status !== 'approved' && (
-                <Button onClick={() => setShowOnboarding(true)}>
-                  {application.status === 'rejected' ? 'Update & Resubmit' : 'Complete Institution Details'}
+                <Button onClick={() => setShowOnboarding(true)} className="min-h-11">
+                  {application.status === 'rejected' ? 'Update & Resubmit' : application.description ? 'Edit Details' : '→ Start Phase 2'}
                 </Button>
               )}
               {application.status === 'approved' && application.institutionId && (
-                <Button onClick={() => router.push(`/institutions/${application.institutionId}`)}>
-                  View Public Profile
+                <Button onClick={() => router.push(`/institutions/${application.institutionId}`)} className="min-h-11">
+                  View Public Profile →
                 </Button>
               )}
             </div>
@@ -463,15 +854,20 @@ export default function InstitutionDashboardPage() {
         )}
 
         {!application && !loading && (
-          <Card className="p-6">
-            <p className="text-(--secondary)">We could not find a verified application yet. If you just verified, try refreshing in a moment.</p>
+          <Card className="p-12 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="w-16 h-16 rounded-full bg-(--surface-hover) flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-(--primary) mb-2">No verified application found</h3>
+              <p className="text-(--secondary)">Please complete Phase 1 by verifying your email. If you just verified, try refreshing the page.</p>
+            </div>
           </Card>
         )}
 
         <div className="flex gap-3">
-          <Link href="/mentor-login">
-            <Button variant="secondary">Go to mentor tools</Button>
-          </Link>
           <Link href="/">
             <Button variant="ghost">Back home</Button>
           </Link>

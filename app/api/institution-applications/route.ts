@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
       country: body.country ?? null,
       website: body.website ?? null,
       description: body.description ?? null,
-      logo: body.logo ?? null,
     });
     return NextResponse.json(payload, { status: 201 });
   } catch (error) {

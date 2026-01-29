@@ -1,6 +1,7 @@
 import { eventRepository } from '@/server/repositories/event.repository';
 import { institutionRepository, NewInstitutionEntity } from '@/server/repositories/institution.repository';
 import { programRepository } from '@/server/repositories/program.repository';
+import { startupRepository } from '@/server/repositories/startup.repository';
 import { resolveMediaUrl } from '@/server/services/storage';
 import { HttpError } from './http-error';
 
@@ -33,12 +34,19 @@ class InstitutionController {
 
     const hydratedInstitution = { ...institution, logo: resolveMediaUrl(institution.logo) };
 
-    const [programs, events] = await Promise.all([
+    const [programs, events, startups] = await Promise.all([
       programRepository.findByInstitution(id),
       eventRepository.findByInstitution(id),
+      startupRepository.findByInstitution(id),
     ]);
 
-    return { institution: hydratedInstitution, programs, events };
+    console.log('[Institution Controller] Returning data:', {
+      institutionId: id,
+      programsCount: programs.length,
+      eventsCount: events.length,
+      startupsCount: startups.length,
+    });
+    return { institution: hydratedInstitution, programs, events, startups };
   }
 
   async update(id: string, payload: Partial<NewInstitutionEntity>) {
@@ -47,6 +55,14 @@ class InstitutionController {
       throw new HttpError(404, 'Institution not found');
     }
     return { ...updated, logo: resolveMediaUrl(updated.logo) };
+  }
+
+  async delete(id: string) {
+    const deleted = await institutionRepository.deleteById(id);
+    if (!deleted) {
+      throw new HttpError(404, 'Institution not found');
+    }
+    return { success: true };
   }
 }
 

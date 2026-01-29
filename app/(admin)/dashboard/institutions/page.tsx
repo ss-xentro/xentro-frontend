@@ -15,6 +15,8 @@ export default function InstitutionsPage() {
     const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -42,6 +44,27 @@ export default function InstitutionsPage() {
         loadInstitutions();
         return () => controller.abort();
     }, []);
+
+    const handleDelete = async (id: string) => {
+        try {
+            setDeleting(true);
+            const response = await fetch(`/api/institutions/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete institution');
+            }
+
+            // Remove from local state
+            setInstitutions((prev) => prev.filter((inst) => inst.id !== id));
+            setDeleteConfirm(null);
+        } catch (err) {
+            alert((err as Error).message);
+        } finally {
+            setDeleting(false);
+        }
+    };
 
     const filteredInstitutions = institutions.filter((institution) => {
         const matchesSearch = institution.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -128,13 +151,35 @@ export default function InstitutionsPage() {
             </Card>
 
             {error && (
-                <div className="text-red-600 bg-red-50 border border-red-200 px-4 py-3 rounded-lg">
-                    {error}
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-fadeIn" role="alert" aria-live="assertive">
+                    <div className="flex items-start gap-3">
+                        <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+                        </svg>
+                        <div>
+                            <p className="font-medium text-red-900">Unable to load institutions</p>
+                            <p className="text-sm text-red-800 mt-0.5">{error}</p>
+                            <button 
+                                onClick={() => window.location.reload()} 
+                                className="mt-2 text-sm font-medium text-red-700 hover:text-red-800 underline"
+                            >
+                                Try again
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 
             {loading && (
-                <p className="text-sm text-(--secondary)">Loading institutions…</p>
+                <div className="space-y-4" role="status" aria-live="polite" aria-label="Loading institutions">
+                    {[1, 2, 3].map((i) => (
+                        <Card key={i} className="animate-pulse">
+                            <div className="h-6 bg-(--surface-hover) rounded w-1/3 mb-3"></div>
+                            <div className="h-4 bg-(--surface-hover) rounded w-2/3 mb-2"></div>
+                            <div className="h-4 bg-(--surface-hover) rounded w-1/2"></div>
+                        </Card>
+                    ))}
+                </div>
             )}
 
             {/* Results count */}
@@ -144,17 +189,75 @@ export default function InstitutionsPage() {
                 </p>
             )}
 
+            {/* Empty State */}
+            {!loading && filteredInstitutions.length === 0 && institutions.length === 0 && (
+                <Card className="text-center py-16">
+                    <div className="max-w-md mx-auto">
+                        <div className="w-16 h-16 rounded-full bg-(--surface-hover) flex items-center justify-center mx-auto mb-4">
+                            <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold text-(--primary) mb-2">No institutions yet</h3>
+                        <p className="text-(--secondary) mb-6">Get started by adding your first institution to the platform.</p>
+                        <Link href="/dashboard/add-institution">
+                            <Button>
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Add First Institution
+                            </Button>
+                        </Link>
+                    </div>
+                </Card>
+            )}
+
+            {/* No Results from Filters */}
+            {!loading && filteredInstitutions.length === 0 && institutions.length > 0 && (
+                <Card className="text-center py-12">
+                    <div className="max-w-md mx-auto">
+                        <div className="w-12 h-12 rounded-full bg-(--surface-hover) flex items-center justify-center mx-auto mb-4">
+                            <svg className="w-6 h-6 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold text-(--primary) mb-2">No matching institutions</h3>
+                        <p className="text-(--secondary) mb-4">Try adjusting your filters or search query.</p>
+                        <Button 
+                            variant="ghost" 
+                            onClick={() => {
+                                setSearchQuery('');
+                                setTypeFilter('all');
+                                setStatusFilter('all');
+                            }}
+                        >
+                            Clear all filters
+                        </Button>
+                    </div>
+                </Card>
+            )}
+
+            {/* Delete Confirmation Dialog */}
+            {deleteConfirm && (
+                <DeleteConfirmDialog
+                    institution={deleteConfirm}
+                    onConfirm={() => handleDelete(deleteConfirm.id)}
+                    onCancel={() => setDeleteConfirm(null)}
+                    deleting={deleting}
+                />
+            )}
+
             {/* Cards View */}
-            {viewMode === 'cards' && (
+            {!loading && filteredInstitutions.length > 0 && viewMode === 'cards' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredInstitutions.map((institution, index) => (
-                        <InstitutionCard key={institution.id} institution={institution} index={index} />
+                        <InstitutionCard key={institution.id} institution={institution} index={index} onDelete={(id, name) => setDeleteConfirm({ id, name })} />
                     ))}
                 </div>
             )}
 
             {/* Table View */}
-            {viewMode === 'table' && (
+            {!loading && filteredInstitutions.length > 0 && viewMode === 'table' && (
                 <Card padding="none" className="overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full">
@@ -213,6 +316,14 @@ export default function InstitutionsPage() {
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </Link>
+                                                <button
+                                                    onClick={() => setDeleteConfirm({ id: institution.id, name: institution.name })}
+                                                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -226,7 +337,7 @@ export default function InstitutionsPage() {
     );
 }
 
-function InstitutionCard({ institution, index }: { institution: Institution; index: number }) {
+function InstitutionCard({ institution, index, onDelete }: { institution: Institution; index: number; onDelete: (id: string, name: string) => void }) {
     const router = useRouter();
     const typeInfo = institutionTypeLabels[institution.type] ?? { label: institution.type, emoji: '🏢', description: '' };
 
@@ -281,7 +392,6 @@ function InstitutionCard({ institution, index }: { institution: Institution; ind
                 <Button
                     variant="secondary"
                     size="sm"
-                    className="flex-1"
                     onClick={() => router.push(`/institutions/${institution.id}`)}
                 >
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -293,7 +403,6 @@ function InstitutionCard({ institution, index }: { institution: Institution; ind
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="flex-1"
                     onClick={() => router.push(`/dashboard/institutions/${institution.id}/edit`)}
                 >
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -301,7 +410,52 @@ function InstitutionCard({ institution, index }: { institution: Institution; ind
                     </svg>
                     Edit
                 </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete(institution.id, institution.name)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete
+                </Button>
             </div>
         </Card>
+    );
+}
+
+function DeleteConfirmDialog({ institution, onConfirm, onCancel, deleting }: { institution: { id: string; name: string }, onConfirm: () => void, onCancel: () => void, deleting: boolean }) {
+    return (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn">
+            <Card className="max-w-md w-full mx-4">
+                <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                        <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-(--primary) mb-2">Delete Institution</h3>
+                        <p className="text-(--secondary) mb-4">
+                            Are you sure you want to delete <strong>{institution.name}</strong>? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <Button variant="ghost" onClick={onCancel} disabled={deleting}>
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={onConfirm}
+                                disabled={deleting}
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                            >
+                                {deleting ? 'Deleting...' : 'Delete'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+        </div>
     );
 }

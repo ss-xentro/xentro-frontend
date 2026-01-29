@@ -22,21 +22,21 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
         const variants = {
             primary: `
-        bg-[var(--primary)] text-white
+        bg-(--primary) text-white
         hover:bg-[var(--primary-light)]
         shadow-[var(--shadow-sm)]
         hover:shadow-[var(--shadow-md)]
       `,
             secondary: `
-        bg-[var(--surface)] text-[var(--primary)]
-        border border-[var(--border)]
-        hover:bg-[var(--surface-hover)]
+        bg-(--surface) text-(--primary)
+        border border-(--border)
+        hover:bg-(--surface-hover)
         hover:border-[var(--secondary-light)]
       `,
             ghost: `
-        bg-transparent text-[var(--secondary)]
-        hover:bg-[var(--surface-hover)]
-        hover:text-[var(--primary)]
+        bg-transparent text-(--secondary)
+        hover:bg-(--surface-hover)
+        hover:text-(--primary)
       `,
             danger: `
         bg-[var(--error)] text-white
@@ -46,9 +46,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         };
 
         const sizes = {
-            sm: 'h-9 px-4 text-sm rounded-[var(--radius-md)]',
-            md: 'h-11 px-6 text-sm rounded-[var(--radius-lg)]',
-            lg: 'h-13 px-8 text-base rounded-[var(--radius-lg)]',
+            sm: 'min-h-11 h-11 px-4 text-sm rounded-md',
+            md: 'min-h-11 h-12 px-6 text-sm rounded-lg',
+            lg: 'min-h-12 h-14 px-8 text-base rounded-lg',
         };
 
         return (

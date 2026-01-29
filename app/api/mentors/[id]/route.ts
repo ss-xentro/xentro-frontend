@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getMentorProfile, approveMentor, rejectMentor } from '@/server/services/mentor';
 import { requireAuth } from '@/server/services/auth';
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const profile = await getMentorProfile(params.id);
+    const { id } = await params;
+    const profile = await getMentorProfile(id);
     if (!profile) return NextResponse.json({ message: 'Not found' }, { status: 404 });
     return NextResponse.json({ data: profile }, { status: 200 });
   } catch (error) {
@@ -13,19 +14,20 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAuth(request.headers, ['admin', 'approver']);
+    const { id } = await params;
     const body = await request.json();
     const { action, reason, loginUrl } = body ?? {};
 
     if (action === 'approve') {
-      const profile = await approveMentor({ mentorUserId: params.id, approvedBy: 'admin', loginUrl: loginUrl ?? '/mentor-login' });
+      const profile = await approveMentor({ mentorUserId: id, approvedBy: 'admin', loginUrl: loginUrl ?? '/mentor-login' });
       return NextResponse.json({ data: profile }, { status: 200 });
     }
 
     if (action === 'reject') {
-      const profile = await rejectMentor({ mentorUserId: params.id, reason });
+      const profile = await rejectMentor({ mentorUserId: id, reason });
       return NextResponse.json({ data: profile }, { status: 200 });
     }
 

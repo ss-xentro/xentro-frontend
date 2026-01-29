@@ -24,7 +24,10 @@ const initialForm: OnboardingFormData = {
   logo: null,
   website: '',
   linkedin: '',
+  email: '',
+  phone: '',
   description: '',
+  legalDocuments: [],
 };
 
 export default function InstitutionOnboardingPage() {
@@ -101,59 +104,116 @@ export default function InstitutionOnboardingPage() {
   };
 
   return (
-    <main className="min-h-screen bg-background py-16 px-4">
+    <main className="min-h-screen bg-background py-16 px-4" role="main">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center space-y-2">
-          <p className="text-accent font-semibold text-sm">Institution Onboarding</p>
-          <h1 className="text-3xl font-bold text-(--primary)">Verify your institution</h1>
-          <p className="text-(--secondary)">Enter your institution name, send a magic link, verify, and we will take you to your dashboard.</p>
+          <p className="text-accent font-semibold text-sm uppercase tracking-wide">Institution Onboarding</p>
+          <h1 className="text-3xl font-bold text-(--primary)">Join Xentro as an Institution</h1>
+          <p className="text-(--secondary) max-w-2xl mx-auto">Get verified and start showcasing your programs to aspiring entrepreneurs and innovators.</p>
         </div>
 
         <Card className="p-6 space-y-6">
           <ProgressIndicator currentStep={step + 1} totalSteps={steps.length} />
 
           {step === 0 && (
-            <div className="space-y-4 animate-fadeIn max-w-xl mx-auto">
+            <div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
+              <div className="text-center space-y-2 mb-6">
+                <h2 className="text-xl font-semibold text-(--primary)">What's your institution name?</h2>
+                <p className="text-sm text-(--secondary)">This helps us create your verified profile.</p>
+              </div>
               <Input
-                label="Institution name"
-                placeholder="e.g., X Combinator"
+                label="Institution Name"
+                placeholder="Y Combinator"
                 value={form.name}
                 onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                 required
+                autoFocus
+                aria-label="Institution name"
+                aria-required="true"
               />
-              <div className="flex justify-end">
-                <Button onClick={goNext} disabled={!canProceed()}>
-                  Continue to email
+              <div className="flex justify-end pt-4">
+                <Button 
+                  onClick={goNext} 
+                  disabled={!canProceed()}
+                  aria-label="Continue to email verification"
+                  className="min-w-30 min-h-11"
+                >
+                  Continue
                 </Button>
               </div>
             </div>
           )}
 
           {step === 1 && (
-            <div className="space-y-4 animate-fadeIn max-w-xl mx-auto">
-              <Input label="Work email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-              <div className="flex flex-wrap gap-3">
-                <Button onClick={handleSendLink} disabled={sending || !email || !form.name}>
-                  {sending ? 'Sending…' : 'Send magic link'}
+            <div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
+              <div className="text-center space-y-2 mb-6">
+                <h2 className="text-xl font-semibold text-(--primary)">Verify your email address</h2>
+                <p className="text-sm text-(--secondary)">We'll send you a secure link to confirm your identity.</p>
+              </div>
+              <Input 
+                label="Work Email Address" 
+                type="email"
+                placeholder="you@institution.edu"
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+                autoFocus
+                autoComplete="email"
+                aria-label="Work email address"
+                aria-required="true"
+              />
+              <div className="flex flex-wrap gap-3 pt-4">
+                <Button 
+                  onClick={handleSendLink} 
+                  disabled={sending || !email || !form.name}
+                  isLoading={sending}
+                  aria-label="Send verification link"
+                  className="min-h-11"
+                >
+                  {sending ? 'Sending...' : 'Send Verification Link'}
                 </Button>
-                <Button variant="ghost" onClick={goPrev} disabled={sending}>
+                <Button 
+                  variant="ghost" 
+                  onClick={goPrev} 
+                  disabled={sending}
+                  aria-label="Go back to previous step"
+                  className="min-h-11"
+                >
                   Back
                 </Button>
               </div>
 
               {magicLink && (
-                <div className="bg-(--surface-hover) border border-(--border) rounded-lg p-4 text-sm">
-                  <p className="font-semibold text-(--primary)">Magic link generated</p>
-                  <p className="text-(--secondary) mt-1">
-                    Check your inbox to verify, or click below to verify instantly.
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-3">
-                    <Button size="sm" onClick={() => window.open(magicLink, '_blank')}>
-                      Open magic link
-                    </Button>
-                    <Button size="sm" variant="secondary" onClick={() => setStep(2)}>
-                      Verify here
-                    </Button>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-5 animate-fadeIn" role="status" aria-live="polite">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                    </svg>
+                    <div className="flex-1">
+                      <p className="font-semibold text-green-900">Verification link sent!</p>
+                      <p className="text-green-800 mt-1 text-sm">
+                        Check your inbox at <strong>{email}</strong> or verify instantly below.
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <Button 
+                          size="sm" 
+                          onClick={() => window.open(magicLink, '_blank')}
+                          aria-label="Open verification link in new tab"
+                          className="min-h-11"
+                        >
+                          Open Link
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="secondary" 
+                          onClick={() => setStep(2)}
+                          aria-label="Verify on this page"
+                          className="min-h-11"
+                        >
+                          Verify Here
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -161,21 +221,50 @@ export default function InstitutionOnboardingPage() {
           )}
 
           {step === 2 && (
-            <div className="space-y-4 animate-fadeIn max-w-xl mx-auto">
-              <p className="text-(--secondary)">We sent a magic link to your email. You can also verify from here.</p>
-              <div className="flex gap-3">
-                <Button onClick={handleVerify} disabled={sending || !magicLink}>
-                  {sending ? 'Verifying…' : 'Verify now'}
-                </Button>
-                <Button variant="ghost" onClick={goPrev} disabled={sending}>
+            <div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
+              <div className="text-center space-y-2 mb-6">
+                <h2 className="text-xl font-semibold text-(--primary)">Check your email</h2>
+                <p className="text-(--secondary)">
+                  We've sent a verification link to <strong>{email}</strong>. Please click the link in the email to verify your account.
+                </p>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <Button 
+                  variant="ghost" 
+                  onClick={goPrev} 
+                  aria-label="Go back to previous step"
+                  className="min-h-11"
+                >
                   Back
                 </Button>
               </div>
+              {verified && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center animate-fadeIn" role="status" aria-live="polite">
+                  <p className="text-green-900 font-medium">✓ Email verified successfully</p>
+                  <p className="text-green-800 text-sm mt-1">Redirecting to your dashboard...</p>
+                </div>
+              )}
             </div>
           )}
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-          {message && <p className="text-sm text-(--secondary)">{message}</p>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-fadeIn" role="alert" aria-live="assertive">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+                </svg>
+                <div>
+                  <p className="text-red-900 font-medium text-sm">Unable to proceed</p>
+                  <p className="text-red-800 text-sm mt-1">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          {message && !error && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center animate-fadeIn" role="status" aria-live="polite">
+              <p className="text-blue-900 text-sm">{message}</p>
+            </div>
+          )}
         </Card>
       </div>
     </main>

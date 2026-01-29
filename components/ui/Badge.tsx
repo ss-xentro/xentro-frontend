@@ -11,13 +11,13 @@ interface BadgeProps {
 
 export function Badge({ variant = 'default', size = 'sm', children, className }: BadgeProps) {
     const variants = {
-        default: 'bg-[var(--surface-hover)] text-[var(--primary)]',
-        secondary: 'bg-[var(--surface-hover)] text-[var(--primary)]',
-        success: 'bg-[var(--success-light)] text-[var(--success)]',
+        default: 'bg-(--surface-hover) text-(--primary)',
+        secondary: 'bg-(--surface-hover) text-(--primary)',
+        success: 'bg-(--success-light) text-success',
         warning: 'bg-[var(--warning-light)] text-[#B45309]',
-        error: 'bg-[var(--error-light)] text-[var(--error)]',
-        info: 'bg-[var(--accent-light)] text-[var(--accent)]',
-        outline: 'bg-transparent border border-[var(--border)] text-[var(--secondary)]',
+        error: 'bg-(--error-light) text-(--error)',
+        info: 'bg-[var(--accent-light)] text-accent',
+        outline: 'bg-transparent border border-(--border) text-(--secondary)',
     };
 
     const sizes = {
@@ -28,7 +28,7 @@ export function Badge({ variant = 'default', size = 'sm', children, className }:
     return (
         <span
             className={cn(
-                'inline-flex items-center font-medium rounded-[var(--radius-full)]',
+                'inline-flex items-center font-medium rounded-(--radius-full)',
                 variants[variant],
                 sizes[size],
                 className
@@ -44,7 +44,7 @@ export function VerifiedBadge({ className }: { className?: string }) {
     return (
         <span
             className={cn(
-                'inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium rounded-[var(--radius-full)] bg-[var(--success-light)] text-[var(--success)]',
+                'inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium rounded-(--radius-full) bg-(--success-light) text-success',
                 className
             )}
         >
@@ -74,7 +74,7 @@ export function StatusBadge({ status }: { status: 'draft' | 'published' | 'archi
 export function SDGBadge({ sdg, color }: { sdg: string; color: string }) {
     return (
         <span
-            className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-[var(--radius-full)] text-white"
+            className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-(--radius-full) text-white"
             style={{ backgroundColor: color }}
         >
             {sdg}

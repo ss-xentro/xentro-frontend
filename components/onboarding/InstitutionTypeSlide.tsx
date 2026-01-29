@@ -14,13 +14,13 @@ export default function InstitutionTypeSlide({ value, onChange, className }: Ins
     const options = Object.entries(institutionTypeLabels) as [InstitutionType, typeof institutionTypeLabels[InstitutionType]][];
 
     return (
-        <div className={cn('space-y-6', className)}>
+        <div className={cn('space-y-6', className)} role="region" aria-label="Institution type selection">
             <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">
-                    What type of institution is this?
+                <h2 className="text-2xl font-bold text-(--primary) mb-2">
+                    What type of institution are you?
                 </h2>
-                <p className="text-[var(--secondary)]">
-                    Select the category that best describes the organization.
+                <p className="text-(--secondary)">
+                    This helps us tailor your profile for the right audience.
                 </p>
             </div>
 

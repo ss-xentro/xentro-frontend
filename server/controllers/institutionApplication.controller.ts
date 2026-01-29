@@ -20,6 +20,17 @@ class InstitutionApplicationController {
       throw new HttpError(400, 'Name and email are required');
     }
 
+    // Check if email already exists in applications or institutions
+    const existingApplication = await institutionApplicationRepository.findByEmail(payload.email.toLowerCase());
+    if (existingApplication) {
+      throw new HttpError(400, 'An account with this email already exists. Please use a different email or log in with your existing account.');
+    }
+
+    const existingInstitution = await institutionRepository.findByEmail(payload.email.toLowerCase());
+    if (existingInstitution) {
+      throw new HttpError(400, 'An account with this email already exists. Please use a different email or log in with your existing account.');
+    }
+
     const verificationToken = randomUUID();
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'http://localhost:3000';
     const record = await institutionApplicationRepository.create({
@@ -62,6 +73,32 @@ class InstitutionApplicationController {
     return updated;
   }
 
+  async submitForApproval(id: string, payload: Partial<NewInstitutionApplication>) {
+    const application = await institutionApplicationRepository.findById(id);
+    if (!application) throw new HttpError(404, 'Application not found');
+    if (!application.verified) throw new HttpError(400, 'Email must be verified before submission');
+    
+    // Validate all required Phase 2 fields are filled
+    const errors: string[] = [];
+    if (!payload.type) errors.push('Institution type is required');
+    if (!payload.name || !payload.name.trim()) errors.push('Institution name is required');
+    if (!payload.tagline || !payload.tagline.trim()) errors.push('Tagline is required');
+    if (!payload.city || !payload.city.trim()) errors.push('City is required');
+    if (!payload.country || !payload.country.trim()) errors.push('Country is required');
+    if (!payload.description || !payload.description.trim()) errors.push('Description is required');
+    
+    if (errors.length > 0) {
+      throw new HttpError(400, `Please complete all required fields: ${errors.join(', ')}`);
+    }
+
+    // Mark as submitted for approval (status remains pending but now visible to admins)
+    const updated = await institutionApplicationRepository.updateDetails(id, {
+      ...payload,
+      status: 'pending', // Ensure it's marked as pending for admin review
+    });
+    return updated;
+  }
+
   async updateStatus(id: string, status: 'approved' | 'rejected', remark?: string | null) {
     const application = await institutionApplicationRepository.findById(id);
     if (!application) throw new HttpError(404, 'Application not found');
@@ -71,30 +108,42 @@ class InstitutionApplicationController {
 
     let institutionId = application.institutionId ?? null;
     if (status === 'approved' && !institutionId) {
+      // Check if email already exists in institutions table
+      const existingInstitution = await institutionRepository.findByEmail(application.email.toLowerCase());
+      if (existingInstitution) {
+        throw new HttpError(400, 'An institution with this email already exists. Cannot approve duplicate email.');
+      }
+
+      // Create published institution when approved
       const created = await institutionRepository.create({
         name: application.name,
         type: application.type,
+        email: application.email, // Email is required and already validated
         tagline: application.tagline ?? null,
         city: application.city ?? null,
         country: application.country ?? null,
+        countryCode: application.countryCode ?? null,
+        operatingMode: application.operatingMode ?? null,
         logo: application.logo ?? null,
         website: application.website ?? null,
+        linkedin: application.linkedin ?? null,
+        phone: application.phone ?? null,
         description: application.description ?? null,
-        status: 'draft',
-        verified: false,
-        countryCode: null,
-        operatingMode: null,
+        sdgFocus: application.sdgFocus ?? null,
+        sectorFocus: application.sectorFocus ?? null,
+        legalDocuments: application.legalDocuments ?? null,
         location: null,
-        startupsSupported: 0,
-        studentsMentored: 0,
-        fundingFacilitated: 0,
-        fundingCurrency: 'USD',
-        logo: null,
-        linkedin: null,
+        startupsSupported: application.startupsSupported ?? 0,
+        studentsMentored: application.studentsMentored ?? 0,
+        fundingFacilitated: application.fundingFacilitated ?? '0',
+        fundingCurrency: application.fundingCurrency ?? 'USD',
+        status: 'published', // Set to published on approval
+        verified: true, // Mark as verified
       } as NewInstitutionEntity);
       institutionId = created.id;
     }
 
+    // Mark application as approved (this archives it from pending list)
     const updated = await institutionApplicationRepository.updateStatus(id, status, remark, institutionId);
     return { updated, institutionId };
   }

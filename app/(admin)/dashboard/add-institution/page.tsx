@@ -25,6 +25,8 @@ const TOTAL_STEPS = 13;
 const initialFormData: OnboardingFormData = {
     type: null,
     name: '',
+    email: '',
+    phone: '',
     tagline: '',
     city: '',
     country: '',
@@ -39,6 +41,7 @@ const initialFormData: OnboardingFormData = {
     logo: null,
     website: '',
     linkedin: '',
+    legalDocuments: [],
     description: '',
 };
 
@@ -187,7 +190,6 @@ export default function AddInstitutionPage() {
                     <LocationSlide
                         {...slideProps}
                         city={formData.city}
-                        country={formData.country}
                         countryCode={formData.countryCode}
                         onCityChange={(city: string) => updateFormData('city', city)}
                         onCountryChange={(country: string, code: string) => {

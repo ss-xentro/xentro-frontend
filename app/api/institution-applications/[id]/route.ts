@@ -27,11 +27,57 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
       tagline: body.tagline ?? null,
       city: body.city ?? null,
       country: body.country ?? null,
+      countryCode: body.countryCode ?? null,
+      operatingMode: body.operatingMode ?? null,
       website: body.website ?? null,
+      linkedin: body.linkedin ?? null,
+      email: body.email ?? null,
+      phone: body.phone ?? null,
       description: body.description ?? null,
       logo: body.logo ?? null,
+      sdgFocus: body.sdgFocus ?? null,
+      sectorFocus: body.sectorFocus ?? null,
+      legalDocuments: body.legalDocuments ?? null,
+      startupsSupported: body.startupsSupported ?? 0,
+      studentsMentored: body.studentsMentored ?? 0,
+      fundingFacilitated: body.fundingFacilitated ?? '0',
+      fundingCurrency: body.fundingCurrency ?? 'USD',
     });
     return NextResponse.json({ data: updated });
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await context.params;
+    const body = await request.json();
+    
+    // This endpoint is for final submission with validation
+    const updated = await institutionApplicationController.submitForApproval(id, {
+      name: body.name,
+      type: body.type,
+      tagline: body.tagline ?? null,
+      city: body.city ?? null,
+      country: body.country ?? null,
+      countryCode: body.countryCode ?? null,
+      operatingMode: body.operatingMode ?? null,
+      website: body.website ?? null,
+      linkedin: body.linkedin ?? null,
+      email: body.email ?? null,
+      phone: body.phone ?? null,
+      description: body.description ?? null,
+      logo: body.logo ?? null,
+      sdgFocus: body.sdgFocus ?? null,
+      sectorFocus: body.sectorFocus ?? null,
+      legalDocuments: body.legalDocuments ?? null,
+      startupsSupported: body.startupsSupported ?? 0,
+      studentsMentored: body.studentsMentored ?? 0,
+      fundingFacilitated: body.fundingFacilitated ?? '0',
+      fundingCurrency: body.fundingCurrency ?? 'USD',
+    });
+    return NextResponse.json({ data: updated, message: 'Application submitted for approval successfully' });
   } catch (error) {
     return handleError(error);
   }

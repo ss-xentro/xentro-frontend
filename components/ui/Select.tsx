@@ -22,7 +22,7 @@ interface SelectProps {
 export function Select({
     value,
     onChange,
-    options,
+    options = [],
     placeholder = 'Select an option',
     label,
     error,

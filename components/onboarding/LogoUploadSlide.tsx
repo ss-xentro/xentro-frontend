@@ -29,6 +29,8 @@ export default function LogoUploadSlide({ value, onChange, className }: LogoUplo
                     maxSize={2} // 2MB
                     folder="logos/institutions"
                     entityType="institution"
+                    enableCrop={true}
+                    aspectRatio={1} // Square crop for logos
                 />
             </div>
         </div>

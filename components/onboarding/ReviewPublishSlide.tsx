@@ -37,10 +37,10 @@ export default function ReviewPublishSlide({
     return (
         <div className={cn('space-y-8 pb-20', className)}>
             <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-[var(--primary)] mb-2">
+                <h2 className="text-3xl font-bold text-(--primary) mb-2">
                     Ready to publish?
                 </h2>
-                <p className="text-[var(--secondary)]">
+                <p className="text-(--secondary)">
                     Review the details below before making them public.
                 </p>
             </div>
@@ -50,13 +50,13 @@ export default function ReviewPublishSlide({
                 <Card className="relative group">
                     <button
                         onClick={() => onEdit(1)}
-                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 px-3 py-1 text-sm bg-[var(--surface-hover)] rounded-[var(--radius-full)] text-[var(--accent)] transition-all"
+                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 px-3 py-1 text-sm bg-(--surface-hover) rounded-(--radius-full) text-accent transition-all"
                     >
                         Edit
                     </button>
 
                     <div className="flex items-start gap-4 mb-6">
-                        <div className="w-20 h-20 rounded-[var(--radius-xl)] bg-[var(--surface-hover)] border border-[var(--border)] overflow-hidden flex items-center justify-center">
+                        <div className="w-20 h-20 rounded-xl bg-(--surface-hover) border border-(--border) overflow-hidden flex items-center justify-center">
                             {formData.logo ? (
                                 <img src={formData.logo} alt="Logo" className="w-full h-full object-contain p-2" />
                             ) : (
@@ -65,20 +65,20 @@ export default function ReviewPublishSlide({
                         </div>
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <h3 className="text-xl font-bold text-[var(--primary)]">{formData.name}</h3>
+                                <h3 className="text-xl font-bold text-(--primary)">{formData.name}</h3>
                                 <VerifiedBadge />
                             </div>
-                            <p className="text-[var(--secondary)] mb-2">{formData.tagline}</p>
+                            <p className="text-(--secondary) mb-2">{formData.tagline}</p>
                             <div className="flex flex-wrap gap-2">
                                 {typeInfo && <Badge>{typeInfo.label}</Badge>}
-                                <span className="text-sm text-[var(--secondary)] flex items-center gap-1">
+                                <span className="text-sm text-(--secondary) flex items-center gap-1">
                                     📍 {formData.city}, {formData.country}
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="prose prose-sm max-w-none text-[var(--secondary)]">
+                    <div className="prose prose-sm max-w-none text-(--secondary)">
                         <p className="line-clamp-3">{formData.description}</p>
                     </div>
                 </Card>
@@ -87,30 +87,30 @@ export default function ReviewPublishSlide({
                 <Card className="relative group">
                     <button
                         onClick={() => onEdit(6)}
-                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 px-3 py-1 text-sm bg-[var(--surface-hover)] rounded-[var(--radius-full)] text-[var(--accent)] transition-all"
+                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 px-3 py-1 text-sm bg-(--surface-hover) rounded-(--radius-full) text-accent transition-all"
                     >
                         Edit
                     </button>
 
-                    <h4 className="font-semibold text-[var(--primary)] mb-4">Impact & Operating Model</h4>
+                    <h4 className="font-semibold text-(--primary) mb-4">Impact & Operating Model</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="p-3 bg-[var(--surface-hover)] rounded-[var(--radius-lg)] text-center">
-                            <p className="text-2xl font-bold text-[var(--primary)]">{formatNumber(formData.startupsSupported)}</p>
-                            <p className="text-xs text-[var(--secondary)]">Startups</p>
+                        <div className="p-3 bg-(--surface-hover) rounded-lg text-center">
+                            <p className="text-2xl font-bold text-(--primary)">{formatNumber(formData.startupsSupported)}</p>
+                            <p className="text-xs text-(--secondary)">Startups</p>
                         </div>
-                        <div className="p-3 bg-[var(--surface-hover)] rounded-[var(--radius-lg)] text-center">
-                            <p className="text-2xl font-bold text-[var(--primary)]">{formatNumber(formData.studentsMentored)}</p>
-                            <p className="text-xs text-[var(--secondary)]">Mentored</p>
+                        <div className="p-3 bg-(--surface-hover) rounded-lg text-center">
+                            <p className="text-2xl font-bold text-(--primary)">{formatNumber(formData.studentsMentored)}</p>
+                            <p className="text-xs text-(--secondary)">Mentored</p>
                         </div>
-                        <div className="p-3 bg-[var(--surface-hover)] rounded-[var(--radius-lg)] text-center">
-                            <p className="text-sm font-bold text-[var(--primary)] truncate">
+                        <div className="p-3 bg-(--surface-hover) rounded-lg text-center">
+                            <p className="text-sm font-bold text-(--primary) truncate">
                                 {formatCurrency(formData.fundingFacilitated, formData.fundingCurrency)}
                             </p>
-                            <p className="text-xs text-[var(--secondary)]">Funding</p>
+                            <p className="text-xs text-(--secondary)">Funding</p>
                         </div>
-                        <div className="p-3 bg-[var(--surface-hover)] rounded-[var(--radius-lg)] text-center">
-                            <p className="text-2xl font-bold text-[var(--primary)]">{modeInfo?.emoji}</p>
-                            <p className="text-xs text-[var(--secondary)]">{modeInfo?.label}</p>
+                        <div className="p-3 bg-(--surface-hover) rounded-lg text-center">
+                            <p className="text-2xl font-bold text-(--primary)">{modeInfo?.emoji}</p>
+                            <p className="text-xs text-(--secondary)">{modeInfo?.label}</p>
                         </div>
                     </div>
                 </Card>
@@ -119,14 +119,14 @@ export default function ReviewPublishSlide({
                 <Card className="relative group">
                     <button
                         onClick={() => onEdit(8)}
-                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 px-3 py-1 text-sm bg-[var(--surface-hover)] rounded-[var(--radius-full)] text-[var(--accent)] transition-all"
+                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 px-3 py-1 text-sm bg-(--surface-hover) rounded-(--radius-full) text-accent transition-all"
                     >
                         Edit
                     </button>
 
                     <div className="space-y-6">
                         <div>
-                            <h4 className="font-semibold text-[var(--primary)] mb-3">SDG Focus</h4>
+                            <h4 className="font-semibold text-(--primary) mb-3">SDG Focus</h4>
                             <div className="flex flex-wrap gap-2">
                                 {formData.sdgFocus.map((sdg) => (
                                     <SDGBadge key={sdg} sdg={sdgLabels[sdg].label} color={sdgLabels[sdg].color} />
@@ -135,7 +135,7 @@ export default function ReviewPublishSlide({
                         </div>
 
                         <div>
-                            <h4 className="font-semibold text-[var(--primary)] mb-3">Sectors</h4>
+                            <h4 className="font-semibold text-(--primary) mb-3">Sectors</h4>
                             <div className="flex flex-wrap gap-2">
                                 {formData.sectorFocus.map((sector) => (
                                     <Badge key={sector} variant="outline" className="gap-1">
@@ -149,11 +149,11 @@ export default function ReviewPublishSlide({
             </div>
 
             {/* Action Bar */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-[var(--surface)] border-t border-[var(--border)] flex items-center justify-between md:pl-72 z-10 glass">
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-(--surface) border-t border-(--border) flex items-center justify-between md:pl-72 z-10 glass">
                 <Button variant="ghost" onClick={onSaveDraft}>
                     Save as Draft
                 </Button>
-                <Button size="lg" onClick={onPublish} className="bg-[var(--success)] hover:bg-[#059669] shadow-[var(--shadow-lg)]">
+                <Button size="lg" onClick={onPublish} className="bg-success hover:bg-[#059669] shadow-(--shadow-lg)">
                     <span className="mr-2">✓</span> Get Approval (Cmd+Enter)
                 </Button>
             </div>

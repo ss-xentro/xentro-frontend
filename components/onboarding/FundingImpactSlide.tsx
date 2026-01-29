@@ -27,10 +27,10 @@ export default function FundingImpactSlide({
     return (
         <div className={cn('space-y-6', className)}>
             <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">
+                <h2 className="text-2xl font-bold text-(--primary) mb-2">
                     Funding Facilitated
                 </h2>
-                <p className="text-[var(--secondary)]">
+                <p className="text-(--secondary)">
                     Total funding raised by startups or distributed as grants.
                 </p>
             </div>
@@ -57,7 +57,7 @@ export default function FundingImpactSlide({
                     </div>
                 </div>
 
-                <p className="text-sm text-[var(--secondary)] bg-[var(--surface-hover)] p-4 rounded-[var(--radius-lg)]">
+                <p className="text-sm text-(--secondary) bg-(--surface-hover) p-4 rounded-lg">
                     💡 Including funding metrics increases trust and attracts high-quality startups to the program.
                 </p>
             </div>

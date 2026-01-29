@@ -12,9 +12,9 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const Card = forwardRef<HTMLDivElement, CardProps>(
     ({ className, variant = 'default', hoverable = false, padding = 'md', children, ...props }, ref) => {
         const variants = {
-            default: 'bg-[var(--surface)] border border-[var(--border)] shadow-[var(--shadow-sm)]',
-            outlined: 'bg-transparent border border-[var(--border)]',
-            elevated: 'bg-[var(--surface)] shadow-[var(--shadow-lg)]',
+            default: 'bg-(--surface) border border-(--border) shadow-[var(--shadow-sm)]',
+            outlined: 'bg-transparent border border-(--border)',
+            elevated: 'bg-(--surface) shadow-(--shadow-lg)',
         };
 
         const paddings = {
@@ -28,10 +28,10 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
             <div
                 ref={ref}
                 className={cn(
-                    `rounded-[var(--radius-xl)] transition-all duration-200`,
+                    `rounded-xl transition-all duration-200`,
                     variants[variant],
                     paddings[padding],
-                    hoverable && 'hover:shadow-[var(--shadow-md)] hover:border-[var(--secondary-light)] cursor-pointer',
+                    hoverable && 'hover:shadow-(--shadow-md) hover:border-(--secondary-light) cursor-pointer',
                     className
                 )}
                 {...props}

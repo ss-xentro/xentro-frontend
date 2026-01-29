@@ -15,16 +15,29 @@ function getEnv(name: string) {
   return value;
 }
 
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    console.warn('JWT_SECRET not set; using insecure fallback for dev only');
+    return new TextEncoder().encode('dev-jwt-secret');
+  }
+  return new TextEncoder().encode(secret);
+}
+
 export async function signJwt(payload: Record<string, unknown>) {
-  const secret = new TextEncoder().encode(getEnv('JWT_SECRET'));
+  const secret = getJwtSecret();
   return new SignJWT(payload).setProtectedHeader({ alg: 'HS256' }).setExpirationTime(JWT_EXPIRY).sign(secret);
 }
 
 export async function verifyJwt(token: string) {
-  const secret = new TextEncoder().encode(getEnv('JWT_SECRET'));
+  const secret = getJwtSecret();
   const { payload } = await jwtVerify(token, secret);
   return payload as Record<string, unknown>;
 }
+
+// Aliases for institution authentication
+export const signToken = signJwt;
+export const verifyToken = verifyJwt;
 
 export async function requireAuth(headers: Headers, roles?: Array<string>) {
   const authHeader = headers.get('authorization') || headers.get('Authorization');

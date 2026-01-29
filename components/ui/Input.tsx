@@ -29,7 +29,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                         ref={ref}
                         type={type}
                         className={cn(
-                            `w-full h-12 px-4 text-(--primary) bg-(--surface)
+                            `w-full min-h-11 h-12 px-4 text-(--primary) bg-(--surface)
               border border-(--border) rounded-lg
               placeholder:text-(--secondary-light)
               transition-all duration-200 ease-out
@@ -40,6 +40,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                             error && 'border-error focus:border-error focus:ring-(--error-light)',
                             className
                         )}
+                        aria-invalid={error ? 'true' : 'false'}
+                        aria-describedby={error ? `${props.id}-error` : hint ? `${props.id}-hint` : undefined}
                         onFocus={(e) => {
                             props.onFocus?.(e);
                         }}
@@ -50,10 +52,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     />
                 </div>
                 {error && (
-                    <p className="mt-2 text-sm text-error">{error}</p>
+                    <p id={`${props.id}-error`} className="mt-2 text-sm text-error" role="alert">{error}</p>
                 )}
                 {hint && !error && (
-                    <p className="mt-2 text-sm text-(--secondary)">{hint}</p>
+                    <p id={`${props.id}-hint`} className="mt-2 text-sm text-(--secondary)">{hint}</p>
                 )}
             </div>
         );

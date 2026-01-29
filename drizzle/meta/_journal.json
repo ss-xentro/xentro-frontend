@@ -15,6 +15,20 @@
       "when": 1769558400000,
       "tag": "0001_add_institution_applications",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769591584483,
+      "tag": "0002_dry_loa",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1769700000000,
+      "tag": "0003_add_startups_institution_fk",
+      "breakpoints": true
     }
   ]
 }

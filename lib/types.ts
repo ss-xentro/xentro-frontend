@@ -6,7 +6,7 @@ export type InstitutionType = 'incubator' | 'accelerator' | 'university' | 'vc' 
 
 export type OperatingMode = 'local' | 'national' | 'global' | 'remote-first';
 
-export type SDGFocus = 'sdg-4' | 'sdg-8' | 'sdg-9' | 'sdg-11' | 'sdg-17';
+export type SDGFocus = 'sdg-1' | 'sdg-2' | 'sdg-3' | 'sdg-4' | 'sdg-5' | 'sdg-6' | 'sdg-7' | 'sdg-8' | 'sdg-9' | 'sdg-10' | 'sdg-11' | 'sdg-12' | 'sdg-13' | 'sdg-14' | 'sdg-15' | 'sdg-16' | 'sdg-17';
 
 export type SectorFocus = 'ai' | 'healthtech' | 'edtech' | 'climatetech' | 'fintech' | 'saas' | 'social-impact';
 
@@ -30,7 +30,10 @@ export interface Institution {
   logo?: string | null;
   website?: string | null;
   linkedin?: string | null;
+  email?: string | null;
+  phone?: string | null;
   description?: string | null;
+  legalDocuments?: string[] | null;
   status: InstitutionStatus;
   verified: boolean;
   createdAt?: string;
@@ -47,9 +50,20 @@ export interface InstitutionApplication {
   tagline?: string | null;
   city?: string | null;
   country?: string | null;
+  countryCode?: string | null;
+  operatingMode?: OperatingMode | null;
+  startupsSupported?: number | null;
+  studentsMentored?: number | null;
+  fundingFacilitated?: number | string | null;
+  fundingCurrency?: string | null;
+  sdgFocus?: SDGFocus[] | null;
+  sectorFocus?: SectorFocus[] | null;
   website?: string | null;
+  linkedin?: string | null;
+  phone?: string | null;
   description?: string | null;
   logo?: string | null;
+  legalDocuments?: string[] | null;
   status: InstitutionApplicationStatus;
   remark?: string | null;
   verified: boolean;
@@ -111,7 +125,10 @@ export interface OnboardingFormData {
   logo: string | null;
   website: string;
   linkedin: string;
+  email: string;
+  phone: string;
   description: string;
+  legalDocuments: string[];
 }
 
 // UI Label Maps
@@ -131,11 +148,23 @@ export const operatingModeLabels: Record<OperatingMode, { label: string; emoji: 
 };
 
 export const sdgLabels: Record<SDGFocus, { label: string; fullName: string; color: string }> = {
-  'sdg-4': { label: 'SDG 4', fullName: 'Quality Education', color: '#C5192D' },
-  'sdg-8': { label: 'SDG 8', fullName: 'Decent Work & Economic Growth', color: '#A21942' },
-  'sdg-9': { label: 'SDG 9', fullName: 'Industry, Innovation & Infrastructure', color: '#FD6925' },
-  'sdg-11': { label: 'SDG 11', fullName: 'Sustainable Cities & Communities', color: '#FD9D24' },
-  'sdg-17': { label: 'SDG 17', fullName: 'Partnerships for the Goals', color: '#19486A' },
+  'sdg-1': { label: '1', fullName: 'No Poverty', color: '#E5243B' },
+  'sdg-2': { label: '2', fullName: 'Zero Hunger', color: '#DDA63A' },
+  'sdg-3': { label: '3', fullName: 'Good Health and Well-being', color: '#4C9F38' },
+  'sdg-4': { label: '4', fullName: 'Quality Education', color: '#C5192D' },
+  'sdg-5': { label: '5', fullName: 'Gender Equality', color: '#FF3A21' },
+  'sdg-6': { label: '6', fullName: 'Clean Water and Sanitation', color: '#26BDE2' },
+  'sdg-7': { label: '7', fullName: 'Affordable and Clean Energy', color: '#FCC30B' },
+  'sdg-8': { label: '8', fullName: 'Decent Work and Economic Growth', color: '#A21942' },
+  'sdg-9': { label: '9', fullName: 'Industry, Innovation and Infrastructure', color: '#FD6925' },
+  'sdg-10': { label: '10', fullName: 'Reduced Inequalities', color: '#DD1367' },
+  'sdg-11': { label: '11', fullName: 'Sustainable Cities and Communities', color: '#FD9D24' },
+  'sdg-12': { label: '12', fullName: 'Responsible Consumption and Production', color: '#BF8B2E' },
+  'sdg-13': { label: '13', fullName: 'Climate Action', color: '#3F7E44' },
+  'sdg-14': { label: '14', fullName: 'Life Below Water', color: '#0A97D9' },
+  'sdg-15': { label: '15', fullName: 'Life on Land', color: '#56C02B' },
+  'sdg-16': { label: '16', fullName: 'Peace, Justice and Strong Institutions', color: '#00689D' },
+  'sdg-17': { label: '17', fullName: 'Partnerships for the Goals', color: '#19486A' },
 };
 
 export const sectorLabels: Record<SectorFocus, { label: string; emoji: string }> = {

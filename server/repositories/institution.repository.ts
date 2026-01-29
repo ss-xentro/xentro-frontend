@@ -24,6 +24,11 @@ class InstitutionRepository {
     return results[0] ?? null;
   }
 
+  async findByEmail(email: string) {
+    const results = await db.select().from(institutions).where(eq(institutions.email, email)).limit(1);
+    return results[0] ?? null;
+  }
+
   async create(payload: NewInstitutionEntity) {
     const [record] = await db.insert(institutions).values(payload).returning();
     return record;
@@ -36,6 +41,14 @@ class InstitutionRepository {
       .where(eq(institutions.id, id))
       .returning();
     return record ?? null;
+  }
+
+  async deleteById(id: string) {
+    const [deleted] = await db
+      .delete(institutions)
+      .where(eq(institutions.id, id))
+      .returning();
+    return deleted ?? null;
   }
 }
 
