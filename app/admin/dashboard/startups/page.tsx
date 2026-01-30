@@ -1,5 +1,6 @@
 'use client';
 
+
 import { useEffect, useState } from 'react';
 import { Card, Button, Input, Badge } from '@/components/ui';
 import { Startup, startupStageLabels, startupStatusLabels, fundingRoundLabels } from '@/lib/types';
