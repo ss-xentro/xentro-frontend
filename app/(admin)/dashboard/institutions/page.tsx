@@ -154,13 +154,13 @@ export default function InstitutionsPage() {
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-fadeIn" role="alert" aria-live="assertive">
                     <div className="flex items-start gap-3">
                         <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                         </svg>
                         <div>
                             <p className="font-medium text-red-900">Unable to load institutions</p>
                             <p className="text-sm text-red-800 mt-0.5">{error}</p>
-                            <button 
-                                onClick={() => window.location.reload()} 
+                            <button
+                                onClick={() => window.location.reload()}
                                 className="mt-2 text-sm font-medium text-red-700 hover:text-red-800 underline"
                             >
                                 Try again
@@ -223,8 +223,8 @@ export default function InstitutionsPage() {
                         </div>
                         <h3 className="text-lg font-semibold text-(--primary) mb-2">No matching institutions</h3>
                         <p className="text-(--secondary) mb-4">Try adjusting your filters or search query.</p>
-                        <Button 
-                            variant="ghost" 
+                        <Button
+                            variant="ghost"
                             onClick={() => {
                                 setSearchQuery('');
                                 setTypeFilter('all');
@@ -392,13 +392,13 @@ function InstitutionCard({ institution, index, onDelete }: { institution: Instit
                 <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => router.push(`/institutions/${institution.id}`)}
+                    onClick={() => router.push(`/dashboard/institutions/${institution.id}/preview`)}
                 >
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    View
+                    Preview
                 </Button>
                 <Button
                     variant="ghost"

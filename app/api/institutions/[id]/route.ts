@@ -3,10 +3,14 @@ import { institutionController } from '@/server/controllers/institution.controll
 import { HttpError } from '@/server/controllers/http-error';
 import { verifyToken } from '@/server/services/auth';
 
-export async function GET(_: NextRequest, context: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params;
-    const payload = await institutionController.getById(id);
+    
+    // Check if this is a public view (increment profile views)
+    const isPublicView = request.headers.get('x-public-view') === 'true';
+    
+    const payload = await institutionController.getById(id, isPublicView);
     return NextResponse.json(payload);
   } catch (error) {
     return handleError(error);

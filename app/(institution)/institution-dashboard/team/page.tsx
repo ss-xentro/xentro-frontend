@@ -3,15 +3,102 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, Badge } from '@/components/ui';
+
+interface TeamMember {
+  id: string;
+  userId: string;
+  role: 'owner' | 'admin' | 'manager' | 'viewer';
+  invitedAt: string;
+  acceptedAt: string | null;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+const roleColors = {
+  owner: 'bg-purple-100 text-purple-800',
+  admin: 'bg-blue-100 text-blue-800',
+  manager: 'bg-green-100 text-green-800',
+  viewer: 'bg-gray-100 text-gray-800',
+};
 
 export default function TeamPage() {
   const router = useRouter();
-  const [team, setTeam] = useState<any[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Implement API call to fetch team members
+    loadTeam();
   }, []);
+
+  const loadTeam = async () => {
+    try {
+      const token = localStorage.getItem('institution_token');
+      if (!token) {
+        router.push('/institution-login');
+        return;
+      }
+
+      const res = await fetch('/api/institution-team', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to load team');
+      }
+
+      const data = await res.json();
+      setTeam(data.data || []);
+      setError(null);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemove = async (id: string) => {
+    if (!confirm('Are you sure you want to remove this team member?')) return;
+
+    try {
+      const token = localStorage.getItem('institution_token');
+      const res = await fetch(`/api/institution-team/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to remove team member');
+      }
+
+      setTeam(team.filter(m => m.id !== id));
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
+
+  if (loading) {
+    return (
+      <DashboardSidebar>
+        <div className="p-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-32 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </DashboardSidebar>
+    );
+  }
 
   return (
     <DashboardSidebar>
@@ -27,6 +114,12 @@ export default function TeamPage() {
           </Button>
         </div>
 
+        {error && (
+          <Card className="p-4 bg-red-50 border-red-200">
+            <p className="text-red-600">{error}</p>
+          </Card>
+        )}
+
         {team.length === 0 ? (
           <Card className="p-12 text-center">
             <div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
@@ -36,23 +129,55 @@ export default function TeamPage() {
             </div>
             <h3 className="text-lg font-semibold text-(--primary) mb-2">No team members yet</h3>
             <p className="text-(--secondary) mb-4">
-              Add team members to showcase your institution's expertise
+              Add team members to help manage your institution
             </p>
-            <Button onClick={() => router.push('/institution-dashboard/add-team')}>Add Your First Team Member</Button>
+            <Button onClick={() => router.push('/institution-dashboard/add-team')}>
+              Add Your First Team Member
+            </Button>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {team.map((member) => (
               <Card key={member.id} className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-(--surface-hover) flex items-center justify-center text-xl font-bold">
-                    {member.name[0]}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-(--surface-hover) flex items-center justify-center text-xl font-bold text-(--primary)">
+                      {member.user?.name?.[0]?.toUpperCase() || '?'}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-(--primary)">{member.user?.name || 'Unknown'}</h3>
+                      <p className="text-sm text-(--secondary)">{member.user?.email || ''}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold">{member.name}</h3>
-                    <p className="text-sm text-(--secondary)">{member.role}</p>
-                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[member.role]}`}>
+                    {member.role}
+                  </span>
                 </div>
+
+                <div className="text-xs text-(--secondary) mb-4">
+                  Joined {new Date(member.invitedAt).toLocaleDateString()}
+                </div>
+
+                {member.role !== 'owner' && (
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => router.push(`/institution-dashboard/team/${member.id}/edit`)}
+                    >
+                      Edit Role
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleRemove(member.id)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                )}
               </Card>
             ))}
           </div>

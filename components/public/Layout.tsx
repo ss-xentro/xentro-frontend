@@ -13,23 +13,16 @@ export function PublicNavbar() {
 
                 <div className="hidden md:flex items-center gap-6">
                     <Link href="/institutions" className="text-sm font-medium text-(--primary)">
-                        Explore
+                        Institutions
                     </Link>
-                    <a href="#" className="text-sm font-medium text-(--secondary) hover:text-(--primary) transition-colors">
-                        For Startups
-                    </a>
-                    <a href="#" className="text-sm font-medium text-(--secondary) hover:text-(--primary) transition-colors">
-                        For Investors
-                    </a>
-                    <a href="#" className="text-sm font-medium text-(--secondary) hover:text-(--primary) transition-colors">
-                        About
-                    </a>
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <Button size="sm">
-                        Explore
-                    </Button>
+                    <Link href="/join">
+                        <Button size="sm">
+                            Xplore
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </nav>

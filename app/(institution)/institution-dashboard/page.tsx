@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, ProgressIndicator } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus } from '@/lib/types';
+import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus, Institution } from '@/lib/types';
 
 // Import all slides
 import InstitutionTypeSlide from '@/components/onboarding/InstitutionTypeSlide';
@@ -49,12 +49,21 @@ const initialFormData: OnboardingFormData = {
   legalDocuments: [],
 };
 
+interface DashboardStats {
+  programsCount: number;
+  teamCount: number;
+  startupsCount: number;
+  profileViews: number;
+}
+
 export default function InstitutionDashboardPage() {
   const router = useRouter();
   const [application, setApplication] = useState<InstitutionApplication | null>(null);
+  const [institution, setInstitution] = useState<Institution | null>(null);
+  const [stats, setStats] = useState<DashboardStats>({ programsCount: 0, teamCount: 0, startupsCount: 0, profileViews: 0 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
@@ -84,13 +93,25 @@ export default function InstitutionDashboardPage() {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/institution-applications');
-        if (!res.ok) throw new Error('Failed to load your application');
+        const token = localStorage.getItem('institution_token');
+        if (!token) {
+          router.push('/institution-login');
+          return;
+        }
+
+        const res = await fetch('/api/institution-applications', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+          const error = await res.json().catch(() => ({ message: 'Failed to load your application' }));
+          throw new Error(error.message || 'Failed to load your application');
+        }
         const payload = await res.json();
         const apps = (payload.data ?? []) as InstitutionApplication[];
         const latest = apps.filter((a) => a.verified).slice(-1)[0] ?? null;
         setApplication(latest);
-        
+
         // Pre-fill form with application data if available
         if (latest) {
           setFormData({
@@ -115,6 +136,35 @@ export default function InstitutionDashboardPage() {
             description: latest.description ?? '',
             legalDocuments: (latest.legalDocuments as string[]) ?? [],
           });
+
+          // If approved, fetch dashboard stats
+          if (latest.status === 'approved') {
+            const token = localStorage.getItem('institution_token');
+            if (token) {
+              const [startupsRes, teamRes, programsRes, instRes] = await Promise.all([
+                fetch('/api/startups', { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch('/api/institution-team', { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch('/api/programs', { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch('/api/institution-auth/me', { headers: { 'Authorization': `Bearer ${token}` } }),
+              ]);
+
+              const startups = startupsRes.ok ? await startupsRes.json() : { data: [] };
+              const team = teamRes.ok ? await teamRes.json() : { data: [] };
+              const programs = programsRes.ok ? await programsRes.json() : { data: [] };
+              const inst = instRes.ok ? await instRes.json() : { institution: null };
+
+              setStats({
+                startupsCount: startups.data?.length || 0,
+                teamCount: team.data?.length || 0,
+                programsCount: programs.data?.length || 0,
+                profileViews: inst.institution?.profileViews || 0,
+              });
+
+              if (inst.institution) {
+                setInstitution(inst.institution);
+              }
+            }
+          }
         }
         setError(null);
       } catch (err) {
@@ -189,7 +239,7 @@ export default function InstitutionDashboardPage() {
 
   const handlePublish = async () => {
     if (!application?.id) return;
-    
+
     // Validate all required fields before submission
     const errors: string[] = [];
     if (!formData.type) errors.push('Institution type');
@@ -198,12 +248,12 @@ export default function InstitutionDashboardPage() {
     if (!formData.city.trim()) errors.push('City');
     if (!formData.country.trim()) errors.push('Country');
     if (!formData.description.trim()) errors.push('Description');
-    
+
     if (errors.length > 0) {
       alert(`Please complete the following required fields:\\n- ${errors.join('\\n- ')}`);
       return;
     }
-    
+
     try {
       setSubmitting(true);
       // Use POST endpoint for final submission with validation
@@ -439,7 +489,7 @@ export default function InstitutionDashboardPage() {
             <div className="lg:col-span-2 space-y-6 animate-fadeIn">
               <Card className="p-6 space-y-6">
                 <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />
-                
+
                 <div className="min-h-100">
                   {renderSlide()}
                 </div>
@@ -474,7 +524,7 @@ export default function InstitutionDashboardPage() {
             <div className="lg:col-span-1 space-y-6 animate-fadeIn stagger-1">
               <Card className="p-6 sticky top-6">
                 <h3 className="text-sm font-semibold text-(--secondary) uppercase tracking-wide mb-4">Live Preview</h3>
-                
+
                 <div className="space-y-4">
                   {/* Institution Logo & Name */}
                   <div className="flex items-start gap-3 pb-4 border-b border-(--border)">
@@ -523,10 +573,10 @@ export default function InstitutionDashboardPage() {
                   {formData.website && (
                     <div>
                       <p className="text-xs font-medium text-(--secondary) mb-1">Website</p>
-                      <a 
-                        href={formData.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={formData.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-sm text-accent hover:underline break-all"
                       >
                         {formData.website}
@@ -586,7 +636,7 @@ export default function InstitutionDashboardPage() {
                       </span>
                     </div>
                     <div className="h-2 bg-(--surface-hover) rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-accent transition-all duration-300"
                         style={{
                           width: `${Math.round((
@@ -624,7 +674,7 @@ export default function InstitutionDashboardPage() {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card className="p-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
@@ -632,7 +682,7 @@ export default function InstitutionDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm text-(--secondary)">Active Programs</p>
-                  <p className="text-2xl font-bold text-(--primary)">0</p>
+                  <p className="text-2xl font-bold text-(--primary)">{stats.programsCount}</p>
                 </div>
               </div>
             </Card>
@@ -644,7 +694,19 @@ export default function InstitutionDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm text-(--secondary)">Team Members</p>
-                  <p className="text-2xl font-bold text-(--primary)">0</p>
+                  <p className="text-2xl font-bold text-(--primary)">{stats.teamCount}</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                  <span className="text-2xl">💼</span>
+                </div>
+                <div>
+                  <p className="text-sm text-(--secondary)">Portfolio Startups</p>
+                  <p className="text-2xl font-bold text-(--primary)">{stats.startupsCount}</p>
                 </div>
               </div>
             </Card>
@@ -656,7 +718,7 @@ export default function InstitutionDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm text-(--secondary)">Profile Views</p>
-                  <p className="text-2xl font-bold text-(--primary)">0</p>
+                  <p className="text-2xl font-bold text-(--primary)">{stats.profileViews.toLocaleString()}</p>
                 </div>
               </div>
             </Card>
@@ -718,16 +780,8 @@ export default function InstitutionDashboardPage() {
               <Link href="/institution-edit">
                 <Button>Edit Profile</Button>
               </Link>
-              {application.institutionId && (
+              {(institution?.slug || application.institutionId) && (
                 <>
-                  <a href={`/institutions/${application.institutionId}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="ghost">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                      View Public Profile
-                    </Button>
-                  </a>
                   <Link href={`/institution-preview/${application.institutionId}`}>
                     <Button>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -737,6 +791,14 @@ export default function InstitutionDashboardPage() {
                       Preview & Edit
                     </Button>
                   </Link>
+                  <a href={`/institutions/${institution?.slug || application.institutionId}`} target="_blank" rel="noopener noreferrer">
+                    <Button variant="ghost">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      View Public Profile
+                    </Button>
+                  </a>
                 </>
               )}
             </div>
@@ -816,24 +878,23 @@ export default function InstitutionDashboardPage() {
                 <h2 className="text-xl font-semibold text-(--primary)">{application.name}</h2>
                 <p className="text-xs text-(--secondary) mt-1">Email: {application.email}</p>
               </div>
-              <span className={`text-sm px-3 py-1.5 rounded-full font-medium ${
-                application.status === 'approved' 
+              <span className={`text-sm px-3 py-1.5 rounded-full font-medium ${application.status === 'approved'
                   ? 'bg-green-100 text-green-800'
                   : application.status === 'rejected'
-                  ? 'bg-red-100 text-red-800'
-                  : 'bg-yellow-100 text-yellow-800'
-              }`}>
+                    ? 'bg-red-100 text-red-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}>
                 {application.status === 'approved' ? '✓ Approved' : application.status === 'rejected' ? '✗ Rejected' : '⏳ Pending Review'}
               </span>
             </div>
-            
+
             {application.remark && (
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded" role="status">
                 <p className="text-sm font-semibold text-blue-900">Admin Feedback:</p>
                 <p className="text-sm text-blue-800 mt-1">{application.remark}</p>
               </div>
             )}
-            
+
             <p className="text-(--secondary) text-sm">
               {application.status === 'pending' && !application.description && (
                 <span className="flex items-center gap-2">
@@ -847,13 +908,13 @@ export default function InstitutionDashboardPage() {
               {application.status === 'approved' && 'Congratulations! Your institution has been approved and is now published on the platform.'}
               {application.status === 'rejected' && 'Your application needs updates. Please review the admin feedback above and resubmit.'}
             </p>
-            
+
             {application.logo && (
               <div className="w-28 h-28 rounded-lg border border-(--border) bg-(--surface) flex items-center justify-center overflow-hidden">
                 <img src={application.logo} alt={application.name} className="w-full h-full object-contain" />
               </div>
             )}
-            
+
             <div className="pt-4 border-t border-(--border) flex gap-3">
               {application.status !== 'approved' && (
                 <Button onClick={() => setShowOnboarding(true)} className="min-h-11">

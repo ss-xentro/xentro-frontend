@@ -14,30 +14,51 @@ type Startup = any;
 
 export default function InstitutionProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
-    const [id, setId] = useState<string>('');
+    const [identifier, setIdentifier] = useState<string>('');
     const [institution, setInstitution] = useState<Institution | null>(null);
     const [programs, setPrograms] = useState<Program[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
     const [startups, setStartups] = useState<Startup[]>([]);
+    const [team, setTeam] = useState<any[]>([]);
+    const [projects, setProjects] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         params.then(p => {
-            setId(p.id);
-            fetch(`/api/institutions/${p.id}`)
-                .then(res => res.json())
+            setIdentifier(p.id);
+            // Fetch with public view header to track profile views
+            fetch(`/api/institutions/${p.id}`, {
+                headers: { 'x-public-view': 'true' },
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Not found');
+                    return res.json();
+                })
                 .then(data => {
                     console.log('[Institution Page] Received data:', {
                         institution: data.institution?.name,
+                        slug: data.institution?.slug,
                         programsCount: data.programs?.length || 0,
                         eventsCount: data.events?.length || 0,
                         startupsCount: data.startups?.length || 0,
-                        startups: data.startups,
+                        teamCount: data.team?.length || 0,
+                        projectsCount: data.projects?.length || 0,
                     });
                     setInstitution(data.institution);
                     setPrograms(data.programs || []);
                     setEvents(data.events || []);
                     setStartups(data.startups || []);
+                    setTeam(data.team || []);
+                    setProjects(data.projects || []);
+
+                    // Update URL to use slug if accessed by ID
+                    if (data.institution?.slug && p.id !== data.institution.slug) {
+                        window.history.replaceState(
+                            null,
+                            '',
+                            `/institutions/${data.institution.slug}`
+                        );
+                    }
                 })
                 .catch(() => router.push('/404'))
                 .finally(() => setLoading(false));
@@ -109,27 +130,19 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
                         </div>
 
                         <div className="flex gap-3 shrink-0">
-                            <Button 
-                                variant="secondary"
+                            <Button
+                                variant="ghost"
                                 onClick={() => {
-                                    if (navigator.share) {
-                                        navigator.share({
-                                            title: institution.name,
-                                            text: institution.tagline || `Check out ${institution.name} on Xentro`,
-                                            url: window.location.href
-                                        }).catch(() => {});
-                                    } else {
-                                        navigator.clipboard.writeText(window.location.href);
-                                        alert('Link copied to clipboard!');
-                                    }
+                                    navigator.clipboard.writeText(window.location.href);
+                                    alert('Link copied to clipboard!');
                                 }}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                 </svg>
-                                Share
+                                Copy Link
                             </Button>
-                            <a href="/">
+                            <a href="/institutions">
                                 <Button variant="ghost">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -176,7 +189,7 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
                         </section>
 
                         {/* Tabs for Programs, Startups, Projects, Team */}
-                        <InstitutionTabs programs={programs} events={events} startups={startups} />
+                        <InstitutionTabs programs={programs} events={events} startups={startups} team={team} projects={projects} />
                     </div>
 
                     {/* Sidebar */}
@@ -260,16 +273,6 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
                                 )}
                             </div>
                         </Card>
-
-                        <div className="bg-[#10B981]/10 rounded-xl p-6">
-                            <h3 className="font-bold text-[#065F46] mb-2">Claim this profile?</h3>
-                            <p className="text-sm text-[#065F46]/80 mb-4">
-                                If you represent this institution, you can claim this profile to manage updates.
-                            </p>
-                            <Button size="sm" className="w-full bg-[#10B981] hover:bg-[#059669] border-none text-white">
-                                Verification Request
-                            </Button>
-                        </div>
                     </div>
                 </div>
             </div>

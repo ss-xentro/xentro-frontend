@@ -1,52 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/client';
-import { users } from '@/db/schemas';
+import { users, institutionMembers } from '@/db/schemas';
 import { eq } from 'drizzle-orm';
-import { verifyToken } from '@/server/services/auth';
-
-// Temporary table for institution team members
-// In production, you'd create a proper institution_team_members table
-
-interface TeamMemberData {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  department?: string;
-  phone?: string;
-  bio?: string;
-}
+import { verifyInstitutionAuth, requireRole } from '@/server/middleware/institutionAuth';
+import { institutionMemberRepository } from '@/server/repositories/institutionMember.repository';
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify authentication token
-    const token = request.headers.get('authorization')?.replace('Bearer ', '') || 
-                   request.cookies.get('institution_token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { message: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+    const auth = await verifyInstitutionAuth(request);
+    if (!auth.success) return auth.response;
 
-    let decoded;
-    try {
-      decoded = await verifyToken(token);
-    } catch (error) {
-      return NextResponse.json(
-        { message: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
-
-    const institutionId = decoded.institutionId;
-    if (!institutionId) {
-      return NextResponse.json(
-        { message: 'Institution not found in token' },
-        { status: 401 }
-      );
-    }
+    // Only owners and admins can add team members
+    const roleCheck = requireRole(auth.payload, ['owner', 'admin']);
+    if (roleCheck) return roleCheck.response;
 
     const body = await request.json();
     const { name, email, role, department, phone, bio } = body;
@@ -58,37 +24,80 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate role
+    const validRoles = ['admin', 'manager', 'viewer'];
+    if (!validRoles.includes(role)) {
+      return NextResponse.json(
+        { message: 'Invalid role. Must be admin, manager, or viewer' },
+        { status: 400 }
+      );
+    }
+
     // Check if user exists with this email
-    let teamMember = await db.query.users.findFirst({
+    let user = await db.query.users.findFirst({
       where: eq(users.email, email.toLowerCase()),
     });
 
-    if (!teamMember) {
+    if (!user) {
       // Create a new user for the team member
       const [newUser] = await db
         .insert(users)
         .values({
           name,
           email: email.toLowerCase(),
-          accountType: 'admin', // or 'institution-staff'
+          phone: phone || null,
+          accountType: 'institution',
         })
         .returning();
-      teamMember = newUser;
+      user = newUser;
     }
 
-    // In production, create a relation in institution_team_members table
-    // For now, return the user data with additional fields
-    const teamMemberData: TeamMemberData = {
-      id: teamMember.id,
-      name: teamMember.name,
-      email: teamMember.email,
-      role,
-      department,
-      phone,
-      bio,
-    };
+    // Check if already a member
+    const existingMember = await institutionMemberRepository.findByUserAndInstitution(
+      user.id,
+      auth.payload.institutionId
+    );
 
-    return NextResponse.json({ data: teamMemberData }, { status: 201 });
+    if (existingMember) {
+      if (existingMember.isActive) {
+        return NextResponse.json(
+          { message: 'This user is already a team member' },
+          { status: 400 }
+        );
+      }
+      // Reactivate the member
+      await institutionMemberRepository.updateById(existingMember.id, {
+        role: role as 'admin' | 'manager' | 'viewer',
+        isActive: true,
+        invitedByUserId: auth.payload.userId || null,
+        invitedAt: new Date(),
+      });
+      return NextResponse.json({
+        data: { ...existingMember, role, isActive: true },
+        message: 'Team member reactivated',
+      });
+    }
+
+    // Create institution member record
+    const member = await institutionMemberRepository.create({
+      institutionId: auth.payload.institutionId,
+      userId: user.id,
+      role: role as 'admin' | 'manager' | 'viewer',
+      invitedByUserId: auth.payload.userId || null,
+      invitedAt: new Date(),
+      isActive: true,
+    });
+
+    return NextResponse.json({
+      data: {
+        id: member.id,
+        userId: user.id,
+        name: user.name,
+        email: user.email,
+        role: member.role,
+        invitedAt: member.invitedAt,
+      },
+    }, { status: 201 });
   } catch (error) {
     console.error('Add team member error:', error);
     return NextResponse.json(
@@ -100,42 +109,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify authentication token
-    const token = request.headers.get('authorization')?.replace('Bearer ', '') || 
-                   request.cookies.get('institution_token')?.value;
-    
-    if (!token) {
-      return NextResponse.json(
-        { message: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+    const auth = await verifyInstitutionAuth(request);
+    if (!auth.success) return auth.response;
 
-    let decoded;
-    try {
-      decoded = await verifyToken(token);
-    } catch (error) {
-      return NextResponse.json(
-        { message: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
+    const members = await institutionMemberRepository.findByInstitution(
+      auth.payload.institutionId
+    );
 
-    const institutionId = decoded.institutionId;
-    if (!institutionId) {
-      return NextResponse.json(
-        { message: 'Institution not found in token' },
-        { status: 401 }
-      );
-    }
-
-    // For now, return users with 'admin' account type
-    // In production, query institution_team_members table
-    const teamMembers = await db.query.users.findMany({
-      where: (users, { eq }) => eq(users.accountType, 'admin'),
-    });
-
-    return NextResponse.json({ data: teamMembers });
+    return NextResponse.json({ data: members });
   } catch (error) {
     console.error('Fetch team members error:', error);
     return NextResponse.json(

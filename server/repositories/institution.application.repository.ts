@@ -1,6 +1,6 @@
 import { db } from '@/db/client';
 import { institutionApplications } from '@/db/schemas';
-import { InferInsertModel, InferSelectModel, eq } from 'drizzle-orm';
+import { InferInsertModel, InferSelectModel, eq, desc } from 'drizzle-orm';
 
 export type InstitutionApplicationEntity = InferSelectModel<typeof institutionApplications>;
 export type NewInstitutionApplication = InferInsertModel<typeof institutionApplications>;
@@ -36,6 +36,10 @@ class InstitutionApplicationRepository {
       .where(eq(institutionApplications.email, email))
       .limit(1);
     return record ?? null;
+  }
+
+  async findAllByEmail(email: string) {
+    return db.select().from(institutionApplications).where(eq(institutionApplications.email, email)).orderBy(desc(institutionApplications.createdAt));
   }
 
   async markVerified(token: string) {

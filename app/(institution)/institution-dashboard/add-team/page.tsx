@@ -5,17 +5,11 @@ import { useRouter } from 'next/navigation';
 import { Card, Button, Input, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 
+// Roles that can be assigned to team members (owner is reserved)
 const roleOptions = [
-  { value: 'director', label: 'Director' },
-  { value: 'program-manager', label: 'Program Manager' },
-  { value: 'mentor', label: 'Mentor' },
-  { value: 'advisor', label: 'Advisor' },
-  { value: 'coordinator', label: 'Coordinator' },
-  { value: 'operations', label: 'Operations' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'finance', label: 'Finance' },
-  { value: 'admin', label: 'Admin' },
-  { value: 'other', label: 'Other' },
+  { value: 'admin', label: 'Admin - Full access to manage institution' },
+  { value: 'manager', label: 'Manager - Can manage programs, startups, and events' },
+  { value: 'viewer', label: 'Viewer - View-only access to dashboard' },
 ];
 
 export default function AddTeamMemberPage() {
@@ -26,10 +20,8 @@ export default function AddTeamMemberPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: '',
-    department: '',
+    role: 'manager',
     phone: '',
-    bio: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,16 +63,16 @@ export default function AddTeamMemberPage() {
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-12">
           <h1 className="text-2xl font-semibold text-(--primary) mb-2">Add Team Member</h1>
-          <p className="text-sm text-(--secondary)">Invite a staff member to join your institution</p>
+          <p className="text-sm text-(--secondary)">Invite someone to help manage your institution</p>
         </div>
 
         <Card className="p-10 bg-white border border-gray-200 shadow-sm">
-          <form onSubmit={handleSubmit} className="space-y-12">
+          <form onSubmit={handleSubmit} className="space-y-8">
             {/* Basic Information */}
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-2">
-                  Full Name
+                  Full Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -95,7 +87,7 @@ export default function AddTeamMemberPage() {
 
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-2">
-                  Email Address
+                  Email Address <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -106,40 +98,42 @@ export default function AddTeamMemberPage() {
                   required
                   aria-label="Team member email"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  They will use this email to log in and access the dashboard
+                </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-2">
-                    Role
-                  </label>
-                  <Select
-                    value={formData.role}
-                    onChange={(value) => setFormData({ ...formData, role: value })}
-                    options={roleOptions}
-                    placeholder="Select a role"
-                    aria-label="Team member role"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-2">
-                    Department
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
-                    placeholder="e.g., Incubation"
-                    aria-label="Department"
-                  />
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-2">
+                  Access Level <span className="text-red-500">*</span>
+                </label>
+                <div className="space-y-3">
+                  {roleOptions.map((option) => (
+                    <label 
+                      key={option.value}
+                      className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all ${
+                        formData.role === option.value 
+                          ? 'border-gray-900 bg-gray-50' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="role"
+                        value={option.value}
+                        checked={formData.role === option.value}
+                        onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                        className="mt-0.5"
+                      />
+                      <span className="text-sm text-(--primary)">{option.label}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-2">
-                  Phone Number
+                  Phone Number (optional)
                 </label>
                 <input
                   type="tel"
@@ -152,28 +146,13 @@ export default function AddTeamMemberPage() {
               </div>
             </div>
 
-            {/* Background */}
-            <div className="space-y-3 pt-6">
-              <label className="block text-xs font-medium text-gray-500">
-                Bio & Expertise
-              </label>
-              <textarea
-                value={formData.bio}
-                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                rows={4}
-                className="w-full px-4 py-4 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:border-gray-900 focus:bg-white focus:outline-none transition-all resize-none"
-                placeholder="Brief background and areas of expertise"
-                aria-label="Bio"
-              />
-            </div>
-
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-900" role="alert">
                 {error}
               </div>
             )}
 
-            <div className="flex items-center gap-4 pt-8">
+            <div className="flex items-center gap-4 pt-4">
               <button
                 type="button"
                 onClick={() => router.back()}

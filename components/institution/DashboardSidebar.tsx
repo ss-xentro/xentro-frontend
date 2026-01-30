@@ -13,54 +13,63 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navigation = [
-    { 
-      name: 'Overview', 
-      href: '/institution-dashboard', 
+    {
+      name: 'Overview',
+      href: '/institution-dashboard',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
       )
     },
-    { 
-      name: 'Edit Profile', 
-      href: '/institution-edit', 
+    {
+      name: 'Edit Profile',
+      href: '/institution-edit',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
       )
     },
-    { 
-      name: 'Startups', 
-      href: '/institution-dashboard/startups', 
+    {
+      name: 'Startups',
+      href: '/institution-dashboard/startups',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       )
     },
-    { 
-      name: 'Projects', 
-      href: '/institution-dashboard/projects', 
+    {
+      name: 'Programs',
+      href: '/institution-dashboard/programs',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      )
+    },
+    {
+      name: 'Projects',
+      href: '/institution-dashboard/projects',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       )
     },
-    { 
-      name: 'Team Members', 
-      href: '/institution-dashboard/team', 
+    {
+      name: 'Team Members',
+      href: '/institution-dashboard/team',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
       )
     },
-    { 
-      name: 'Analytics', 
-      href: '/institution-dashboard/analytics', 
+    {
+      name: 'Analytics',
+      href: '/institution-dashboard/analytics',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -69,9 +78,21 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
     },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem('institution_token');
-    window.location.href = '/institution-login';
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('institution_token');
+      if (token) {
+        await fetch('/api/institution-auth/logout', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('institution_token');
+      window.location.href = '/institution-login';
+    }
   };
 
   return (
@@ -108,11 +129,10 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg transition-colors ${
-                  isActive
+                className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg transition-colors ${isActive
                     ? 'bg-gray-900 text-white'
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                }`}
+                  }`}
                 title={isCollapsed ? item.name : undefined}
               >
                 {item.icon}

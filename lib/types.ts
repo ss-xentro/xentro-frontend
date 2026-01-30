@@ -12,8 +12,11 @@ export type SectorFocus = 'ai' | 'healthtech' | 'edtech' | 'climatetech' | 'fint
 
 export type InstitutionStatus = 'draft' | 'published' | 'archived' | 'pending';
 
+export type InstitutionRole = 'owner' | 'admin' | 'manager' | 'viewer';
+
 export interface Institution {
   id: string;
+  slug: string; // Unique URL-friendly identifier
   name: string;
   type: InstitutionType;
   tagline?: string | null;
@@ -36,8 +39,24 @@ export interface Institution {
   legalDocuments?: string[] | null;
   status: InstitutionStatus;
   verified: boolean;
+  profileViews?: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface InstitutionMember {
+  id: string;
+  institutionId: string;
+  userId: string;
+  role: InstitutionRole;
+  invitedAt: string;
+  acceptedAt?: string | null;
+  isActive: boolean;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export type InstitutionApplicationStatus = 'pending' | 'approved' | 'rejected';

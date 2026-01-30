@@ -1,11 +1,12 @@
-import { pgEnum, pgTable, uuid, varchar, timestamp, boolean, text, integer, numeric, uniqueIndex, bigint, json } from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, uuid, varchar, timestamp, boolean, text, integer, numeric, uniqueIndex, bigint, json, index } from 'drizzle-orm/pg-core';
 
 export const accountTypeEnum = pgEnum('account_type', ['explorer', 'startup', 'mentor', 'investor', 'institution', 'admin', 'approver']);
 export const createdByTypeEnum = pgEnum('created_by_type', ['mentor', 'startup', 'institution', 'investor']);
 export const entityTypeEnum = pgEnum('entity_type', ['mentor', 'student', 'startup', 'investor', 'event']);
 export const resourceTypeEnum = pgEnum('resource_type', ['video', 'pdf', 'link', 'course']);
-export const authProviderEnum = pgEnum('auth_provider', ['credentials', 'google']);
+export const authProviderEnum = pgEnum('auth_provider', ['credentials', 'google', 'otp']);
 export const mentorStatusEnum = pgEnum('mentor_status', ['pending', 'approved', 'rejected']);
+export const institutionRoleEnum = pgEnum('institution_role', ['owner', 'admin', 'manager', 'viewer']);
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -95,6 +96,7 @@ export const investorProfiles = pgTable('investor_profiles', {
 
 export const institutions = pgTable('institutions', {
   id: uuid('id').primaryKey().defaultRandom(),
+  slug: varchar('slug', { length: 100 }).notNull().unique(), // Unique URL-friendly identifier
   name: varchar('name', { length: 255 }).notNull(),
   type: varchar('type', { length: 120 }).notNull(),
   tagline: varchar('tagline', { length: 280 }),
@@ -118,9 +120,13 @@ export const institutions = pgTable('institutions', {
   legalDocuments: json('legal_documents').$type<string[]>(), // Array of document URLs
   status: varchar('status', { length: 32 }).default('draft').notNull(),
   verified: boolean('verified').default(false).notNull(),
+  profileViews: integer('profile_views').default(0).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => ({
+  slugIdx: uniqueIndex('institutions_slug_idx').on(table.slug),
+  statusIdx: index('institutions_status_idx').on(table.status),
+}));
 
 export const institutionApplications = pgTable('institution_applications', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -153,6 +159,22 @@ export const institutionApplications = pgTable('institution_applications', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+// Institution team members - links users to institutions with roles
+export const institutionMembers = pgTable('institution_members', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  institutionId: uuid('institution_id').references(() => institutions.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  role: institutionRoleEnum('role').notNull().default('viewer'),
+  invitedByUserId: uuid('invited_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  invitedAt: timestamp('invited_at', { withTimezone: true }).defaultNow().notNull(),
+  acceptedAt: timestamp('accepted_at', { withTimezone: true }),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  memberUnique: uniqueIndex('institution_member_unique').on(table.institutionId, table.userId),
+  institutionIdx: index('institution_members_institution_idx').on(table.institutionId),
+}));
 
 export const institutionSessions = pgTable('institution_sessions', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -190,6 +212,22 @@ export const programs = pgTable('programs', {
   startDate: timestamp('start_date', { withTimezone: true }),
   endDate: timestamp('end_date', { withTimezone: true }),
 });
+
+// Projects - research projects, collaborations, institutional initiatives
+export const projects = pgTable('projects', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  institutionId: uuid('institution_id').references(() => institutions.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  status: varchar('status', { length: 50 }).default('planning').notNull(), // planning, active, completed, on-hold
+  description: text('description'),
+  startDate: timestamp('start_date', { withTimezone: true }),
+  endDate: timestamp('end_date', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  institutionIdx: index('projects_institution_idx').on(table.institutionId),
+  statusIdx: index('projects_status_idx').on(table.status),
+}));
 
 export const events = pgTable('events', {
   id: uuid('id').primaryKey().defaultRandom(),

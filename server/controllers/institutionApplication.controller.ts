@@ -47,6 +47,11 @@ class InstitutionApplicationController {
     return { application: record, magicLink };
   }
 
+  async listByEmail(email: string) {
+    const applications = await institutionApplicationRepository.findAllByEmail(email.toLowerCase());
+    return applications;
+  }
+
   async verify(token: string) {
     if (!token) throw new HttpError(400, 'Token is required');
     const exists = await institutionApplicationRepository.findByToken(token);
