@@ -861,13 +861,47 @@ graph TB
 
 ## How to Use These Diagrams
 
-1. **Copy the Mermaid code** from any section above
-2. **Paste into**:
-   - GitHub markdown (renders automatically)
-   - [Mermaid Live Editor](https://mermaid.live)
-   - VS Code with Mermaid extension
-   - Notion, Obsidian, or other Mermaid-compatible tools
-3. **Customize** colors, labels, or structure as needed
+### ⚠️ Important: Copy Individual Diagrams Only
+
+Each diagram in this document is wrapped in triple backticks with `mermaid` syntax. **Do not copy the entire file** into a Mermaid renderer.
+
+### Viewing Options:
+
+**Option 1: GitHub (Recommended)**
+- Push this file to GitHub
+- View directly in the repository (GitHub renders Mermaid automatically)
+- No additional setup required
+
+**Option 2: VS Code**
+- Install "Markdown Preview Mermaid Support" extension
+- Open this file and click "Preview" (Cmd+Shift+V on Mac)
+
+**Option 3: Mermaid Live Editor**
+1. Go to [mermaid.live](https://mermaid.live)
+2. **Copy only the code between the triple backticks** from one diagram section
+3. Paste into the editor (left panel)
+4. View rendered diagram (right panel)
+
+**Example - Copy this code only:**
+```
+graph TB
+    A[Start] --> B[End]
+```
+
+**Do NOT copy:**
+```
+## Section Title
+
+```mermaid
+graph TB
+    A[Start] --> B[End]
+```
+```
+
+### Customization
+- Modify colors using `style` directives
+- Change layout direction: `TB` (top-bottom), `LR` (left-right)
+- Add/remove nodes and connections as needed
 
 ## Legend
 

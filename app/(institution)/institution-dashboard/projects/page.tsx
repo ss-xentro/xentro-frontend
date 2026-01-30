@@ -28,8 +28,11 @@ export default function ProjectsPage() {
     deleteProject
   } = useProjectStore();
 
-  // Get token and institution ID from localStorage
-  const getToken = () => localStorage.getItem('institution_token');
+  // Get token and institution ID from localStorage (client-side only)
+  const getToken = () => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('institution_token');
+  };
   const getInstitutionId = () => {
     const token = getToken();
     if (!token) return null;

@@ -200,7 +200,7 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
                             <div className="mb-6">
                                 <p className="text-sm text-(--secondary) mb-2 uppercase tracking-wider font-semibold">SDGs</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {(institution.sdgFocus ?? []).map((sdg) => {
+                                    {(institution.sdgFocus ?? []).map((sdg: string) => {
                                         const sdgInfo = sdgLabels[sdg as keyof typeof sdgLabels];
                                         return sdgInfo ? <SDGBadge key={sdg} sdg={sdgInfo.label} color={sdgInfo.color} /> : null;
                                     })}
@@ -210,7 +210,7 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
                             <div>
                                 <p className="text-sm text-(--secondary) mb-2 uppercase tracking-wider font-semibold">Sectors</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {(institution.sectorFocus ?? []).map((sector) => {
+                                    {(institution.sectorFocus ?? []).map((sector: string) => {
                                         const sectorInfo = sectorLabels[sector as keyof typeof sectorLabels];
                                         return sectorInfo ? (
                                             <Badge key={sector} variant="secondary" className="bg-(--surface-hover)">

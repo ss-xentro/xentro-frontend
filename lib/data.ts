@@ -7,6 +7,7 @@ import { Institution, Program, Event } from './types';
 export const mockInstitutions: Institution[] = [
     {
         id: '1',
+        slug: 'techstars-bangalore',
         name: 'TechStars Bangalore',
         type: 'accelerator',
         tagline: 'Accelerating the next generation of world-changing startups in South Asia',
@@ -31,6 +32,7 @@ export const mockInstitutions: Institution[] = [
     },
     {
         id: '2',
+        slug: 'stanford-startx',
         name: 'Stanford StartX',
         type: 'incubator',
         tagline: 'Where Stanford founders build the future',
@@ -55,6 +57,7 @@ export const mockInstitutions: Institution[] = [
     },
     {
         id: '3',
+        slug: 'iit-delhi-innovation-hub',
         name: 'IIT Delhi Innovation Hub',
         type: 'university',
         tagline: 'Transforming research into real-world impact',
@@ -79,6 +82,7 @@ export const mockInstitutions: Institution[] = [
     },
     {
         id: '4',
+        slug: 'sequoia-surge',
         name: 'Sequoia Surge',
         type: 'vc',
         tagline: 'Building legendary companies from Day Zero',
@@ -103,6 +107,7 @@ export const mockInstitutions: Institution[] = [
     },
     {
         id: '5',
+        slug: 'tata-social-enterprise',
         name: 'Tata Social Enterprise Initiative',
         type: 'csr',
         tagline: 'Empowering communities through sustainable enterprise',
@@ -127,6 +132,7 @@ export const mockInstitutions: Institution[] = [
     },
     {
         id: '6',
+        slug: 'y-combinator',
         name: 'Y Combinator',
         type: 'accelerator',
         tagline: 'Make something people want',
@@ -151,6 +157,7 @@ export const mockInstitutions: Institution[] = [
     },
     {
         id: '7',
+        slug: 'berlin-tech-hub',
         name: 'Berlin Tech Hub',
         type: 'incubator',
         tagline: 'Europe\'s gateway to deep tech innovation',
@@ -175,6 +182,7 @@ export const mockInstitutions: Institution[] = [
     },
     {
         id: '8',
+        slug: 'cambridge-innovation-centre',
         name: 'Cambridge Innovation Centre',
         type: 'university',
         tagline: 'From lab to market, faster',
