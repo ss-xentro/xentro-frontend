@@ -12,8 +12,11 @@ export function PublicNavbar() {
                 </Link>
 
                 <div className="hidden md:flex items-center gap-6">
-                    <Link href="/institutions" className="text-sm font-medium text-(--primary)">
+                    <Link href="/institutions" className="text-sm font-medium text-(--primary) hover:text-accent transition-colors">
                         Institutions
+                    </Link>
+                    <Link href="/startups" className="text-sm font-medium text-(--primary) hover:text-accent transition-colors">
+                        Startups
                     </Link>
                 </div>
 

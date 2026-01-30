@@ -11,7 +11,22 @@ export default function Home() {
           <p className="text-lg text-(--secondary)">Access tailored tools designed for mentors, xplorers, and institutions.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+          <Card className="p-8 border-(--border) bg-white/80 backdrop-blur shadow-lg hover:shadow-xl transition-shadow">
+            <div className="mb-6">
+              <div className="w-12 h-12 rounded-lg bg-orange-500 text-white flex items-center justify-center text-xl font-bold mb-4" aria-hidden="true">🚀</div>
+              <h2 className="text-2xl font-semibold mb-2">For Startups</h2>
+              <p className="text-(--secondary) text-sm">Build your dream company, find co-founders, and get funded.</p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Link href="/onboarding/startup" className="flex-1">
+                <Button className="w-full min-h-12" size="lg" aria-label="Create Startup">Create Startup</Button>
+              </Link>
+              <Link href="/startups" className="flex-1">
+                <Button variant="ghost" className="w-full min-h-12" size="lg" aria-label="Explore Startups">Xplore Startups</Button>
+              </Link>
+            </div>
+          </Card>
           <Card className="p-8 border-(--border) bg-white/80 backdrop-blur shadow-lg hover:shadow-xl transition-shadow">
             <div className="mb-6">
               <div className="w-12 h-12 rounded-lg bg-(--accent-light) text-accent flex items-center justify-center text-xl font-bold mb-4" aria-hidden="true">M</div>
