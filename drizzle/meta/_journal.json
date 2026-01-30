@@ -29,6 +29,20 @@
       "when": 1769700000000,
       "tag": "0003_add_startups_institution_fk",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1769754344215,
+      "tag": "0004_dizzy_orphan",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1769754456980,
+      "tag": "0005_known_photon",
+      "breakpoints": true
     }
   ]
 }

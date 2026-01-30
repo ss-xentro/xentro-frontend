@@ -1,0 +1,1 @@
+ALTER TABLE "startups" ALTER COLUMN "slug" DROP NOT NULL;

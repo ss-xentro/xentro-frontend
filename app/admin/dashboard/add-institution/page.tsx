@@ -131,7 +131,7 @@ export default function AddInstitutionPage() {
             }
 
             alert('Institution published successfully!');
-            router.push('/dashboard/institutions');
+            router.push('/admin/dashboard/institutions');
         } catch (err) {
             alert((err as Error).message);
         } finally {

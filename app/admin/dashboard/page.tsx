@@ -216,7 +216,7 @@ export default function DashboardPage() {
                 <h3 className="text-lg font-semibold text-(--primary) mb-4">Quick Actions</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Link
-                        href="/dashboard/add-institution"
+                        href="/admin/dashboard/add-institution"
                         className="p-4 rounded-lg border border-(--border) hover:border-accent hover:bg-(--accent-subtle) transition-all duration-200 group"
                     >
                         <div className="w-10 h-10 rounded-md bg-(--accent-light) text-accent flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -228,7 +228,7 @@ export default function DashboardPage() {
                         <p className="text-sm text-(--secondary) mt-1">Onboard a new institution</p>
                     </Link>
                     <Link
-                        href="/dashboard/institutions"
+                        href="/admin/dashboard/institutions"
                         className="p-4 rounded-lg border border-(--border) hover:border-success hover:bg-(--success-light) transition-all duration-200 group"
                     >
                         <div className="w-10 h-10 rounded-md bg-(--success-light) text-success flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">

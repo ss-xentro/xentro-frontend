@@ -8,6 +8,12 @@ export const authProviderEnum = pgEnum('auth_provider', ['credentials', 'google'
 export const mentorStatusEnum = pgEnum('mentor_status', ['pending', 'approved', 'rejected']);
 export const institutionRoleEnum = pgEnum('institution_role', ['owner', 'admin', 'manager', 'viewer']);
 
+// Startup-specific enums
+export const startupStageEnum = pgEnum('startup_stage', ['idea', 'mvp', 'early_traction', 'growth', 'scale']);
+export const startupStatusEnum = pgEnum('startup_status', ['active', 'stealth', 'paused', 'acquired', 'shut_down']);
+export const fundingRoundEnum = pgEnum('funding_round', ['bootstrapped', 'pre_seed', 'seed', 'series_a', 'series_b_plus', 'unicorn']);
+export const founderRoleEnum = pgEnum('founder_role', ['ceo', 'cto', 'coo', 'cfo', 'cpo', 'founder', 'co_founder']);
+
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
@@ -42,12 +48,30 @@ export const explorerProfiles = pgTable('explorer_profiles', {
 export const startups = pgTable('startups', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
-  stage: varchar('stage', { length: 100 }),
+  slug: varchar('slug', { length: 100 }).unique(), // Optional for backward compatibility
+  tagline: varchar('tagline', { length: 280 }),
+  logo: varchar('logo', { length: 512 }),
+  pitch: varchar('pitch', { length: 160 }), // One-line pitch, max 160 chars
+  foundedDate: timestamp('founded_date', { withTimezone: true }),
+  stage: startupStageEnum('stage'),
+  status: startupStatusEnum('status').default('active').notNull(),
+  fundingRound: fundingRoundEnum('funding_round').default('bootstrapped'),
+  fundsRaised: numeric('funds_raised', { precision: 16, scale: 2 }),
+  fundingCurrency: varchar('funding_currency', { length: 8 }).default('USD'),
+  investors: json('investors').$type<string[]>(),
+  primaryContactEmail: varchar('primary_contact_email', { length: 320 }),
+  // Keep existing fields for backward compatibility
   location: varchar('location', { length: 255 }),
   oneLiner: varchar('one_liner', { length: 280 }),
-  institutionId: uuid('institution_id').references(() => institutions.id, { onDelete: 'cascade' }),
+  institutionId: uuid('institution_id').references(() => institutions.id, { onDelete: 'set null' }),
   ownerId: uuid('owner_id').references(() => users.id, { onDelete: 'set null' }),
-});
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  slugIdx: uniqueIndex('startups_slug_idx').on(table.slug),
+  statusIdx: index('startups_status_idx').on(table.status),
+  stageIdx: index('startups_stage_idx').on(table.stage),
+}));
 
 export const teamMembers = pgTable('team_members', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -349,4 +373,43 @@ export const learningResources = pgTable('learning_resources', {
   r2Path: varchar('r2_path', { length: 512 }),
   stage: varchar('stage', { length: 120 }),
   createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+});
+
+// Startup Founders - links users to startups with roles
+export const startupFounders = pgTable('startup_founders', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  startupId: uuid('startup_id').references(() => startups.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 320 }).notNull(),
+  role: founderRoleEnum('role').notNull(),
+  isPrimary: boolean('is_primary').default(false).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  founderUnique: uniqueIndex('startup_founder_unique').on(table.startupId, table.userId),
+  startupIdx: index('startup_founders_startup_idx').on(table.startupId),
+}));
+
+// Startup Activity Logs - audit trail for all startup changes
+export const startupActivityLogs = pgTable('startup_activity_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  startupId: uuid('startup_id').references(() => startups.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  action: varchar('action', { length: 50 }).notNull(), // 'created', 'updated', 'founder_added', 'founder_removed', etc.
+  details: json('details').$type<Record<string, unknown>>(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  startupIdx: index('startup_activity_startup_idx').on(table.startupId),
+  createdAtIdx: index('startup_activity_created_idx').on(table.createdAt),
+}));
+
+// Startup Sessions - OTP-based authentication for founders
+export const startupSessions = pgTable('startup_sessions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: varchar('email', { length: 320 }).notNull(),
+  otp: varchar('otp', { length: 10 }).notNull(),
+  startupId: uuid('startup_id').references(() => startups.id, { onDelete: 'cascade' }),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  verified: boolean('verified').default(false).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
