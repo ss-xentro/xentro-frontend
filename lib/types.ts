@@ -126,6 +126,81 @@ export interface Event {
   approved?: boolean;
 }
 
+// Startup Types
+export type StartupStage = 'idea' | 'mvp' | 'early_traction' | 'growth' | 'scale';
+export type StartupStatus = 'active' | 'stealth' | 'paused' | 'acquired' | 'shut_down';
+export type FundingRound = 'bootstrapped' | 'pre_seed' | 'seed' | 'series_a' | 'series_b_plus' | 'unicorn';
+export type FounderRole = 'ceo' | 'cto' | 'coo' | 'cfo' | 'cpo' | 'founder' | 'co_founder';
+
+export interface Startup {
+  id: string;
+  slug?: string | null;
+  name: string;
+  tagline?: string | null;
+  logo?: string | null;
+  coverImage?: string | null;
+  pitch?: string | null;
+  description?: string | null;
+  foundedDate?: string | null;
+  stage?: StartupStage | null;
+  status: StartupStatus;
+  fundingRound?: FundingRound | null;
+  fundsRaised?: number | string | null;
+  fundingGoal?: number | string | null;
+  fundingCurrency?: string | null;
+  investors?: string[] | null;
+  primaryContactEmail?: string | null;
+  location?: string | null;
+  city?: string | null;
+  country?: string | null;
+  oneLiner?: string | null;
+  website?: string | null;
+  linkedin?: string | null;
+  twitter?: string | null;
+  instagram?: string | null;
+  pitchDeckUrl?: string | null;
+  demoVideoUrl?: string | null;
+  industry?: string | null;
+  sectors?: SectorFocus[] | null;
+  sdgFocus?: SDGFocus[] | null;
+  teamSize?: number | null;
+  employeeCount?: string | null;
+  highlights?: string[] | null;
+  mediaFeatures?: { title: string; url: string; source: string }[] | null;
+  institutionId?: string | null;
+  ownerId?: string | null;
+  profileViews?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface StartupFounder {
+  id: string;
+  startupId: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: FounderRole;
+  isPrimary: boolean;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export interface StartupTeamMember {
+  id: string;
+  userId: string;
+  startupId: string;
+  role: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+}
+
 // Onboarding Form Data
 export interface OnboardingFormData {
   type: InstitutionType | null;
@@ -222,3 +297,39 @@ export const currencies = [
   { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar' },
   { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
 ];
+
+// Startup Label Maps
+export const startupStageLabels: Record<StartupStage, { label: string; description: string; color: string }> = {
+  idea: { label: 'Idea', description: 'Conceptual stage', color: 'bg-gray-100 text-gray-800' },
+  mvp: { label: 'MVP', description: 'Minimum viable product', color: 'bg-blue-100 text-blue-800' },
+  early_traction: { label: 'Early Traction', description: 'Initial customers/users', color: 'bg-green-100 text-green-800' },
+  growth: { label: 'Growth', description: 'Scaling operations', color: 'bg-purple-100 text-purple-800' },
+  scale: { label: 'Scale', description: 'Rapid expansion', color: 'bg-orange-100 text-orange-800' },
+};
+
+export const startupStatusLabels: Record<StartupStatus, { label: string; color: string }> = {
+  active: { label: 'Active', color: 'bg-green-100 text-green-800' },
+  stealth: { label: 'Stealth Mode', color: 'bg-gray-100 text-gray-800' },
+  paused: { label: 'Paused', color: 'bg-yellow-100 text-yellow-800' },
+  acquired: { label: 'Acquired', color: 'bg-blue-100 text-blue-800' },
+  shut_down: { label: 'Shut Down', color: 'bg-red-100 text-red-800' },
+};
+
+export const fundingRoundLabels: Record<FundingRound, { label: string; description: string; color: string }> = {
+  bootstrapped: { label: 'Bootstrapped', description: 'Self-funded', color: 'bg-gray-100 text-gray-800' },
+  pre_seed: { label: 'Pre-Seed', description: '$0 - $500K', color: 'bg-blue-100 text-blue-800' },
+  seed: { label: 'Seed', description: '$500K - $2M', color: 'bg-green-100 text-green-800' },
+  series_a: { label: 'Series A', description: '$2M - $15M', color: 'bg-purple-100 text-purple-800' },
+  series_b_plus: { label: 'Series B+', description: '$15M+', color: 'bg-orange-100 text-orange-800' },
+  unicorn: { label: 'Unicorn', description: '$1B+ valuation', color: 'bg-yellow-100 text-yellow-800' },
+};
+
+export const founderRoleLabels: Record<FounderRole, string> = {
+  ceo: 'CEO',
+  cto: 'CTO',
+  coo: 'COO',
+  cfo: 'CFO',
+  cpo: 'CPO',
+  founder: 'Founder',
+  co_founder: 'Co-Founder',
+};

@@ -1,6 +1,6 @@
 import { db } from '@/db/client';
 import { startups, institutionApplications, users, teamMembers } from '@/db/schemas';
-import { eq, inArray, desc } from 'drizzle-orm';
+import { eq, inArray, desc, sql } from 'drizzle-orm';
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 
 export type StartupEntity = InferSelectModel<typeof startups>;
@@ -94,6 +94,79 @@ class StartupRepository {
   async countByInstitution(institutionId: string) {
     const results = await this.findByInstitution(institutionId);
     return results.length;
+  }
+
+  async findBySlug(slug: string) {
+    return db.query.startups.findFirst({
+      where: eq(startups.slug, slug),
+    });
+  }
+
+  async findBySlugOrId(identifier: string) {
+    // First try to find by slug
+    let startup = await db.query.startups.findFirst({
+      where: eq(startups.slug, identifier),
+    });
+    
+    // If not found, try by ID (UUID format check)
+    if (!startup && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier)) {
+      startup = await db.query.startups.findFirst({
+        where: eq(startups.id, identifier),
+      });
+    }
+    
+    return startup;
+  }
+
+  async findBySlugOrIdWithDetails(identifier: string) {
+    const startup = await this.findBySlugOrId(identifier);
+    if (!startup) return null;
+
+    // Get team members with user details
+    const members = await db
+      .select({
+        id: teamMembers.id,
+        role: teamMembers.role,
+        user: {
+          id: users.id,
+          name: users.name,
+          email: users.email,
+        },
+      })
+      .from(teamMembers)
+      .leftJoin(users, eq(teamMembers.userId, users.id))
+      .where(eq(teamMembers.startupId, startup.id));
+
+    // Get owner details
+    let owner = null;
+    if (startup.ownerId) {
+      owner = await db.query.users.findFirst({
+        where: eq(users.id, startup.ownerId),
+        columns: { id: true, name: true, email: true },
+      });
+    }
+
+    return { ...startup, teamMembers: members, owner };
+  }
+
+  async incrementProfileViews(id: string) {
+    const [updated] = await db
+      .update(startups)
+      .set({ 
+        profileViews: sql`COALESCE(${startups.profileViews}, 0) + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(startups.id, id))
+      .returning();
+    return updated ?? null;
+  }
+
+  async listPublished(limit = 50) {
+    return db.query.startups.findMany({
+      where: eq(startups.status, 'active'),
+      orderBy: [desc(startups.createdAt)],
+      limit,
+    });
   }
 
   // Team member methods

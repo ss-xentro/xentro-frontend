@@ -60,7 +60,7 @@ const rateLimits: Record<string, { max: number; window: number }> = {
   'default': { max: 100, window: 60000 }, // 100 requests per minute default
 };
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const start = performance.now();
   const pathname = request.nextUrl.pathname;
 
@@ -105,7 +105,7 @@ export function middleware(request: NextRequest) {
   
   // Only log in development or for slow requests
   if (process.env.NODE_ENV === 'development' || duration > 100) {
-    console.info(`[middleware] ${request.method} ${pathname} - ${duration.toFixed(2)}ms`);
+    console.info(`[proxy] ${request.method} ${pathname} - ${duration.toFixed(2)}ms`);
   }
 
   return response;

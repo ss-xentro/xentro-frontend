@@ -4,8 +4,9 @@ import { startupFounders, startupActivityLogs } from '@/db/schemas';
 import { eq, and } from 'drizzle-orm';
 import { verifyToken } from '@/server/services/auth';
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params;
         const authHeader = request.headers.get('authorization');
         if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
         const token = authHeader.split(' ')[1];
@@ -22,7 +23,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         }
 
         // Determine target ID (this is the ID in startupFounders table, NOT userId)
-        const targetId = params.id;
+        const targetId = id;
 
         // Check if target exists and belongs to startup
         const [target] = await db.select().from(startupFounders).where(and(eq(startupFounders.id, targetId), eq(startupFounders.startupId, startupId))).limit(1);

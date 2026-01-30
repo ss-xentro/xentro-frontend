@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -40,6 +40,18 @@ interface StartupPublic {
 }
 
 export default function PublicStartupsPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+            </div>
+        }>
+            <StartupsContent />
+        </Suspense>
+    );
+}
+
+function StartupsContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -88,11 +100,11 @@ export default function PublicStartupsPage() {
     // Handle stage/funding change immediately (fetchStartups dependency covers it)
 
     return (
-        <div className="min-h-screen bg-(--background)">
+        <div className="min-h-screen bg-background">
             {/* Hero */}
-            <div className="bg-gradient-to-b from-(--surface-hover) to-(--background) pt-20 pb-12 border-b border-(--border)">
+            <div className="bg-linear-to-b from-surface-hover to-background pt-20 pb-12 border-b border-(--border)">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-accent to-accent-hover mb-4">
+                    <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-linear-to-r from-accent to-accent-hover mb-4">
                         Discover Innovative Startups
                     </h1>
                     <p className="text-lg md:text-xl text-(--secondary) max-w-2xl mx-auto">
@@ -109,12 +121,12 @@ export default function PublicStartupsPage() {
                             placeholder="Search startups, taglines..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full bg-(--background)"
+                            className="w-full bg-background"
                         />
                     </div>
 
                     <div className="flex gap-4 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-                        <div className="w-48 flex-shrink-0">
+                        <div className="w-48 shrink-0">
                             <Select
                                 value={stage}
                                 onChange={setStage}
@@ -122,7 +134,7 @@ export default function PublicStartupsPage() {
                                 placeholder="Filter by Stage"
                             />
                         </div>
-                        <div className="w-48 flex-shrink-0">
+                        <div className="w-48 shrink-0">
                             <Select
                                 value={funding}
                                 onChange={setFunding}
@@ -130,7 +142,7 @@ export default function PublicStartupsPage() {
                                 placeholder="Filter by Funding"
                             />
                         </div>
-                        <div className="flex gap-1 bg-(--background) p-1 rounded-lg border border-(--border)">
+                        <div className="flex gap-1 bg-background p-1 rounded-lg border border-(--border)">
                             <button
                                 onClick={() => setView('grid')}
                                 className={`p-2 rounded ${view === 'grid' ? 'bg-(--surface-hover) text-(--primary)' : 'text-(--secondary)'}`}
@@ -174,7 +186,11 @@ export default function PublicStartupsPage() {
                 ) : view === 'grid' ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fadeIn">
                         {startups.map((startup) => (
-                            <Card key={startup.id} className="p-6 hover:shadow-lg transition-all group flex flex-col h-full cursor-pointer hover:border-accent/50">
+                            <Card 
+                                key={startup.id} 
+                                className="p-6 hover:shadow-lg transition-all group flex flex-col h-full cursor-pointer hover:border-accent/50"
+                                onClick={() => router.push(`/startups/${startup.id}`)}
+                            >
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="w-14 h-14 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center overflow-hidden">
                                         {startup.logo ? (
@@ -185,7 +201,7 @@ export default function PublicStartupsPage() {
                                             </span>
                                         )}
                                     </div>
-                                    <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>
+                                    {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
                                 </div>
 
                                 <div className="mb-4 flex-1">
@@ -198,9 +214,13 @@ export default function PublicStartupsPage() {
                                 </div>
 
                                 <div className="flex items-center justify-between pt-4 border-t border-(--border) mt-auto">
-                                    <Badge variant="outline" size="sm" className="bg-(--surface)">
-                                        {startup.fundingRound.replace(/_/g, ' ')}
-                                    </Badge>
+                                    <div className="flex items-center gap-2">
+                                        {startup.fundingRound && (
+                                            <Badge variant="outline" size="sm" className="bg-(--surface)">
+                                                {startup.fundingRound.replace(/_/g, ' ')}
+                                            </Badge>
+                                        )}
+                                    </div>
                                     {Number(startup.fundsRaised) > 0 && (
                                         <span className="text-sm font-medium text-success">
                                             ${Number(startup.fundsRaised).toLocaleString()}
@@ -213,8 +233,12 @@ export default function PublicStartupsPage() {
                 ) : (
                     <div className="space-y-4 animate-fadeIn">
                         {startups.map((startup) => (
-                            <Card key={startup.id} className="p-4 hover:shadow-md transition-all flex items-center gap-6 cursor-pointer hover:border-accent/50">
-                                <div className="w-16 h-16 rounded-lg bg-(--surface-hover) border border-(--border) flex-shrink-0 flex items-center justify-center overflow-hidden">
+                            <Card 
+                                key={startup.id} 
+                                className="p-4 hover:shadow-md transition-all flex items-center gap-6 cursor-pointer hover:border-accent/50"
+                                onClick={() => router.push(`/startups/${startup.id}`)}
+                            >
+                                <div className="w-16 h-16 rounded-lg bg-(--surface-hover) border border-(--border) shrink-0 flex items-center justify-center overflow-hidden">
                                     {startup.logo ? (
                                         <img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
                                     ) : (
@@ -225,11 +249,11 @@ export default function PublicStartupsPage() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className="text-lg font-bold text-(--primary)">{startup.name}</h3>
-                                    <p className="text-(--secondary) truncate text-sm">{startup.tagline}</p>
+                                    <p className="text-(--secondary) truncate text-sm">{startup.tagline || 'Building something amazing'}</p>
                                 </div>
-                                <div className="flex items-center gap-4 flex-shrink-0">
-                                    <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>
-                                    <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>
+                                <div className="flex items-center gap-4 shrink-0">
+                                    {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
+                                    {startup.fundingRound && <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>}
                                 </div>
                             </Card>
                         ))}

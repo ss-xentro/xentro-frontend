@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/client';
-import { startups, users, teamMembers, institutions, institutionApplications } from '@/db/schemas';
+import { startups, users, teamMembers, institutions, institutionApplications, startupFounders } from '@/db/schemas';
 import { eq, and } from 'drizzle-orm';
 import { verifyToken } from '@/server/services/auth';
 
@@ -81,16 +81,22 @@ export async function POST(request: NextRequest) {
     });
 
     if (!founder) {
-      // Create a new user for the founder
+      // Create a new user for the founder with accountType='startup'
       const [newUser] = await db
         .insert(users)
         .values({
           name: founderName || name,
           email: founderEmail.toLowerCase(),
-          accountType: 'explorer',
+          accountType: 'startup', // Changed from 'explorer' to 'startup'
         })
         .returning();
       founder = newUser;
+    } else if (founder.accountType !== 'startup') {
+      // Update existing user to be a startup founder
+      await db
+        .update(users)
+        .set({ accountType: 'startup' })
+        .where(eq(users.id, founder.id));
     }
 
     // Create the startup tied to the institution
@@ -108,7 +114,17 @@ export async function POST(request: NextRequest) {
       .returning();
     console.log('[Add Startup] Created startup:', { id: startup.id, institutionId: startup.institutionId });
 
-    // Attach founder as team member
+    // Create startupFounders record (required for founder authentication)
+    await db.insert(startupFounders).values({
+      startupId: startup.id,
+      userId: founder.id,
+      name: founderName || name,
+      email: founderEmail.toLowerCase(),
+      role: 'founder',
+      isPrimary: true,
+    }).onConflictDoNothing();
+
+    // Attach founder as team member (legacy, for backwards compatibility)
     await db.insert(teamMembers).values({
       userId: founder.id,
       startupId: startup.id,
@@ -129,15 +145,32 @@ export async function POST(request: NextRequest) {
           const [newUser] = await db.insert(users).values({
             name,
             email,
-            accountType: 'explorer',
+            accountType: 'startup', // Changed from 'explorer' to 'startup'
           }).returning();
           user = newUser;
+        } else if (user.accountType !== 'startup') {
+          // Update existing user to be a startup founder
+          await db
+            .update(users)
+            .set({ accountType: 'startup' })
+            .where(eq(users.id, user.id));
         }
 
+        // Create startupFounders record
+        await db.insert(startupFounders).values({
+          startupId: startup.id,
+          userId: user.id,
+          name,
+          email,
+          role: 'co_founder',
+          isPrimary: false,
+        }).onConflictDoNothing();
+
+        // Also add to teamMembers for backwards compatibility
         await db.insert(teamMembers).values({
           userId: user.id,
           startupId: startup.id,
-          role: 'founder',
+          role: 'co-founder',
         }).onConflictDoNothing({ target: [teamMembers.userId, teamMembers.startupId] });
       }
     }

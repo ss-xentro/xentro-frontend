@@ -79,7 +79,7 @@ export default function Home() {
         <div className="max-w-3xl mx-auto mt-16 text-center">
           <div className="inline-flex items-center gap-2 text-sm text-(--secondary) bg-white px-6 py-3 rounded-full shadow-sm">
             <span>Admin?</span>
-            <Link href="/login" className="text-accent font-semibold hover:underline focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 rounded" aria-label="Go to admin console">
+            <Link href="/admin/login" className="text-accent font-semibold hover:underline focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 rounded" aria-label="Go to admin console">
               Access Console
             </Link>
           </div>

@@ -51,22 +51,45 @@ export const startups = pgTable('startups', {
   slug: varchar('slug', { length: 100 }).unique(), // Optional for backward compatibility
   tagline: varchar('tagline', { length: 280 }),
   logo: varchar('logo', { length: 512 }),
+  coverImage: varchar('cover_image', { length: 512 }), // Hero banner image (Kickstarter-style)
   pitch: varchar('pitch', { length: 160 }), // One-line pitch, max 160 chars
+  description: text('description'), // Full description (Kickstarter story section)
   foundedDate: timestamp('founded_date', { withTimezone: true }),
   stage: startupStageEnum('stage'),
   status: startupStatusEnum('status').default('active').notNull(),
   fundingRound: fundingRoundEnum('funding_round').default('bootstrapped'),
   fundsRaised: numeric('funds_raised', { precision: 16, scale: 2 }),
+  fundingGoal: numeric('funding_goal', { precision: 16, scale: 2 }), // Target funding amount
   fundingCurrency: varchar('funding_currency', { length: 8 }).default('USD'),
   investors: json('investors').$type<string[]>(),
   primaryContactEmail: varchar('primary_contact_email', { length: 320 }),
   // Keep existing fields for backward compatibility
   location: varchar('location', { length: 255 }),
+  city: varchar('city', { length: 180 }),
+  country: varchar('country', { length: 180 }),
   oneLiner: varchar('one_liner', { length: 280 }),
+  // Social links (LinkedIn-style)
+  website: varchar('website', { length: 255 }),
+  linkedin: varchar('linkedin', { length: 255 }),
+  twitter: varchar('twitter', { length: 255 }),
+  instagram: varchar('instagram', { length: 255 }),
+  pitchDeckUrl: varchar('pitch_deck_url', { length: 512 }), // Link to pitch deck
+  demoVideoUrl: varchar('demo_video_url', { length: 512 }), // YouTube/Vimeo embed
+  // Industry & focus areas
+  industry: varchar('industry', { length: 120 }),
+  sectors: json('sectors').$type<string[]>(), // Array of sector tags
+  sdgFocus: json('sdg_focus').$type<string[]>(), // UN SDG alignment
+  // Metrics & highlights
+  teamSize: integer('team_size'),
+  employeeCount: varchar('employee_count', { length: 50 }), // "1-10", "11-50", etc.
+  highlights: json('highlights').$type<string[]>(), // Key achievements/milestones
+  mediaFeatures: json('media_features').$type<{ title: string; url: string; source: string }[]>(), // Press coverage
+  // Relations
   institutionId: uuid('institution_id').references(() => institutions.id, { onDelete: 'set null' }),
   ownerId: uuid('owner_id').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  profileViews: integer('profile_views').default(0).notNull(),
 }, (table) => ({
   slugIdx: uniqueIndex('startups_slug_idx').on(table.slug),
   statusIdx: index('startups_status_idx').on(table.status),

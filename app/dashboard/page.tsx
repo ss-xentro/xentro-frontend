@@ -16,6 +16,7 @@ interface ActivityLog {
 
 interface StartupData {
     id: string;
+    slug?: string | null;
     name: string;
     tagline: string;
     logo: string | null;
@@ -102,14 +103,19 @@ export default function DashboardOverviewPage() {
                     </p>
                 </div>
                 <div className="flex gap-3">
-                    <Link href="/dashboard/startup">
+                    <Link href={`/startups/${data.startup.slug || data.startup.id}`} target="_blank">
                         <Button variant="secondary" size="sm">
+                            <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            View Public Profile
+                        </Button>
+                    </Link>
+                    <Link href="/dashboard/startup">
+                        <Button variant="primary" size="sm">
                             Edit Profile
                         </Button>
                     </Link>
-                    <Button variant="primary" size="sm">
-                        Share Public Page
-                    </Button>
                 </div>
             </div>
 
@@ -117,7 +123,7 @@ export default function DashboardOverviewPage() {
             <Card className="p-6">
                 <div className="flex flex-col md:flex-row gap-6">
                     {/* Logo */}
-                    <div className="w-24 h-24 rounded-xl bg-(--surface-hover) flex-shrink-0 flex items-center justify-center border border-(--border) overflow-hidden">
+                    <div className="w-24 h-24 rounded-xl bg-(--surface-hover) shrink-0 flex items-center justify-center border border-(--border) overflow-hidden">
                         {data.startup.logo ? (
                             <img src={data.startup.logo} alt={data.startup.name} className="w-full h-full object-cover" />
                         ) : (

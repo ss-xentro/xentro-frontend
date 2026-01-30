@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/client';
 import { startups } from '@/db/schemas';
-import { eq, and, ne, ilike, or, desc, sql } from 'drizzle-orm';
+import { eq, and, ne, ilike, or, desc, sql, SQL } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
     try {
@@ -11,18 +11,21 @@ export async function GET(request: NextRequest) {
         const fundingRound = searchParams.get('funding');
         const sort = searchParams.get('sort') || 'newest';
 
-        const conditions = [
+        const conditions: SQL[] = [
             ne(startups.status, 'stealth'), // Never show stealth
             ne(startups.status, 'shut_down'), // Optionally hide shut_down? keeping for now unless requested
         ];
 
         if (search) {
             const searchLower = `%${search.toLowerCase()}%`;
-            conditions.push(or(
+            const searchCondition = or(
                 ilike(startups.name, searchLower),
                 ilike(startups.tagline, searchLower),
                 ilike(startups.pitch, searchLower)
-            ));
+            );
+            if (searchCondition) {
+                conditions.push(searchCondition);
+            }
         }
 
         if (stage && stage !== 'all') {
