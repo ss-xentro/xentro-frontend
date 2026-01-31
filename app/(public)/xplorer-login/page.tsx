@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button, Card, Input } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 export default function XplorerLoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
@@ -12,6 +15,13 @@ export default function XplorerLoginPage() {
   const [googleReady, setGoogleReady] = useState(false);
 
   useEffect(() => {
+    // Check if already logged in
+    const token = localStorage.getItem('xentro_token');
+    if (token) {
+      router.replace('/feed');
+      return;
+    }
+    
     // Load Google Identity Services script lazily
     const id = 'google-client';
     if (document.getElementById(id)) return setGoogleReady(true);
@@ -21,21 +31,27 @@ export default function XplorerLoginPage() {
     script.async = true;
     script.onload = () => setGoogleReady(true);
     document.head.appendChild(script);
-  }, []);
+  }, [router]);
 
   async function handlePasswordLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
     try {
-      const res = await fetch('/api/xplorers/login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Login failed');
-      setMessage('Logged in successfully.');
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+      
+      // Store auth data
+      localStorage.setItem('xentro_token', data.token);
+      localStorage.setItem('xentro_user', JSON.stringify(data.user));
+      
+      setMessage('Logged in successfully! Redirecting...');
+      setTimeout(() => router.push('/feed'), 1000);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -61,14 +77,20 @@ export default function XplorerLoginPage() {
           return;
         }
         try {
-          const res = await fetch('/api/xplorers/login/google', {
+          const res = await fetch('/api/auth/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken: response.credential }),
           });
           const data = await res.json();
-          if (!res.ok) throw new Error(data.message || 'Google login failed');
-          setMessage('Logged in with Google.');
+          if (!res.ok) throw new Error(data.error || 'Google login failed');
+          
+          // Store auth data
+          localStorage.setItem('xentro_token', data.token);
+          localStorage.setItem('xentro_user', JSON.stringify(data.user));
+          
+          setMessage('Logged in with Google! Redirecting...');
+          setTimeout(() => router.push('/feed'), 1000);
         } catch (err) {
           setMessage(err instanceof Error ? err.message : 'Google login failed');
         }
@@ -106,6 +128,12 @@ export default function XplorerLoginPage() {
           Continue with Google
         </Button>
         {message && <p className={cn('text-sm', message.toLowerCase().includes('success') || message.toLowerCase().includes('logged') ? 'text-green-600' : 'text-red-600')}>{message}</p>}
+        <p className="text-sm text-center text-(--secondary)">
+          Don&apos;t have an account?{' '}
+          <Link href="/xplorer-signup" className="text-accent hover:underline">
+            Sign up
+          </Link>
+        </p>
       </Card>
     </div>
   );

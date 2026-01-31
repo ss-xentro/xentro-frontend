@@ -1,4 +1,4 @@
--- Add slug field to institutions (unique URL identifier)
+--- Add slug field to institutions (unique URL identifier)
 ALTER TABLE "institutions" ADD COLUMN IF NOT EXISTS "slug" varchar(100);
 ALTER TABLE "institutions" ADD COLUMN IF NOT EXISTS "profile_views" integer DEFAULT 0 NOT NULL;
 

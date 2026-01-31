@@ -8,3 +8,5 @@ export { SelectionCard, MultiSelectCard } from './SelectionCard';
 export { ProgressIndicator, StepDots } from './ProgressIndicator';
 export { FileUpload } from './FileUpload';
 export { Select } from './Select';
+export { NotificationsDropdown } from './NotificationsDropdown';
+export { ContextSwitcher } from './ContextSwitcher';

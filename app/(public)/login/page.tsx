@@ -128,7 +128,7 @@ export default function FounderLoginPage() {
                             <p className="text-center text-sm text-(--secondary)">
                                 Don't have an account?{' '}
                                 <a href="/onboarding/startup" className="text-accent hover:underline font-medium">
-                                    Create Startup Profile
+                                    Create Startup
                                 </a>
                             </p>
                         </form>

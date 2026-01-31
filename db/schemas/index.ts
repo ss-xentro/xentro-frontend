@@ -5,7 +5,7 @@ export const createdByTypeEnum = pgEnum('created_by_type', ['mentor', 'startup',
 export const entityTypeEnum = pgEnum('entity_type', ['mentor', 'student', 'startup', 'investor', 'event']);
 export const resourceTypeEnum = pgEnum('resource_type', ['video', 'pdf', 'link', 'course']);
 export const authProviderEnum = pgEnum('auth_provider', ['credentials', 'google', 'otp']);
-export const mentorStatusEnum = pgEnum('mentor_status', ['pending', 'approved', 'rejected']);
+export const mentorStatusEnum = pgEnum('mentor_status', ['pending', 'approved', 'rejected', 'suspended']);
 export const institutionRoleEnum = pgEnum('institution_role', ['owner', 'admin', 'manager', 'viewer']);
 
 // Startup-specific enums
@@ -14,13 +14,84 @@ export const startupStatusEnum = pgEnum('startup_status', ['active', 'stealth', 
 export const fundingRoundEnum = pgEnum('funding_round', ['bootstrapped', 'pre_seed', 'seed', 'series_a', 'series_b_plus', 'unicorn']);
 export const founderRoleEnum = pgEnum('founder_role', ['ceo', 'cto', 'coo', 'cfo', 'cpo', 'founder', 'co_founder']);
 
+// ============================================
+// UNIFIED ARCHITECTURE ENUMS
+// ============================================
+
+// User contexts (dashboards they can access)
+export const userContextEnum = pgEnum('user_context', [
+  'explorer',      // Default for all users
+  'startup',       // Founder or team member of a startup
+  'mentor',        // Approved mentor
+  'institute',     // Institute admin or member
+  'admin'          // Platform admin (L1, L2, L3)
+]);
+
+// Form states - all create/apply actions go through forms
+export const formStatusEnum = pgEnum('form_status', [
+  'draft',         // User is still filling
+  'submitted',     // Submitted for review
+  'under_review',  // Being reviewed by admin
+  'approved',      // Approved and processed
+  'rejected',      // Rejected with feedback
+  'withdrawn'      // Withdrawn by user
+]);
+
+// Form types
+export const formTypeEnum = pgEnum('form_type', [
+  'startup_create',        // Create a new startup
+  'startup_update',        // Update startup info
+  'mentor_apply',          // Apply to become mentor
+  'mentor_update',         // Update mentor profile
+  'institute_create',      // Create institution
+  'institute_update',      // Update institution
+  'event_create',          // Create an event
+  'program_create',        // Create a program
+  'team_invite',           // Invite team member
+  'general'                // Generic form
+]);
+
+// Admin levels
+export const adminLevelEnum = pgEnum('admin_level', ['L1', 'L2', 'L3']);
+
+// Startup membership roles
+export const startupRoleEnum = pgEnum('startup_role', ['founder', 'co_founder', 'cto', 'coo', 'cfo', 'team_member']);
+
+// Feed interaction types
+export const interactionTypeEnum = pgEnum('interaction_type', ['appreciate', 'viewed', 'mentor_tip', 'saved']);
+
+// Notification types
+export const notificationTypeEnum = pgEnum('notification_type', [
+  'form_submitted',
+  'form_approved', 
+  'form_rejected',
+  'form_changes_requested',
+  'context_unlocked',
+  'team_invite',
+  'team_invite_accepted',
+  'mentor_tip_received',
+  'appreciation_received',
+  'mention',
+  'system'
+]);
+
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 320 }).notNull(),
   phone: varchar('phone', { length: 50 }),
+  avatar: varchar('avatar', { length: 512 }),
   accountType: accountTypeEnum('account_type').notNull(),
+  
+  // Unified architecture fields
+  unlockedContexts: json('unlocked_contexts').$type<string[]>().default(['explorer']),
+  activeContext: userContextEnum('active_context').default('explorer'),
+  emailVerified: boolean('email_verified').default(false),
+  isActive: boolean('is_active').default(true),
+  lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
+  
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 }, (table) => ({
   emailUnique: uniqueIndex('users_email_idx').on(table.email),
 }));
@@ -103,6 +174,24 @@ export const teamMembers = pgTable('team_members', {
   role: varchar('role', { length: 120 }).notNull(),
 }, (table) => ({
   memberUnique: uniqueIndex('team_member_unique').on(table.userId, table.startupId),
+}));
+
+// Startup Members - links users to startups with roles (for unified architecture)
+export const startupMembers = pgTable('startup_members', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  startupId: uuid('startup_id').references(() => startups.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  role: startupRoleEnum('role').notNull(),
+  title: varchar('title', { length: 120 }),
+  invitedBy: uuid('invited_by').references(() => users.id, { onDelete: 'set null' }),
+  invitedAt: timestamp('invited_at', { withTimezone: true }).defaultNow().notNull(),
+  acceptedAt: timestamp('accepted_at', { withTimezone: true }),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  memberUnique: uniqueIndex('startup_member_unique_idx').on(table.startupId, table.userId),
+  userIdx: index('startup_member_user_idx').on(table.userId),
+  startupIdx: index('startup_member_startup_idx').on(table.startupId),
 }));
 
 export const mentorProfiles = pgTable('mentor_profiles', {
@@ -436,3 +525,164 @@ export const startupSessions = pgTable('startup_sessions', {
   verified: boolean('verified').default(false).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+// ============================================
+// UNIFIED ARCHITECTURE TABLES
+// ============================================
+
+// OTP Sessions - Universal OTP storage
+export const otpSessions = pgTable('otp_sessions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: varchar('email', { length: 320 }).notNull(),
+  otp: varchar('otp', { length: 10 }).notNull(),
+  purpose: varchar('purpose', { length: 50 }).notNull(), // 'login', 'verify_email', 'reset_password'
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  verified: boolean('verified').default(false).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  emailPurposeIdx: index('otp_email_purpose_idx').on(table.email, table.purpose),
+}));
+
+// Admin Profiles - Platform admins (L1, L2, L3)
+export const adminProfiles = pgTable('admin_profiles', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  level: adminLevelEnum('level').notNull(),
+  permissions: json('permissions').$type<string[]>().default([]),
+  assignedBy: uuid('assigned_by').references(() => users.id, { onDelete: 'set null' }),
+  assignedAt: timestamp('assigned_at', { withTimezone: true }).defaultNow().notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userUnique: uniqueIndex('admin_user_unique_idx').on(table.userId),
+}));
+
+// Forms - Universal form submissions for all create/apply actions
+export const forms = pgTable('forms', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  type: formTypeEnum('type').notNull(),
+  status: formStatusEnum('status').default('draft').notNull(),
+  submittedBy: uuid('submitted_by').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  submittedAt: timestamp('submitted_at', { withTimezone: true }),
+  data: json('data').$type<Record<string, unknown>>().notNull(),
+  attachments: json('attachments').$type<{ name: string; url: string; type: string }[]>().default([]),
+  reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
+  reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+  reviewNotes: text('review_notes'),
+  resultEntityType: varchar('result_entity_type', { length: 50 }),
+  resultEntityId: uuid('result_entity_id'),
+  version: integer('version').default(1).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  typeIdx: index('forms_type_idx').on(table.type),
+  statusIdx: index('forms_status_idx').on(table.status),
+  submittedByIdx: index('forms_submitted_by_idx').on(table.submittedBy),
+  typeStatusIdx: index('forms_type_status_idx').on(table.type, table.status),
+}));
+
+// Form Reviews - Audit trail for form reviews
+export const formReviews = pgTable('form_reviews', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  formId: uuid('form_id').references(() => forms.id, { onDelete: 'cascade' }).notNull(),
+  reviewerId: uuid('reviewer_id').references(() => users.id, { onDelete: 'set null' }).notNull(),
+  action: varchar('action', { length: 50 }).notNull(), // 'approve', 'reject', 'request_changes', 'escalate'
+  previousStatus: formStatusEnum('previous_status').notNull(),
+  newStatus: formStatusEnum('new_status').notNull(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  formIdx: index('form_reviews_form_idx').on(table.formId),
+  reviewerIdx: index('form_reviews_reviewer_idx').on(table.reviewerId),
+}));
+
+// Feed Items - Denormalized feed entries
+export const feedItems = pgTable('feed_items', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  sourceType: varchar('source_type', { length: 50 }).notNull(), // 'startup', 'event', 'mentor', 'institution', 'program'
+  sourceId: uuid('source_id').notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  summary: text('summary'),
+  imageUrl: varchar('image_url', { length: 512 }),
+  sectors: json('sectors').$type<string[]>().default([]),
+  stages: json('stages').$type<string[]>().default([]),
+  createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  creatorType: varchar('creator_type', { length: 50 }),
+  creatorId: uuid('creator_id'),
+  creatorName: varchar('creator_name', { length: 255 }),
+  creatorLogo: varchar('creator_logo', { length: 512 }),
+  viewCount: integer('view_count').default(0).notNull(),
+  appreciationCount: integer('appreciation_count').default(0).notNull(),
+  mentorTipCount: integer('mentor_tip_count').default(0).notNull(),
+  score: integer('score').default(0).notNull(),
+  isPublic: boolean('is_public').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  sourceIdx: index('feed_source_idx').on(table.sourceType, table.sourceId),
+  scoreIdx: index('feed_score_idx').on(table.score),
+  createdAtIdx: index('feed_created_at_idx').on(table.createdAt),
+  creatorIdx: index('feed_creator_idx').on(table.creatorType, table.creatorId),
+}));
+
+// Feed Interactions - User interactions with feed items
+export const feedInteractions = pgTable('feed_interactions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  feedItemId: uuid('feed_item_id').references(() => feedItems.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  type: interactionTypeEnum('type').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  uniqueInteraction: uniqueIndex('feed_interaction_unique_idx').on(table.feedItemId, table.userId, table.type),
+  feedItemIdx: index('feed_interaction_item_idx').on(table.feedItemId),
+  userIdx: index('feed_interaction_user_idx').on(table.userId),
+}));
+
+// Saved Items - User's saved feed items
+export const savedItems = pgTable('saved_items', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  feedItemId: uuid('feed_item_id').references(() => feedItems.id, { onDelete: 'cascade' }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userItemUnique: uniqueIndex('saved_item_unique_idx').on(table.userId, table.feedItemId),
+  userIdx: index('saved_item_user_idx').on(table.userId),
+}));
+
+// Activity Logs - Comprehensive audit trail
+export const activityLogs = pgTable('activity_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  context: userContextEnum('context'),
+  contextEntityId: uuid('context_entity_id'),
+  action: varchar('action', { length: 100 }).notNull(),
+  entityType: varchar('entity_type', { length: 50 }),
+  entityId: uuid('entity_id'),
+  details: json('details').$type<Record<string, unknown>>(),
+  ipAddress: varchar('ip_address', { length: 45 }),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('activity_user_idx').on(table.userId),
+  contextIdx: index('activity_context_idx').on(table.context, table.contextEntityId),
+  createdAtIdx: index('activity_created_at_idx').on(table.createdAt),
+}));
+
+// Notifications - User notifications
+export const notifications = pgTable('notifications', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  type: notificationTypeEnum('type').notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  message: text('message'),
+  entityType: varchar('entity_type', { length: 50 }),
+  entityId: uuid('entity_id'),
+  actionUrl: varchar('action_url', { length: 512 }),
+  isRead: boolean('is_read').default(false).notNull(),
+  readAt: timestamp('read_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('notification_user_idx').on(table.userId),
+  userUnreadIdx: index('notification_user_unread_idx').on(table.userId, table.isRead),
+  createdAtIdx: index('notification_created_at_idx').on(table.createdAt),
+}));

@@ -172,6 +172,13 @@ export default function StartupOnboardingPage() {
                 <p className="text-center text-xs text-(--secondary) mt-6">
                     Your progress is automatically saved.
                 </p>
+
+                <p className="text-center text-sm text-(--secondary) mt-4">
+                    Already have a founder account on XENTRO?{' '}
+                    <a href="/login" className="text-accent hover:underline font-medium">
+                        Access Dashboard
+                    </a>
+                </p>
             </div>
         </div>
     );
