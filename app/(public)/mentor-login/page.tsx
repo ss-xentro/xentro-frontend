@@ -15,14 +15,13 @@ export default function MentorLoginPage() {
     setLoading(true);
     setMessage(null);
     try {
-      // Reuse xplorer password login until dedicated mentor auth exists
-      const res = await fetch('/api/xplorers/login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Login failed');
+      if (!res.ok) throw new Error(data.error || 'Login failed');
       setMessage('Logged in. If approved, your mentor dashboard is unlocked.');
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Login failed');

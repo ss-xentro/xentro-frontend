@@ -132,7 +132,7 @@ export default function LocationSlide({
                     Where are you located?
                 </h2>
                 <p className="text-(--secondary)">
-                    This helps xplorers find institutions in their region.
+                    This helps users find institutions in their region.
                 </p>
             </div>
 

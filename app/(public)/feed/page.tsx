@@ -151,11 +151,11 @@ export default function FeedPage() {
               <Link href="/startups" className="text-sm text-(--secondary) hover:text-(--primary) transition-colors">
                 Startups
               </Link>
-              <Link href="/xplorer-login" className="text-sm text-(--secondary) hover:text-(--primary) transition-colors">
-                Login
+              <Link href="/mentor-login" className="text-sm text-(--secondary) hover:text-(--primary) transition-colors">
+                Mentors
               </Link>
-              <Link href="/xplorer-signup">
-                <Button size="sm">Sign Up</Button>
+              <Link href="/institution-login" className="text-sm text-(--secondary) hover:text-(--primary) transition-colors">
+                Institutions Login
               </Link>
             </nav>
           </div>

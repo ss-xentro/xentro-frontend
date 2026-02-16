@@ -25,7 +25,7 @@ export default function DescriptionSlide({ value, onChange, className }: Descrip
                 <Textarea
                     id="description"
                     label="About"
-                    placeholder="Tell xplorers about your programs, impact, and values..."
+                    placeholder="Tell students and startups about your programs, impact, and values..."
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     className="min-h-62.5 text-lg"

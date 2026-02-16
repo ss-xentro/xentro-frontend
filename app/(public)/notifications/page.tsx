@@ -199,13 +199,7 @@ export default function NotificationsPage() {
         ) : error ? (
           <Card className="p-8 text-center">
             <p className="text-error mb-4">{error}</p>
-            {error.includes('login') ? (
-              <Link href="/xplorer-login">
-                <Button>Go to Login</Button>
-              </Link>
-            ) : (
-              <Button onClick={fetchNotifications}>Try Again</Button>
-            )}
+            <Button onClick={fetchNotifications}>Try Again</Button>
           </Card>
         ) : notifications.length === 0 ? (
           <Card className="p-8 text-center">
