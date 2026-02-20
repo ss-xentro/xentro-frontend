@@ -1,409 +1,362 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { Card, Badge, Button } from '@/components/ui';
-import { cn, formatNumber } from '@/lib/utils';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
-interface FeedItem {
+interface Post {
   id: string;
-  sourceType: string;
-  sourceId: string;
-  title: string;
-  summary: string | null;
-  imageUrl: string | null;
-  sectors: string[];
-  stages: string[];
-  creatorName: string | null;
-  creatorLogo: string | null;
-  creatorType: string | null;
-  viewCount: number;
-  appreciationCount: number;
-  mentorTipCount: number;
-  createdAt: string;
+  author: {
+    name: string;
+    username: string;
+    avatar: string;
+  };
+  content: string;
+  image?: string;
+  timestamp: string;
+  replies: number;
+  reposts: number;
+  likes: number;
+  bookmarks: number;
 }
 
-const SECTORS = [
-  { value: 'ai', label: 'AI & ML', emoji: '🤖' },
-  { value: 'healthtech', label: 'HealthTech', emoji: '⚕️' },
-  { value: 'edtech', label: 'EdTech', emoji: '📚' },
-  { value: 'climatetech', label: 'ClimateTech', emoji: '🌿' },
-  { value: 'fintech', label: 'FinTech', emoji: '💳' },
-  { value: 'saas', label: 'SaaS', emoji: '☁️' },
-  { value: 'social-impact', label: 'Social Impact', emoji: '❤️' },
+const mockPosts: Post[] = [
+  {
+    id: '1',
+    author: {
+      name: 'Sarah Chen',
+      username: 'sarahchen',
+      avatar: '/api/placeholder/48/48',
+    },
+    content: 'Just closed our Series A! Excited to scale our climate tech solution to 50+ cities by 2027. Building the future we want to see 🌍',
+    image: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=800',
+    timestamp: '2h',
+    replies: 24,
+    reposts: 89,
+    likes: 342,
+    bookmarks: 56,
+  },
+  {
+    id: '2',
+    author: {
+      name: 'Alex Kumar',
+      username: 'alexkumar',
+      avatar: '/api/placeholder/48/48',
+    },
+    content: 'New research paper on AI-driven drug discovery just published. We reduced screening time from 6 months to 2 weeks. Science is accelerating.',
+    timestamp: '4h',
+    replies: 67,
+    reposts: 234,
+    likes: 891,
+    bookmarks: 145,
+  },
+  {
+    id: '3',
+    author: {
+      name: 'Maya Rodriguez',
+      username: 'mayarodriguez',
+      avatar: '/api/placeholder/48/48',
+    },
+    content: 'Reflecting on 3 years building in stealth. Sometimes the best strategy is to ship quietly and let the product speak. Our beta waitlist hit 10k today.',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800',
+    timestamp: '6h',
+    replies: 156,
+    reposts: 423,
+    likes: 1247,
+    bookmarks: 289,
+  },
 ];
 
-const STAGES = [
-  { value: 'idea', label: 'Idea' },
-  { value: 'mvp', label: 'MVP' },
-  { value: 'early_traction', label: 'Early Traction' },
-  { value: 'growth', label: 'Growth' },
-  { value: 'scale', label: 'Scale' },
+const navItems = [
+  { icon: 'home', label: 'Home', href: '/feed' },
+  { icon: 'explore', label: 'Explore', href: '/explore' },
+  { icon: 'bell', label: 'Notifications', href: '/notifications' },
+  { icon: 'user', label: 'Profile', href: '/profile' },
 ];
 
-export default function FeedPage() {
-  const [items, setItems] = useState<FeedItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
-  const [selectedStages, setSelectedStages] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<'trending' | 'latest'>('trending');
-  const [appreciating, setAppreciating] = useState<string | null>(null);
+const trending = [
+  { tag: 'ClimaTech', posts: '2.4K' },
+  { tag: 'SeriesA', posts: '1.8K' },
+  { tag: 'AI Research', posts: '3.2K' },
+  { tag: 'Sustainability', posts: '892' },
+];
 
-  const fetchFeed = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (selectedSectors.length > 0) {
-        params.set('sectors', selectedSectors.join(','));
-      }
-      if (selectedStages.length > 0) {
-        params.set('stages', selectedStages.join(','));
-      }
-      params.set('sortBy', sortBy);
-      params.set('limit', '20');
+const suggestions = [
+  { name: 'TechVentures', username: 'techventures', avatar: '/api/placeholder/40/40' },
+  { name: 'Innovation Hub', username: 'innovationhub', avatar: '/api/placeholder/40/40' },
+  { name: 'Startup Insider', username: 'startupinsider', avatar: '/api/placeholder/40/40' },
+];
 
-      const res = await fetch(`/api/feed?${params}`);
-      if (!res.ok) throw new Error('Failed to load feed');
-      const data = await res.json();
-      setItems(data.items || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load feed');
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedSectors, selectedStages, sortBy]);
-
-  useEffect(() => {
-    fetchFeed();
-  }, [fetchFeed]);
-
-  const toggleSector = (sector: string) => {
-    setSelectedSectors((prev) =>
-      prev.includes(sector) ? prev.filter((s) => s !== sector) : [...prev, sector]
-    );
-  };
-
-  const toggleStage = (stage: string) => {
-    setSelectedStages((prev) =>
-      prev.includes(stage) ? prev.filter((s) => s !== stage) : [...prev, stage]
-    );
-  };
-
-  const handleAppreciate = async (itemId: string) => {
-    const token = localStorage.getItem('xentro_token');
-    if (!token) {
-      // Redirect to login or show message
-      alert('Please login to appreciate');
-      return;
-    }
-
-    setAppreciating(itemId);
-    try {
-      const res = await fetch(`/api/feed/${itemId}/appreciate`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) throw new Error('Failed to appreciate');
-      // Update local state
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === itemId
-            ? { ...item, appreciationCount: item.appreciationCount + 1 }
-            : item
-        )
-      );
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setAppreciating(null);
-    }
-  };
-
-  const getSourceLink = (item: FeedItem) => {
-    switch (item.sourceType) {
-      case 'startup':
-        return `/startups/${item.sourceId}`;
-      case 'institution':
-        return `/institutions/${item.sourceId}`;
-      case 'event':
-        return `/events/${item.sourceId}`;
-      default:
-        return '#';
-    }
+function NavIcon({ icon, active }: { icon: string; active?: boolean }) {
+  const iconPaths: Record<string, string> = {
+    home: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+    explore: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
+    bell: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
+    user: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
   };
 
   return (
-    <div className="min-h-screen bg-(--background)">
-      {/* Header */}
-      <header className="bg-(--surface) border-b border-(--border) sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-accent to-accent-hover">
-              XENTRO
-            </Link>
-            <nav className="flex items-center gap-4">
-              <Link href="/institutions" className="text-sm text-(--secondary) hover:text-(--primary) transition-colors">
-                Institutions
-              </Link>
-              <Link href="/startups" className="text-sm text-(--secondary) hover:text-(--primary) transition-colors">
-                Startups
-              </Link>
-              <Link href="/mentor-login" className="text-sm text-(--secondary) hover:text-(--primary) transition-colors">
-                Mentors
-              </Link>
-              <Link href="/institution-login" className="text-sm text-(--secondary) hover:text-(--primary) transition-colors">
-                Institutions Login
-              </Link>
-            </nav>
+    <svg
+      className={cn('w-6 h-6 transition-all duration-200', active ? 'text-white' : 'text-gray-400')}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      strokeWidth={active ? 2.5 : 2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d={iconPaths[icon]} />
+    </svg>
+  );
+}
+
+function PostCard({ post, isLast }: { post: Post; isLast?: boolean }) {
+  const [liked, setLiked] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  return (
+    <div
+      className={cn(
+        'relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 transition-all duration-300 hover:bg-white/[0.07] hover:border-white/20',
+        'animate-fadeIn',
+        !isLast && 'mb-3'
+      )}
+    >
+      <div className="flex gap-3">
+        {/* Avatar */}
+        <div className="shrink-0">
+          <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500/20 to-purple-500/20 border border-white/10 overflow-hidden">
+            <div className="w-full h-full bg-gray-700" />
           </div>
         </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters */}
-          <aside className="lg:w-64 flex-shrink-0">
-            <Card className="p-4 sticky top-24">
-              <h3 className="font-semibold text-(--primary) mb-4">Filters</h3>
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          {/* Header */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-semibold text-white text-[15px]">{post.author.name}</span>
+            <span className="text-gray-500 text-[14px]">@{post.author.username}</span>
+            <span className="text-gray-600 text-[14px]">·</span>
+            <span className="text-gray-600 text-[14px]">{post.timestamp}</span>
+          </div>
 
-              {/* Sort */}
-              <div className="mb-6">
-                <label className="text-sm font-medium text-(--secondary) mb-2 block">Sort by</label>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setSortBy('trending')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-lg text-sm transition-colors',
-                      sortBy === 'trending'
-                        ? 'bg-accent text-white'
-                        : 'bg-(--background) text-(--secondary) hover:bg-(--border)'
-                    )}
-                  >
-                    🔥 Trending
-                  </button>
-                  <button
-                    onClick={() => setSortBy('latest')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-lg text-sm transition-colors',
-                      sortBy === 'latest'
-                        ? 'bg-accent text-white'
-                        : 'bg-(--background) text-(--secondary) hover:bg-(--border)'
-                    )}
-                  >
-                    🕐 Latest
-                  </button>
-                </div>
+          {/* Post Text */}
+          <p className="text-gray-200 text-[15px] leading-relaxed mb-3">{post.content}</p>
+
+          {/* Actions */}
+          <div className="flex items-center justify-between max-w-md pt-1">
+            {/* Reply */}
+            <button className="group flex items-center gap-2 text-gray-500 hover:text-blue-400 transition-colors">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-blue-500/10 transition-colors">
+                <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
               </div>
+              <span className="text-[13px]">{post.replies}</span>
+            </button>
 
-              {/* Sectors */}
-              <div className="mb-6">
-                <label className="text-sm font-medium text-(--secondary) mb-2 block">Sectors</label>
-                <div className="flex flex-wrap gap-2">
-                  {SECTORS.map((sector) => (
-                    <button
-                      key={sector.value}
-                      onClick={() => toggleSector(sector.value)}
-                      className={cn(
-                        'px-2.5 py-1 rounded-full text-xs transition-colors',
-                        selectedSectors.includes(sector.value)
-                          ? 'bg-accent text-white'
-                          : 'bg-(--background) text-(--secondary) hover:bg-(--border)'
-                      )}
-                    >
-                      {sector.emoji} {sector.label}
-                    </button>
-                  ))}
-                </div>
+            {/* Repost */}
+            <button className="group flex items-center gap-2 text-gray-500 hover:text-green-400 transition-colors">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-green-500/10 transition-colors">
+                <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
               </div>
+              <span className="text-[13px]">{post.reposts}</span>
+            </button>
 
-              {/* Stages */}
-              <div className="mb-6">
-                <label className="text-sm font-medium text-(--secondary) mb-2 block">Stage</label>
-                <div className="flex flex-wrap gap-2">
-                  {STAGES.map((stage) => (
-                    <button
-                      key={stage.value}
-                      onClick={() => toggleStage(stage.value)}
-                      className={cn(
-                        'px-2.5 py-1 rounded-full text-xs transition-colors',
-                        selectedStages.includes(stage.value)
-                          ? 'bg-accent text-white'
-                          : 'bg-(--background) text-(--secondary) hover:bg-(--border)'
-                      )}
-                    >
-                      {stage.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Clear Filters */}
-              {(selectedSectors.length > 0 || selectedStages.length > 0) && (
-                <button
-                  onClick={() => {
-                    setSelectedSectors([]);
-                    setSelectedStages([]);
-                  }}
-                  className="text-sm text-accent hover:underline"
-                >
-                  Clear all filters
-                </button>
+            {/* Like */}
+            <button
+              onClick={() => setLiked(!liked)}
+              className={cn(
+                'group flex items-center gap-2 transition-colors',
+                liked ? 'text-pink-500' : 'text-gray-500 hover:text-pink-400'
               )}
-            </Card>
-          </aside>
-
-          {/* Feed Content */}
-          <main className="flex-1">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold text-(--primary)">Explore</h1>
-              <span className="text-sm text-(--secondary)">
-                {items.length} {items.length === 1 ? 'item' : 'items'}
-              </span>
-            </div>
-
-            {loading ? (
-              <div className="grid gap-6">
-                {[...Array(3)].map((_, i) => (
-                  <Card key={i} className="p-6 animate-pulse">
-                    <div className="flex gap-4">
-                      <div className="w-24 h-24 bg-(--border) rounded-lg" />
-                      <div className="flex-1 space-y-3">
-                        <div className="h-5 bg-(--border) rounded w-1/3" />
-                        <div className="h-4 bg-(--border) rounded w-2/3" />
-                        <div className="h-4 bg-(--border) rounded w-1/2" />
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+            >
+              <div className={cn(
+                'w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200',
+                liked ? 'bg-pink-500/10 scale-110' : 'group-hover:bg-pink-500/10'
+              )}>
+                <svg className="w-4.5 h-4.5" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
               </div>
-            ) : error ? (
-              <Card className="p-8 text-center">
-                <p className="text-error mb-4">{error}</p>
-                <Button onClick={fetchFeed}>Try Again</Button>
-              </Card>
-            ) : items.length === 0 ? (
-              <Card className="p-8 text-center">
-                <div className="text-4xl mb-4">🔍</div>
-                <h3 className="text-lg font-semibold text-(--primary) mb-2">No items found</h3>
-                <p className="text-(--secondary) mb-4">
-                  Try adjusting your filters or check back later for new content.
-                </p>
-                {(selectedSectors.length > 0 || selectedStages.length > 0) && (
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setSelectedSectors([]);
-                      setSelectedStages([]);
-                    }}
-                  >
-                    Clear Filters
-                  </Button>
-                )}
-              </Card>
-            ) : (
-              <div className="grid gap-6">
-                {items.map((item) => (
-                  <Card key={item.id} className="p-6 hover:shadow-lg transition-shadow">
-                    <div className="flex gap-4">
-                      {/* Image */}
-                      <Link href={getSourceLink(item)} className="flex-shrink-0">
-                        {item.imageUrl || item.creatorLogo ? (
-                          <img
-                            src={item.imageUrl || item.creatorLogo || ''}
-                            alt={item.title}
-                            className="w-24 h-24 rounded-lg object-cover bg-(--background)"
-                          />
-                        ) : (
-                          <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center text-2xl">
-                            {item.sourceType === 'startup' ? '🚀' : item.sourceType === 'event' ? '📅' : '🏛️'}
-                          </div>
-                        )}
-                      </Link>
+              <span className="text-[13px]">{post.likes + (liked ? 1 : 0)}</span>
+            </button>
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <Link href={getSourceLink(item)}>
-                              <h3 className="font-semibold text-(--primary) hover:text-accent transition-colors">
-                                {item.title}
-                              </h3>
-                            </Link>
-                            {item.creatorName && (
-                              <p className="text-sm text-(--secondary)">by {item.creatorName}</p>
-                            )}
-                          </div>
-                          <Badge variant="secondary" className="capitalize">
-                            {item.sourceType}
-                          </Badge>
-                        </div>
-
-                        {item.summary && (
-                          <p className="text-sm text-(--secondary) mt-2 line-clamp-2">{item.summary}</p>
-                        )}
-
-                        {/* Tags */}
-                        {item.sectors && item.sectors.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-3">
-                            {item.sectors.slice(0, 3).map((sector) => {
-                              const sectorInfo = SECTORS.find((s) => s.value === sector);
-                              return (
-                                <span
-                                  key={sector}
-                                  className="text-xs px-2 py-0.5 bg-(--background) text-(--secondary) rounded"
-                                >
-                                  {sectorInfo?.emoji} {sectorInfo?.label || sector}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        )}
-
-                        {/* Stats & Actions */}
-                        <div className="flex items-center justify-between mt-4">
-                          <div className="flex items-center gap-4 text-sm text-(--secondary)">
-                            <span className="flex items-center gap-1">
-                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
-                              {formatNumber(item.viewCount)}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              ❤️ {formatNumber(item.appreciationCount)}
-                            </span>
-                            {item.mentorTipCount > 0 && (
-                              <span className="flex items-center gap-1">
-                                💡 {formatNumber(item.mentorTipCount)} tips
-                              </span>
-                            )}
-                          </div>
-
-                          <button
-                            onClick={() => handleAppreciate(item.id)}
-                            disabled={appreciating === item.id}
-                            className={cn(
-                              'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors',
-                              'bg-(--background) hover:bg-accent/10 hover:text-accent',
-                              appreciating === item.id && 'opacity-50 cursor-not-allowed'
-                            )}
-                          >
-                            <span>❤️</span>
-                            <span>Appreciate</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+            {/* Bookmark */}
+            <button
+              onClick={() => setBookmarked(!bookmarked)}
+              className={cn(
+                'group flex items-center gap-2 transition-colors',
+                bookmarked ? 'text-blue-400' : 'text-gray-500 hover:text-blue-400'
+              )}
+            >
+              <div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-blue-500/10 transition-colors">
+                <svg className="w-4.5 h-4.5" fill={bookmarked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
               </div>
-            )}
-          </main>
+            </button>
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+export default function FeedPage() {
+  const [activeNav, setActiveNav] = useState('home');
+
+  return (
+    <div className="min-h-screen bg-[#0B0D10] text-white font-sans">
+      <div className="max-w-360 mx-auto flex">
+        {/* Left Sidebar - Navigation */}
+        <aside className="sticky top-0 h-screen w-20 lg:w-72 shrink-0 border-r border-white/10 hidden md:flex flex-col">
+          <div className="flex-1 flex flex-col items-center lg:items-start px-4 py-6">
+            {/* Logo */}
+            <div className="mb-8 lg:px-4">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <span className="text-white font-bold text-lg">X</span>
+              </div>
+            </div>
+
+            {/* Navigation */}
+            <nav className="space-y-2 w-full">
+              {navItems.map((item) => (
+                <button
+                  key={item.icon}
+                  onClick={() => setActiveNav(item.icon)}
+                  className={cn(
+                    'relative w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group',
+                    activeNav === item.icon
+                      ? 'bg-white/10'
+                      : 'hover:bg-white/5'
+                  )}
+                >
+                  {/* Active Indicator */}
+                  {activeNav === item.icon && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full" />
+                  )}
+                  
+                  <NavIcon icon={item.icon} active={activeNav === item.icon} />
+                  
+                  <span className={cn(
+                    'hidden lg:block text-[15px] font-medium transition-colors',
+                    activeNav === item.icon ? 'text-white' : 'text-gray-400'
+                  )}>
+                    {item.label}
+                  </span>
+
+                  {/* Tooltip for icon-only view */}
+                  <div className="lg:hidden absolute left-full ml-4 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">
+                    {item.label}
+                  </div>
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {/* User Profile */}
+          <div className="p-4 border-t border-white/10">
+            <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500/20 to-purple-500/20 border border-white/10" />
+              <div className="hidden lg:block flex-1 text-left">
+                <p className="text-sm font-medium text-white">Your Name</p>
+                <p className="text-xs text-gray-500">@username</p>
+              </div>
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Feed */}
+        <main className="flex-1 min-w-0 border-r border-white/10">
+          <div className="max-w-170 mx-auto">
+            {/* Sticky Compose Bar */}
+            <div className="sticky top-0 z-10 backdrop-blur-xl bg-[#0B0D10]/80 border-b border-white/10 p-4">
+              <div className="flex gap-3">
+                <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500/20 to-purple-500/20 border border-white/10 shrink-0" />
+                <button className="flex-1 text-left px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-500 hover:bg-white/[0.07] transition-colors text-[15px]">
+                  What's happening?
+                </button>
+              </div>
+            </div>
+
+            {/* Posts Feed */}
+            <div className="p-4">
+              {mockPosts.map((post, index) => (
+                <PostCard key={post.id} post={post} isLast={index === mockPosts.length - 1} />
+              ))}
+            </div>
+          </div>
+        </main>
+
+        {/* Right Sidebar - Trending & Suggestions */}
+        <aside className="sticky top-0 h-screen w-80 shrink-0 hidden xl:block p-4 overflow-y-auto">
+          <div className="space-y-4">
+            {/* Trending */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
+              <h2 className="text-lg font-bold text-white mb-4">Trending</h2>
+              <div className="space-y-4">
+                {trending.map((item) => (
+                  <button key={item.tag} className="w-full text-left hover:bg-white/5 rounded-xl p-2 transition-colors">
+                    <p className="text-gray-500 text-xs mb-1">Trending</p>
+                    <p className="text-white font-semibold text-[15px]">#{item.tag}</p>
+                    <p className="text-gray-500 text-xs mt-1">{item.posts} posts</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Suggestions */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
+              <h2 className="text-lg font-bold text-white mb-4">Who to follow</h2>
+              <div className="space-y-4">
+                {suggestions.map((user) => (
+                  <div key={user.username} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500/20 to-purple-500/20 border border-white/10" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-semibold text-sm">{user.name}</p>
+                      <p className="text-gray-500 text-xs">@{user.username}</p>
+                    </div>
+                    <button className="px-4 py-1.5 bg-white text-[#0B0D10] rounded-full text-sm font-semibold hover:bg-gray-200 transition-colors">
+                      Follow
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#0B0D10]/95 backdrop-blur-xl border-t border-white/10 z-50">
+        <div className="flex items-center justify-around px-2 py-3">
+          {navItems.map((item) => (
+            <button
+              key={item.icon}
+              onClick={() => setActiveNav(item.icon)}
+              className={cn(
+                'flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200',
+                activeNav === item.icon ? 'bg-white/10' : ''
+              )}
+            >
+              <NavIcon icon={item.icon} active={activeNav === item.icon} />
+              <span className={cn(
+                'text-[10px] font-medium',
+                activeNav === item.icon ? 'text-white' : 'text-gray-500'
+              )}>
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Mobile FAB */}
+      <button className="md:hidden fixed bottom-20 right-4 w-14 h-14 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform z-40">
+        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
     </div>
   );
 }

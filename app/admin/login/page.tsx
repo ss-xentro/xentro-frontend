@@ -31,19 +31,19 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4" role="main">
+        <div className="min-h-screen bg-white flex items-center justify-center p-4" role="main">
             <div className="w-full max-w-md animate-fadeInUp">
                 {/* Logo and Title */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-(--primary) text-white mb-6" aria-hidden="true">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gray-900 text-white mb-6" aria-hidden="true">
                         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                     </div>
-                    <h1 className="text-3xl font-bold text-(--primary) mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
                         XENTRO
                     </h1>
-                    <p className="text-(--secondary)">
+                    <p className="text-gray-600">
                         Admin Portal
                     </p>
                 </div>
@@ -52,10 +52,10 @@ export default function AdminLoginPage() {
                 <Card padding="lg" className="animate-fadeInUp stagger-2">
                     <form onSubmit={handleSubmit} className="space-y-6" aria-label="Admin login form">
                         <div className="text-center mb-8">
-                            <h2 className="text-xl font-semibold text-(--primary) mb-2">
+                            <h2 className="text-xl font-semibold text-gray-900 mb-2">
                                 Welcome back
                             </h2>
-                            <p className="text-sm text-(--secondary)">
+                            <p className="text-sm text-gray-600">
                                 Sign in to manage institutions and programs
                             </p>
                         </div>
@@ -115,19 +115,19 @@ export default function AdminLoginPage() {
 
                 {/* Helper Text */}
                 <div className="mt-6 text-center">
-                    <p className="text-sm text-(--secondary)">
+                    <p className="text-sm text-gray-600">
                         🔒 Restricted access for authorized administrators only.
                     </p>
                 </div>
 
                 {/* Demo Credentials */}
-                <div className="mt-8 p-4 rounded-lg bg-(--accent-subtle) border border-(--accent-light)">
-                    <p className="text-xs font-medium text-accent mb-2">Demo Credentials</p>
-                    <p className="text-sm text-(--primary)">
-                        Email: <code className="px-1.5 py-0.5 rounded bg-white/50">admin@xentro.io</code>
+                <div className="mt-8 p-4 rounded-lg bg-gray-50 border border-gray-200">
+                    <p className="text-xs font-medium text-gray-900 mb-2">Demo Credentials</p>
+                    <p className="text-sm text-gray-900">
+                        Email: <code className="px-1.5 py-0.5 rounded bg-white">admin@xentro.io</code>
                     </p>
-                    <p className="text-sm text-(--primary) mt-1">
-                        Password: <code className="px-1.5 py-0.5 rounded bg-white/50">admin123</code>
+                    <p className="text-sm text-gray-900 mt-1">
+                        Password: <code className="px-1.5 py-0.5 rounded bg-white">admin123</code>
                     </p>
                 </div>
             </div>

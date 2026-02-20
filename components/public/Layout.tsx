@@ -7,7 +7,7 @@ export function PublicNavbar() {
     return (
         <nav className="h-16 border-b border-(--border) bg-(--surface)/80 backdrop-blur-md sticky top-0 z-50">
             <div className="container mx-auto px-4 h-full flex items-center justify-between">
-                <Link href="/institutions" className="flex items-center gap-2">
+                <Link href="/feed" className="flex items-center gap-2">
                     <img src="/xentro-logo.png" alt="Xentro" className="h-8 w-auto" />
                 </Link>
 
@@ -23,7 +23,7 @@ export function PublicNavbar() {
                 <div className="flex items-center gap-3">
                     <Link href="/join">
                         <Button size="sm">
-                            Xplore
+                            Join
                         </Button>
                     </Link>
                 </div>
