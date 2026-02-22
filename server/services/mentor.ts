@@ -1,6 +1,6 @@
 import { mentorRepository } from '@/server/repositories/mentor.repository';
 import { userRepository } from '@/server/repositories/user.repository';
-import { sendMentorApprovalEmail } from './email';
+import { sendMentorApprovalEmail, sendMentorRejectionEmail } from './email';
 import { signJwt, hashPassword } from './auth';
 
 function sanitizeJson(value: unknown) {
@@ -77,6 +77,12 @@ export async function rejectMentor(params: { mentorUserId: string; reason?: stri
     status: 'rejected',
     rejectedReason: params.reason ?? 'Not approved',
   });
+
+  const user = await userRepository.findById(params.mentorUserId);
+  if (user?.email) {
+    await sendMentorRejectionEmail({ email: user.email, name: user.name, reason: params.reason || 'Not approved' });
+  }
+
   return profile;
 }
 

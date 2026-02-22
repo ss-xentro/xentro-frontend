@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type Role = 'startup' | 'mentor' | 'institution' | 'investor' | null;
 
@@ -9,7 +10,14 @@ const PURPOSE_DESTINATIONS: Record<Exclude<Role, null>, string> = {
   startup: '/onboarding/startup',
   mentor: '/mentor-signup',
   institution: '/institution-onboarding',
-  investor: '/feed',
+  investor: '/investor-onboarding',
+};
+
+const LOGIN_DESTINATIONS: Record<Exclude<Role, null>, string> = {
+  startup: '/login',
+  mentor: '/mentor-login',
+  institution: '/institution-login',
+  investor: '/investor-login',
 };
 
 export default function JoinPage() {
@@ -79,58 +87,66 @@ export default function JoinPage() {
             <p className="text-xs font-medium text-gray-500 tracking-[0.15em] uppercase mb-6">
               STEP 1 OF 3
             </p>
-            
+
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
               Select Your Role
             </h1>
-            
+
             <p className="text-lg text-gray-600">
               Choose how you will participate in the Xentro ecosystem.
             </p>
           </div>
 
           {/* Role Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 mt-12">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-8 mt-12">
             {roles.map((role) => (
-              <button
-                key={role.id}
-                onClick={() => setSelectedRole(role.id)}
-                className={`group relative border p-8 text-left transition-all duration-200 ${
-                  selectedRole === role.id
+              <div key={role.id} className="flex flex-col">
+                <button
+                  onClick={() => setSelectedRole(role.id)}
+                  className={`group relative border text-left transition-all duration-200 aspect-square md:aspect-auto p-4 md:p-8 flex-1 ${selectedRole === role.id
                     ? 'bg-gray-900 border-gray-900 scale-[1.02]'
                     : 'bg-white border-gray-200 hover:border-gray-400'
-                }`}
-              >
-                {/* Hover glow */}
-                <div 
-                  className={`absolute inset-0 opacity-0 transition-opacity duration-200 pointer-events-none ${
-                    selectedRole === role.id ? 'opacity-5' : 'group-hover:opacity-5'
-                  }`}
+                    }`}
                 >
-                  <div className="absolute inset-0 bg-gray-900 blur-xl" />
-                </div>
+                  {/* Hover glow */}
+                  <div
+                    className={`absolute inset-0 opacity-0 transition-opacity duration-200 pointer-events-none ${selectedRole === role.id ? 'opacity-5' : 'group-hover:opacity-5'
+                      }`}
+                  >
+                    <div className="absolute inset-0 bg-gray-900 blur-xl" />
+                  </div>
 
-                <div className="relative z-10">
-                  <div className={`mb-4 ${selectedRole === role.id ? 'text-white' : 'text-gray-900'}`}>
-                    {role.icon}
+                  <div className="relative z-10 flex flex-col h-full">
+                    <div className={`mb-3 ${selectedRole === role.id ? 'text-white' : 'text-gray-900'}`}>
+                      {role.icon}
+                    </div>
+
+                    <h3 className={`text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-white' : 'text-gray-900'}`}>
+                      {role.title}
+                    </h3>
+
+                    <p className={`text-xs md:text-sm mb-0 md:mb-6 flex-1 ${selectedRole === role.id ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {role.description}
+                    </p>
+
+                    <div className={`hidden md:flex items-center text-sm group-hover:translate-x-1 transition-transform duration-200 ${selectedRole === role.id ? 'text-gray-200' : 'text-gray-700'}`}>
+                      <span className="mr-2">Continue</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </div>
                   </div>
-                  
-                  <h3 className={`text-2xl font-bold mb-2 ${selectedRole === role.id ? 'text-white' : 'text-gray-900'}`}>
-                    {role.title}
-                  </h3>
-                  
-                  <p className={`text-sm mb-6 ${selectedRole === role.id ? 'text-gray-300' : 'text-gray-600'}`}>
-                    {role.description}
-                  </p>
-                  
-                  <div className={`flex items-center text-sm group-hover:translate-x-1 transition-transform duration-200 ${selectedRole === role.id ? 'text-gray-200' : 'text-gray-700'}`}>
-                    <span className="mr-2">Continue</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </div>
-              </button>
+                </button>
+
+                {/* Login Link */}
+                <Link
+                  href={LOGIN_DESTINATIONS[role.id]}
+                  className="mt-2 text-center text-xs text-gray-500 hover:text-gray-900 transition-colors duration-200"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Already have an account? <span className="font-medium underline">Log in →</span>
+                </Link>
+              </div>
             ))}
           </div>
 
@@ -142,15 +158,14 @@ export default function JoinPage() {
             >
               Back
             </button>
-            
+
             <button
               onClick={handleContinue}
               disabled={!selectedRole}
-              className={`px-8 py-3 text-sm font-medium transition-all duration-200 ${
-                selectedRole
-                  ? 'bg-gray-900 text-white hover:bg-gray-800'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
+              className={`px-8 py-3 text-sm font-medium transition-all duration-200 ${selectedRole
+                ? 'bg-gray-900 text-white hover:bg-gray-800'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                }`}
             >
               Continue
             </button>

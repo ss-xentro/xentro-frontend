@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from 'react';
-import { Button, Card, Input, ProgressIndicator, StepDots, Textarea } from '@/components/ui';
+import { Button, Card, Input, ProgressIndicator, Textarea } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 type Feedback = { type: 'success' | 'error'; message: string } | null;
 
 const TOTAL_STEPS = 6;
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const HOURS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+
+type SlotEntry = { day: string; time: string };
 
 export default function MentorSignupPage() {
   const [step, setStep] = useState(1);
@@ -20,12 +24,23 @@ export default function MentorSignupPage() {
     expertise: '',
     packages: '',
     rate: '',
-    availability: '',
     achievements: '',
   });
+  const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
 
   const updateField = (key: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setFeedback(null);
+  };
+
+  const toggleSlot = (day: string, time: string) => {
+    const key = `${day}-${time}`;
+    setSelectedSlots(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
     setFeedback(null);
   };
 
@@ -40,7 +55,7 @@ export default function MentorSignupPage() {
       case 4:
         return form.packages.trim();
       case 5:
-        return form.availability.trim();
+        return selectedSlots.size > 0;
       case 6:
         return form.achievements.trim();
       default:
@@ -62,6 +77,14 @@ export default function MentorSignupPage() {
     setLoading(true);
     setFeedback(null);
 
+    // Convert selected slots to structured availability
+    const availability = Array.from(selectedSlots).map(key => {
+      const [day, startTime] = key.split('-');
+      const startHour = parseInt(startTime.split(':')[0]);
+      const endTime = `${String(startHour + 1).padStart(2, '0')}:00`;
+      return `${day} ${startTime}-${endTime}`;
+    });
+
     try {
       const res = await fetch('/api/mentors', {
         method: 'POST',
@@ -70,7 +93,7 @@ export default function MentorSignupPage() {
           ...form,
           rate: form.rate ? Number(form.rate) : null,
           packages: form.packages ? form.packages.split('\n').filter(Boolean) : undefined,
-          availability: form.availability ? form.availability.split('\n').filter(Boolean) : undefined,
+          availability,
           achievements: form.achievements ? form.achievements.split('\n').filter(Boolean) : undefined,
         }),
       });
@@ -78,7 +101,7 @@ export default function MentorSignupPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Application failed');
 
-      setFeedback({ type: 'success', message: 'Submitted for review. We’ll notify you once approved.' });
+      setFeedback({ type: 'success', message: 'Submitted for review. We\u2019ll notify you once approved.' });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Application failed';
       setFeedback({ type: 'error', message });
@@ -173,14 +196,54 @@ export default function MentorSignupPage() {
       case 5:
         return (
           <div className="space-y-4">
-            <Textarea
-              label="Availability (one slot per line)"
-              placeholder="Mon 4-6pm IST"
-              rows={3}
-              value={form.availability}
-              onChange={(e) => updateField('availability', e.target.value)}
-              autoFocus
-            />
+            <div>
+              <label className="block text-sm font-medium text-(--primary) mb-3">
+                Select your available time slots
+              </label>
+              <p className="text-sm text-(--secondary) mb-4">
+                Click on cells to mark when you're free. Each slot is 1 hour.
+              </p>
+            </div>
+            <div className="overflow-x-auto -mx-2 px-2">
+              <table className="w-full border-collapse text-xs">
+                <thead>
+                  <tr>
+                    <th className="w-16 p-1.5 text-left text-(--secondary) font-medium">Time</th>
+                    {DAYS.map(d => (
+                      <th key={d} className="p-1.5 text-center text-(--secondary) font-medium">{d.slice(0, 3)}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {HOURS.map(time => (
+                    <tr key={time}>
+                      <td className="p-1.5 text-(--secondary) font-mono text-xs">{time}</td>
+                      {DAYS.map(day => {
+                        const key = `${day}-${time}`;
+                        const selected = selectedSlots.has(key);
+                        return (
+                          <td key={day} className="p-0.5">
+                            <button
+                              type="button"
+                              onClick={() => toggleSlot(day, time)}
+                              className={cn(
+                                'w-full h-8 rounded-md border transition-all duration-100 text-xs font-medium',
+                                selected
+                                  ? 'bg-accent/15 border-accent text-accent'
+                                  : 'bg-(--surface) border-(--border) text-(--secondary) hover:bg-(--surface-hover)'
+                              )}
+                            >
+                              {selected ? '✓' : ''}
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-(--secondary)">{selectedSlots.size} slot{selectedSlots.size !== 1 ? 's' : ''} selected</p>
           </div>
         );
       case 6:
@@ -188,7 +251,7 @@ export default function MentorSignupPage() {
           <div className="space-y-4">
             <Textarea
               label="Highlights (one per line)"
-              placeholder="Scaled ARR to $10M\nYC alum"
+              placeholder={"Scaled ARR to $10M\nYC alum"}
               rows={4}
               value={form.achievements}
               onChange={(e) => updateField('achievements', e.target.value)}

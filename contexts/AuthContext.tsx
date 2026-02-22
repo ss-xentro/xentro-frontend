@@ -5,6 +5,7 @@ import { User } from '@/lib/types';
 
 interface AuthContextType {
     user: User | null;
+    token: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
@@ -13,25 +14,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock admin credentials
-const MOCK_ADMIN = {
-    email: 'admin@xentro.io',
-    password: 'admin123',
-};
-
-const MOCK_USER: User = {
-    id: '1',
-    email: 'admin@xentro.io',
-    name: 'Alex Chen',
-    avatar: '',
-    role: 'admin',
-};
-
 const SESSION_KEY = 'xentro_session';
-const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
+const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     // Hydrate session from localStorage with 6h expiry
@@ -39,9 +27,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const raw = typeof window !== 'undefined' ? localStorage.getItem(SESSION_KEY) : null;
             if (!raw) return;
-            const parsed = JSON.parse(raw) as { user: User; expiresAt: number };
+            const parsed = JSON.parse(raw) as { user: User; token: string; expiresAt: number };
             if (parsed?.expiresAt && parsed.expiresAt > Date.now()) {
                 setUser(parsed.user);
+                setToken(parsed.token || null);
             } else {
                 localStorage.removeItem(SESSION_KEY);
             }
@@ -56,23 +45,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const login = useCallback(async (email: string, password: string) => {
         setIsLoading(true);
 
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        try {
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
 
-        if (email === MOCK_ADMIN.email && password === MOCK_ADMIN.password) {
-            setUser(MOCK_USER);
-            const session = { user: MOCK_USER, expiresAt: Date.now() + SIX_HOURS_MS };
+            const data = await res.json();
+
+            if (!res.ok) {
+                setIsLoading(false);
+                return { success: false, error: data.message || 'Invalid email or password' };
+            }
+
+            const loggedInUser: User = data.user;
+            const jwt: string = data.token;
+
+            setUser(loggedInUser);
+            setToken(jwt);
+
+            const session = { user: loggedInUser, token: jwt, expiresAt: Date.now() + FIVE_DAYS_MS };
             localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+
             setIsLoading(false);
             return { success: true };
+        } catch (err) {
+            console.error('Login failed', err);
+            setIsLoading(false);
+            return { success: false, error: 'Login failed. Please try again.' };
         }
-
-        setIsLoading(false);
-        return { success: false, error: 'Invalid email or password' };
     }, []);
 
     const logout = useCallback(() => {
         setUser(null);
+        setToken(null);
         if (typeof window !== 'undefined') {
             localStorage.removeItem(SESSION_KEY);
         }
@@ -82,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         <AuthContext.Provider
             value={{
                 user,
+                token,
                 isAuthenticated: !!user,
                 isLoading,
                 login,

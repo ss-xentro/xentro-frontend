@@ -9,7 +9,7 @@ export default function PublicLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const isFeedPage = pathname === '/feed';
+    const isFeedPage = pathname === '/feed' || pathname.startsWith('/explore');
 
     return (
         <div className="min-h-screen bg-white flex flex-col">

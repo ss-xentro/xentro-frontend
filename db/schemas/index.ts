@@ -6,6 +6,8 @@ export const entityTypeEnum = pgEnum('entity_type', ['mentor', 'student', 'start
 export const resourceTypeEnum = pgEnum('resource_type', ['video', 'pdf', 'link', 'course']);
 export const authProviderEnum = pgEnum('auth_provider', ['credentials', 'google', 'otp']);
 export const mentorStatusEnum = pgEnum('mentor_status', ['pending', 'approved', 'rejected', 'suspended']);
+export const investorStatusEnum = pgEnum('investor_status', ['pending', 'approved', 'rejected', 'suspended']);
+export const bookingStatusEnum = pgEnum('booking_status', ['pending', 'confirmed', 'cancelled', 'completed']);
 export const institutionRoleEnum = pgEnum('institution_role', ['owner', 'admin', 'manager', 'viewer']);
 
 // Startup-specific enums
@@ -63,7 +65,7 @@ export const interactionTypeEnum = pgEnum('interaction_type', ['appreciate', 'vi
 // Notification types
 export const notificationTypeEnum = pgEnum('notification_type', [
   'form_submitted',
-  'form_approved', 
+  'form_approved',
   'form_rejected',
   'form_changes_requested',
   'context_unlocked',
@@ -82,14 +84,14 @@ export const users = pgTable('users', {
   phone: varchar('phone', { length: 50 }),
   avatar: varchar('avatar', { length: 512 }),
   accountType: accountTypeEnum('account_type').notNull(),
-  
+
   // Unified architecture fields
   unlockedContexts: json('unlocked_contexts').$type<string[]>().default(['explorer']),
   activeContext: userContextEnum('active_context').default('explorer'),
   emailVerified: boolean('email_verified').default(false),
   isActive: boolean('is_active').default(true),
   lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
-  
+
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 }, (table) => ({
@@ -224,11 +226,27 @@ export const approvers = pgTable('approvers', {
 export const investorProfiles = pgTable('investor_profiles', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  type: varchar('type', { length: 120 }).notNull(),
+  type: varchar('type', { length: 120 }).notNull().default('angel'),
+  firmName: varchar('firm_name', { length: 255 }),
+  bio: text('bio'),
   identityVerified: boolean('identity_verified').default(false).notNull(),
   fundsDeclared: boolean('funds_declared').default(false).notNull(),
   experienceVerified: boolean('experience_verified').default(false).notNull(),
-});
+  investmentStages: json('investment_stages').$type<string[]>(),
+  checkSizeMin: numeric('check_size_min', { precision: 16, scale: 2 }),
+  checkSizeMax: numeric('check_size_max', { precision: 16, scale: 2 }),
+  sectors: json('sectors').$type<string[]>(),
+  portfolioCompanies: json('portfolio_companies').$type<string[]>(),
+  notableInvestments: json('notable_investments').$type<string[]>(),
+  dealFlowPreferences: text('deal_flow_preferences'),
+  linkedinUrl: varchar('linkedin_url', { length: 512 }),
+  status: investorStatusEnum('status').default('pending').notNull(),
+  approvedAt: timestamp('approved_at', { withTimezone: true }),
+  rejectedReason: text('rejected_reason'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userIdx: uniqueIndex('investor_profiles_user_idx').on(table.userId),
+}));
 
 export const institutions = pgTable('institutions', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -685,4 +703,32 @@ export const notifications = pgTable('notifications', {
   userIdx: index('notification_user_idx').on(table.userId),
   userUnreadIdx: index('notification_user_unread_idx').on(table.userId, table.isRead),
   createdAtIdx: index('notification_created_at_idx').on(table.createdAt),
+}));
+
+// ── Mentor Slot Booking ──
+export const mentorSlots = pgTable('mentor_slots', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  mentorUserId: uuid('mentor_user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  dayOfWeek: varchar('day_of_week', { length: 10 }).notNull(), // monday, tuesday, etc.
+  startTime: varchar('start_time', { length: 5 }).notNull(), // HH:MM
+  endTime: varchar('end_time', { length: 5 }).notNull(),     // HH:MM
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  mentorIdx: index('mentor_slots_mentor_idx').on(table.mentorUserId),
+}));
+
+export const mentorBookings = pgTable('mentor_bookings', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  slotId: uuid('slot_id').references(() => mentorSlots.id, { onDelete: 'cascade' }).notNull(),
+  mentorUserId: uuid('mentor_user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  menteeUserId: uuid('mentee_user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  scheduledDate: timestamp('scheduled_date', { withTimezone: true }).notNull(),
+  status: bookingStatusEnum('status').default('pending').notNull(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  mentorIdx: index('mentor_bookings_mentor_idx').on(table.mentorUserId),
+  menteeIdx: index('mentor_bookings_mentee_idx').on(table.menteeUserId),
+  slotIdx: index('mentor_bookings_slot_idx').on(table.slotId),
 }));

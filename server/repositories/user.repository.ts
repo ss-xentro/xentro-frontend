@@ -53,6 +53,15 @@ class UserRepository {
     return user;
   }
 
+  async createInvestorUser(params: { name: string; email: string }) {
+    const email = params.email.toLowerCase();
+    const [user] = await db
+      .insert(users)
+      .values({ name: params.name, email, accountType: 'investor', phone: null })
+      .returning();
+    return user;
+  }
+
   async ensureAuthAccount(payload: {
     userId: string;
     provider: typeof authProviderEnum.enumValues[number];

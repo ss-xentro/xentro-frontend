@@ -6,7 +6,7 @@ import { hashPassword, verifyPassword } from '@/server/utils/password';
 // Re-export for existing imports elsewhere in the codebase
 export { hashPassword, verifyPassword };
 
-const JWT_EXPIRY = '7d';
+const JWT_EXPIRY = '5d';
 const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 
 function getEnv(name: string) {

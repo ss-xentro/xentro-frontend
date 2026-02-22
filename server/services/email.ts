@@ -152,3 +152,21 @@ export async function sendFounderOTP(params: { email: string; name: string; otp:
   `;
   await sendEmailInternal(params.email, subject, text, html);
 }
+
+export async function sendMentorRejectionEmail(params: { email: string; name: string; reason: string }) {
+  const subject = 'Update on your Xentro Mentor Application';
+  const text = `Hi ${params.name},\n\nThank you for your interest in becoming a Xentro Mentor.\n\nAfter careful review, we are unable to approve your application at this time.\n\nFeedback from reviewer:\n${params.reason}\n\nYou are welcome to reapply in the future with an updated profile.\n\nBest regards,\nThe Xentro Team`;
+  await sendEmailInternal(params.email, subject, text);
+}
+
+export async function sendInvestorApprovalEmail(params: { email: string; name: string; loginUrl: string }) {
+  const subject = 'Welcome to Xentro \u2013 Investor Access Approved! \ud83c\udf89';
+  const text = `Hi ${params.name},\n\nGreat news! Your investor profile has been approved on Xentro.\n\nYou now have full access to deal flow, portfolio tools, and the investor dashboard.\n\nLog in here: ${params.loginUrl}\n\nBest regards,\nThe Xentro Team`;
+  await sendEmailInternal(params.email, subject, text);
+}
+
+export async function sendInvestorRejectionEmail(params: { email: string; name: string; reason: string }) {
+  const subject = 'Update on your Xentro Investor Application';
+  const text = `Hi ${params.name},\n\nThank you for your interest in joining Xentro as an investor.\n\nAfter review, we are unable to approve your application at this time.\n\nFeedback from reviewer:\n${params.reason}\n\nYou are welcome to reapply with an updated profile.\n\nBest regards,\nThe Xentro Team`;
+  await sendEmailInternal(params.email, subject, text);
+}
