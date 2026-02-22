@@ -249,7 +249,7 @@ export function InstitutionTabs({ programs, events, startups, team = [], project
                 </div>
                 <h3 className="text-lg font-semibold text-(--primary) mb-2">No startups listed yet</h3>
                 <p className="text-(--secondary) max-w-md mx-auto">
-                  This institution hasn't added any startups to their portfolio yet.
+                  This institution hasn&apos;t added any startups to their portfolio yet.
                 </p>
               </div>
             )}
@@ -307,7 +307,7 @@ export function InstitutionTabs({ programs, events, startups, team = [], project
                 </div>
                 <h3 className="text-lg font-semibold text-(--primary) mb-2">No projects listed yet</h3>
                 <p className="text-(--secondary) max-w-md mx-auto">
-                  This institution hasn't added any projects to showcase yet.
+                  This institution hasn&apos;t added any projects to showcase yet.
                 </p>
               </div>
             )}
@@ -352,7 +352,7 @@ export function InstitutionTabs({ programs, events, startups, team = [], project
                 </div>
                 <h3 className="text-lg font-semibold text-(--primary) mb-2">No team members listed yet</h3>
                 <p className="text-(--secondary) max-w-md mx-auto">
-                  This institution hasn't added team member profiles yet.
+                  This institution hasn&apos;t added team member profiles yet.
                 </p>
               </div>
             )}

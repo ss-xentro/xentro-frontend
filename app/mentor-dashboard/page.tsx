@@ -34,7 +34,7 @@ export default function MentorDashboardPage() {
                         Welcome back, Mentor 👋
                     </h1>
                     <p className="text-(--secondary)">
-                        Here's your mentoring overview and upcoming sessions.
+                        Here&apos;s your mentoring overview and upcoming sessions.
                     </p>
                 </div>
                 <div className="flex gap-3">

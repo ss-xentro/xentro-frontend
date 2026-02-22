@@ -29,7 +29,7 @@ export default function SDGFocusSlide({ value, onChange, className }: SDGFocusSl
                     Sustainable Development Goals
                 </h2>
                 <p className="text-(--secondary)">
-                    Select up to 5 UN SDGs that align with your institution's mission
+                    Select up to 5 UN SDGs that align with your institution&apos;s mission
                 </p>
             </div>
 

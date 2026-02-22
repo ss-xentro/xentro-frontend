@@ -87,11 +87,11 @@ export default function ExploreLayout({ children }: { children: React.ReactNode 
 
     return (
         <div className="min-h-screen bg-[#0B0D10] text-white font-sans">
-            <div className="w-full flex">
+            <div className="max-w-360 mx-auto flex">
                 {/* Left Sidebar */}
                 <aside
                     className={cn(
-                        'relative sticky top-0 h-screen shrink-0 border-r border-white/10 hidden lg:flex flex-col transition-all duration-300 ease-in-out',
+                        'relative sticky top-0 h-screen shrink-0 border-r border-white/10 hidden md:flex flex-col transition-all duration-300 ease-in-out',
                         isCollapsed ? 'w-20' : 'w-72'
                     )}
                 >
@@ -313,10 +313,11 @@ export default function ExploreLayout({ children }: { children: React.ReactNode 
                 {/* Main Content */}
                 <main className="flex-1 min-w-0 flex flex-col">
                     {/* Sticky Header + Tabs */}
-                    <div className="sticky top-0 z-10 backdrop-blur-xl bg-[#0B0D10]/90 border-b border-white/10 hidden lg:block">
+                    <div className="sticky top-0 z-10 backdrop-blur-xl bg-[#0B0D10]/90 border-b border-white/10">
                         {/* Page title */}
                         <div className="px-6 pt-5 pb-3">
                             <h1 className="text-2xl font-bold text-white tracking-tight">Explore</h1>
+                            <p className="text-sm text-gray-500 mt-0.5">Discover institutions, startups, and mentors on Xentro</p>
                         </div>
                         {/* Tab Bar */}
                         <div className="flex px-6 gap-1">
@@ -349,7 +350,7 @@ export default function ExploreLayout({ children }: { children: React.ReactNode 
             </div>
 
             {/* Mobile Bottom Nav */}
-            <nav className="lg:hidden fixed bottom-0 inset-x-0 bg-[#0B0D10]/95 backdrop-blur-xl border-t border-white/10 z-50">
+            <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#0B0D10]/95 backdrop-blur-xl border-t border-white/10 z-50">
                 <div className="flex items-center justify-around px-2 py-3">
                     {navItems.map((item) => {
                         const isActive = item.href === '/explore/institute'
@@ -374,7 +375,7 @@ export default function ExploreLayout({ children }: { children: React.ReactNode 
                 </div>
             </nav>
             {/* Mobile tab bar */}
-            <div className="lg:hidden fixed top-0 inset-x-0 bg-[#0B0D10]/95 backdrop-blur-xl border-b border-white/10 z-40 flex gap-1 px-4 pt-3 pb-0">
+            <div className="md:hidden fixed top-0 inset-x-0 bg-[#0B0D10]/95 backdrop-blur-xl border-b border-white/10 z-40 flex gap-1 px-4 pt-3 pb-0">
                 {exploreTabs.map((tab) => {
                     const isActive = pathname === tab.href;
                     return (

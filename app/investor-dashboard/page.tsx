@@ -35,7 +35,7 @@ export default function InvestorDashboardPage() {
                         Welcome back, Investor 👋
                     </h1>
                     <p className="text-(--secondary)">
-                        Here's your investment overview and deal pipeline.
+                        Here&apos;s your investment overview and deal pipeline.
                     </p>
                 </div>
                 <div className="flex gap-3">

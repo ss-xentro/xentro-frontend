@@ -89,7 +89,7 @@ export default function AnalyticsPage() {
       <div className="p-8 space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-(--primary)">Analytics</h1>
-          <p className="text-(--secondary) mt-1">View {data.institutionName}'s performance metrics</p>
+          <p className="text-(--secondary) mt-1">View {data.institutionName}&apos;s performance metrics</p>
         </div>
 
         {error && (

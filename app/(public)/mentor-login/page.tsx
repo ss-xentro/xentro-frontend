@@ -91,7 +91,7 @@ export default function MentorLoginPage() {
             </Button>
 
             <p className="text-center text-sm text-(--secondary)">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <a href="/mentor-signup" className="text-accent hover:underline font-medium">
                 Apply as Mentor
               </a>

@@ -99,7 +99,7 @@ export default function DashboardOverviewPage() {
                         Welcome back, {data.startup.name}
                     </h1>
                     <p className="text-(--secondary)">
-                        Here's what's happening with your startup today.
+                        Here&apos;s what&apos;s happening with your startup today.
                     </p>
                 </div>
                 <div className="flex gap-3">

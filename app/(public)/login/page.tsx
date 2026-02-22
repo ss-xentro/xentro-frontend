@@ -96,7 +96,7 @@ export default function FounderLoginPage() {
                             <div className="space-y-2">
                                 <h2 className="text-xl font-semibold text-(--primary)">Enter your email</h2>
                                 <p className="text-sm text-(--secondary)">
-                                    We'll send you a one-time password to verify your identity
+                                    We&apos;ll send you a one-time password to verify your identity
                                 </p>
                             </div>
 
@@ -126,7 +126,7 @@ export default function FounderLoginPage() {
                             </Button>
 
                             <p className="text-center text-sm text-(--secondary)">
-                                Don't have an account?{' '}
+                                Don&apos;t have an account?{' '}
                                 <a href="/onboarding/startup" className="text-accent hover:underline font-medium">
                                     Create Startup
                                 </a>
@@ -137,7 +137,7 @@ export default function FounderLoginPage() {
                             <div className="space-y-2">
                                 <h2 className="text-xl font-semibold text-(--primary)">Enter OTP</h2>
                                 <p className="text-sm text-(--secondary)">
-                                    We've sent a 6-digit code to <strong>{email}</strong>
+                                    We&apos;ve sent a 6-digit code to <strong>{email}</strong>
                                 </p>
                             </div>
 

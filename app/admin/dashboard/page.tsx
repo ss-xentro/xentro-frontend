@@ -240,7 +240,7 @@ export default function DashboardPage() {
                         <p className="text-sm text-gray-600 mt-1">Manage existing institutions</p>
                     </Link>
                     <Link
-                        href="/institutions"
+                        href="/explore/institute"
                         className="p-4 rounded-lg border border-gray-200 hover:border-amber-600 hover:bg-amber-50 transition-all duration-200 group"
                     >
                         <div className="w-10 h-10 rounded-md bg-amber-50 text-amber-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">

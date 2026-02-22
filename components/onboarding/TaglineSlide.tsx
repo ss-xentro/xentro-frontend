@@ -14,7 +14,7 @@ export default function TaglineSlide({ value, onChange, className }: TaglineSlid
         <div className={cn('space-y-6', className)} role="region" aria-label="Institution tagline">
             <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-(--primary) mb-2">
-                    What's your tagline?
+                    What&apos;s your tagline?
                 </h2>
                 <p className="text-(--secondary)">
                     One sentence that captures your mission and inspires action.

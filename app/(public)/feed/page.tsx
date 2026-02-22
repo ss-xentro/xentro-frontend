@@ -70,11 +70,17 @@ const mockPosts: Post[] = [
   },
 ];
 
-const navItems = [
-  { icon: 'home', label: 'Home', href: '/feed' },
-  { icon: 'explore', label: 'Explore', href: '/explore/institute' },
-  { icon: 'bell', label: 'Notifications', href: '/notifications' },
-];
+// Helper to get dashboard URL based on user role
+function getDashboardUrl(role?: string): string {
+  const roleMap: Record<string, string> = {
+    admin: '/admin/dashboard',
+    startup: '/dashboard',
+    mentor: '/mentor-dashboard',
+    institution: '/institution-dashboard',
+    investor: '/investor-dashboard',
+  };
+  return role && roleMap[role] ? roleMap[role] : '/feed';
+}
 
 const trending = [
   { tag: 'ClimaTech', posts: '2.4K' },
@@ -95,6 +101,7 @@ function NavIcon({ icon, active }: { icon: string; active?: boolean }) {
     explore: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
     bell: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
     user: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+    feed: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z',
   };
 
   return (
@@ -222,6 +229,14 @@ export default function FeedPage() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
 
+  // Dynamic navigation items based on user role
+  const navItems = [
+    { icon: 'home', label: 'Home', href: getDashboardUrl(user?.role) },
+    { icon: 'feed', label: 'Feed', href: '/feed' },
+    { icon: 'explore', label: 'Explore', href: '/explore/institute' },
+    { icon: 'bell', label: 'Notifications', href: '/notifications' },
+  ];
+
   // Derive username from email
   const username = user?.email ? user.email.split('@')[0] : 'guest';
 
@@ -330,10 +345,19 @@ export default function FeedPage() {
             {/* Navigation */}
             <nav className="space-y-1 w-full">
               {navItems.map((item) => {
-                const isActive =
-                  item.href === '/explore/institute'
-                    ? pathname.startsWith('/explore')
-                    : pathname === item.href;
+                let isActive = false;
+                
+                if (item.href === '/explore/institute') {
+                  // Explore button - active on any /explore route
+                  isActive = pathname.startsWith('/explore');
+                } else if (item.label === 'Home') {
+                  // Home button - active on dashboard routes (not /feed)
+                  isActive = pathname === item.href && pathname !== '/feed';
+                } else {
+                  // All other items - exact match
+                  isActive = pathname === item.href;
+                }
+                
                 return (
                   <Link
                     key={item.icon}
@@ -482,7 +506,7 @@ export default function FeedPage() {
               <div className="flex gap-3">
                 <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500/20 to-purple-500/20 border border-white/10 shrink-0" />
                 <button className="flex-1 text-left px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-500 hover:bg-white/[0.07] transition-colors text-[15px]">
-                  What's happening?
+                  What&apos;s happening?
                 </button>
               </div>
             </div>
@@ -539,10 +563,19 @@ export default function FeedPage() {
       <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#0B0D10]/95 backdrop-blur-xl border-t border-white/10 z-50">
         <div className="flex items-center justify-around px-2 py-3">
           {navItems.map((item) => {
-            const isActive =
-              item.href === '/explore/institute'
-                ? pathname.startsWith('/explore')
-                : pathname === item.href;
+            let isActive = false;
+            
+            if (item.href === '/explore/institute') {
+              // Explore button - active on any /explore route
+              isActive = pathname.startsWith('/explore');
+            } else if (item.label === 'Home') {
+              // Home button - active on dashboard routes (not /feed)
+              isActive = pathname === item.href && pathname !== '/feed';
+            } else {
+              // All other items - exact match
+              isActive = pathname === item.href;
+            }
+            
             return (
               <Link
                 key={item.icon}

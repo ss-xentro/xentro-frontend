@@ -198,7 +198,7 @@ export default function SessionsPage() {
                                             <span>📅 {new Date(b.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                                             {b.slotStart && <span>🕐 {b.slotStart} — {b.slotEnd}</span>}
                                         </div>
-                                        {b.notes && <p className="text-xs text-(--secondary) italic mt-1">"{b.notes}"</p>}
+                                        {b.notes && <p className="text-xs text-(--secondary) italic mt-1">&ldquo;{b.notes}&rdquo;</p>}
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
                                         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${STATUS_COLORS[b.status] || 'bg-gray-100 text-gray-700'}`}>

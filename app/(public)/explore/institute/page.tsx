@@ -74,7 +74,7 @@ export default function ExploreInstitutionsPage() {
                         return (
                             <Link
                                 key={inst.id}
-                                href={`/institutions/${inst.id}`}
+                                href={`/explore/institute/${inst.id}`}
                                 className="group relative bg-white/5 hover:bg-white/[0.08] border border-white/10 hover:border-white/20 rounded-2xl p-5 transition-all duration-300 flex flex-col"
                                 style={{ animationDelay: `${index * 40}ms` }}
                             >

@@ -61,7 +61,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-(--primary) mb-2">Startup not found</h1>
-          <p className="text-(--secondary)">The startup you're looking for doesn't exist or has been removed.</p>
+          <p className="text-(--secondary)">The startup you&apos;re looking for doesn&apos;t exist or has been removed.</p>
         </div>
       </div>
     );
@@ -207,7 +207,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
             {startup.pitch && (
               <section className="bg-(--surface) border border-(--border) rounded-xl p-6">
                 <p className="text-xl md:text-2xl font-medium text-(--primary) leading-relaxed">
-                  "{startup.pitch}"
+                  &ldquo;{startup.pitch}&rdquo;
                 </p>
               </section>
             )}
@@ -368,7 +368,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                         </svg>
                       </div>
                       <h3 className="text-lg font-semibold text-(--primary) mb-2">Team info coming soon</h3>
-                      <p className="text-(--secondary)">The team hasn't added members to their profile yet.</p>
+                      <p className="text-(--secondary)">The team hasn&apos;t added members to their profile yet.</p>
                     </div>
                   )}
 

@@ -436,7 +436,7 @@ export default function JoinWizard() {
           <div className="max-w-5xl mx-auto mb-12 text-center">
             <p className="text-sm font-semibold text-accent mb-2 uppercase tracking-wide">Welcome to XENTRO</p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Get Started</h1>
-            <p className="text-lg text-(--secondary) max-w-2xl mx-auto">Choose how you'd like to join the Xentro ecosystem</p>
+            <p className="text-lg text-(--secondary) max-w-2xl mx-auto">Choose how you&apos;d like to join the Xentro ecosystem</p>
           </div>
 
           <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -528,10 +528,10 @@ export default function JoinWizard() {
               <Link href="/feed">
                 <Button variant="ghost" size="sm">Browse Feed</Button>
               </Link>
-              <Link href="/institutions">
+              <Link href="/explore/institute">
                 <Button variant="ghost" size="sm">View Institutions</Button>
               </Link>
-              <Link href="/startups">
+              <Link href="/explore/startups">
                 <Button variant="ghost" size="sm">Discover Startups</Button>
               </Link>
             </div>
@@ -621,7 +621,7 @@ export default function JoinWizard() {
 
               <Card className="p-4 space-y-4 shadow-sm border-(--border)">
                 <div>
-                  <h3 className="text-base font-semibold">What's Next?</h3>
+                  <h3 className="text-base font-semibold">What&apos;s Next?</h3>
                   <p className="text-sm text-(--secondary)">After completing this wizard</p>
                 </div>
                 <div className="space-y-2 text-sm">
@@ -726,7 +726,7 @@ export default function JoinWizard() {
 
               <Card className="p-4 space-y-4 shadow-sm border-(--border)">
                 <div>
-                  <h3 className="text-base font-semibold">What's Next?</h3>
+                  <h3 className="text-base font-semibold">What&apos;s Next?</h3>
                   <p className="text-sm text-(--secondary)">After completing this wizard</p>
                 </div>
                 <div className="space-y-2 text-sm">
@@ -831,7 +831,7 @@ export default function JoinWizard() {
 
               <Card className="p-4 space-y-4 shadow-sm border-(--border)">
                 <div>
-                  <h3 className="text-base font-semibold">What's Next?</h3>
+                  <h3 className="text-base font-semibold">What&apos;s Next?</h3>
                   <p className="text-sm text-(--secondary)">After completing this wizard</p>
                 </div>
                 <div className="space-y-2 text-sm">
@@ -936,7 +936,7 @@ export default function JoinWizard() {
 
               <Card className="p-4 space-y-4 shadow-sm border-(--border)">
                 <div>
-                  <h3 className="text-base font-semibold">What's Next?</h3>
+                  <h3 className="text-base font-semibold">What&apos;s Next?</h3>
                   <p className="text-sm text-(--secondary)">After completing this wizard</p>
                 </div>
                 <div className="space-y-2 text-sm">

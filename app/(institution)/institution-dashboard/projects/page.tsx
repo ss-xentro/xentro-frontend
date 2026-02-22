@@ -116,7 +116,7 @@ export default function ProjectsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-(--primary)">Projects</h1>
-            <p className="text-(--secondary) mt-1">Manage your institution's research projects and collaborations</p>
+            <p className="text-(--secondary) mt-1">Manage your institution&apos;s research projects and collaborations</p>
           </div>
           <Button onClick={() => router.push('/institution-dashboard/add-project')}>
             <span className="mr-2">➕</span>

@@ -118,7 +118,7 @@ export default function InstitutionOnboardingPage() {
           {step === 0 && (
             <div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
               <div className="text-center space-y-2 mb-6">
-                <h2 className="text-xl font-semibold text-(--primary)">What's your institution name?</h2>
+                <h2 className="text-xl font-semibold text-(--primary)">What&apos;s your institution name?</h2>
                 <p className="text-sm text-(--secondary)">This helps us create your verified profile.</p>
               </div>
               <Input
@@ -148,7 +148,7 @@ export default function InstitutionOnboardingPage() {
             <div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
               <div className="text-center space-y-2 mb-6">
                 <h2 className="text-xl font-semibold text-(--primary)">Verify your email address</h2>
-                <p className="text-sm text-(--secondary)">We'll send you a secure link to confirm your identity.</p>
+                <p className="text-sm text-(--secondary)">We&apos;ll send you a secure link to confirm your identity.</p>
               </div>
               <Input 
                 label="Work Email Address" 
@@ -225,7 +225,7 @@ export default function InstitutionOnboardingPage() {
               <div className="text-center space-y-2 mb-6">
                 <h2 className="text-xl font-semibold text-(--primary)">Check your email</h2>
                 <p className="text-(--secondary)">
-                  We've sent a verification link to <strong>{email}</strong>. Please click the link in the email to verify your account.
+                  We&apos;ve sent a verification link to <strong>{email}</strong>. Please click the link in the email to verify your account.
                 </p>
               </div>
               <div className="flex gap-3 pt-4">

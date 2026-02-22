@@ -103,7 +103,7 @@ export default function StartupSettingsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-(--primary)">Startup Profile</h1>
-                    <p className="text-(--secondary)">Manage your startup's public information and settings.</p>
+                    <p className="text-(--secondary)">Manage your startup&apos;s public information and settings.</p>
                 </div>
                 <Button onClick={handleUpdate} isLoading={isSaving}>
                     Save Changes

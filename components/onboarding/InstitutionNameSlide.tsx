@@ -17,7 +17,7 @@ export default function InstitutionNameSlide({ value, onChange, className }: Ins
                     What should we call your institution?
                 </h2>
                 <p className="text-(--secondary)">
-                    Use your official name — this is how you'll appear to users and mentors.
+                    Use your official name — this is how you&apos;ll appear to users and mentors.
                 </p>
             </div>
 

@@ -201,7 +201,7 @@ export default function MentorSignupPage() {
                 Select your available time slots
               </label>
               <p className="text-sm text-(--secondary) mb-4">
-                Click on cells to mark when you're free. Each slot is 1 hour.
+                Click on cells to mark when you&apos;re free. Each slot is 1 hour.
               </p>
             </div>
             <div className="overflow-x-auto -mx-2 px-2">

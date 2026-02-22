@@ -56,7 +56,7 @@ export default function MenteesPage() {
         <div className="space-y-6">
             <div>
                 <h1 className="text-2xl font-bold text-(--primary)">Mentees</h1>
-                <p className="text-sm text-(--secondary) mt-1">People you've mentored through booked sessions</p>
+                <p className="text-sm text-(--secondary) mt-1">People you&apos;ve mentored through booked sessions</p>
             </div>
 
             {loading ? (
@@ -67,7 +67,7 @@ export default function MenteesPage() {
                 <Card className="p-8 text-center bg-(--surface)">
                     <div className="text-4xl mb-3">👥</div>
                     <h3 className="text-lg font-semibold text-(--primary)">No mentees yet</h3>
-                    <p className="text-sm text-(--secondary) mt-1">When someone books a session with you, they'll appear here.</p>
+                    <p className="text-sm text-(--secondary) mt-1">When someone books a session with you, they&apos;ll appear here.</p>
                 </Card>
             ) : (
                 <div className="grid gap-3">

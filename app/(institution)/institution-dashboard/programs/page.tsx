@@ -114,7 +114,7 @@ export default function ProgramsPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-(--primary)">Programs</h1>
-                        <p className="text-(--secondary) mt-1">Manage your institution's programs and initiatives</p>
+                        <p className="text-(--secondary) mt-1">Manage your institution&apos;s programs and initiatives</p>
                     </div>
                     <Button onClick={() => router.push('/institution-dashboard/add-program')}>
                         <span className="mr-2">➕</span>
@@ -137,7 +137,7 @@ export default function ProgramsPage() {
                         </div>
                         <h3 className="text-lg font-semibold text-(--primary) mb-2">No programs yet</h3>
                         <p className="text-(--secondary) mb-4">
-                            Add programs to showcase your institution's offerings
+                            Add programs to showcase your institution&apos;s offerings
                         </p>
                         <Button onClick={() => router.push('/institution-dashboard/add-program')}>
                             Add Your First Program

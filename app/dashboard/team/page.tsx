@@ -115,7 +115,7 @@ export default function TeamPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-(--primary)">Team Management</h1>
-                    <p className="text-(--secondary)">Manage your startup's founders and team members.</p>
+                    <p className="text-(--secondary)">Manage your startup&apos;s founders and team members.</p>
                 </div>
                 {!inviteOpen && (
                     <Button onClick={() => setInviteOpen(true)}>

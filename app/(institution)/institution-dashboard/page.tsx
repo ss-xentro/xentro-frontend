@@ -551,7 +551,7 @@ export default function InstitutionDashboardPage() {
                   {formData.tagline && (
                     <div>
                       <p className="text-xs font-medium text-(--secondary) mb-1">Tagline</p>
-                      <p className="text-sm text-(--primary) italic">\"{formData.tagline}\"</p>
+                      <p className="text-sm text-(--primary) italic">&ldquo;{formData.tagline}&rdquo;</p>
                     </div>
                   )}
 
@@ -813,7 +813,7 @@ export default function InstitutionDashboardPage() {
                   <span className="text-2xl">🚀</span>
                   <div>
                     <p className="font-semibold text-(--primary) group-hover:text-accent">Add Startup</p>
-                    <p className="text-sm text-(--secondary)">Register startups you're supporting</p>
+                    <p className="text-sm text-(--secondary)">Register startups you&apos;re supporting</p>
                   </div>
                 </div>
               </Link>

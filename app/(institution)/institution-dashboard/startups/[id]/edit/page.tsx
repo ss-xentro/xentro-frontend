@@ -288,7 +288,7 @@ export default function EditStartupPage() {
 
             <div className="space-y-3">
               <label className="block text-xs font-medium text-gray-500">
-                What You're Building
+                What You&apos;re Building
               </label>
               <textarea
                 value={formData.oneLiner}

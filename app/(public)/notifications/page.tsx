@@ -204,7 +204,7 @@ export default function NotificationsPage() {
         ) : notifications.length === 0 ? (
           <Card className="p-8 text-center">
             <div className="text-5xl mb-4">🔔</div>
-            <h3 className="text-lg font-semibold text-(--primary) mb-2">
+            <h3 className="text-lg font-semibold text-(--primary) mb-2">You&apos;re all caught up</h3>
               {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
             </h3>
             <p className="text-(--secondary)">
