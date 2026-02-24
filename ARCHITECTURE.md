@@ -1,9 +1,10 @@
 # XENTRO Platform Architecture
 
-**Last Updated:** January 2025  
+**Last Updated:** January 2025
 **Version:** 2.0 (Unified Context-Based Architecture)
 
 ## Table of Contents
+
 1. [Core Philosophy](#core-philosophy)
 2. [System Overview](#system-overview)
 3. [User Identity & Contexts](#user-identity--contexts)
@@ -46,7 +47,7 @@
 
 ### Technology Stack
 
-```
+```table
 ┌─────────────────────────────────────────────────────────┐
 │ Frontend: Next.js 16 (App Router) + React + TypeScript │
 ├─────────────────────────────────────────────────────────┤
@@ -68,7 +69,7 @@
 
 ### Architecture Layers
 
-```
+```flow
 ┌──────────────────────────────────────────────────────────┐
 │                    CLIENT REQUEST                        │
 └────────────────────────┬─────────────────────────────────┘
@@ -116,7 +117,7 @@
 
 ### Context System
 
-```
+```flow
                      ┌────────────────┐
                      │  GLOBAL USER   │
                      │  (email=PK)    │
@@ -141,17 +142,18 @@
 
 ### Context Unlocking Rules
 
-| Context   | Unlocked By                              |
-|-----------|------------------------------------------|
-| Explorer  | Default (all users start here)          |
-| Startup   | `startup_create` form approved           |
-| Mentor    | `mentor_apply` form approved             |
-| Institute | `institute_create` form approved         |
-| Admin     | Assigned by existing L3 admin            |
+| Context   | Unlocked By                        |
+| --------- | ---------------------------------- |
+| Explorer  | Default (all users start here)     |
+| Startup   | `startup_create` form approved     |
+| Mentor    | `mentor_apply` form approved       |
+| Institute | `institute_create` form approved   |
+| Admin     | Assigned by existing L3 admin      |
 
 ### JWT Structure
 
 **Base JWT** (identity only):
+
 ```json
 {
   "sub": "user-uuid",
@@ -165,6 +167,7 @@
 ```
 
 **Context JWT** (scoped to role/entity):
+
 ```json
 {
   "sub": "user-uuid",
@@ -186,7 +189,7 @@
 
 ### Form Lifecycle
 
-```
+```flow
 ┌─────────┐    ┌───────────┐    ┌──────────────┐    ┌──────────┐
 │  DRAFT  │───▶│ SUBMITTED │───▶│ UNDER_REVIEW │───▶│ APPROVED │
 └─────────┘    └───────────┘    └──────────────┘    └──────────┘
@@ -215,6 +218,7 @@
 ### Approval Processing
 
 When a form is approved:
+
 1. Entity is created (startup/mentor/institution)
 2. User's context is unlocked
 3. Feed item is generated
@@ -227,7 +231,7 @@ When a form is approved:
 
 ### Feed Item Sources
 
-```
+```flow
 ┌──────────────────────────────────────────┐
 │            FORM APPROVAL                 │
 │  (startup_create, mentor_apply, etc.)    │
@@ -254,7 +258,7 @@ When a form is approved:
 
 ### Ranking Formula
 
-```
+```formulae
 score = (appreciations × 3) + (mentor_tips × 5) + (views × 0.1) + recency_bonus
 ```
 
@@ -266,7 +270,7 @@ Where `recency_bonus = max(0, 10 - (age_in_hours / 24) × 2)`
 
 ### Multi-Provider Auth
 
-```
+```flow
 ┌──────────────────────────────────────────────────────────┐
 │                   AUTH PROVIDERS                         │
 ├────────────────┬────────────────┬────────────────────────┤
@@ -306,7 +310,7 @@ Where `recency_bonus = max(0, 10 - (age_in_hours / 24) × 2)`
 
 ---
 
-## API Structure
+## REST API Structure
 
 ### Auth Endpoints
 
@@ -324,7 +328,7 @@ Where `recency_bonus = max(0, 10 - (age_in_hours / 24) × 2)`
 
 ### Forms Endpoints
 
-| Method | Endpoint                        | Description           |
+| Method | Endpoint                         | Description           |
 |--------|----------------------------------|-----------------------|
 | GET    | /api/forms                       | Get user's forms      |
 | POST   | /api/forms                       | Create form (draft)   |
@@ -357,7 +361,7 @@ Where `recency_bonus = max(0, 10 - (age_in_hours / 24) × 2)`
 
 ### Core Tables
 
-```
+```file-tree
 users
 ├── id (PK)
 ├── email (unique)
@@ -409,7 +413,7 @@ feed_items
 
 ### Context-Specific Tables
 
-```
+```file-tree
 startups
 ├── id (PK)
 ├── slug (unique)
@@ -515,7 +519,7 @@ requireMentor(headers)
 
 ### Directory Structure
 
-```
+```file-tree
 server/
 ├── controllers/
 │   ├── http-error.ts                    # Custom error class with status codes
@@ -562,7 +566,7 @@ server/
 
 ### Entity Relationship Diagram
 
-```
+```erd
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         CORE ENTITIES                                │
 └─────────────────────────────────────────────────────────────────────┘
@@ -608,7 +612,7 @@ server/
         │ name                       │
         │ email (UNIQUE)             │
         │ type                       │
-        │ status                     │──── 'pending' → 'approved' → institution created
+      │ status                     │──── 'pending' → 'approved'
         │ verified                   │
         │ verification_token         │
         │ institution_id (FK)        │──┐
@@ -730,13 +734,15 @@ server/
 ### Database Schema Details
 
 #### 1. **users** (Core User Table)
+
 ```sql
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     email VARCHAR(320) NOT NULL UNIQUE,
     phone VARCHAR(50),
-    account_type account_type_enum NOT NULL,  -- 'explorer', 'mentor', 'institution', etc.
+   account_type account_type_enum NOT NULL,
+   -- 'explorer', 'mentor', 'institution', etc.
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -744,23 +750,25 @@ CREATE UNIQUE INDEX users_email_idx ON users(email);
 ```
 
 #### 2. **institutions** (Main Institution Entity)
+
 ```sql
 CREATE TABLE institutions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug VARCHAR(100) UNIQUE NOT NULL,  -- URL-friendly: 'stanford-accelerator'
     name VARCHAR(255) NOT NULL,
-    type VARCHAR(120) NOT NULL,         -- 'incubator', 'accelerator', 'university', 'vc', 'csr'
+   type VARCHAR(120) NOT NULL,
+   -- 'incubator', 'accelerator', 'university', 'vc', 'csr'
     email VARCHAR(320) UNIQUE NOT NULL,
     status VARCHAR(32) DEFAULT 'draft',
     profile_views INTEGER DEFAULT 0,
     verified BOOLEAN DEFAULT FALSE,
-    
+
     -- Location
     city VARCHAR(180),
     country VARCHAR(180),
     country_code VARCHAR(4),
     operating_mode VARCHAR(50),         -- 'local', 'national', 'global', 'remote-first'
-    
+
     -- Identity
     tagline VARCHAR(280),
     description TEXT,
@@ -768,18 +776,18 @@ CREATE TABLE institutions (
     website VARCHAR(255),
     linkedin VARCHAR(255),
     phone VARCHAR(50),
-    
+
     -- Impact metrics
     startups_supported INTEGER DEFAULT 0,
     students_mentored INTEGER DEFAULT 0,
     funding_facilitated NUMERIC(16,2) DEFAULT 0,
     funding_currency VARCHAR(8),
-    
+
     -- Focus areas (JSON arrays)
     sdg_focus JSONB,                    -- ['sdg-1', 'sdg-4', 'sdg-13']
     sector_focus JSONB,                 -- ['ai', 'healthtech', 'climatetech']
     legal_documents JSONB,              -- ['https://r2.../doc1.pdf', ...]
-    
+
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -790,6 +798,7 @@ CREATE INDEX institutions_email_idx ON institutions(email);
 ```
 
 #### 3. **institution_members** (RBAC Team Management)
+
 ```sql
 CREATE TYPE institution_role AS ENUM ('owner', 'admin', 'manager', 'viewer');
 
@@ -803,7 +812,7 @@ CREATE TABLE institution_members (
     accepted_at TIMESTAMPTZ,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    
+
     UNIQUE(institution_id, user_id)
 );
 
@@ -811,12 +820,14 @@ CREATE INDEX institution_members_institution_idx ON institution_members(institut
 ```
 
 **Role Hierarchy:**
+
 - **owner**: Full control, can delete institution
 - **admin**: Can add/remove members, approve content
 - **manager**: Can create/edit programs, startups, events
 - **viewer**: Read-only access
 
 #### 4. **institution_applications** (Onboarding Workflow)
+
 ```sql
 CREATE TABLE institution_applications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -827,22 +838,23 @@ CREATE TABLE institution_applications (
     verified BOOLEAN DEFAULT FALSE,
     verification_token VARCHAR(255),
     remark TEXT,                           -- Admin feedback
-    
+
     institution_id UUID REFERENCES institutions(id) ON DELETE SET NULL,
     applicant_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    
+
     -- Same fields as institutions for Phase 2 onboarding
     tagline VARCHAR(280),
     city VARCHAR(180),
     country VARCHAR(180),
     -- ... (mirrors institution fields)
-    
+
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
 **Application Lifecycle:**
+
 1. User submits Phase 1 (name, email, type) → `status='pending', verified=false`
 2. Email verification link sent → `verified=true`
 3. User completes Phase 2 (full details) → ready for admin review
@@ -850,12 +862,14 @@ CREATE TABLE institution_applications (
 5. User can now login and access dashboard
 
 #### 5. **programs** (Institution Programs/Cohorts)
+
 ```sql
 CREATE TABLE programs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     institution_id UUID NOT NULL REFERENCES institutions(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
-    type VARCHAR(120) NOT NULL,            -- 'cohort', 'bootcamp', 'workshop', 'competition'
+   type VARCHAR(120) NOT NULL,
+   -- 'cohort', 'bootcamp', 'workshop', 'competition'
     description TEXT,
     duration VARCHAR(120),                 -- '3 months', '6 weeks'
     is_active BOOLEAN DEFAULT TRUE,
@@ -865,10 +879,14 @@ CREATE TABLE programs (
 ```
 
 #### 6. **startups** (Startup Profiles - Kickstarter-style)
+
 ```sql
-CREATE TYPE startup_stage AS ENUM ('idea', 'mvp', 'early_traction', 'growth', 'scale');
-CREATE TYPE startup_status AS ENUM ('active', 'stealth', 'paused', 'acquired', 'shut_down');
-CREATE TYPE funding_round AS ENUM ('bootstrapped', 'pre_seed', 'seed', 'series_a', 'series_b_plus', 'unicorn');
+CREATE TYPE startup_stage AS ENUM
+('idea', 'mvp', 'early_traction', 'growth', 'scale');
+CREATE TYPE startup_status AS ENUM
+('active', 'stealth', 'paused', 'acquired', 'shut_down');
+CREATE TYPE funding_round AS ENUM
+('bootstrapped', 'pre_seed', 'seed', 'series_a', 'series_b_plus', 'unicorn');
 
 CREATE TABLE startups (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -877,28 +895,28 @@ CREATE TABLE startups (
     tagline VARCHAR(280),                  -- Short tagline
     pitch VARCHAR(160),                    -- One-line pitch
     description TEXT,                      -- Full story (Kickstarter-style)
-    
+
     -- Visual identity
     logo VARCHAR(512),
     cover_image VARCHAR(512),              -- Hero banner
-    
+
     -- Status & stage
     stage startup_stage,
     status startup_status DEFAULT 'active',
     founded_date TIMESTAMPTZ,
-    
+
     -- Funding
     funding_round funding_round DEFAULT 'bootstrapped',
     funds_raised NUMERIC(16,2),
     funding_goal NUMERIC(16,2),
     funding_currency VARCHAR(8) DEFAULT 'USD',
     investors JSONB,                       -- Array of investor names
-    
+
     -- Location
     city VARCHAR(180),
     country VARCHAR(180),
     location VARCHAR(255),
-    
+
     -- Links
     website VARCHAR(255),
     linkedin VARCHAR(255),
@@ -906,23 +924,23 @@ CREATE TABLE startups (
     instagram VARCHAR(255),
     pitch_deck_url VARCHAR(512),
     demo_video_url VARCHAR(512),
-    
+
     -- Focus areas
     industry VARCHAR(120),
     sectors JSONB,                         -- ['ai', 'healthtech']
     sdg_focus JSONB,                       -- ['sdg-3', 'sdg-9']
-    
+
     -- Metrics
     team_size INTEGER,
     employee_count VARCHAR(50),
     highlights JSONB,                      -- Key achievements
     media_features JSONB,                  -- Press coverage
-    
+
     -- Relations
     institution_id UUID REFERENCES institutions(id) ON DELETE SET NULL,
     owner_id UUID REFERENCES users(id) ON DELETE SET NULL,
     primary_contact_email VARCHAR(320),
-    
+
     profile_views INTEGER DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -932,7 +950,8 @@ CREATE UNIQUE INDEX startups_slug_idx ON startups(slug);
 CREATE INDEX startups_status_idx ON startups(status);
 CREATE INDEX startups_stage_idx ON startups(stage);
 
-CREATE TYPE founder_role AS ENUM ('ceo', 'cto', 'coo', 'cfo', 'cpo', 'founder', 'co_founder');
+CREATE TYPE founder_role AS ENUM
+('ceo', 'cto', 'coo', 'cfo', 'cpo', 'founder', 'co_founder');
 
 CREATE TABLE startup_founders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -970,6 +989,7 @@ CREATE INDEX startup_activity_created_idx ON startup_activity_logs(created_at);
 ```
 
 #### 7. **institution_sessions & startup_sessions** (OTP Login)
+
 ```sql
 CREATE TABLE institution_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -996,6 +1016,7 @@ CREATE INDEX startup_sessions_expires_idx ON startup_sessions(expires_at);
 ```
 
 #### 8. **mentor_profiles** (Mentor Management)
+
 ```sql
 CREATE TYPE mentor_status AS ENUM ('pending', 'approved', 'rejected');
 
@@ -1019,6 +1040,7 @@ CREATE INDEX mentor_profiles_status_idx ON mentor_profiles(status);
 ```
 
 #### 9. **approvers** (Admin Team)
+
 ```sql
 CREATE TABLE approvers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -1033,6 +1055,7 @@ CREATE TABLE approvers (
 ### Indexes Strategy
 
 **Performance Indexes:**
+
 ```sql
 -- Fast lookups
 CREATE INDEX institutions_slug_idx ON institutions(slug);
@@ -1103,7 +1126,8 @@ CREATE INDEX institution_sessions_expires_idx ON institution_sessions(expires_at
 ### Authentication Flows
 
 #### 1. Institution Login (OTP-based)
-```
+
+```flow
 ┌─────────────────────────────────────────────────────────┐
 │           INSTITUTION LOGIN FLOW (OTP-BASED)            │
 └─────────────────────────────────────────────────────────┘
@@ -1133,7 +1157,8 @@ CREATE INDEX institution_sessions_expires_idx ON institution_sessions(expires_at
 ```
 
 #### 2. Founder Login (OTP-based)
-```
+
+```flow
 ┌─────────────────────────────────────────────────────────┐
 │             FOUNDER LOGIN FLOW (OTP-BASED)              │
 └─────────────────────────────────────────────────────────┘
@@ -1165,7 +1190,8 @@ CREATE INDEX institution_sessions_expires_idx ON institution_sessions(expires_at
 ```
 
 #### 3. Xplorer Authentication (Multi-Provider)
-```
+
+```flow
 ┌─────────────────────────────────────────────────────────┐
 │        XPLORER LOGIN/SIGNUP (Credentials + Google)      │
 └─────────────────────────────────────────────────────────┘
@@ -1202,7 +1228,8 @@ can link to the same user account.
 ```
 
 #### 4. Mentor Application & Approval
-```
+
+```flow
 ┌─────────────────────────────────────────────────────────┐
 │            MENTOR ONBOARDING & APPROVAL FLOW            │
 └─────────────────────────────────────────────────────────┘
@@ -1228,7 +1255,7 @@ can link to the same user account.
 
 ### Session Validation (with Cache)
 
-```
+```flow
 API Request with JWT
    ↓
 ┌─────────────────────────────┐
@@ -1282,7 +1309,7 @@ export async function POST(request: NextRequest) {
 **Role Permissions Matrix:**
 
 | Action | Owner | Admin | Manager | Viewer |
-|--------|-------|-------|---------|--------|
+| ------ | ----- | ----- | ------- | ------ |
 | View dashboard | ✅ | ✅ | ✅ | ✅ |
 | Edit profile | ✅ | ✅ | ❌ | ❌ |
 | Add team members | ✅ | ✅ | ❌ | ❌ |
@@ -1297,7 +1324,7 @@ export async function POST(request: NextRequest) {
 
 ### Example: Create Program
 
-```
+```flow
 ┌──────────────────────────────────────────────────────────────┐
 │ Client: POST /api/programs                                   │
 │ Body: { name, type, description, duration }                  │
@@ -1356,7 +1383,8 @@ export async function POST(request: NextRequest) {
 ### REST API Endpoints
 
 #### Public Routes
-```
+
+```api
 GET    /api/institutions                      # List published institutions
 GET    /api/institutions/:slug                # Get institution by slug + programs/events
 GET    /api/public/startups                   # List published startups
@@ -1364,7 +1392,8 @@ GET    /api/public/startups/:slug             # Get startup by slug
 ```
 
 #### Institution Management
-```
+
+```api
 POST   /api/institution-applications          # Submit Phase 1 (name, email, type)
 GET    /api/institution-applications          # Get user's applications
 PUT    /api/institution-applications/:id      # Update Phase 2 details
@@ -1376,7 +1405,8 @@ PUT    /api/institutions/:id                  # Update institution (protected)
 ```
 
 #### Institution Authentication
-```
+
+```api
 POST   /api/institution-auth/request-otp      # Send OTP to email
 POST   /api/institution-auth/verify-otp       # Verify OTP, return JWT
 GET    /api/institution-auth/me               # Get current institution details
@@ -1384,13 +1414,15 @@ POST   /api/institution-auth/logout           # Clear session cache
 ```
 
 #### Founder/Startup Authentication
-```
+
+```api
 POST   /api/founder-auth/request-otp          # Send OTP to founder email
 POST   /api/founder-auth/verify-otp           # Verify OTP, return JWT + startupId
 ```
 
 #### Xplorer Authentication
-```
+
+```api
 POST   /api/xplorers/signup                   # Create account (email/password)
 POST   /api/xplorers/login                    # Login with credentials
 POST   /api/xplorers/login/google             # Login with Google OAuth
@@ -1399,7 +1431,8 @@ PUT    /api/xplorers/me                       # Update xplorer profile/interests
 ```
 
 #### Founder/Startup Management (Protected)
-```
+
+```api
 GET    /api/founder/startups                  # List founder's startups
 POST   /api/founder/startups                  # Create new startup
 GET    /api/founder/my-startup                # Get founder's primary startup
@@ -1415,7 +1448,8 @@ GET    /api/founder/activity                  # Get activity logs
 ```
 
 #### Institution Team Management (Protected)
-```
+
+```api
 GET    /api/institution-team                  # List team members
 POST   /api/institution-team                  # Add member (owner/admin only)
 PUT    /api/institution-team/:id              # Update member role
@@ -1423,7 +1457,8 @@ DELETE /api/institution-team/:id              # Remove member
 ```
 
 #### Programs (Protected)
-```
+
+```api
 GET    /api/programs                          # List institution's programs
 POST   /api/programs                          # Create program
 GET    /api/programs/:id                      # Get program details
@@ -1432,7 +1467,8 @@ DELETE /api/programs/:id                      # Delete program
 ```
 
 #### Projects (Protected)
-```
+
+```api
 GET    /api/projects                          # List institution's projects
 POST   /api/projects                          # Create project
 GET    /api/projects/:id                      # Get project details
@@ -1441,7 +1477,8 @@ DELETE /api/projects/:id                      # Delete project
 ```
 
 #### Startups - Institution Portfolio (Protected)
-```
+
+```api
 GET    /api/startups                          # List institution's startups
 POST   /api/startups                          # Add startup to portfolio
 GET    /api/startups/:id                      # Get startup details
@@ -1450,7 +1487,8 @@ DELETE /api/startups/:id                      # Remove startup
 ```
 
 #### Mentor Management
-```
+
+```api
 POST   /api/mentors                           # Submit mentor application (public)
 GET    /api/mentors                           # List mentors (filtered by status)
 GET    /api/mentors/:id                       # Get mentor profile
@@ -1458,7 +1496,8 @@ PUT    /api/mentors/:id                       # Update mentor profile (protected
 ```
 
 #### Approvals (Admin/Approver only)
-```
+
+```api
 POST   /api/approvals/mentors                 # Approve/reject mentor application
 POST   /api/approvals/institutions            # Approve/reject institution application
 GET    /api/approvals/mentors                 # List pending mentor applications
@@ -1466,21 +1505,26 @@ GET    /api/approvals/institutions            # List pending institution applica
 ```
 
 #### Approver Management (Admin only)
-```
+
+```api
 GET    /api/approvers                         # List approvers
-POST   /api/approvers                         # Add new approver (auto-gen employee ID)
+POST   /api/approvers                         # Add new approver
+                                              # (auto-gen employee ID)
 DELETE /api/approvers/:id                     # Remove approver
 ```
 
 #### Media Upload
-```
+
+```api
 POST   /api/media                             # Upload to R2, return URL
                                               # Accepts: images (max 5MB)
-                                              # Returns: { url, bucket, key, size }
+                                              # Returns: { url, bucket,
+                                              # key, size }
 ```
 
 #### Dev/Testing (Non-production only)
-```
+
+```api
 GET    /api/dev/mock-admin                    # Get admin JWT token
 ```
 
@@ -1495,6 +1539,7 @@ GET    /api/dev/mock-admin                    # Get admin JWT token
 ```
 
 **Common Error Codes:**
+
 - `AUTH_REQUIRED` (401)
 - `INVALID_TOKEN` (401)
 - `TOKEN_EXPIRED` (401)
@@ -1508,6 +1553,7 @@ GET    /api/dev/mock-admin                    # Get admin JWT token
 ## Security Layers
 
 ### 1. Input Validation
+
 ```typescript
 // Controller level
 if (!payload.name || !payload.email) {
@@ -1518,6 +1564,7 @@ if (!payload.name || !payload.email) {
 ```
 
 ### 2. SQL Injection Prevention
+
 ```typescript
 // ✅ SAFE: Parameterized queries via Drizzle
 await db.select().from(institutions).where(eq(institutions.email, userEmail));
@@ -1527,17 +1574,20 @@ await db.execute(`SELECT * FROM institutions WHERE email = '${userEmail}'`);
 ```
 
 ### 3. Session Isolation
+
 - Each institution's JWT contains their `institutionId` + `email`
 - `verifyInstitutionAuth()` validates institutionId belongs to email
 - Session cache keyed by token hash (not shared across users)
 
 ### 4. RBAC Enforcement
+
 ```typescript
 const roleCheck = requireRole(auth.payload, ['owner', 'admin']);
 if (roleCheck) return roleCheck.response; // 403 Forbidden
 ```
 
 ### 5. Rate Limiting (Middleware)
+
 ```typescript
 // middleware.ts
 if (pathname.startsWith('/api/institution-auth/request-otp')) {
@@ -1547,6 +1597,7 @@ if (pathname.startsWith('/api/institution-auth/request-otp')) {
 ```
 
 ### 6. Secure Media Upload
+
 ```typescript
 // Max file size: 5MB
 // Allowed types: images only (jpeg, png, webp)
@@ -1555,6 +1606,7 @@ if (pathname.startsWith('/api/institution-auth/request-otp')) {
 ```
 
 ### 7. Environment Variables
+
 ```bash
 JWT_SECRET=<strong-secret>           # JWT signing key
 DATABASE_URL=<neon-connection-string>
@@ -1569,16 +1621,19 @@ SMTP_PASS=<app-password>
 ## Performance Optimizations
 
 ### 1. Session Caching
+
 - In-memory cache with 5-minute TTL
 - Reduces DB queries by 80% for authenticated requests
 - Auto-cleanup of expired sessions
 
 ### 2. Database Indexes
+
 - Slug-based lookups: O(1) hash index
 - Status filtering: B-tree index
 - Foreign key queries: Indexed
 
 ### 3. Parallel Data Fetching
+
 ```typescript
 // Dashboard loads 4 API calls in parallel
 const [startups, team, programs, institution] = await Promise.all([
@@ -1590,6 +1645,7 @@ const [startups, team, programs, institution] = await Promise.all([
 ```
 
 ### 4. Lazy Loading
+
 - Programs/startups loaded only when user navigates to those pages
 - Media assets loaded on-demand
 
@@ -1598,6 +1654,7 @@ const [startups, team, programs, institution] = await Promise.all([
 ## Deployment Considerations
 
 ### Production Checklist
+
 - [ ] Set strong `JWT_SECRET` (use `openssl rand -base64 32`)
 - [ ] Enable HTTPS only
 - [ ] Set `NODE_ENV=production`
@@ -1612,6 +1669,7 @@ const [startups, team, programs, institution] = await Promise.all([
 - [ ] Set up backup strategy for PostgreSQL
 
 ### Scaling Strategy
+
 1. **Horizontal Scaling**: Add more Next.js instances behind load balancer
 2. **Redis**: Move session cache to Redis (shared across instances)
 3. **Database**: Neon auto-scales, consider read replicas for heavy read workloads
@@ -1623,6 +1681,7 @@ const [startups, team, programs, institution] = await Promise.all([
 ## Future Enhancements
 
 ### Authentication & Security
+
 1. **2FA/MFA**: Add two-factor authentication for sensitive accounts
 2. **OAuth Providers**: Add LinkedIn, GitHub authentication
 3. **Session Management**: Redis-based session store for multi-instance deployment
@@ -1630,26 +1689,29 @@ const [startups, team, programs, institution] = await Promise.all([
 5. **Audit Logs**: Track all admin actions (who did what, when)
 
 ### Platform Features
-6. **Mentor Booking System**: Complete booking/payment flow for mentor sessions
-7. **Investor Verification**: Identity + funds verification workflow
-8. **Messaging System**: In-app chat between founders/mentors/institutions
-9. **Notifications**: Real-time notifications via WebSockets + email
-10. **Analytics Dashboard**: Track user behavior, startup metrics, funding trends
-11. **Advanced Search**: Full-text search with Elasticsearch (institutions/startups/mentors)
-12. **Recommendation Engine**: ML-based matching (founders <-> mentors <-> institutions)
+
+1. **Mentor Booking System**: Complete booking/payment flow for mentor sessions
+2. **Investor Verification**: Identity + funds verification workflow
+3. **Messaging System**: In-app chat between founders/mentors/institutions
+4. **Notifications**: Real-time notifications via WebSockets + email
+5. **Analytics Dashboard**: Track user behavior, startup metrics, funding trends
+6. **Advanced Search**: Full-text search with Elasticsearch (institutions/startups/mentors)
+7. **Recommendation Engine**: ML-based matching (founders <-> mentors <-> institutions)
 
 ### Content & Media
-13. **File Virus Scanning**: Scan uploaded files before storing in R2
-14. **Image Optimization**: Auto-resize/compress images on upload
-15. **Video Platform**: Integrate video hosting for pitch videos
-16. **Document Management**: Version control for legal documents
+
+1. **File Virus Scanning**: Scan uploaded files before storing in R2
+2. **Image Optimization**: Auto-resize/compress images on upload
+3. **Video Platform**: Integrate video hosting for pitch videos
+4. **Document Management**: Version control for legal documents
 
 ### Infrastructure
-17. **GraphQL API**: Add GraphQL layer for complex queries
-18. **Multi-region**: Deploy to multiple regions for low latency
-19. **Background Jobs**: Bull/BullMQ for email sending, data processing
-20. **Monitoring**: Sentry error tracking, DataDog metrics
-21. **CDN**: Cloudflare CDN for R2 assets
+
+1. **GraphQL API**: Add GraphQL layer for complex queries
+2. **Multi-region**: Deploy to multiple regions for low latency
+3. **Background Jobs**: Bull/BullMQ for email sending, data processing
+4. **Monitoring**: Sentry error tracking, DataDog metrics
+5. **CDN**: Cloudflare CDN for R2 assets
 
 ---
 
@@ -1658,16 +1720,19 @@ const [startups, team, programs, institution] = await Promise.all([
 ### Key Files
 
 **Database & Schema:**
+
 - `db/schemas/index.ts` - All database tables and enums
 - `db/client.ts` - Drizzle database connection
 - `drizzle.config.ts` - Migration configuration
 
 **Authentication & Middleware:**
+
 - `server/middleware/institutionAuth.ts` - Institution auth logic
 - `server/services/auth.ts` - JWT operations, xplorer auth, password hashing
 - `server/services/sessionCache.ts` - Session cache (5min TTL)
 
 **API Routes:**
+
 - `app/api/institution-auth/` - Institution OTP login
 - `app/api/founder-auth/` - Founder OTP login
 - `app/api/xplorers/` - Xplorer signup/login
@@ -1677,26 +1742,31 @@ const [startups, team, programs, institution] = await Promise.all([
 - `app/api/**/route.ts` - All API endpoints
 
 **Business Logic:**
+
 - `server/controllers/*.controller.ts` - Controllers for each entity
 - `server/controllers/http-error.ts` - Custom error class
 
 **Data Access:**
+
 - `server/repositories/*.repository.ts` - Database queries
 - `server/repositories/user.repository.ts` - User & profile management
 - `server/repositories/startup.repository.ts` - Startup CRUD with founders
 
 **External Services:**
+
 - `server/services/storage.ts` - Cloudflare R2 uploads
 - `server/services/email.ts` - SMTP email with HTML templates
 - `server/utils/password.ts` - bcrypt password hashing
 
 **Client State:**
+
 - `stores/useStartupOnboardingStore.ts` - Zustand store for startup onboarding
 - `stores/useInstitutionStore.ts` - Institution state management
 - `stores/useProjectStore.ts` - Project state management
 - `contexts/AuthContext.tsx` - Admin UI auth context (mock)
 
 ### Environment Setup
+
 ```bash
 # Install dependencies
 npm install
@@ -1712,6 +1782,7 @@ npm run dev
 ```
 
 ### Testing Authentication
+
 ```bash
 # Get admin JWT (dev only)
 curl http://localhost:3000/api/dev/mock-admin
