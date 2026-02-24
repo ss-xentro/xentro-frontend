@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
 import { useProjectStore } from '@/stores/useProjectStore';
-import { useInstitutionRealtime } from '@/hooks/useRealtime';
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   planning: { label: 'Planning', color: 'bg-blue-100 text-blue-800' },
@@ -28,46 +27,11 @@ export default function ProjectsPage() {
     deleteProject
   } = useProjectStore();
 
-  // Get token and institution ID from localStorage (client-side only)
+  // Get token from localStorage (client-side only)
   const getToken = () => {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('institution_token');
   };
-  const getInstitutionId = () => {
-    const token = getToken();
-    if (!token) return null;
-    try {
-      // Decode JWT to get institution ID for real-time channel
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.institutionId || null;
-    } catch {
-      return null;
-    }
-  };
-
-  // Real-time event handlers
-  const handleProjectCreated = useCallback((project: any) => {
-    // Only add if not already in store (avoid duplicates from optimistic updates)
-    const exists = projects.some(p => p.id === project.id);
-    if (!exists) {
-      addProject(project);
-    }
-  }, [projects, addProject]);
-
-  const handleProjectUpdated = useCallback((project: any) => {
-    updateProject(project.id, project);
-  }, [updateProject]);
-
-  const handleProjectDeleted = useCallback((data: { id: string }) => {
-    removeProject(data.id);
-  }, [removeProject]);
-
-  // Subscribe to real-time updates
-  useInstitutionRealtime(getInstitutionId(), {
-    onProjectCreated: handleProjectCreated,
-    onProjectUpdated: handleProjectUpdated,
-    onProjectDeleted: handleProjectDeleted,
-  });
 
   // Initial fetch
   useEffect(() => {
