@@ -1,11 +1,13 @@
 # Backend Flow
 
 ## Stack & Infrastructure
+
 - Next.js App Router with Route Handlers for APIs.
 - Drizzle ORM on Neon serverless Postgres (connection in [db/client.ts](db/client.ts#L1-L4)).
 - S3-compatible storage (Cloudflare R2) for media via [server/services/storage.ts](server/services/storage.ts#L1-L68).
 
 ## Core Data Models (Drizzle)
+
 - Users & Profiles: users, explorer_profiles, mentor_profiles, investor_profiles (see [db/schemas/index.ts](db/schemas/index.ts#L1-L86)).
 - Institutions & Media: institutions, media_assets (see [db/schemas/index.ts](db/schemas/index.ts#L88-L147)).
 - Programs & Events: programs, events (see [db/schemas/index.ts](db/schemas/index.ts#L149-L196)).
@@ -13,12 +15,14 @@
 - Transactions & Content: bookings, sessions, payments, trust_scores, blocks, block_visibilities, update_logs, demand_signals, communities, channels, posts, comments, learning_resources (see [db/schemas/index.ts](db/schemas/index.ts#L198-L278)).
 
 ## API Endpoints (Current)
+
 - GET /api/institutions — list published institutions (maps logos to public URL) ([app/api/institutions/route.ts](app/api/institutions/route.ts#L5-L12), [server/controllers/institution.controller.ts](server/controllers/institution.controller.ts#L8-L14)).
 - POST /api/institutions — create institution (minimal validation: name/type required) ([app/api/institutions/route.ts](app/api/institutions/route.ts#L14-L47), [server/controllers/institution.controller.ts](server/controllers/institution.controller.ts#L16-L18)).
 - GET /api/institutions/[id] — fetch institution + programs + events ([app/api/institutions/[id]/route.ts](app/api/institutions/%5Bid%5D/route.ts#L5-L12), [server/controllers/institution.controller.ts](server/controllers/institution.controller.ts#L20-L34)).
 - POST /api/media — image upload to R2 + media record ([app/api/media/route.ts](app/api/media/route.ts#L10-L54), [server/services/storage.ts](server/services/storage.ts#L18-L68)).
 
 ## Planned APIs (Mentors & Approvals)
+
 - POST /api/mentors — submit mentor/coach application (public)
 - GET/PUT /api/mentors/[id] — view/update mentor profile + status (protected)
 - POST /api/approvals/mentors — approve/reject mentor applications (admin/approver)
@@ -27,22 +31,26 @@
 - Email notification: on mentor approval, send a celebratory email with mentor login link.
 
 ## Planned APIs (Xplorers)
+
 - POST /api/xplorers/signup — create Xplorer account (name, email, select up to 15 interested topics)
 - POST /api/xplorers/login/google — Google OAuth for Xplorers
 
 ## Repository Layer
+
 - Institutions: list published, findById, create ([server/repositories/institution.repository.ts](server/repositories/institution.repository.ts#L10-L28)).
 - Programs: findByInstitution, create ([server/repositories/program.repository.ts](server/repositories/program.repository.ts#L8-L20)).
 - Events: findByInstitution, create ([server/repositories/event.repository.ts](server/repositories/event.repository.ts#L8-L20)).
 - Media: create, findById ([server/repositories/media.repository.ts](server/repositories/media.repository.ts#L8-L20)).
 
 ## Request Flows (Current)
+
 - Public list: GET /api/institutions → controller.listPublished → repository.listPublished → DB → logo URL resolved (R2 public base) → JSON response.
 - Public detail: GET /api/institutions/[id] → controller.getById → repository.findById (+404 if missing) → parallel fetch programs/events → logo URL resolved → JSON response.
 - Create institution: POST /api/institutions → basic validation → controller.create → repository.insert → returns created record.
 - Upload media: POST /api/media (multipart form-data) → size/type checks (images only, 5MB cap) → uploadToR2 → media repository insert → returns stored asset.
 
 ## Auth & Roles (Gaps vs Sitemap)
+
 - Current APIs have no auth/role checks; mock admin login exists only on client.
 - New roles needed: Xplorers, main managers, page managers, institution owners.
 - Approval flows (Xentro admin approves main managers; owners/managers approve page managers) are not yet implemented server-side.
@@ -51,19 +59,23 @@
 - Xplorer signup: need endpoint and validation for name, email, and up to 15 interested topics (store on explorer_profiles).
 
 ## Startup Feature (Planned)
+
 - Schema for startups/team_members exists, but no API/controllers yet.
 - Need routes for institution owners/managers to create/update startups and attach team members.
 
 ## Mentor Feature (Planned)
+
 - Flow: join as mentor → fill onboarding form → submit → pending approval by Xentro admin/approver → upon approval, mentor dashboard unlocks (packages/pricing/achievements, availability calendar).
 - Data: reuse users table with mentor_profiles; add fields for packages, achievements, availability slots (new tables or extend mentor_profiles).
 - Access: mentors can edit own profile/packages/availability; Xentro admin/approvers can change status and view applications.
 
 ## Approval Team (Planned)
+
 - Admin dashboard section to add approvers (name, email, mobile, autogenerated employee ID).
 - Approvers can approve/reject mentor applications and institution submissions (same approval endpoints, role-gated).
 
 ## Suggested Next Steps
+
 1) Add auth middleware/guards and role claims for all API routes.
 2) Implement manager approval endpoints (admin) and page-manager approval (owner/manager).
 3) Build startups CRUD endpoints scoped to institution owner/manager; link to users.

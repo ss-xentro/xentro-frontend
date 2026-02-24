@@ -1,6 +1,7 @@
 # 🍎🍏 Apple & Google – Digital Product Quality Checklist
 
 ## 1. Product Intent & Clarity
+
 - [ ] Single clear problem statement (no feature bloat)
 - [ ] Primary user action identifiable within 5 seconds
 - [ ] Clear value proposition without onboarding friction
@@ -10,6 +11,7 @@
 ---
 
 ## 2. UX & Interaction Design
+
 - [ ] Zero dead-end screens (every screen has a next action)
 - [ ] Consistent gestures, patterns, and navigation
 - [ ] Touch targets ≥ 44px (Apple HIG) / 48dp (Material)
@@ -21,6 +23,7 @@
 ---
 
 ## 3. Visual Design Quality
+
 - [ ] Design system followed strictly
 - [ ] Consistent spacing, typography, and colors
 - [ ] Accessible contrast ratios (WCAG AA+)
@@ -32,6 +35,7 @@
 ---
 
 ## 4. Performance & Responsiveness
+
 - [ ] App launch time < 2s (perceived)
 - [ ] 60fps animations (no jank)
 - [ ] Lazy loading used where needed
@@ -43,6 +47,7 @@
 ---
 
 ## 5. Accessibility (Non-Negotiable)
+
 - [ ] Screen reader support (VoiceOver / TalkBack)
 - [ ] Proper semantic labels on all controls
 - [ ] Keyboard navigation works everywhere
@@ -53,13 +58,16 @@
 ---
 
 ## 6. Platform Guidelines Compliance
+
 ### Apple (HIG)
+
 - [ ] Uses native navigation patterns
 - [ ] Respects safe areas & system gestures
 - [ ] Avoids custom UI where native exists
 - [ ] Privacy-first permission prompts
 
 ### Google (Material)
+
 - [ ] Follows Material motion & spacing
 - [ ] Adaptive layouts for screen sizes
 - [ ] Predictable back behavior
@@ -68,6 +76,7 @@
 ---
 
 ## 7. Security & Privacy
+
 - [ ] Minimum data collection principle
 - [ ] Clear permission explanations
 - [ ] Sensitive data encrypted at rest & transit
@@ -78,6 +87,7 @@
 ---
 
 ## 8. Error Handling & Trust
+
 - [ ] Human-readable error messages
 - [ ] No blame language (“something went wrong” ≠ OK)
 - [ ] Recovery paths provided
@@ -87,6 +97,7 @@
 ---
 
 ## 9. Quality Assurance
+
 - [ ] Tested on low-end and high-end devices
 - [ ] Tested across OS versions
 - [ ] Edge cases verified
@@ -97,6 +108,7 @@
 ---
 
 ## 10. Delight (Apple-level polish)
+
 - [ ] Microinteractions feel intentional
 - [ ] Animations serve meaning, not ego
 - [ ] Transitions guide attention
@@ -106,6 +118,7 @@
 ---
 
 ## 11. Long-Term Maintainability
+
 - [ ] Scalable architecture
 - [ ] Clear separation of concerns
 - [ ] Feature flags for experiments
@@ -115,6 +128,7 @@
 ---
 
 ## Final Gate (Launch Decision)
+
 - [ ] Would this embarrass us in 2 years? → NO
 - [ ] Would we proudly demo this on stage? → YES
 - [ ] Does this respect user time & attention? → YESmake institute gmail primary key only one account per

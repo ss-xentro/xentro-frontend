@@ -5,7 +5,7 @@ On completion of phase-1 we will be having:
 **II) Home Page/Feed**
 **III) Learning Portal**
 **IV) Projects**
-**V) Mentors** 
+**V) Mentors**
 **VI) Institute Page**
 **VII) Events**
 **VIII) Dashboards**
@@ -14,10 +14,10 @@ On completion of phase-1 we will be having:
 **XI) Idea Security** (phase 2)(blockchain)
 **XII) Tools** (Phase 2)
 
-
-
 ##### **I) Authentication**
+
 We need to build multiple authentications for
+
 1) Users
 2) Project Team (Optional)
 3) Team Lead
@@ -27,28 +27,32 @@ We need to build multiple authentications for
 7) Xentro Super Admin
 Email login, Email verification, OTP based , Authenticator for Admins
 
-**Signup Flow:** 
+**Signup Flow:**
 -> Collect Mail > verify Mail > Name > Purpose (Investor/Exploring/Founder/Mentor/Institute/Student/Mentor) > Field of Interests > Complete profile(optional/later)
 
-
 ##### **II) Home Page / Feed**
-Home page is the First page that will be displayed when a user is logged in it consists of 
-- Startup News and Updates 
+
+Home page is the First page that will be displayed when a user is logged in it consists of
+
+- Startup News and Updates
 - Sponsored Events
-- Search 
+- Search
 - Routes to other sections which are **Learning Portal, Projects/Startups, Mentors, Support, institute section, Events,**
 
 ________________________________________________________________________
 
 ##### **III) Community Portal**
+
 Learning Portal consists of Startup Resources like videos, Notes, Case Studies, Channels, Forums and Search and Filters to Find Content and Resources of choice
 
 _____________________________________________________________
 
 ##### **IV) Projects**
-Projects section consists of a search and Filters , projects Feed by Recommendation based on Interests and Latest Updates 
 
-**Project Preview** 
+Projects section consists of a search and Filters , projects Feed by Recommendation based on Interests and Latest Updates
+
+**Project Preview**
+
 - Name
 - Logo
 - Latest project Update;
@@ -56,18 +60,20 @@ Projects section consists of a search and Filters , projects Feed by Recommendat
 - SDG
 - Website/product Link
 - Venture Score(Xentro Ranking System)
-- Incubator name 
+- Incubator name
 
 **Project Details**
+
 - Project Pitch
 - Video
 - Product Catalog
 - Feedbacks
 - Achievements
 - Latest Launches/Announcements
-- Contact 
+- Contact
 
 **Project Page (Hidden)**
+
 - Project age(Visual)
 - Market Growth(Visual)
 - MAU & DAU History (visual)(Supporting Docs)
@@ -82,19 +88,22 @@ Projects section consists of a search and Filters , projects Feed by Recommendat
 __________________________________________________________
 
 ##### **V) Mentors**
-Mentors page is another section in Phase 1 to Find Mentors it consist of Search & Filters and list mentors Recommended based on user interested domains 
+
+Mentors page is another section in Phase 1 to Find Mentors it consist of Search & Filters and list mentors Recommended based on user interested domains
 
 **Mentor Preview**
+
 - Name
 - Occupation
 - Expertise
-- Rating 
+- Rating
 - No. Mentored Startups
 - Impact Score (Xentro Mentor ranking System)
 - Type (Institute/Independent)
 - Verified Badge
 
 **Mentor Profile Details**
+
 - Same stuff from preview
 - About
 - Social
@@ -108,23 +117,27 @@ Mentors page is another section in Phase 1 to Find Mentors it consist of Search 
 _______________________________________________________________________
 
 ##### **VI) Institutions**
-Institute page is Important page in Xentro it consists of Recommended Institutes based on user Interests, Institute Finder, Filters 
+
+Institute page is Important page in Xentro it consists of Recommended Institutes based on user Interests, Institute Finder, Filters
 
 **Institute preview**
+
 - Name
 - Type (Incubator, Accelerator, VC Fund, University, Corporate CSR)
 - Location
 - SDG Goals
-- Funding 
+- Funding
 
 **Institute Page Sections**
-- Home 
+
+- Home
 - Startups
 - Programs
 - Members
 - Events
 
 **Institute Home**
+
 - About
 - Funded Amount
 - Funded Startups
@@ -137,16 +150,20 @@ Institute page is Important page in Xentro it consists of Recommended Institutes
 - Achievements
 
 **Institute Startups**
+
 - Startups Under Institute
-- same info as Project Preview 
+- same info as Project Preview
 
 **Institute Members**
+
 - Same as Mentor Preview
 
 **Institute Programs**
+
 - Comparison Table of Programs
 
 **Institute Events Categories**
+
 - upcoming Events
 - Future Events
 - Event Page Registrations (Name, Host, Location, About, Prices, Availability)
@@ -155,11 +172,14 @@ Institute page is Important page in Xentro it consists of Recommended Institutes
 ________________________________________________________________________
 
 ##### **VII) Events**
-This Section is for all the Entrepreneurs to Host and manage Their Events 
+
+This Section is for all the Entrepreneurs to Host and manage Their Events
+
 - Find Events & Activities
 - Create Events & Online Activities
 
 **Event Preview**
+
 - Event Name
 - Event Tagline
 - Host/Organiser
@@ -168,6 +188,7 @@ This Section is for all the Entrepreneurs to Host and manage Their Events
 - Event Date
 
 **Event Details Page**
+
 - Everything from Event Preview
 - Event details
 - itinerary
@@ -177,18 +198,21 @@ This Section is for all the Entrepreneurs to Host and manage Their Events
 - T&C
 
 **Host Dashboard**
+
 - view attendees
 - Manage enquires
 - Ticket Scanner
-- Payments 
+- Payments
 - edit event details(Selective)
 
 ________________________________________________________________________
 
 ##### **VIII) Dashboards**
+
 This Section consists of Different Dashboards of different Levels
 
 **Dashboard Levels**
+
 - Executive Admin (Xentro Executives) - **L3**
 - Super Admin (Xentro Managers) - **L2**
 - Support Team (Xentro Support) - **L1**
@@ -200,24 +224,28 @@ This Section consists of Different Dashboards of different Levels
 - Investor Dashboard
 
 **User Dashboard**
+
 - News
 - Event Reminders
 - Mentor Alerts
 - Community alerts
 
 **Founders Dashboard**
+
 - Manage Startup/Project page
 - Add/modify/remove Team
 - Create Events
 - Founder badge
 
 **Mentor Dashboard**
+
 - Manage Mentor profile
 - View/Manage Appointments
 - Learning Resource Management
 - Mentor Badge
 
 **Institute Member**
+
 - Manage Institute page **(Approval Required)**
 - Create Projects **(Approval Required)**
 - Create institute Events
@@ -225,6 +253,7 @@ This Section consists of Different Dashboards of different Levels
 - Add/remove Team Leads **(Approval Required)**
 
 **Institute Admin**
+
 - Full Page control
 - Full Events Control (Create/Modify/Remove)
 - Full Projects Control
@@ -232,24 +261,27 @@ This Section consists of Different Dashboards of different Levels
 - Access to update Institute Milestone
 
 **Xentro Support - L1**
+
 - Access to all types accounts except super admin & Executive Admin
-- Access to review and Hold accounts 
+- Access to review and Hold accounts
 - Access and Review Big Events
 - Onboard Institutes
 - Onboarding & Review Mentors
 - view reports
 
 **Super Admin - L2**
+
 - Review Accounts
 - Manage Support admins
 - Manage User accounts (Hold/block)
 - Access to User activity
 - View reports and Respond
-- Bypass Approvals 
+- Bypass Approvals
 - override settings
 - Access to key metrics n(Approval needed)
 
 **Executive Admin - L3**
+
 - Complete Approval Bypass
 - Access to Private key platform metrics
 - Final Authority on all levels(can override restrictions)
@@ -265,4 +297,5 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 ##### X) Forms
+
 This Section Explains How Different Types of Form are handled inside this platform
