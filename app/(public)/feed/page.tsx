@@ -231,7 +231,7 @@ export default function FeedPage() {
 
   // Dynamic navigation items based on user role
   const navItems = [
-    { icon: 'home', label: 'Home', href: getDashboardUrl(user?.role) },
+    { icon: 'home', label: 'Home', href: '/home' },
     { icon: 'feed', label: 'Feed', href: '/feed' },
     { icon: 'explore', label: 'Explore', href: '/explore/institute' },
     { icon: 'bell', label: 'Notifications', href: '/notifications' },

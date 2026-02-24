@@ -9,15 +9,15 @@ export default function PublicLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const isFeedPage = pathname === '/feed' || pathname.startsWith('/explore');
+    const isAppShellPage = pathname === '/feed' || pathname === '/home' || pathname === '/notifications' || pathname.startsWith('/explore');
 
     return (
         <div className="min-h-screen bg-white flex flex-col">
-            {!isFeedPage && <PublicNavbar />}
+            {!isAppShellPage && <PublicNavbar />}
             <main className="flex-1">
                 {children}
             </main>
-            {!isFeedPage && <Footer />}
+            {!isAppShellPage && <Footer />}
         </div>
     );
 }

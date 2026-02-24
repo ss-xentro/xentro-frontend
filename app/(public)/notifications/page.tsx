@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Card, Button } from '@/components/ui';
+import AppShell from '@/components/ui/AppShell';
 import { cn } from '@/lib/utils';
 
 interface Notification {
@@ -118,7 +117,7 @@ export default function NotificationsPage() {
     if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
     if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
     if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
-    
+
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -127,40 +126,38 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-(--background)">
-      {/* Header */}
-      <header className="bg-(--surface) border-b border-(--border)">
-        <div className="max-w-3xl mx-auto px-4 py-6">
+    <AppShell>
+      <div className="max-w-3xl mx-auto">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-10 backdrop-blur-xl bg-[#0B0D10]/80 border-b border-white/10 px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-(--primary)">Notifications</h1>
+              <h1 className="text-2xl font-bold text-white tracking-tight">Notifications</h1>
               {unreadCount > 0 && (
-                <p className="text-sm text-(--secondary)">
+                <p className="text-sm text-gray-400 mt-0.5">
                   {unreadCount} unread notification{unreadCount > 1 ? 's' : ''}
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-3">
-              {unreadCount > 0 && (
-                <Button variant="secondary" size="sm" onClick={markAllAsRead}>
-                  Mark all as read
-                </Button>
-              )}
-              <Link href="/feed">
-                <Button variant="secondary" size="sm">← Back</Button>
-              </Link>
-            </div>
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-sm font-medium rounded-xl transition-colors"
+              >
+                Mark all read
+              </button>
+            )}
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-2 mt-4">
             <button
               onClick={() => setFilter('all')}
               className={cn(
-                'text-sm px-3 py-1.5 rounded-lg transition-colors',
+                'text-sm px-4 py-2 rounded-xl font-medium transition-colors',
                 filter === 'all'
-                  ? 'bg-accent text-white'
-                  : 'text-(--secondary) hover:bg-(--background)'
+                  ? 'bg-white/10 text-white'
+                  : 'text-gray-500 hover:text-gray-300 hover:bg-white/5',
               )}
             >
               All
@@ -168,99 +165,103 @@ export default function NotificationsPage() {
             <button
               onClick={() => setFilter('unread')}
               className={cn(
-                'text-sm px-3 py-1.5 rounded-lg transition-colors',
+                'text-sm px-4 py-2 rounded-xl font-medium transition-colors',
                 filter === 'unread'
-                  ? 'bg-accent text-white'
-                  : 'text-(--secondary) hover:bg-(--background)'
+                  ? 'bg-white/10 text-white'
+                  : 'text-gray-500 hover:text-gray-300 hover:bg-white/5',
               )}
             >
               Unread {unreadCount > 0 && `(${unreadCount})`}
             </button>
           </div>
         </div>
-      </header>
 
-      {/* Content */}
-      <main className="max-w-3xl mx-auto px-4 py-6">
-        {loading ? (
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <Card key={i} className="p-4 animate-pulse">
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 bg-(--border) rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-(--border) rounded w-2/3" />
-                    <div className="h-3 bg-(--border) rounded w-1/2" />
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : error ? (
-          <Card className="p-8 text-center">
-            <p className="text-error mb-4">{error}</p>
-            <Button onClick={fetchNotifications}>Try Again</Button>
-          </Card>
-        ) : notifications.length === 0 ? (
-          <Card className="p-8 text-center">
-            <div className="text-5xl mb-4">🔔</div>
-            <h3 className="text-lg font-semibold text-(--primary) mb-2">You&apos;re all caught up</h3>
-              {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
-            </h3>
-            <p className="text-(--secondary)">
-              {filter === 'unread'
-                ? 'You\'re all caught up!'
-                : 'When something happens, you\'ll see it here.'}
-            </p>
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            {notifications.map((notification) => (
-              <Card
-                key={notification.id}
-                className={cn(
-                  'p-4 transition-all cursor-pointer',
-                  'hover:shadow-md',
-                  !notification.isRead && 'bg-accent/5 border-accent/20'
-                )}
-                onClick={() => {
-                  if (!notification.isRead) markAsRead(notification.id);
-                  if (notification.actionUrl) {
-                    window.location.href = notification.actionUrl;
-                  }
-                }}
-              >
-                <div className="flex gap-4">
-                  <span className="text-2xl flex-shrink-0">
-                    {getNotificationIcon(notification.type)}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                      <p className={cn(
-                        'text-sm',
-                        notification.isRead ? 'text-(--secondary)' : 'text-(--primary) font-medium'
-                      )}>
-                        {notification.title}
-                      </p>
-                      {!notification.isRead && (
-                        <span className="w-2 h-2 bg-accent rounded-full flex-shrink-0 mt-1.5" />
-                      )}
+        {/* Content */}
+        <div className="px-6 py-4">
+          {loading ? (
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-4 animate-pulse">
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 bg-white/10 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-white/10 rounded w-2/3" />
+                      <div className="h-3 bg-white/10 rounded w-1/2" />
                     </div>
-                    {notification.message && (
-                      <p className="text-sm text-(--secondary) mt-1">
-                        {notification.message}
-                      </p>
-                    )}
-                    <p className="text-xs text-(--secondary)/60 mt-2">
-                      {formatDate(notification.createdAt)}
-                    </p>
                   </div>
                 </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+              <p className="text-red-400 mb-4">{error}</p>
+              <button
+                onClick={fetchNotifications}
+                className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-sm rounded-xl transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-10 text-center">
+              <div className="text-5xl mb-4">🔔</div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
+              </h3>
+              <p className="text-gray-400 text-sm">
+                {filter === 'unread'
+                  ? "You're all caught up!"
+                  : 'When something happens, you\'ll see it here.'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {notifications.map((notification) => (
+                <button
+                  key={notification.id}
+                  className={cn(
+                    'w-full text-left bg-white/5 border border-white/10 rounded-2xl p-4 transition-all duration-200 hover:bg-white/[0.07] hover:border-white/20',
+                    !notification.isRead && 'bg-blue-500/5 border-blue-500/20',
+                  )}
+                  onClick={() => {
+                    if (!notification.isRead) markAsRead(notification.id);
+                    if (notification.actionUrl) {
+                      window.location.href = notification.actionUrl;
+                    }
+                  }}
+                >
+                  <div className="flex gap-4">
+                    <span className="text-2xl shrink-0">
+                      {getNotificationIcon(notification.type)}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <p
+                          className={cn(
+                            'text-sm',
+                            notification.isRead ? 'text-gray-400' : 'text-white font-medium',
+                          )}
+                        >
+                          {notification.title}
+                        </p>
+                        {!notification.isRead && (
+                          <span className="w-2 h-2 bg-blue-500 rounded-full shrink-0 mt-1.5" />
+                        )}
+                      </div>
+                      {notification.message && (
+                        <p className="text-sm text-gray-500 mt-1">{notification.message}</p>
+                      )}
+                      <p className="text-xs text-gray-600 mt-2">
+                        {formatDate(notification.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </AppShell>
   );
 }
