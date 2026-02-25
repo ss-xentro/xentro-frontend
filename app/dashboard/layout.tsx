@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { db } from '@/db/client'; // Note: Client components shouldn't import server db directly usually, but logic here is client-side navigation.
+// Client components shouldn't import server db directly usually, but logic here is client-side navigation.
 // Actually, we shouldn't import db in client component.
 // I will fetch user data via API in the layout.
 

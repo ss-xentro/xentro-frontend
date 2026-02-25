@@ -50,9 +50,15 @@ export default function StartupOnboardingPage() {
         setError(null);
 
         try {
+            const token = localStorage.getItem('founder_token');
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch('/api/founder/startups', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify(data),
             });
 
