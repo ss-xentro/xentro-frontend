@@ -120,7 +120,7 @@ export default function AdminLoginPage() {
                     </p>
                 </div>
 
-                {/* Demo Credentials */}
+                {/* Demo Credentials
                 <div className="mt-8 p-4 rounded-lg bg-gray-50 border border-gray-200">
                     <p className="text-xs font-medium text-gray-900 mb-2">Demo Credentials</p>
                     <p className="text-sm text-gray-900">
@@ -129,7 +129,7 @@ export default function AdminLoginPage() {
                     <p className="text-sm text-gray-900 mt-1">
                         Password: <code className="px-1.5 py-0.5 rounded bg-white">admin123</code>
                     </p>
-                </div>
+                </div> */}
             </div>
         </div>
     );

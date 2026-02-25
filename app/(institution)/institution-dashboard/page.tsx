@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, Button, ProgressIndicator } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus, Institution } from '@/lib/types';
@@ -58,6 +58,7 @@ interface DashboardStats {
 
 export default function InstitutionDashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [application, setApplication] = useState<InstitutionApplication | null>(null);
   const [institution, setInstitution] = useState<Institution | null>(null);
   const [stats, setStats] = useState<DashboardStats>({ programsCount: 0, teamCount: 0, startupsCount: 0, profileViews: 0 });
@@ -88,6 +89,16 @@ export default function InstitutionDashboardPage() {
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
   }, [showOnboarding, currentStep, formData, submitting]);
+
+  // Pick up token from URL query string (magic-link redirect)
+  useEffect(() => {
+    const urlToken = searchParams.get('token');
+    if (urlToken) {
+      localStorage.setItem('institution_token', urlToken);
+      // Remove token from URL to keep it clean
+      router.replace('/institution-dashboard');
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     const load = async () => {

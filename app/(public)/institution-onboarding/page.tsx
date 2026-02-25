@@ -87,20 +87,9 @@ export default function InstitutionOnboardingPage() {
 
   const handleVerify = async () => {
     if (!magicLink) return;
-    setSending(true);
-    setError(null);
-    try {
-      const res = await fetch(magicLink);
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.message || 'Verification failed');
-      setVerified(true);
-      setMessage('Email verified. Redirecting to your dashboard…');
-      router.push('/institution-dashboard');
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setSending(false);
-    }
+    // Navigate to the magic link — the backend will verify the token,
+    // issue a JWT, and redirect to the institution dashboard
+    window.location.href = magicLink;
   };
 
   return (
@@ -132,8 +121,8 @@ export default function InstitutionOnboardingPage() {
                 aria-required="true"
               />
               <div className="flex justify-end pt-4">
-                <Button 
-                  onClick={goNext} 
+                <Button
+                  onClick={goNext}
                   disabled={!canProceed()}
                   aria-label="Continue to email verification"
                   className="min-w-30 min-h-11"
@@ -150,21 +139,21 @@ export default function InstitutionOnboardingPage() {
                 <h2 className="text-xl font-semibold text-(--primary)">Verify your email address</h2>
                 <p className="text-sm text-(--secondary)">We&apos;ll send you a secure link to confirm your identity.</p>
               </div>
-              <Input 
-                label="Work Email Address" 
+              <Input
+                label="Work Email Address"
                 type="email"
                 placeholder="you@institution.edu"
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                required 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 autoFocus
                 autoComplete="email"
                 aria-label="Work email address"
                 aria-required="true"
               />
               <div className="flex flex-wrap gap-3 pt-4">
-                <Button 
-                  onClick={handleSendLink} 
+                <Button
+                  onClick={handleSendLink}
                   disabled={sending || !email || !form.name}
                   isLoading={sending}
                   aria-label="Send verification link"
@@ -172,9 +161,9 @@ export default function InstitutionOnboardingPage() {
                 >
                   {sending ? 'Sending...' : 'Send Verification Link'}
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={goPrev} 
+                <Button
+                  variant="ghost"
+                  onClick={goPrev}
                   disabled={sending}
                   aria-label="Go back to previous step"
                   className="min-h-11"
@@ -187,7 +176,7 @@ export default function InstitutionOnboardingPage() {
                 <div className="bg-green-50 border border-green-200 rounded-lg p-5 animate-fadeIn" role="status" aria-live="polite">
                   <div className="flex items-start gap-3">
                     <svg className="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <div className="flex-1">
                       <p className="font-semibold text-green-900">Verification link sent!</p>
@@ -195,17 +184,17 @@ export default function InstitutionOnboardingPage() {
                         Check your inbox at <strong>{email}</strong> or verify instantly below.
                       </p>
                       <div className="mt-4 flex flex-wrap gap-3">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           onClick={() => window.open(magicLink, '_blank')}
                           aria-label="Open verification link in new tab"
                           className="min-h-11"
                         >
                           Open Link
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="secondary" 
+                        <Button
+                          size="sm"
+                          variant="secondary"
                           onClick={() => setStep(2)}
                           aria-label="Verify on this page"
                           className="min-h-11"
@@ -229,9 +218,9 @@ export default function InstitutionOnboardingPage() {
                 </p>
               </div>
               <div className="flex gap-3 pt-4">
-                <Button 
-                  variant="ghost" 
-                  onClick={goPrev} 
+                <Button
+                  variant="ghost"
+                  onClick={goPrev}
                   aria-label="Go back to previous step"
                   className="min-h-11"
                 >
@@ -251,7 +240,7 @@ export default function InstitutionOnboardingPage() {
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-fadeIn" role="alert" aria-live="assertive">
               <div className="flex items-start gap-3">
                 <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
                 <div>
                   <p className="text-red-900 font-medium text-sm">Unable to proceed</p>
