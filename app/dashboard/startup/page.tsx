@@ -57,7 +57,7 @@ export default function StartupSettingsPage() {
             const json = await res.json();
 
             if (res.ok) {
-                setData(json.data.startup);
+                setData(json.data?.startup ?? null);
             }
         } catch (err) {
             console.error(err);

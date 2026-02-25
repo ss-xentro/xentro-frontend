@@ -56,7 +56,7 @@ export default function DashboardOverviewPage() {
                 }
 
                 const json = await res.json();
-                setData(json.data);
+                setData(json.data ?? null);
             } catch (err) {
                 console.error(err);
                 setError('Failed to load startup data');
@@ -128,7 +128,7 @@ export default function DashboardOverviewPage() {
                             <img src={data.startup.logo} alt={data.startup.name} className="w-full h-full object-cover" />
                         ) : (
                             <span className="text-2xl font-bold text-(--secondary)">
-                                {data.startup.name.substring(0, 2).toUpperCase()}
+                                {(data.startup?.name ?? '').substring(0, 2).toUpperCase()}
                             </span>
                         )}
                     </div>
@@ -160,7 +160,7 @@ export default function DashboardOverviewPage() {
                             </div>
                             <div>
                                 <span className="font-medium text-(--primary)">Role:</span>{' '}
-                                <span className="capitalize">{data.founderRole.replace('_', ' ')}</span>
+                                <span className="capitalize">{(data.founderRole ?? '').replace('_', ' ')}</span>
                             </div>
                         </div>
                     </div>
@@ -175,10 +175,10 @@ export default function DashboardOverviewPage() {
                         {/* Timeline line */}
                         <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-(--border)"></div>
 
-                        {data.recentActivity.length === 0 ? (
+                        {(data.recentActivity ?? []).length === 0 ? (
                             <p className="pl-8 text-(--secondary) py-2">No recent activity.</p>
                         ) : (
-                            data.recentActivity.map((log) => (
+                            (data.recentActivity ?? []).map((log) => (
                                 <div key={log.id} className="relative pl-8 py-3 group">
                                     <div className="absolute left-0 top-4 w-5 h-5 rounded-full bg-(--surface) border-2 border-(--border) group-hover:border-accent group-hover:scale-110 transition-all z-10"></div>
 

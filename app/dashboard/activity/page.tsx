@@ -23,7 +23,7 @@ export default function ActivityPage() {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const json = await res.json();
-                if (res.ok) setLogs(json.data);
+                if (res.ok) setLogs(json.data ?? []);
             } catch (e) {
                 console.error(e);
             } finally {
@@ -66,7 +66,7 @@ export default function ActivityPage() {
                 ) : (
                     logs.map((log) => (
                         <div key={log.id} className="p-5 hover:bg-(--surface-hover) transition-colors flex gap-4">
-                            <div className="mt-1 flex-shrink-0">
+                            <div className="mt-1 shrink-0">
                                 <div className="w-8 h-8 rounded-full bg-(--accent-subtle) flex items-center justify-center text-accent">
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
