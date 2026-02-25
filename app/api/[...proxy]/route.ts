@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest, { params }: { params: { proxy: string[] } }) {
+export async function GET(request: NextRequest) {
   return handleProxy(request);
 }
 
-export async function POST(request: NextRequest, { params }: { params: { proxy: string[] } }) {
+export async function POST(request: NextRequest) {
   return handleProxy(request);
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { proxy: string[] } }) {
+export async function PUT(request: NextRequest) {
   return handleProxy(request);
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { proxy: string[] } }) {
+export async function PATCH(request: NextRequest) {
   return handleProxy(request);
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { proxy: string[] } }) {
+export async function DELETE(request: NextRequest) {
   return handleProxy(request);
 }
 
