@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Badge } from '@/components/ui';
-import { 
-  Startup, 
-  StartupTeamMember,
-  startupStageLabels, 
-  startupStatusLabels, 
+import {
+  Startup,
+  startupStageLabels,
+  startupStatusLabels,
   fundingRoundLabels,
   sdgLabels,
   sectorLabels,
@@ -16,8 +15,24 @@ import {
 } from '@/lib/types';
 import { formatCurrency, formatNumber, cn } from '@/lib/utils';
 
+interface Founder {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  isPrimary: boolean;
+}
+
+interface TeamMemberData {
+  id: string;
+  role: string;
+  title: string;
+  user: { id: string; name: string } | null;
+}
+
 interface StartupWithDetails extends Startup {
-  teamMembers?: StartupTeamMember[];
+  teamMembers?: TeamMemberData[];
+  founders?: Founder[];
   owner?: { id: string; name: string; email: string } | null;
 }
 
@@ -37,10 +52,12 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
           return res.json();
         })
         .then(data => {
-          setStartup(data.startup);
+          // Backend returns the startup object directly (not wrapped in { startup: ... })
+          const startupData = data.startup || data;
+          setStartup(startupData);
           // Update URL to use slug if accessed by ID
-          if (data.startup?.slug && p.identifier !== data.startup.slug) {
-            window.history.replaceState(null, '', `/startups/${data.startup.slug}`);
+          if (startupData?.slug && p.identifier !== startupData.slug) {
+            window.history.replaceState(null, '', `/startups/${startupData.slug}`);
           }
         })
         .catch(() => router.push('/404'))
@@ -70,7 +87,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
   const stageInfo = startup.stage ? startupStageLabels[startup.stage] : null;
   const statusInfo = startupStatusLabels[startup.status];
   const fundingInfo = startup.fundingRound ? fundingRoundLabels[startup.fundingRound] : null;
-  
+
   const fundsRaised = startup.fundsRaised ? Number(startup.fundsRaised) : 0;
   const fundingGoal = startup.fundingGoal ? Number(startup.fundingGoal) : 0;
   const fundingProgress = fundingGoal > 0 ? Math.min((fundsRaised / fundingGoal) * 100, 100) : 0;
@@ -82,9 +99,9 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
         {/* Cover Image */}
         <div className="h-48 md:h-72 lg:h-80 bg-linear-to-br from-purple-600 via-violet-600 to-indigo-700 relative overflow-hidden">
           {startup.coverImage ? (
-            <img 
-              src={startup.coverImage} 
-              alt={startup.name} 
+            <img
+              src={startup.coverImage}
+              alt={startup.name}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -121,7 +138,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                   {statusInfo.label}
                 </span>
               </div>
-              
+
               {startup.tagline && (
                 <p className="text-lg md:text-xl text-(--secondary) mb-4 max-w-2xl">
                   {startup.tagline}
@@ -322,9 +339,36 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
               {activeTab === 'team' && (
                 <div className="space-y-6">
                   <h2 className="text-xl font-bold text-(--primary)">Meet the Team</h2>
-                  
-                  {/* Owner */}
-                  {startup.owner && (
+
+                  {/* Founders */}
+                  {startup.founders && startup.founders.length > 0 && (
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-(--secondary)">Founders</h3>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {startup.founders.map((founder) => (
+                          <Card key={founder.id || founder.email} className="p-5">
+                            <div className="flex items-center gap-4">
+                              <div className="w-14 h-14 rounded-full bg-linear-to-br from-purple-100 to-violet-100 flex items-center justify-center">
+                                <span className="text-lg font-bold text-purple-600">
+                                  {founder.name?.charAt(0) || 'F'}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-(--primary) truncate">{founder.name}</h4>
+                                <p className="text-sm text-(--secondary) capitalize">{founder.role?.replace(/_/g, ' ') || 'Founder'}</p>
+                              </div>
+                              {founder.isPrimary && (
+                                <Badge variant="info" className="shrink-0">Primary</Badge>
+                              )}
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Owner (fallback if no founders) */}
+                  {(!startup.founders || startup.founders.length === 0) && startup.owner && (
                     <Card className="p-6">
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-16 rounded-full bg-linear-to-br from-purple-100 to-violet-100 flex items-center justify-center">
@@ -342,25 +386,31 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                   )}
 
                   {/* Team Members */}
-                  {startup.teamMembers && startup.teamMembers.length > 0 ? (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {startup.teamMembers.map((member) => (
-                        <Card key={member.id} className="p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                              <span className="text-sm font-bold text-gray-600">
-                                {member.user?.name?.charAt(0) || 'T'}
-                              </span>
+                  {startup.teamMembers && startup.teamMembers.length > 0 && (
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-semibold uppercase tracking-wider text-(--secondary)">Team Members</h3>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {startup.teamMembers.map((member) => (
+                          <Card key={member.id} className="p-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 rounded-full bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                <span className="text-sm font-bold text-gray-600">
+                                  {member.user?.name?.charAt(0) || 'T'}
+                                </span>
+                              </div>
+                              <div>
+                                <h4 className="font-medium text-(--primary)">{member.user?.name || 'Team Member'}</h4>
+                                <p className="text-sm text-(--secondary) capitalize">{member.title || member.role?.replace(/_/g, ' ') || 'Member'}</p>
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="font-medium text-(--primary)">{member.user?.name || 'Team Member'}</h4>
-                              <p className="text-sm text-(--secondary)">{member.role}</p>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
+                          </Card>
+                        ))}
+                      </div>
                     </div>
-                  ) : !startup.owner && (
+                  )}
+
+                  {/* Empty state */}
+                  {(!startup.founders || startup.founders.length === 0) && !startup.owner && (!startup.teamMembers || startup.teamMembers.length === 0) && (
                     <div className="text-center py-12">
                       <div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
                         <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,14 +462,14 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                     raised of {formatCurrency(fundingGoal, startup.fundingCurrency || 'USD')} goal
                   </p>
                 </div>
-                
+
                 <div className="w-full h-2 bg-(--surface-hover) rounded-full overflow-hidden mb-4">
-                  <div 
+                  <div
                     className="h-full bg-linear-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-500"
                     style={{ width: `${fundingProgress}%` }}
                   ></div>
                 </div>
-                
+
                 <p className="text-sm text-(--secondary)">
                   <span className="font-semibold text-(--primary)">{Math.round(fundingProgress)}%</span> funded
                 </p>
@@ -455,7 +505,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                     <div>
                       <p className="text-sm text-(--secondary)">Location</p>
                       <p className="font-medium text-(--primary)">
-                        {startup.city && startup.country 
+                        {startup.city && startup.country
                           ? `${startup.city}, ${startup.country}`
                           : startup.location || 'Remote'}
                       </p>
@@ -497,7 +547,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
             {/* Focus Areas */}
             <Card className="p-6">
               <h3 className="font-semibold text-(--primary) mb-4">Focus Areas</h3>
-              
+
               {/* Sectors */}
               {startup.sectors && startup.sectors.length > 0 && (
                 <div className="mb-4">
@@ -567,7 +617,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                     className="flex items-center gap-3 text-(--secondary) hover:text-[#0077B5] transition-colors"
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                     </svg>
                     <span>LinkedIn</span>
                   </a>
@@ -580,7 +630,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                     className="flex items-center gap-3 text-(--secondary) hover:text-[#1DA1F2] transition-colors"
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                     </svg>
                     <span>Twitter / X</span>
                   </a>
@@ -593,7 +643,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                     className="flex items-center gap-3 text-(--secondary) hover:text-[#E4405F] transition-colors"
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
                     </svg>
                     <span>Instagram</span>
                   </a>
