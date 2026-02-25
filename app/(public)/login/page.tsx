@@ -27,7 +27,7 @@ export default function FounderLoginPage() {
         setError(null);
 
         try {
-            const res = await fetch('/api/founder-auth/request-otp', {
+            const res = await fetch('/api/founder-auth/request-otp/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
@@ -54,7 +54,7 @@ export default function FounderLoginPage() {
         setError(null);
 
         try {
-            const res = await fetch('/api/founder-auth/verify-otp', {
+            const res = await fetch('/api/founder-auth/verify-otp/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sessionId, otp }),
@@ -85,7 +85,7 @@ export default function FounderLoginPage() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch('/api/auth/google', {
+            const res = await fetch('/api/auth/google/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ idToken }),

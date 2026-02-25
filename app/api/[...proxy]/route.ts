@@ -27,7 +27,13 @@ async function handleProxy(request: NextRequest) {
   // 1. Determine the target port
   // GET requests go to Go Fiber (8080). Mutations go to Django (8000).
   const targetPort = method === 'GET' ? '8080' : '8000';
-  const targetUrl = `http://localhost:${targetPort}${url.pathname}${url.search}`;
+
+  let pathname = url.pathname;
+  if (targetPort === '8000' && !pathname.endsWith('/')) {
+    pathname += '/';
+  }
+
+  const targetUrl = `http://localhost:${targetPort}${pathname}${url.search}`;
 
   // 2. Extract headers
   const headers = new Headers(request.headers);
