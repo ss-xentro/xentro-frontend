@@ -47,9 +47,9 @@ function StartupsContent() {
             const params = new URLSearchParams();
             if (stage && stage !== 'all') params.append('stage', stage);
             if (funding && funding !== 'all') params.append('funding', funding);
-            const res = await fetch(`/api/public/startups?${params.toString()}`);
+            const res = await fetch(`/api/startups?${params.toString()}`);
             const json = await res.json();
-            if (res.ok) setStartups(json.data);
+            if (res.ok) setStartups(json.startups || json.data || []);
         } catch (err) {
             console.error(err);
         } finally {

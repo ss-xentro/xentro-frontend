@@ -54,8 +54,8 @@ const protectedPatterns = [
 
 // Rate limits by route pattern
 const rateLimits: Record<string, { max: number; window: number }> = {
-  '/api/institution-auth/request-otp': { max: 5, window: 60000 }, // 5 per minute
-  '/api/institution-auth/verify-otp': { max: 10, window: 60000 }, // 10 per minute
+  '/api/auth/otp/send/': { max: 5, window: 60000 }, // 5 per minute
+  '/api/auth/otp/verify/': { max: 10, window: 60000 }, // 10 per minute
   '/api/media': { max: 20, window: 60000 }, // 20 uploads per minute
   'default': { max: 100, window: 60000 }, // 100 requests per minute default
 };
@@ -68,16 +68,16 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith('/api/')) {
     const rateLimitConfig = rateLimits[pathname] || rateLimits['default'];
     const key = getRateLimitKey(request);
-    
+
     if (isRateLimited(key, rateLimitConfig.max, rateLimitConfig.window)) {
       return NextResponse.json(
         { message: 'Too many requests. Please try again later.', code: 'RATE_LIMITED' },
-        { 
-          status: 429, 
-          headers: { 
+        {
+          status: 429,
+          headers: {
             ...securityHeaders,
             'Retry-After': '60',
-          } 
+          }
         }
       );
     }
@@ -86,14 +86,14 @@ export function proxy(request: NextRequest) {
   // Check for protected routes - client-side auth check
   // Note: Actual token verification happens in API routes
   const isProtected = protectedPatterns.some(pattern => pattern.test(pathname));
-  
+
   if (isProtected && pathname.startsWith('/institution-')) {
     // For page routes, we let them through and handle auth client-side
     // The page will redirect to login if no token
   }
 
   const response = NextResponse.next();
-  
+
   // Add security headers
   Object.entries(securityHeaders).forEach(([key, value]) => {
     response.headers.set(key, value);
@@ -102,7 +102,7 @@ export function proxy(request: NextRequest) {
   // Performance timing
   const duration = performance.now() - start;
   response.headers.set('x-response-time', `${duration.toFixed(2)}ms`);
-  
+
   // Only log in development or for slow requests
   if (process.env.NODE_ENV === 'development' || duration > 100) {
     console.info(`[proxy] ${request.method} ${pathname} - ${duration.toFixed(2)}ms`);

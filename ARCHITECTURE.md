@@ -1134,7 +1134,7 @@ CREATE INDEX institution_sessions_expires_idx ON institution_sessions(expires_at
 
 1. User enters email
    ↓
-2. POST /api/institution-auth/request-otp
+2. POST /api/auth/otp/send/
    - Check if application exists with email
    - Check if email is verified
    - Generate 6-digit OTP
@@ -1143,7 +1143,7 @@ CREATE INDEX institution_sessions_expires_idx ON institution_sessions(expires_at
    ↓
 3. User enters OTP
    ↓
-4. POST /api/institution-auth/verify-otp
+4. POST /api/auth/otp/verify/
    - Validate OTP + session
    - Mark session as verified
    - Get application + institutionId
@@ -1165,7 +1165,7 @@ CREATE INDEX institution_sessions_expires_idx ON institution_sessions(expires_at
 
 1. User enters email at /login
    ↓
-2. POST /api/founder-auth/request-otp
+2. POST /api/auth/otp/send/
    - Check if user exists with email
    - Check if user has any startups (as founder or owner)
    - Generate 6-digit OTP
@@ -1174,7 +1174,7 @@ CREATE INDEX institution_sessions_expires_idx ON institution_sessions(expires_at
    ↓
 3. User enters OTP
    ↓
-4. POST /api/founder-auth/verify-otp
+4. POST /api/auth/otp/verify/
    - Validate OTP + sessionId
    - Mark session as verified
    - Get user's startup (if exists)
@@ -1407,17 +1407,17 @@ PUT    /api/institutions/:id                  # Update institution (protected)
 #### Institution Authentication
 
 ```api
-POST   /api/institution-auth/request-otp      # Send OTP to email
-POST   /api/institution-auth/verify-otp       # Verify OTP, return JWT
-GET    /api/institution-auth/me               # Get current institution details
-POST   /api/institution-auth/logout           # Clear session cache
+POST   /api/auth/otp/send/                    # Send OTP to email
+POST   /api/auth/otp/verify/                  # Verify OTP, return JWT
+GET    /api/auth/me/                          # Get current institution details
+POST   /api/auth/logout/                      # Clear session cache
 ```
 
 #### Founder/Startup Authentication
 
 ```api
-POST   /api/founder-auth/request-otp          # Send OTP to founder email
-POST   /api/founder-auth/verify-otp           # Verify OTP, return JWT + startupId
+POST   /api/auth/otp/send/                    # Send OTP to founder email
+POST   /api/auth/otp/verify/                  # Verify OTP, return JWT + startupId
 ```
 
 #### Xplorer Authentication
@@ -1590,7 +1590,7 @@ if (roleCheck) return roleCheck.response; // 403 Forbidden
 
 ```typescript
 // middleware.ts
-if (pathname.startsWith('/api/institution-auth/request-otp')) {
+if (pathname.startsWith('/api/auth/otp/send/')) {
   const limited = isRateLimited(`otp:${ip}`, 5, 60000); // 5 requests/min
   if (limited) return new Response('Too many requests', { status: 429 });
 }
@@ -1640,7 +1640,7 @@ const [startups, team, programs, institution] = await Promise.all([
   fetch('/api/startups'),
   fetch('/api/institution-team'),
   fetch('/api/programs'),
-  fetch('/api/institution-auth/me'),
+   fetch('/api/auth/me/'),
 ]);
 ```
 
@@ -1733,8 +1733,7 @@ const [startups, team, programs, institution] = await Promise.all([
 
 **API Routes:**
 
-- `app/api/institution-auth/` - Institution OTP login
-- `app/api/founder-auth/` - Founder OTP login
+- `app/api/auth/` - Shared OTP and session auth
 - `app/api/xplorers/` - Xplorer signup/login
 - `app/api/mentors/` - Mentor applications
 - `app/api/approvals/` - Admin approval endpoints

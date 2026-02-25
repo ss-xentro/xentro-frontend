@@ -198,7 +198,7 @@ async function fetchFounderData(token: string): Promise<{ cards: StatCard[]; act
 async function fetchInstitutionData(token: string): Promise<{ cards: StatCard[]; activity: ActivityItem[]; name?: string }> {
   try {
     const [profileRes, startupsRes, teamRes, programsRes] = await Promise.all([
-      fetch('/api/institution-auth/me', { headers: { Authorization: `Bearer ${token}` } }),
+      fetch('/api/auth/me/', { headers: { Authorization: `Bearer ${token}` } }),
       fetch('/api/startups', { headers: { Authorization: `Bearer ${token}` } }).catch(() => null),
       fetch('/api/institution-team', { headers: { Authorization: `Bearer ${token}` } }).catch(() => null),
       fetch('/api/programs', { headers: { Authorization: `Bearer ${token}` } }).catch(() => null),
@@ -372,38 +372,38 @@ export default function HomePage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {loading
               ? Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-5 animate-pulse">
-                    <div className="w-8 h-8 bg-white/10 rounded-lg mb-3" />
-                    <div className="h-7 bg-white/10 rounded w-12 mb-2" />
-                    <div className="h-3 bg-white/10 rounded w-20" />
-                  </div>
-                ))
+                <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-5 animate-pulse">
+                  <div className="w-8 h-8 bg-white/10 rounded-lg mb-3" />
+                  <div className="h-7 bg-white/10 rounded w-12 mb-2" />
+                  <div className="h-3 bg-white/10 rounded w-20" />
+                </div>
+              ))
               : cards.map((card) => {
-                  const inner = (
-                    <div
-                      className={cn(
-                        'bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 transition-all duration-200',
-                        card.href && 'hover:bg-white/[0.07] hover:border-white/20 cursor-pointer',
+                const inner = (
+                  <div
+                    className={cn(
+                      'bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 transition-all duration-200',
+                      card.href && 'hover:bg-white/[0.07] hover:border-white/20 cursor-pointer',
+                    )}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-2xl">{card.icon}</span>
+                      {card.href && (
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       )}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-2xl">{card.icon}</span>
-                        {card.href && (
-                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        )}
-                      </div>
-                      <p className="text-2xl font-bold text-white">{card.value}</p>
-                      <p className="text-xs text-gray-400 mt-1">{card.label}</p>
                     </div>
-                  );
-                  return card.href ? (
-                    <Link key={card.label} href={card.href}>{inner}</Link>
-                  ) : (
-                    <div key={card.label}>{inner}</div>
-                  );
-                })}
+                    <p className="text-2xl font-bold text-white">{card.value}</p>
+                    <p className="text-xs text-gray-400 mt-1">{card.label}</p>
+                  </div>
+                );
+                return card.href ? (
+                  <Link key={card.label} href={card.href}>{inner}</Link>
+                ) : (
+                  <div key={card.label}>{inner}</div>
+                );
+              })}
           </div>
         )}
 

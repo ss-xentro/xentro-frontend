@@ -36,7 +36,7 @@ export default function EditInstitutionPage() {
           return;
         }
 
-        const res = await fetch('/api/institution-auth/me', {
+        const res = await fetch('/api/auth/me/', {
           headers: { Authorization: `Bearer ${token}` },
         });
 

@@ -19,7 +19,7 @@ export default function InstitutionLoginPage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/institution-auth/request-otp', {
+      const res = await fetch('/api/auth/otp/send/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -46,7 +46,7 @@ export default function InstitutionLoginPage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/institution-auth/verify-otp', {
+      const res = await fetch('/api/auth/otp/verify/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, otp }),
@@ -60,7 +60,7 @@ export default function InstitutionLoginPage() {
 
       // Store session token
       localStorage.setItem('institution_token', data.token);
-      
+
       // Redirect to dashboard
       router.push('/institution-dashboard');
     } catch (err) {

@@ -79,9 +79,9 @@ function StartupsContent() {
             // Update URL without refresh
             router.replace(`/startups?${params.toString()}`, { scroll: false });
 
-            const res = await fetch(`/api/public/startups?${params.toString()}`);
+            const res = await fetch(`/api/startups?${params.toString()}`);
             const json = await res.json();
-            if (res.ok) setStartups(json.data);
+            if (res.ok) setStartups(json.startups || json.data || []);
         } catch (err) {
             console.error(err);
         } finally {
@@ -186,8 +186,8 @@ function StartupsContent() {
                 ) : view === 'grid' ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fadeIn">
                         {startups.map((startup) => (
-                            <Card 
-                                key={startup.id} 
+                            <Card
+                                key={startup.id}
                                 className="p-6 hover:shadow-lg transition-all group flex flex-col h-full cursor-pointer hover:border-accent/50"
                                 onClick={() => router.push(`/startups/${startup.id}`)}
                             >
@@ -233,8 +233,8 @@ function StartupsContent() {
                 ) : (
                     <div className="space-y-4 animate-fadeIn">
                         {startups.map((startup) => (
-                            <Card 
-                                key={startup.id} 
+                            <Card
+                                key={startup.id}
                                 className="p-4 hover:shadow-md transition-all flex items-center gap-6 cursor-pointer hover:border-accent/50"
                                 onClick={() => router.push(`/startups/${startup.id}`)}
                             >

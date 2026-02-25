@@ -22,13 +22,13 @@ export default function StartupsAdminPage() {
             try {
                 setLoading(true);
                 // Fetch all startups (admin endpoint or public endpoint with all data)
-                const response = await fetch('/api/public/startups?limit=1000', { signal: controller.signal });
+                const response = await fetch('/api/startups?limit=1000', { signal: controller.signal });
                 if (!response.ok) {
                     throw new Error('Failed to load startups');
                 }
 
-                const { data } = await response.json();
-                setStartups(data ?? []);
+                const json = await response.json();
+                setStartups(json.startups || json.data || []);
                 setError(null);
             } catch (err) {
                 if ((err as Error).name !== 'AbortError') {
@@ -161,8 +161,8 @@ export default function StartupsAdminPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredStartups.map((startup) => {
                         const stageInfo = startup.stage ? startupStageLabels[startup.stage] : null;
-                        const statusInfo = startup.status && startupStatusLabels[startup.status] 
-                            ? startupStatusLabels[startup.status] 
+                        const statusInfo = startup.status && startupStatusLabels[startup.status]
+                            ? startupStatusLabels[startup.status]
                             : { label: 'Unknown', color: 'bg-gray-100 text-gray-800' };
                         const fundingInfo = startup.fundingRound ? fundingRoundLabels[startup.fundingRound] : null;
 
@@ -218,7 +218,7 @@ export default function StartupsAdminPage() {
                                             <div>
                                                 <p className="text-xs text-(--secondary) mb-1">Raised</p>
                                                 <p className="text-sm font-semibold text-(--primary)">
-                                                    {startup.fundsRaised 
+                                                    {startup.fundsRaised
                                                         ? formatCurrency(Number(startup.fundsRaised), startup.fundingCurrency || 'USD')
                                                         : 'N/A'
                                                     }
@@ -272,8 +272,8 @@ export default function StartupsAdminPage() {
                             <tbody className="divide-y divide-(--border)">
                                 {filteredStartups.map((startup) => {
                                     const stageInfo = startup.stage ? startupStageLabels[startup.stage] : null;
-                                    const statusInfo = startup.status && startupStatusLabels[startup.status] 
-                                        ? startupStatusLabels[startup.status] 
+                                    const statusInfo = startup.status && startupStatusLabels[startup.status]
+                                        ? startupStatusLabels[startup.status]
                                         : { label: 'Unknown', color: 'bg-gray-100 text-gray-800' };
 
                                     return (
@@ -318,7 +318,7 @@ export default function StartupsAdminPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <p className="text-sm font-medium text-(--primary)">
-                                                    {startup.fundsRaised 
+                                                    {startup.fundsRaised
                                                         ? formatCurrency(Number(startup.fundsRaised), startup.fundingCurrency || 'USD')
                                                         : '—'
                                                     }

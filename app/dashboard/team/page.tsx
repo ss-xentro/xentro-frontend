@@ -48,7 +48,7 @@ export default function TeamPage() {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const json = await res.json();
-            if (res.ok) setTeam(json.data);
+            if (res.ok) setTeam(json.members || json.data || []);
         } catch (e) {
             console.error(e);
         } finally {

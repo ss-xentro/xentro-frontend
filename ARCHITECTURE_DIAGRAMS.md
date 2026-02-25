@@ -247,7 +247,7 @@ erDiagram
 sequenceDiagram
     actor User
     participant UI as Frontend
-    participant Auth as /api/institution-auth
+    participant Auth as /api/auth
     participant DB as Database
     participant Email as SMTP Service
     participant Cache as Session Cache
@@ -379,10 +379,10 @@ graph LR
     end
 
     subgraph Auth["Authentication"]
-        A1[POST /api/institution-auth/request-otp]
-        A2[POST /api/institution-auth/verify-otp]
-        A3[GET /api/institution-auth/me]
-        A4[POST /api/institution-auth/logout]
+        A1[POST /api/auth/otp/send/]
+        A2[POST /api/auth/otp/verify/]
+        A3[GET /api/auth/me/]
+        A4[POST /api/auth/logout/]
     end
 
     subgraph Protected["Protected APIs - Authenticated"]
@@ -513,7 +513,7 @@ graph TD
     AppRoutes --> API[api/]
 
     API --> APIEndpoints[Endpoints]
-    APIEndpoints --> APIAuth[institution-auth/]
+    APIEndpoints --> APIAuth[auth/]
     APIEndpoints --> APITeam[institution-team/]
     APIEndpoints --> APIPrograms[programs/]
     APIEndpoints --> APIStartups[startups/]

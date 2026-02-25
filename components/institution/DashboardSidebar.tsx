@@ -82,7 +82,7 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
     try {
       const token = localStorage.getItem('institution_token');
       if (token) {
-        await fetch('/api/institution-auth/logout', {
+        await fetch('/api/auth/logout/', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` },
         });
@@ -130,8 +130,8 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
                 key={item.name}
                 href={item.href}
                 className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg transition-colors ${isActive
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 title={isCollapsed ? item.name : undefined}
               >

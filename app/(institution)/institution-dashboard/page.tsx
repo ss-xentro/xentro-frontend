@@ -145,7 +145,7 @@ export default function InstitutionDashboardPage() {
                 fetch('/api/startups', { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch('/api/institution-team', { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch('/api/programs', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('/api/institution-auth/me', { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch('/api/auth/me/', { headers: { 'Authorization': `Bearer ${token}` } }),
               ]);
 
               const startups = startupsRes.ok ? await startupsRes.json() : { data: [] };
@@ -879,10 +879,10 @@ export default function InstitutionDashboardPage() {
                 <p className="text-xs text-(--secondary) mt-1">Email: {application.email}</p>
               </div>
               <span className={`text-sm px-3 py-1.5 rounded-full font-medium ${application.status === 'approved'
-                  ? 'bg-green-100 text-green-800'
-                  : application.status === 'rejected'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-yellow-100 text-yellow-800'
+                ? 'bg-green-100 text-green-800'
+                : application.status === 'rejected'
+                  ? 'bg-red-100 text-red-800'
+                  : 'bg-yellow-100 text-yellow-800'
                 }`}>
                 {application.status === 'approved' ? '✓ Approved' : application.status === 'rejected' ? '✗ Rejected' : '⏳ Pending Review'}
               </span>

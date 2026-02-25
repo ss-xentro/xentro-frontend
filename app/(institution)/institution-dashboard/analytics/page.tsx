@@ -42,7 +42,7 @@ export default function AnalyticsPage() {
         fetch('/api/startups', { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch('/api/institution-team', { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch('/api/programs', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('/api/institution-auth/me', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('/api/auth/me/', { headers: { 'Authorization': `Bearer ${token}` } }),
       ]);
 
       const startups = startupsRes.ok ? await startupsRes.json() : { data: [] };
@@ -142,21 +142,21 @@ export default function AnalyticsPage() {
           <Card className="p-6">
             <h3 className="font-bold mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button 
+              <button
                 onClick={() => router.push('/institution-dashboard/add-project')}
                 className="w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
               >
                 <span className="font-medium">Add Program</span>
                 <p className="text-xs text-(--secondary)">Create a new program or cohort</p>
               </button>
-              <button 
+              <button
                 onClick={() => router.push('/institution-dashboard/add-startup')}
                 className="w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
               >
                 <span className="font-medium">Add Startup</span>
                 <p className="text-xs text-(--secondary)">Add a startup to your portfolio</p>
               </button>
-              <button 
+              <button
                 onClick={() => router.push('/institution-dashboard/add-team')}
                 className="w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
               >

@@ -19,7 +19,7 @@ export default function InvestorLoginPage() {
         setError(null);
 
         try {
-            const res = await fetch('/api/investor-auth/request-otp', {
+            const res = await fetch('/api/auth/otp/send/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
@@ -46,7 +46,7 @@ export default function InvestorLoginPage() {
         setError(null);
 
         try {
-            const res = await fetch('/api/investor-auth/verify-otp', {
+            const res = await fetch('/api/auth/otp/verify/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sessionId, otp }),
