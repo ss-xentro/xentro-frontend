@@ -40,7 +40,7 @@ export default function ExploreMentorsPage() {
                 const res = await fetch('/api/mentors', { signal: controller.signal });
                 if (!res.ok) return;
                 const json = await res.json();
-                setMentors(json.data ?? json ?? []);
+                setMentors(json.mentors ?? json.data ?? (Array.isArray(json) ? json : []));
             } catch (err) {
                 if ((err as Error).name !== 'AbortError') console.error(err);
             } finally {
@@ -95,12 +95,12 @@ export default function ExploreMentorsPage() {
                     {displayMentors.map((mentor, index) => (
                         <div
                             key={mentor.id}
-                            className="group bg-white/5 hover:bg-white/[0.08] border border-white/10 hover:border-white/20 rounded-2xl p-5 transition-all duration-300 flex flex-col"
+                            className="group bg-white/5 hover:bg-white/8 border border-white/10 hover:border-white/20 rounded-2xl p-5 transition-all duration-300 flex flex-col"
                             style={{ animationDelay: `${index * 40}ms` }}
                         >
                             {/* Avatar + Name */}
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500/30 to-indigo-500/30 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                                <div className="w-12 h-12 rounded-full bg-linear-to-br from-violet-500/30 to-indigo-500/30 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                                     {mentor.avatar ? (
                                         <img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" />
                                     ) : (
