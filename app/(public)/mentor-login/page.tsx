@@ -23,7 +23,13 @@ export default function MentorLoginPage() {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
+      if (!res.ok) {
+        if (data.code === 'USER_NOT_FOUND') {
+          router.push('/mentor-signup');
+          return;
+        }
+        throw new Error(data.error || 'Login failed');
+      }
 
       // Store session token
       localStorage.setItem('mentor_token', data.token || 'authenticated');
@@ -102,4 +108,3 @@ export default function MentorLoginPage() {
     </main>
   );
 }
-

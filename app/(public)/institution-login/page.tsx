@@ -28,7 +28,11 @@ export default function InstitutionLoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to send OTP');
+        if (data.code === 'USER_NOT_FOUND') {
+          router.push('/institution-onboarding');
+          return;
+        }
+        throw new Error(data.error || data.message || 'Failed to send OTP');
       }
 
       setSessionId(data.sessionId);

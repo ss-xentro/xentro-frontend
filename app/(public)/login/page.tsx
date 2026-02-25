@@ -36,7 +36,11 @@ export default function FounderLoginPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.message || 'Failed to send OTP');
+                if (data.code === 'USER_NOT_FOUND') {
+                    router.push('/onboarding/startup');
+                    return;
+                }
+                throw new Error(data.error || data.message || 'Failed to send OTP');
             }
 
             setSessionId(data.sessionId);
@@ -91,7 +95,13 @@ export default function FounderLoginPage() {
                 body: JSON.stringify({ idToken }),
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.message || data.error || 'Google login failed');
+            if (!res.ok) {
+                if (data.code === 'USER_NOT_FOUND') {
+                    router.push('/onboarding/startup');
+                    return;
+                }
+                throw new Error(data.message || data.error || 'Google login failed');
+            }
 
             localStorage.setItem('founder_token', data.token);
             if (data.user?.activeContext === 'startup') {
