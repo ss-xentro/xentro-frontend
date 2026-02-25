@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card'; // Assuming export exists, else verified manually
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 
 // Fallback Card if not exported properly (defensive coding)
 function DefaultCard({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -80,6 +81,32 @@ export default function FounderLoginPage() {
         }
     };
 
+    const handleGoogleLogin = async (idToken: string) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await fetch('/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || data.error || 'Google login failed');
+
+            localStorage.setItem('founder_token', data.token);
+            if (data.user?.activeContext === 'startup') {
+                // Determine startup ID dynamically if possible, or redirect directly
+                router.push('/dashboard');
+            } else {
+                router.push('/dashboard'); // Explorer default
+            }
+        } catch (err) {
+            setError((err as Error).message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const CardComponent = Card || DefaultCard;
 
     return (
@@ -92,46 +119,63 @@ export default function FounderLoginPage() {
 
                 <CardComponent className="p-8">
                     {step === 'email' ? (
-                        <form onSubmit={handleSendOTP} className="space-y-6">
-                            <div className="space-y-2">
-                                <h2 className="text-xl font-semibold text-(--primary)">Enter your email</h2>
-                                <p className="text-sm text-(--secondary)">
-                                    We&apos;ll send you a one-time password to verify your identity
-                                </p>
-                            </div>
-
-                            <Input
-                                type="email"
-                                label="Email Address"
-                                placeholder="founder@startup.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                autoFocus
+                        <div className="space-y-6">
+                            <GoogleLoginButton
+                                onSuccess={handleGoogleLogin}
+                                onError={(msg) => setError(msg)}
+                                isLoading={loading}
                             />
 
-                            {error && (
-                                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900 text-sm">
-                                    {error}
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-(--border)"></div>
                                 </div>
-                            )}
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-2 bg-(--surface) text-(--secondary)">Or continue with email</span>
+                                </div>
+                            </div>
 
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={loading || !email}
-                                isLoading={loading}
-                            >
-                                {loading ? 'Sending...' : 'Send OTP'}
-                            </Button>
+                            <form onSubmit={handleSendOTP} className="space-y-6">
+                                <div className="space-y-2">
+                                    <h2 className="text-xl font-semibold text-(--primary)">Enter your email</h2>
+                                    <p className="text-sm text-(--secondary)">
+                                        We&apos;ll send you a one-time password to verify your identity
+                                    </p>
+                                </div>
 
-                            <p className="text-center text-sm text-(--secondary)">
-                                Don&apos;t have an account?{' '}
-                                <a href="/onboarding/startup" className="text-accent hover:underline font-medium">
-                                    Create Startup
-                                </a>
-                            </p>
-                        </form>
+                                <Input
+                                    type="email"
+                                    label="Email Address"
+                                    placeholder="founder@startup.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    autoFocus
+                                />
+
+                                {error && (
+                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900 text-sm">
+                                        {error}
+                                    </div>
+                                )}
+
+                                <Button
+                                    type="submit"
+                                    className="w-full"
+                                    disabled={loading || !email}
+                                    isLoading={loading}
+                                >
+                                    {loading ? 'Sending...' : 'Send OTP'}
+                                </Button>
+
+                                <p className="text-center text-sm text-(--secondary)">
+                                    Don&apos;t have an account?{' '}
+                                    <a href="/onboarding/startup" className="text-accent hover:underline font-medium">
+                                        Create Startup
+                                    </a>
+                                </p>
+                            </form>
+                        </div>
                     ) : (
                         <form onSubmit={handleVerifyOTP} className="space-y-6">
                             <div className="space-y-2">
