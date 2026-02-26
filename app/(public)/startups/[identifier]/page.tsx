@@ -1,56 +1,28 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Button, Badge } from '@/components/ui';
 import { StartupProfileNavbar } from '@/components/public/StartupProfileNavbar';
 import {
-  Startup,
-  startupStageLabels,
-  startupStatusLabels,
-  fundingRoundLabels,
-  sdgLabels,
-  sectorLabels,
-  SDGFocus,
-  SectorFocus,
-  PitchAbout,
-  PitchCompetitor,
-  PitchCustomer,
-  PitchBusinessModelItem,
-  PitchMarketSizeItem,
-  PitchVisionStrategyItem,
-  PitchImpactItem,
-  PitchCertificationItem,
-} from '@/lib/types';
-import { formatCurrency, formatNumber, cn } from '@/lib/utils';
-
-interface Founder {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  isPrimary: boolean;
-}
-
-interface TeamMemberData {
-  id: string;
-  role: string;
-  title: string;
-  user: { id: string; name: string } | null;
-}
-
-interface StartupWithDetails extends Startup {
-  teamMembers?: TeamMemberData[];
-  founders?: Founder[];
-  owner?: { id: string; name: string; email: string } | null;
-}
+  StartupProfileHero,
+  StartupDemoVideo,
+  PitchAboutCards,
+  PitchCompetitors,
+  PitchCustomers,
+  PitchImageTextSection,
+  PitchVisionStrategy,
+  PitchCertifications,
+  TeamTabContent,
+  StartupSidebar,
+} from '@/components/public/startup-profile';
+import type { StartupWithDetails } from '@/components/public/startup-profile';
+import { cn } from '@/lib/utils';
 
 export default function StartupProfilePage({ params }: { params: Promise<{ identifier: string }> }) {
   const router = useRouter();
   const [startup, setStartup] = useState<StartupWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'pitch' | 'team' | 'updates'>('pitch');
-  const certCarouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     params.then(p => {
@@ -98,14 +70,6 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
     );
   }
 
-  const stageInfo = startup.stage ? startupStageLabels[startup.stage] : null;
-  const statusInfo = startupStatusLabels[startup.status];
-  const fundingInfo = startup.fundingRound ? fundingRoundLabels[startup.fundingRound] : null;
-
-  const fundsRaised = startup.fundsRaised ? Number(startup.fundsRaised) : 0;
-  const fundingGoal = startup.fundingGoal ? Number(startup.fundingGoal) : 0;
-  const fundingProgress = fundingGoal > 0 ? Math.min((fundsRaised / fundingGoal) * 100, 100) : 0;
-
   // Pitch data
   const pitchAbout = startup.pitchAbout;
   const competitors = startup.pitchCompetitors || [];
@@ -115,87 +79,14 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
   const visionStrategies = startup.pitchVisionStrategies || [];
   const impacts = startup.pitchImpacts || [];
   const certifications = startup.pitchCertifications || [];
-
-  const scrollCarousel = (direction: 'left' | 'right') => {
-    if (certCarouselRef.current) {
-      const scrollAmount = 320;
-      certCarouselRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth',
-      });
-    }
-  };
+  const hasPitchContent = pitchAbout || competitors.length > 0 || customers.length > 0 || businessModels.length > 0;
 
   return (
     <>
       <StartupProfileNavbar />
       <div className="animate-fadeIn">
         {/* Hero Section */}
-        <div className="relative">
-          <div className="h-48 md:h-72 lg:h-80 bg-linear-to-br from-purple-600 via-violet-600 to-indigo-700 relative overflow-hidden">
-            {startup.coverImage ? (
-              <img src={startup.coverImage} alt={startup.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="absolute inset-0 opacity-20">
-                <div className="absolute inset-0" style={{
-                  backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(255,255,255,0.2) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255,255,255,0.15) 0%, transparent 50%)'
-                }}></div>
-              </div>
-            )}
-            <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent"></div>
-          </div>
-
-          <div className="container mx-auto px-4">
-            <div className="relative -mt-16 md:-mt-20 flex flex-col md:flex-row gap-6 items-start">
-              <div className="w-28 h-28 md:w-36 md:h-36 rounded-2xl bg-white border-4 border-white shadow-xl flex items-center justify-center overflow-hidden shrink-0">
-                {startup.logo ? (
-                  <img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-linear-to-br from-purple-100 to-violet-100 flex items-center justify-center">
-                    <span className="text-4xl font-bold text-purple-600">{startup.name.charAt(0)}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 pt-4 md:pt-8">
-                <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <h1 className="text-2xl md:text-4xl font-bold text-white">{startup.name}</h1>
-                  <span className={cn('px-3 py-1 rounded-full text-sm font-medium', statusInfo.color)}>
-                    {statusInfo.label}
-                  </span>
-                </div>
-
-                {startup.tagline && (
-                  <p className="text-lg md:text-xl text-(--secondary) mb-4 max-w-2xl">{startup.tagline}</p>
-                )}
-
-                <div className="flex flex-wrap gap-3 items-center">
-                  {stageInfo && <Badge variant="outline" className={stageInfo.color}>{stageInfo.label}</Badge>}
-                  {fundingInfo && <Badge variant="info">{fundingInfo.label}</Badge>}
-                  {startup.industry && <Badge variant="outline">{startup.industry}</Badge>}
-                </div>
-              </div>
-
-              <div className="flex gap-3 shrink-0 mt-4 md:mt-8">
-                {startup.website && (
-                  <a href={startup.website} target="_blank" rel="noopener noreferrer">
-                    <Button variant="primary" className="gap-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                      </svg>
-                      Visit Website
-                    </Button>
-                  </a>
-                )}
-                <Button variant="ghost" onClick={() => { navigator.clipboard.writeText(window.location.href); alert('Link copied!'); }}>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                  </svg>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <StartupProfileHero startup={startup} />
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-8">
@@ -204,27 +95,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
             <div className="lg:col-span-2 space-y-8">
               {/* Demo Video */}
               {startup.demoVideoUrl && (
-                <section>
-                  <div className="aspect-video rounded-xl overflow-hidden bg-black">
-                    {startup.demoVideoUrl.includes('youtube') || startup.demoVideoUrl.includes('youtu.be') ? (
-                      <iframe
-                        src={getYouTubeEmbedUrl(startup.demoVideoUrl)}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
-                    ) : startup.demoVideoUrl.includes('vimeo') ? (
-                      <iframe
-                        src={getVimeoEmbedUrl(startup.demoVideoUrl)}
-                        className="w-full h-full"
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
-                    ) : (
-                      <video src={startup.demoVideoUrl} controls className="w-full h-full" />
-                    )}
-                  </div>
-                </section>
+                <StartupDemoVideo demoVideoUrl={startup.demoVideoUrl} />
               )}
 
               {/* Pitch Quote */}
@@ -260,289 +131,17 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
               <div className="animate-fadeIn">
                 {activeTab === 'pitch' && (
                   <div className="space-y-12">
-                    {/* ── 1. About / Problem / Solution ── */}
-                    <section>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* About Card */}
-                        <div className="relative p-6 rounded-2xl border border-(--border) bg-(--surface)/60 backdrop-blur-sm hover:shadow-lg transition-all group overflow-hidden">
-                          <div className="absolute inset-0 bg-linear-to-br from-purple-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                          <div className="relative">
-                            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center mb-4">
-                              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </div>
-                            <h3 className="text-lg font-bold text-(--primary) mb-2">About</h3>
-                            <p className="text-sm text-(--secondary) leading-relaxed">
-                              {pitchAbout?.about || startup.description || 'No description provided yet.'}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Problem Statement Card */}
-                        <div className="relative p-6 rounded-2xl border border-(--border) bg-(--surface)/60 backdrop-blur-sm hover:shadow-lg transition-all group overflow-hidden">
-                          <div className="absolute inset-0 bg-linear-to-br from-red-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                          <div className="relative">
-                            <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center mb-4">
-                              <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                              </svg>
-                            </div>
-                            <h3 className="text-lg font-bold text-(--primary) mb-2">Problem Statement</h3>
-                            <p className="text-sm text-(--secondary) leading-relaxed">
-                              {pitchAbout?.problemStatement || 'Problem statement coming soon.'}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Solution Card */}
-                        <div className="relative p-6 rounded-2xl border border-(--border) bg-(--surface)/60 backdrop-blur-sm hover:shadow-lg transition-all group overflow-hidden">
-                          <div className="absolute inset-0 bg-linear-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                          <div className="relative">
-                            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center mb-4">
-                              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                              </svg>
-                            </div>
-                            <h3 className="text-lg font-bold text-(--primary) mb-2">Solution Proposed</h3>
-                            <p className="text-sm text-(--secondary) leading-relaxed">
-                              {pitchAbout?.solutionProposed || 'Solution details coming soon.'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </section>
-
-                    {/* ── 2. Competitors ── */}
-                    {competitors.length > 0 && (
-                      <section className="relative rounded-2xl overflow-hidden">
-                        {/* Space-themed background */}
-                        <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-slate-900 to-indigo-950">
-                          <div className="absolute inset-0" style={{
-                            backgroundImage: `radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
-                              radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
-                              radial-gradient(1px 1px at 60% 20%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                              radial-gradient(1.5px 1.5px at 80% 50%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                              radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
-                              radial-gradient(1px 1px at 70% 90%, rgba(255,255,255,0.4) 0%, transparent 100%),
-                              radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.35) 0%, transparent 100%),
-                              radial-gradient(1px 1px at 90% 85%, rgba(255,255,255,0.45) 0%, transparent 100%)`
-                          }}></div>
-                        </div>
-
-                        <div className="relative p-8">
-                          <h2 className="text-2xl font-bold text-white mb-2">Competitive Landscape</h2>
-                          <p className="text-gray-400 mb-6 text-sm">How we stack up against the competition</p>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {competitors.map((comp, idx) => (
-                              <div key={idx} className="p-5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all group">
-                                <div className="flex items-center gap-3 mb-3">
-                                  <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                                    {comp.logo ? (
-                                      <img src={comp.logo} alt={comp.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                      <span className="text-sm font-bold text-white/60">{comp.name.charAt(0)}</span>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <h4 className="font-semibold text-white text-sm">{comp.name}</h4>
-                                    {comp.website && (
-                                      <a href={comp.website} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-300 hover:text-indigo-200 transition-colors">
-                                        {comp.website.replace(/^https?:\/\//, '').split('/')[0]}
-                                      </a>
-                                    )}
-                                  </div>
-                                </div>
-                                {comp.description && (
-                                  <p className="text-xs text-gray-300 leading-relaxed line-clamp-3">{comp.description}</p>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </section>
-                    )}
-
-                    {/* ── 3. Customers / Testimonials ── */}
-                    {customers.length > 0 && (
-                      <section>
-                        <h2 className="text-xl font-bold text-(--primary) mb-6">What Our Customers Say</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {customers.map((customer, idx) => (
-                            <Card key={idx} className="p-6 hover:shadow-md transition-all">
-                              <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 rounded-full bg-linear-to-br from-purple-100 to-violet-100 flex items-center justify-center shrink-0 overflow-hidden">
-                                  {customer.avatar ? (
-                                    <img src={customer.avatar} alt={customer.name} className="w-full h-full object-cover" />
-                                  ) : (
-                                    <span className="text-lg font-bold text-purple-600">{customer.name.charAt(0)}</span>
-                                  )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm text-(--secondary) italic mb-3 leading-relaxed">&ldquo;{customer.testimonial}&rdquo;</p>
-                                  <div>
-                                    <p className="font-semibold text-(--primary) text-sm">{customer.name}</p>
-                                    <p className="text-xs text-(--secondary)">
-                                      {[customer.role, customer.company].filter(Boolean).join(' · ')}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
-                      </section>
-                    )}
-
-                    {/* ── 4. Business Model ── */}
-                    {businessModels.length > 0 && (
-                      <section>
-                        <h2 className="text-xl font-bold text-(--primary) mb-6">Business Model</h2>
-                        <div className="space-y-6">
-                          {businessModels.map((item, idx) => (
-                            <div key={idx} className={cn(
-                              'flex flex-col md:flex-row gap-6 items-center',
-                              idx % 2 !== 0 && 'md:flex-row-reverse'
-                            )}>
-                              {item.imageUrl && (
-                                <div className="w-full md:w-1/2 rounded-xl overflow-hidden border border-(--border) bg-(--surface)">
-                                  <img src={item.imageUrl} alt={item.title} className="w-full h-48 md:h-56 object-cover" />
-                                </div>
-                              )}
-                              <div className={cn('w-full', item.imageUrl ? 'md:w-1/2' : '')}>
-                                <h3 className="text-lg font-bold text-(--primary) mb-2">{item.title}</h3>
-                                {item.description && (
-                                  <p className="text-(--secondary) text-sm leading-relaxed">{item.description}</p>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </section>
-                    )}
-
-                    {/* ── 5. Market Size ── */}
-                    {marketSizes.length > 0 && (
-                      <section>
-                        <h2 className="text-xl font-bold text-(--primary) mb-6">Market Size</h2>
-                        <div className="space-y-6">
-                          {marketSizes.map((item, idx) => (
-                            <div key={idx} className={cn(
-                              'flex flex-col md:flex-row gap-6 items-center',
-                              idx % 2 !== 0 && 'md:flex-row-reverse'
-                            )}>
-                              {item.imageUrl && (
-                                <div className="w-full md:w-1/2 rounded-xl overflow-hidden border border-(--border) bg-(--surface)">
-                                  <img src={item.imageUrl} alt={item.title} className="w-full h-48 md:h-56 object-cover" />
-                                </div>
-                              )}
-                              <div className={cn('w-full', item.imageUrl ? 'md:w-1/2' : '')}>
-                                <h3 className="text-lg font-bold text-(--primary) mb-2">{item.title}</h3>
-                                {item.description && (
-                                  <p className="text-(--secondary) text-sm leading-relaxed">{item.description}</p>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </section>
-                    )}
-
-                    {/* ── 6. Vision & Strategy ── */}
-                    {visionStrategies.length > 0 && (
-                      <section>
-                        <h2 className="text-xl font-bold text-(--primary) mb-6">Vision & Strategy</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {visionStrategies.map((item, idx) => (
-                            <div key={idx} className="p-5 rounded-xl border border-(--border) bg-(--surface) hover:shadow-md hover:border-accent/30 transition-all group">
-                              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-accent/10 to-purple-500/10 flex items-center justify-center mb-3">
-                                {item.icon ? (
-                                  <img src={item.icon} alt="" className="w-6 h-6 object-contain" />
-                                ) : (
-                                  <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                  </svg>
-                                )}
-                              </div>
-                              <h4 className="font-semibold text-(--primary) mb-1 text-sm">{item.title}</h4>
-                              {item.description && (
-                                <p className="text-xs text-(--secondary) leading-relaxed">{item.description}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </section>
-                    )}
-
-                    {/* ── 7. Impact ── */}
-                    {impacts.length > 0 && (
-                      <section>
-                        <h2 className="text-xl font-bold text-(--primary) mb-6">Impact</h2>
-                        <div className="space-y-6">
-                          {impacts.map((item, idx) => (
-                            <div key={idx} className={cn(
-                              'flex flex-col md:flex-row gap-6 items-center',
-                              idx % 2 !== 0 && 'md:flex-row-reverse'
-                            )}>
-                              {item.imageUrl && (
-                                <div className="w-full md:w-1/2 rounded-xl overflow-hidden border border-(--border) bg-(--surface)">
-                                  <img src={item.imageUrl} alt={item.title} className="w-full h-48 md:h-56 object-cover" />
-                                </div>
-                              )}
-                              <div className={cn('w-full', item.imageUrl ? 'md:w-1/2' : '')}>
-                                <h3 className="text-lg font-bold text-(--primary) mb-2">{item.title}</h3>
-                                {item.description && (
-                                  <p className="text-(--secondary) text-sm leading-relaxed">{item.description}</p>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </section>
-                    )}
-
-                    {/* ── 8. Certifications Carousel ── */}
-                    {certifications.length > 0 && (
-                      <section>
-                        <div className="flex items-center justify-between mb-6">
-                          <h2 className="text-xl font-bold text-(--primary)">Certifications</h2>
-                          <div className="flex gap-2">
-                            <button onClick={() => scrollCarousel('left')} className="p-2 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors">
-                              <svg className="w-4 h-4 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                              </svg>
-                            </button>
-                            <button onClick={() => scrollCarousel('right')} className="p-2 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors">
-                              <svg className="w-4 h-4 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                        <div ref={certCarouselRef} className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                          {certifications.map((cert, idx) => (
-                            <div key={idx} className="min-w-[280px] max-w-[300px] snap-start shrink-0 p-5 rounded-xl border border-(--border) bg-(--surface) hover:shadow-md transition-all">
-                              {cert.imageUrl && (
-                                <div className="w-full h-36 rounded-lg overflow-hidden mb-4 bg-(--surface-hover)">
-                                  <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-contain" />
-                                </div>
-                              )}
-                              <h4 className="font-semibold text-(--primary) text-sm mb-1">{cert.title}</h4>
-                              {cert.issuer && <p className="text-xs text-(--secondary)">{cert.issuer}</p>}
-                              {cert.dateAwarded && (
-                                <p className="text-xs text-(--secondary) mt-1">
-                                  {new Date(cert.dateAwarded).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </section>
-                    )}
+                    <PitchAboutCards pitchAbout={pitchAbout} description={startup.description} />
+                    <PitchCompetitors competitors={competitors} />
+                    <PitchCustomers customers={customers} />
+                    <PitchImageTextSection title="Business Model" items={businessModels} />
+                    <PitchImageTextSection title="Market Size" items={marketSizes} />
+                    <PitchVisionStrategy items={visionStrategies} />
+                    <PitchImageTextSection title="Impact" items={impacts} />
+                    <PitchCertifications certifications={certifications} />
 
                     {/* Empty state for pitch */}
-                    {!pitchAbout && competitors.length === 0 && customers.length === 0 && businessModels.length === 0 && (
+                    {!hasPitchContent && (
                       <div className="text-center py-12">
                         <div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
                           <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -556,91 +155,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                   </div>
                 )}
 
-                {activeTab === 'team' && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-(--primary)">Meet the Team</h2>
-
-                    {startup.founders && startup.founders.length > 0 && (
-                      <div className="space-y-3">
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-(--secondary)">Founders</h3>
-                        <div className="grid gap-4 sm:grid-cols-2">
-                          {startup.founders.map((founder) => (
-                            <Card key={founder.id || founder.email} className="p-5">
-                              <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 rounded-full bg-linear-to-br from-purple-100 to-violet-100 flex items-center justify-center">
-                                  <span className="text-lg font-bold text-purple-600">{founder.name?.charAt(0) || 'F'}</span>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-semibold text-(--primary) truncate">{founder.name}</h4>
-                                  <p className="text-sm text-(--secondary) capitalize">{founder.role?.replace(/_/g, ' ') || 'Founder'}</p>
-                                </div>
-                                {founder.isPrimary && <Badge variant="info" className="shrink-0">Primary</Badge>}
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {(!startup.founders || startup.founders.length === 0) && startup.owner && (
-                      <Card className="p-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 rounded-full bg-linear-to-br from-purple-100 to-violet-100 flex items-center justify-center">
-                            <span className="text-xl font-bold text-purple-600">{startup.owner.name?.charAt(0) || 'F'}</span>
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-(--primary) text-lg">{startup.owner.name}</h3>
-                            <p className="text-(--secondary)">Founder</p>
-                          </div>
-                          <Badge variant="info" className="ml-auto">Primary</Badge>
-                        </div>
-                      </Card>
-                    )}
-
-                    {startup.teamMembers && startup.teamMembers.length > 0 && (
-                      <div className="space-y-3">
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-(--secondary)">Team Members</h3>
-                        <div className="grid gap-4 sm:grid-cols-2">
-                          {startup.teamMembers.map((member) => (
-                            <Card key={member.id} className="p-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                  <span className="text-sm font-bold text-gray-600">{member.user?.name?.charAt(0) || 'T'}</span>
-                                </div>
-                                <div>
-                                  <h4 className="font-medium text-(--primary)">{member.user?.name || 'Team Member'}</h4>
-                                  <p className="text-sm text-(--secondary) capitalize">{member.title || member.role?.replace(/_/g, ' ') || 'Member'}</p>
-                                </div>
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {(!startup.founders || startup.founders.length === 0) && !startup.owner && (!startup.teamMembers || startup.teamMembers.length === 0) && (
-                      <div className="text-center py-12">
-                        <div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
-                          <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                          </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold text-(--primary) mb-2">Team info coming soon</h3>
-                        <p className="text-(--secondary)">The team hasn&apos;t added members to their profile yet.</p>
-                      </div>
-                    )}
-
-                    {startup.teamSize && (
-                      <div className="flex items-center gap-2 text-(--secondary) mt-4">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span>{startup.teamSize} team members</span>
-                        {startup.employeeCount && <span className="text-(--secondary)">({startup.employeeCount} employees)</span>}
-                      </div>
-                    )}
-                  </div>
-                )}
+                {activeTab === 'team' && <TeamTabContent startup={startup} />}
 
                 {activeTab === 'updates' && (
                   <div className="text-center py-12">
@@ -657,185 +172,10 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
             </div>
 
             {/* Right Column - Sidebar */}
-            <div className="space-y-6">
-              {/* Funding Progress */}
-              {fundingGoal > 0 && (
-                <Card className="p-6">
-                  <div className="mb-4">
-                    <p className="text-3xl font-bold text-(--primary)">
-                      {formatCurrency(fundsRaised, startup.fundingCurrency || 'USD')}
-                    </p>
-                    <p className="text-(--secondary) text-sm">
-                      raised of {formatCurrency(fundingGoal, startup.fundingCurrency || 'USD')} goal
-                    </p>
-                  </div>
-                  <div className="w-full h-2 bg-(--surface-hover) rounded-full overflow-hidden mb-4">
-                    <div
-                      className="h-full bg-linear-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-500"
-                      style={{ width: `${fundingProgress}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-(--secondary)">
-                    <span className="font-semibold text-(--primary)">{Math.round(fundingProgress)}%</span> funded
-                  </p>
-                </Card>
-              )}
-
-              {/* Quick Stats */}
-              <Card className="p-6">
-                <h3 className="font-semibold text-(--primary) mb-4">Quick Facts</h3>
-                <div className="space-y-4">
-                  {startup.foundedDate && (
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-(--surface-hover) flex items-center justify-center">
-                        <svg className="w-5 h-5 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-sm text-(--secondary)">Founded</p>
-                        <p className="font-medium text-(--primary)">{new Date(startup.foundedDate).getFullYear()}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {(startup.city || startup.country || startup.location) && (
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-(--surface-hover) flex items-center justify-center">
-                        <svg className="w-5 h-5 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-sm text-(--secondary)">Location</p>
-                        <p className="font-medium text-(--primary)">
-                          {startup.city && startup.country ? `${startup.city}, ${startup.country}` : startup.location || 'Remote'}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Card>
-
-              {/* Investors */}
-              {startup.investors && startup.investors.length > 0 && (
-                <Card className="p-6">
-                  <h3 className="font-semibold text-(--primary) mb-4">Backed By</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {startup.investors.map((investor, index) => (
-                      <Badge key={index} variant="outline" className="text-sm">{investor}</Badge>
-                    ))}
-                  </div>
-                </Card>
-              )}
-
-              {/* Focus Areas */}
-              <Card className="p-6">
-                <h3 className="font-semibold text-(--primary) mb-4">Focus Areas</h3>
-                {startup.sectors && startup.sectors.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-sm text-(--secondary) mb-2">Sectors</p>
-                    <div className="flex flex-wrap gap-2">
-                      {startup.sectors.map((sector) => {
-                        const info = sectorLabels[sector as SectorFocus];
-                        return <Badge key={sector} variant="outline">{info ? `${info.emoji} ${info.label}` : sector}</Badge>;
-                      })}
-                    </div>
-                  </div>
-                )}
-                {startup.sdgFocus && startup.sdgFocus.length > 0 && (
-                  <div>
-                    <p className="text-sm text-(--secondary) mb-2">UN SDG Alignment</p>
-                    <div className="flex flex-wrap gap-2">
-                      {startup.sdgFocus.map((sdg) => {
-                        const info = sdgLabels[sdg as SDGFocus];
-                        return info ? (
-                          <span key={sdg} className="w-8 h-8 rounded flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: info.color }} title={info.fullName}>
-                            {info.label}
-                          </span>
-                        ) : null;
-                      })}
-                    </div>
-                  </div>
-                )}
-                {(!startup.sectors || startup.sectors.length === 0) && (!startup.sdgFocus || startup.sdgFocus.length === 0) && (
-                  <p className="text-(--secondary) text-sm italic">No focus areas specified yet.</p>
-                )}
-              </Card>
-
-              {/* Social Links */}
-              <Card className="p-6">
-                <h3 className="font-semibold text-(--primary) mb-4">Connect</h3>
-                <div className="space-y-3">
-                  {startup.website && (
-                    <a href={startup.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-(--secondary) hover:text-accent transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                      </svg>
-                      <span className="truncate">{startup.website.replace(/^https?:\/\//, '')}</span>
-                    </a>
-                  )}
-                  {startup.linkedin && (
-                    <a href={startup.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-(--secondary) hover:text-[#0077B5] transition-colors">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
-                      <span>LinkedIn</span>
-                    </a>
-                  )}
-                  {startup.twitter && (
-                    <a href={startup.twitter} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-(--secondary) hover:text-[#1DA1F2] transition-colors">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
-                      <span>Twitter / X</span>
-                    </a>
-                  )}
-                  {startup.instagram && (
-                    <a href={startup.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-(--secondary) hover:text-[#E4405F] transition-colors">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
-                      <span>Instagram</span>
-                    </a>
-                  )}
-                  {startup.pitchDeckUrl && (
-                    <a href={startup.pitchDeckUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-(--secondary) hover:text-accent transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span>Pitch Deck</span>
-                    </a>
-                  )}
-                </div>
-              </Card>
-
-              {/* Contact */}
-              {startup.primaryContactEmail && (
-                <Card className="p-6">
-                  <h3 className="font-semibold text-(--primary) mb-4">Get in Touch</h3>
-                  <a href={`mailto:${startup.primaryContactEmail}`} className="inline-flex items-center gap-2 text-accent hover:underline">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    Contact Startup
-                  </a>
-                </Card>
-              )}
-            </div>
+            <StartupSidebar startup={startup} />
           </div>
         </div>
       </div>
     </>
   );
-}
-
-// Helper functions for video embeds
-function getYouTubeEmbedUrl(url: string): string {
-  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-  const match = url.match(regExp);
-  const videoId = match && match[7].length === 11 ? match[7] : null;
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
-}
-
-function getVimeoEmbedUrl(url: string): string {
-  const regExp = /vimeo\.com\/(\d+)/;
-  const match = url.match(regExp);
-  const videoId = match ? match[1] : null;
-  return videoId ? `https://player.vimeo.com/video/${videoId}` : url;
 }

@@ -1,0 +1,11 @@
+export { StartupProfileHero } from './StartupProfileHero';
+export { StartupDemoVideo } from './StartupDemoVideo';
+export { PitchAboutCards } from './PitchAboutCards';
+export { PitchCompetitors } from './PitchCompetitors';
+export { PitchCustomers } from './PitchCustomers';
+export { PitchImageTextSection } from './PitchImageTextSection';
+export { PitchVisionStrategy } from './PitchVisionStrategy';
+export { PitchCertifications } from './PitchCertifications';
+export { TeamTabContent } from './TeamTabContent';
+export { StartupSidebar } from './StartupSidebar';
+export type { StartupWithDetails, Founder, TeamMemberData } from './types';
