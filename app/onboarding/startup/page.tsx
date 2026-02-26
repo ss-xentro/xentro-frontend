@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import { useStartupOnboardingStore } from '@/stores/useStartupOnboardingStore';
 import { StartupIdentitySection } from '@/components/onboarding/startup/StartupIdentitySection';
 import { CompanyDetailsSection } from '@/components/onboarding/startup/CompanyDetailsSection';
@@ -321,7 +323,27 @@ export default function StartupOnboardingPage() {
     };
 
     return (
-        <div className="min-h-screen bg-(--background) py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-(--background) flex flex-col">
+          {/* Minimal Navbar */}
+          <nav className="h-16 border-b border-(--border) bg-white/80 backdrop-blur-md sticky top-0 z-50">
+            <div className="container mx-auto px-4 h-full flex items-center justify-between">
+              <Link href="/" className="flex items-center gap-2">
+                <Image src="/xentro-logo.png" alt="Xentro" width={32} height={32} className="rounded-lg" />
+                <span className="text-lg font-bold text-(--primary)">Xentro</span>
+              </Link>
+              <Link
+                href="/join"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-lg transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Exit
+              </Link>
+            </div>
+          </nav>
+
+        <div className="flex-1 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-10">
@@ -438,6 +460,7 @@ export default function StartupOnboardingPage() {
                     </a>
                 </p>
             </div>
+        </div>
         </div>
     );
 }

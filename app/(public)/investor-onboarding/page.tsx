@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { Button, Card, Input, ProgressIndicator, Textarea } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
@@ -244,7 +246,27 @@ export default function InvestorOnboardingPage() {
     const primaryLabel = step === TOTAL_STEPS ? (loading ? 'Submitting…' : 'Submit for review') : 'Continue';
 
     return (
-        <main className="min-h-screen bg-(--surface) px-4 py-10 flex items-center justify-center">
+        <div className="min-h-screen bg-(--surface) flex flex-col">
+          {/* Minimal Navbar */}
+          <nav className="h-16 border-b border-(--border) bg-white/80 backdrop-blur-md sticky top-0 z-50">
+            <div className="container mx-auto px-4 h-full flex items-center justify-between">
+              <Link href="/" className="flex items-center gap-2">
+                <Image src="/xentro-logo.png" alt="Xentro" width={32} height={32} className="rounded-lg" />
+                <span className="text-lg font-bold text-(--primary)">Xentro</span>
+              </Link>
+              <Link
+                href="/join"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-lg transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Exit
+              </Link>
+            </div>
+          </nav>
+
+        <main className="flex-1 px-4 py-10 flex items-center justify-center">
             <Card className="w-full max-w-3xl p-6 md:p-8 space-y-6 shadow-lg bg-white/90 backdrop-blur animate-fadeInUp">
                 <div className="flex flex-col gap-2">
                     <h1 className="text-3xl font-bold text-(--primary)">Investor onboarding</h1>
@@ -288,5 +310,6 @@ export default function InvestorOnboardingPage() {
                 </p>
             </Card>
         </main>
+        </div>
     );
 }

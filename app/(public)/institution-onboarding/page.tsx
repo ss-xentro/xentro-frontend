@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import { Card, Input, Button, ProgressIndicator } from '@/components/ui';
 import { OnboardingFormData } from '@/lib/types';
 
@@ -93,7 +95,27 @@ export default function InstitutionOnboardingPage() {
   };
 
   return (
-    <main className="min-h-screen bg-background py-16 px-4" role="main">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Minimal Navbar */}
+      <nav className="h-16 border-b border-(--border) bg-white/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="container mx-auto px-4 h-full flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/xentro-logo.png" alt="Xentro" width={32} height={32} className="rounded-lg" />
+            <span className="text-lg font-bold text-(--primary)">Xentro</span>
+          </Link>
+          <Link
+            href="/join"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-lg transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Exit
+          </Link>
+        </div>
+      </nav>
+
+    <main className="flex-1 py-16 px-4" role="main">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center space-y-2">
           <p className="text-accent font-semibold text-sm uppercase tracking-wide">Institution Onboarding</p>
@@ -257,5 +279,6 @@ export default function InstitutionOnboardingPage() {
         </Card>
       </div>
     </main>
+    </div>
   );
 }

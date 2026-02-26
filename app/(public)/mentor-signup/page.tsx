@@ -378,7 +378,7 @@ export default function MentorSignupPage() {
             <span className="text-lg font-bold text-(--primary)">Xentro</span>
           </Link>
           <Link
-            href="/"
+            href="/join"
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-lg transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
