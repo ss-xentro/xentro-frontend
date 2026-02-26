@@ -5,13 +5,53 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner';
+import { getSessionToken } from '@/lib/auth-utils';
+
+interface ConnectionRequest {
+    id: string;
+    requester_name: string;
+    requester_email: string;
+    requester_avatar: string | null;
+    requester_account_type: string;
+    message: string;
+    status: string;
+    created_at: string;
+}
 
 export default function MentorDashboardPage() {
     const [loading, setLoading] = useState(true);
+    const [pendingRequests, setPendingRequests] = useState<ConnectionRequest[]>([]);
+    const [requestsLoading, setRequestsLoading] = useState(true);
 
     useEffect(() => {
         const timer = setTimeout(() => setLoading(false), 500);
         return () => clearTimeout(timer);
+    }, []);
+
+    // Load pending connection requests
+    useEffect(() => {
+        async function loadRequests() {
+            const token = getSessionToken('mentor');
+            if (!token) {
+                setRequestsLoading(false);
+                return;
+            }
+            try {
+                const res = await fetch('/api/mentor-connections/', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (res.ok) {
+                    const json = await res.json();
+                    const pending = (json.data ?? []).filter((r: ConnectionRequest) => r.status === 'pending');
+                    setPendingRequests(pending.slice(0, 3)); // Show max 3 on overview
+                }
+            } catch {
+                // ignore
+            } finally {
+                setRequestsLoading(false);
+            }
+        }
+        loadRequests();
     }, []);
 
     if (loading) {
@@ -119,6 +159,59 @@ export default function MentorDashboardPage() {
                     </div>
                 </Card>
             </div>
+
+            {/* Pending Connection Requests */}
+            {!requestsLoading && pendingRequests.length > 0 && (
+                <Card className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-(--primary)">Connection Requests</h3>
+                            <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold bg-accent text-white rounded-full">
+                                {pendingRequests.length}
+                            </span>
+                        </div>
+                        <Link href="/mentor-dashboard/requests" className="text-sm text-accent hover:underline">
+                            View all &rarr;
+                        </Link>
+                    </div>
+                    <div className="space-y-3">
+                        {pendingRequests.map((req) => (
+                            <div
+                                key={req.id}
+                                className="flex items-start gap-3 p-3 rounded-lg border border-(--border) bg-(--background) hover:bg-(--surface-hover) transition-colors"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold shrink-0">
+                                    {req.requester_name?.charAt(0).toUpperCase() || '?'}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-sm font-medium text-(--primary) truncate">
+                                            {req.requester_name}
+                                        </p>
+                                        <span className="text-xs text-(--secondary) whitespace-nowrap ml-2">
+                                            {new Date(req.created_at).toLocaleDateString('en-US', {
+                                                month: 'short',
+                                                day: 'numeric',
+                                            })}
+                                        </span>
+                                    </div>
+                                    {req.message && (
+                                        <p className="text-xs text-(--secondary) line-clamp-1 mt-0.5">
+                                            {req.message}
+                                        </p>
+                                    )}
+                                </div>
+                                <Link
+                                    href="/mentor-dashboard/requests"
+                                    className="shrink-0 px-3 py-1.5 text-xs font-medium rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
+                                >
+                                    Review
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Upcoming Sessions */}
