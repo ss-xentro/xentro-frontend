@@ -14,7 +14,7 @@ type MentorRow = {
   expertise: string | null;
   rate: string | number | null;
   pricing_per_hour: string | number | null;
-  achievements: string | null;
+  achievements: string | string[] | null;
   availability: string | null;
   documents: { name: string; url: string }[] | null;
   profile_completed: boolean;
@@ -28,6 +28,7 @@ export default function MentorVerificationPage() {
   const [rows, setRows] = useState<MentorRow[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   async function fetchMentors() {
     if (!token) return;
@@ -53,6 +54,29 @@ export default function MentorVerificationPage() {
     if (token) fetchMentors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
+
+  async function handleDecision(mentorUserId: string, decision: 'approve' | 'reject') {
+    if (!token) return;
+    setActionLoading(`${mentorUserId}-${decision}`);
+    try {
+      const res = await fetch('/api/approvals/mentors/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ mentorUserId, decision }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || `Failed to ${decision}`);
+      setMessage(`Mentor ${decision === 'approve' ? 'approved' : 'rejected'} successfully`);
+      fetchMentors();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : `Failed to ${decision}`);
+    } finally {
+      setActionLoading(null);
+    }
+  }
 
   function parseAvailability(raw: string | null): { day: string; startTime: string; endTime: string }[] {
     if (!raw) return [];
@@ -127,6 +151,25 @@ export default function MentorVerificationPage() {
                     >
                       {isExpanded ? 'Collapse' : 'View Details'}
                     </Button>
+                    {row.status !== 'approved' && (
+                      <Button
+                        variant="primary"
+                        onClick={() => handleDecision(row.user, 'approve')}
+                        disabled={actionLoading === `${row.user}-approve`}
+                      >
+                        {actionLoading === `${row.user}-approve` ? 'Approving…' : 'Approve'}
+                      </Button>
+                    )}
+                    {row.status !== 'rejected' && (
+                      <Button
+                        variant="secondary"
+                        onClick={() => handleDecision(row.user, 'reject')}
+                        disabled={actionLoading === `${row.user}-reject`}
+                        className="text-red-600 hover:bg-red-50 border-red-200"
+                      >
+                        {actionLoading === `${row.user}-reject` ? 'Rejecting…' : 'Reject'}
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -136,7 +179,15 @@ export default function MentorVerificationPage() {
                     {row.achievements && (
                       <div>
                         <h4 className="text-sm font-medium text-gray-700 mb-1">Achievements</h4>
-                        <p className="text-sm text-gray-600 whitespace-pre-wrap">{typeof row.achievements === 'string' ? row.achievements : JSON.stringify(row.achievements)}</p>
+                        {Array.isArray(row.achievements) ? (
+                          <ul className="list-disc list-inside space-y-1">
+                            {row.achievements.map((item, i) => (
+                              <li key={i} className="text-sm text-gray-600">{item}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-sm text-gray-600 whitespace-pre-wrap">{row.achievements}</p>
+                        )}
                       </div>
                     )}
 

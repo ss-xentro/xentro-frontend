@@ -10,12 +10,24 @@ interface MissingField {
     icon: string;
 }
 
-const PROFILE_FIELDS: { key: string; label: string; icon: string; check: (p: Record<string, string>) => boolean }[] = [
-    { key: 'expertise', label: 'Expertise', icon: '🎯', check: (p) => !!(p.expertise && p.expertise.trim()) },
-    { key: 'occupation', label: 'Role', icon: '💼', check: (p) => !!(p.occupation && p.occupation.trim()) },
-    { key: 'rate', label: 'Rate', icon: '💰', check: (p) => !!(p.rate && p.rate.trim() && p.rate !== '0') },
-    { key: 'achievements', label: 'Achievements', icon: '🏆', check: (p) => !!(p.achievements && p.achievements.trim()) },
-    { key: 'availability', label: 'Availability', icon: '📅', check: (p) => !!(p.availability && p.availability.trim()) },
+const PROFILE_FIELDS: { key: string; label: string; icon: string; check: (p: Record<string, unknown>) => boolean }[] = [
+    { key: 'expertise', label: 'Expertise', icon: '🎯', check: (p) => !!(p.expertise && String(p.expertise).trim()) },
+    { key: 'occupation', label: 'Role', icon: '💼', check: (p) => !!(p.occupation && String(p.occupation).trim()) },
+    {
+        key: 'pricing_per_hour', label: 'Pricing', icon: '💰',
+        check: (p) => {
+            const rate = String(p.pricing_per_hour || p.rate || '').trim();
+            return !!(rate && rate !== '0' && rate !== '0.00');
+        },
+    },
+    {
+        key: 'achievements', label: 'Achievements', icon: '🏆',
+        check: (p) => {
+            if (Array.isArray(p.achievements)) return p.achievements.length > 0;
+            return !!(p.achievements && String(p.achievements).trim());
+        },
+    },
+    { key: 'availability', label: 'Availability', icon: '📅', check: (p) => !!(p.availability && String(p.availability).trim()) },
 ];
 
 export default function ProfileCompletionBanner() {
