@@ -1,6 +1,5 @@
 'use client';
 
-import { Card } from '@/components/ui';
 import type { PitchCustomer } from './types';
 
 interface PitchCustomersProps {
@@ -12,29 +11,28 @@ export function PitchCustomers({ customers }: PitchCustomersProps) {
 
 	return (
 		<section>
-			<h2 className="text-xl font-bold text-(--primary) mb-6">What Our Customers Say</h2>
+			<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">What Customers Say</h2>
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 				{customers.map((customer, idx) => (
-					<Card key={idx} className="p-6 hover:shadow-md transition-all">
-						<div className="flex items-start gap-4">
-							<div className="w-12 h-12 rounded-full bg-linear-to-br from-purple-100 to-violet-100 flex items-center justify-center shrink-0 overflow-hidden">
+					<div key={idx} className="p-5 rounded-xl border border-(--border) bg-(--surface)">
+						<svg className="w-5 h-5 text-(--border) mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151C7.546 6.068 5.983 8.789 5.983 11H10v10H0z" /></svg>
+						<p className="text-sm text-(--primary) leading-relaxed mb-4">{customer.testimonial}</p>
+						<div className="flex items-center gap-3 pt-3 border-t border-(--border)">
+							<div className="w-8 h-8 rounded-full bg-(--surface-hover) flex items-center justify-center overflow-hidden shrink-0">
 								{customer.avatar ? (
 									<img src={customer.avatar} alt={customer.name} className="w-full h-full object-cover" />
 								) : (
-									<span className="text-lg font-bold text-purple-600">{customer.name.charAt(0)}</span>
+									<span className="text-xs font-semibold text-(--secondary)">{customer.name.charAt(0)}</span>
 								)}
 							</div>
-							<div className="flex-1 min-w-0">
-								<p className="text-sm text-(--secondary) italic mb-3 leading-relaxed">&ldquo;{customer.testimonial}&rdquo;</p>
-								<div>
-									<p className="font-semibold text-(--primary) text-sm">{customer.name}</p>
-									<p className="text-xs text-(--secondary)">
-										{[customer.role, customer.company].filter(Boolean).join(' · ')}
-									</p>
-								</div>
+							<div>
+								<p className="text-sm font-medium text-(--primary)">{customer.name}</p>
+								<p className="text-xs text-(--secondary)">
+									{[customer.role, customer.company].filter(Boolean).join(', ')}
+								</p>
 							</div>
 						</div>
-					</Card>
+					</div>
 				))}
 			</div>
 		</section>

@@ -18,11 +18,13 @@ import {
 import type { StartupWithDetails } from '@/components/public/startup-profile';
 import { cn } from '@/lib/utils';
 
+type Tab = 'about' | 'team' | 'activity';
+
 export default function StartupProfilePage({ params }: { params: Promise<{ identifier: string }> }) {
   const router = useRouter();
   const [startup, setStartup] = useState<StartupWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'pitch' | 'team' | 'updates'>('pitch');
+  const [activeTab, setActiveTab] = useState<Tab>('about');
 
   useEffect(() => {
     params.then(p => {
@@ -50,7 +52,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
       <>
         <StartupProfileNavbar />
         <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-(--border) border-t-(--primary)"></div>
         </div>
       </>
     );
@@ -62,8 +64,8 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
         <StartupProfileNavbar />
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-(--primary) mb-2">Startup not found</h1>
-            <p className="text-(--secondary)">The startup you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+            <h1 className="text-xl font-semibold text-(--primary) mb-1">Startup not found</h1>
+            <p className="text-sm text-(--secondary)">The startup you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           </div>
         </div>
       </>
@@ -81,99 +83,150 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
   const certifications = startup.pitchCertifications || [];
   const hasPitchContent = pitchAbout || competitors.length > 0 || customers.length > 0 || businessModels.length > 0;
 
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'about', label: 'About' },
+    { key: 'team', label: 'Team' },
+    { key: 'activity', label: 'Activity' },
+  ];
+
   return (
     <>
       <StartupProfileNavbar />
-      <div className="animate-fadeIn">
-        {/* Hero Section */}
+      <div className="animate-fadeIn min-h-screen bg-background">
+        {/* Hero */}
         <StartupProfileHero startup={startup} />
 
-        {/* Main Content */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Demo Video */}
-              {startup.demoVideoUrl && (
-                <StartupDemoVideo demoVideoUrl={startup.demoVideoUrl} />
-              )}
+        {/* Tab bar */}
+        <div className="border-b border-(--border) sticky top-0 bg-background z-10">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 flex gap-6">
+            {tabs.map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'py-3 text-sm font-medium border-b-2 transition-colors',
+                  activeTab === tab.key
+                    ? 'border-(--primary) text-(--primary)'
+                    : 'border-transparent text-(--secondary) hover:text-(--primary)'
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-              {/* Pitch Quote */}
+        {/* Tab content */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+          {/* ── About Tab ── */}
+          {activeTab === 'about' && (
+            <div className="space-y-8 animate-fadeIn">
+              {/* Pitch quote */}
               {startup.pitch && (
-                <section className="bg-(--surface) border border-(--border) rounded-xl p-6">
-                  <p className="text-xl md:text-2xl font-medium text-(--primary) leading-relaxed">
+                <section className="border-l-2 border-(--primary) pl-5">
+                  <p className="text-lg sm:text-xl text-(--primary) leading-relaxed font-medium italic">
                     &ldquo;{startup.pitch}&rdquo;
                   </p>
                 </section>
               )}
 
-              {/* Tab Navigation */}
-              <div className="border-b border-(--border)">
-                <div className="flex gap-1">
-                  {(['pitch', 'team', 'updates'] as const).map(tab => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={cn(
-                        'px-6 py-3 font-medium text-sm border-b-2 transition-colors capitalize',
-                        activeTab === tab
-                          ? 'border-accent text-accent'
-                          : 'border-transparent text-(--secondary) hover:text-(--primary)'
-                      )}
-                    >
-                      {tab}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* Demo Video */}
+              {startup.demoVideoUrl && (
+                <StartupDemoVideo demoVideoUrl={startup.demoVideoUrl} />
+              )}
 
-              {/* Tab Content */}
-              <div className="animate-fadeIn">
-                {activeTab === 'pitch' && (
-                  <div className="space-y-12">
-                    <PitchAboutCards pitchAbout={pitchAbout} description={startup.description} />
-                    <PitchCompetitors competitors={competitors} />
-                    <PitchCustomers customers={customers} />
+              {/* About / Problem / Solution */}
+              <PitchAboutCards pitchAbout={pitchAbout} description={startup.description} />
+
+              {/* Inline focus areas + investors */}
+              <StartupSidebar startup={startup} />
+
+              {/* Business Model & Market Size — side by side */}
+              {(businessModels.length > 0 || marketSizes.length > 0) && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {businessModels.length > 0 && (
                     <PitchImageTextSection title="Business Model" items={businessModels} />
+                  )}
+                  {marketSizes.length > 0 && (
                     <PitchImageTextSection title="Market Size" items={marketSizes} />
-                    <PitchVisionStrategy items={visionStrategies} />
-                    <PitchImageTextSection title="Impact" items={impacts} />
-                    <PitchCertifications certifications={certifications} />
+                  )}
+                </div>
+              )}
 
-                    {/* Empty state for pitch */}
-                    {!hasPitchContent && (
-                      <div className="text-center py-12">
-                        <div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
-                          <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold text-(--primary) mb-2">Pitch deck coming soon</h3>
-                        <p className="text-(--secondary)">The team hasn&apos;t added their pitch information yet.</p>
-                      </div>
-                    )}
+              {/* Competitors */}
+              <PitchCompetitors competitors={competitors} />
+
+              {/* Empty state */}
+              {!hasPitchContent && (
+                <div className="text-center py-16">
+                  <div className="w-12 h-12 rounded-full bg-(--surface-hover) mx-auto mb-3 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                   </div>
-                )}
+                  <p className="text-sm font-medium text-(--primary) mb-1">Profile info coming soon</p>
+                  <p className="text-xs text-(--secondary)">The startup hasn&apos;t added details to their profile yet.</p>
+                </div>
+              )}
 
-                {activeTab === 'team' && <TeamTabContent startup={startup} />}
-
-                {activeTab === 'updates' && (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-semibold text-(--primary) mb-2">No updates yet</h3>
-                    <p className="text-(--secondary)">Check back later for the latest news from this startup.</p>
+              {/* Contact footer */}
+              {startup.primaryContactEmail && (
+                <section className="pt-6 border-t border-(--border)">
+                  <div className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <a href={`mailto:${startup.primaryContactEmail}`} className="text-sm text-(--primary) hover:underline">
+                      {startup.primaryContactEmail}
+                    </a>
                   </div>
-                )}
-              </div>
+                </section>
+              )}
             </div>
+          )}
 
-            {/* Right Column - Sidebar */}
-            <StartupSidebar startup={startup} />
-          </div>
+          {/* ── Team Tab ── */}
+          {activeTab === 'team' && (
+            <div className="animate-fadeIn">
+              <TeamTabContent startup={startup} />
+            </div>
+          )}
+
+          {/* ── Activity Tab ── */}
+          {activeTab === 'activity' && (
+            <div className="space-y-8 animate-fadeIn">
+              {/* Customers */}
+              <PitchCustomers customers={customers} />
+
+              {/* Vision & Strategy */}
+              <PitchVisionStrategy items={visionStrategies} />
+
+              {/* Impact & Certifications — side by side */}
+              {(impacts.length > 0 || certifications.length > 0) && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {impacts.length > 0 && (
+                    <PitchImageTextSection title="Impact" items={impacts} />
+                  )}
+                  {certifications.length > 0 && (
+                    <PitchCertifications certifications={certifications} />
+                  )}
+                </div>
+              )}
+
+              {/* Empty state when nothing to show */}
+              {customers.length === 0 && visionStrategies.length === 0 && impacts.length === 0 && certifications.length === 0 && (
+                <div className="text-center py-16">
+                  <div className="w-12 h-12 rounded-full bg-(--surface-hover) mx-auto mb-3 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-medium text-(--primary) mb-1">No activity yet</p>
+                  <p className="text-xs text-(--secondary)">Check back later for updates from this startup.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </>

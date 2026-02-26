@@ -18,22 +18,22 @@ export function PitchImageTextSection({ title, items }: PitchImageTextSectionPro
 
 	return (
 		<section>
-			<h2 className="text-xl font-bold text-(--primary) mb-6">{title}</h2>
-			<div className="space-y-6">
+			<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">{title}</h2>
+			<div className="space-y-4">
 				{items.map((item, idx) => (
 					<div key={idx} className={cn(
-						'flex flex-col md:flex-row gap-6 items-center',
+						'flex flex-col md:flex-row gap-5 items-start p-5 rounded-xl border border-(--border) bg-(--surface)',
 						idx % 2 !== 0 && 'md:flex-row-reverse'
 					)}>
 						{item.imageUrl && (
-							<div className="w-full md:w-1/2 rounded-xl overflow-hidden border border-(--border) bg-(--surface)">
-								<img src={item.imageUrl} alt={item.title} className="w-full h-48 md:h-56 object-cover" />
+							<div className="w-full md:w-2/5 rounded-lg overflow-hidden bg-(--surface-hover) shrink-0">
+								<img src={item.imageUrl} alt={item.title} className="w-full h-44 object-cover" />
 							</div>
 						)}
-						<div className={cn('w-full', item.imageUrl ? 'md:w-1/2' : '')}>
-							<h3 className="text-lg font-bold text-(--primary) mb-2">{item.title}</h3>
+						<div className={cn('w-full', item.imageUrl ? 'md:w-3/5' : '')}>
+							<h3 className="text-sm font-semibold text-(--primary) mb-2">{item.title}</h3>
 							{item.description && (
-								<p className="text-(--secondary) text-sm leading-relaxed">{item.description}</p>
+								<p className="text-sm text-(--secondary) leading-relaxed">{item.description}</p>
 							)}
 						</div>
 					</div>
