@@ -90,9 +90,9 @@ export default function ProfileCompletionBanner() {
     const pct = Math.round((completedCount / total) * 100);
 
     return (
-        <div className="mb-6 rounded-2xl border border-amber-200/60 bg-gradient-to-br from-amber-50 via-orange-50/50 to-white overflow-hidden shadow-sm">
+        <div className="mb-6 rounded-2xl border border-amber-200/60 bg-linear-to-br from-amber-50 via-orange-50/50 to-white overflow-hidden shadow-sm">
             {/* Top accent line */}
-            <div className="h-[2px] bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400" />
+            <div className="h-0.5 bg-linear-to-r from-amber-400 via-orange-400 to-amber-400" />
 
             <div className="p-4 sm:p-5">
                 {/* Header row */}
@@ -124,7 +124,7 @@ export default function ProfileCompletionBanner() {
                 {/* Progress bar */}
                 <div className="w-full bg-gray-200/60 rounded-full h-1.5 mb-4">
                     <div
-                        className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 transition-all duration-700 ease-out"
+                        className="h-full rounded-full bg-linear-to-r from-amber-400 to-orange-400 transition-all duration-700 ease-out"
                         style={{ width: `${Math.max(pct, 4)}%` }}
                     />
                 </div>
