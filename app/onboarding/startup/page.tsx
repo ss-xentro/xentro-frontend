@@ -49,9 +49,71 @@ export default function StartupOnboardingPage() {
     const [magicLinkSent, setMagicLinkSent] = useState(false);
     const [emailVerified, setEmailVerified] = useState(false);
     const [emailLoading, setEmailLoading] = useState(false);
+    const [emailExists, setEmailExists] = useState<{ exists: boolean; message: string } | null>(null);
+    const [emailChecking, setEmailChecking] = useState(false);
 
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => { setIsMounted(true); }, []);
+
+    // ── Debounced email existence check ──
+    useEffect(() => {
+        const email = data.primaryContactEmail.trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setEmailExists(null);
+            return;
+        }
+
+        setEmailChecking(true);
+        const timeout = setTimeout(async () => {
+            try {
+                const res = await fetch('/api/auth/check-email/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                });
+                const resData = await res.json();
+                if (resData.exists && !resData.canProceed) {
+                    setEmailExists({ exists: true, message: resData.message });
+                } else {
+                    setEmailExists(null);
+                }
+            } catch {
+                setEmailExists(null);
+            } finally {
+                setEmailChecking(false);
+            }
+        }, 600);
+
+        return () => {
+            clearTimeout(timeout);
+            setEmailChecking(false);
+        };
+    }, [data.primaryContactEmail]);
+
+    // ── Auto-poll verification status after magic link is sent ──
+    useEffect(() => {
+        if (!magicLinkSent || emailVerified) return;
+
+        const pollInterval = setInterval(async () => {
+            try {
+                const res = await fetch('/api/auth/magic-link/status/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: data.primaryContactEmail }),
+                });
+                const resData = await res.json();
+                if (res.ok && resData.verified) {
+                    setEmailVerified(true);
+                    setFeedback({ type: 'success', message: 'Email verified!' });
+                    clearInterval(pollInterval);
+                }
+            } catch {
+                // Silently retry on next interval
+            }
+        }, 3000); // Poll every 3 seconds
+
+        return () => clearInterval(pollInterval);
+    }, [magicLinkSent, emailVerified, data.primaryContactEmail]);
 
     // ── Email verification ──
     const handleSendMagicLink = async () => {
@@ -158,13 +220,25 @@ export default function StartupOnboardingPage() {
             const headers: Record<string, string> = { 'Content-Type': 'application/json' };
             if (token) headers['Authorization'] = `Bearer ${token}`;
 
-            // Build the founders array with the email
+            // Build clean submission data — convert empty strings to null for optional fields
             const submitData = {
-                ...data,
+                name: data.name,
+                tagline: data.tagline || '',
+                logo: data.logo || null,
+                sectors: data.sectors,
+                stage: data.stage,
+                primaryContactEmail: data.primaryContactEmail,
+                status: data.status || 'active',
+                location: data.location || null,
+                fundingRound: data.fundingRound || null,
+                fundsRaised: data.fundsRaised ? data.fundsRaised : null,
+                fundingCurrency: data.fundingCurrency || 'USD',
+                foundedDate: data.foundedDate || null,
+                pitch: data.pitch || '',
                 founders: [{ name: data.name, email: data.primaryContactEmail, role: 'founder' as const }],
             };
 
-            const response = await fetch('/api/founder/startups', {
+            const response = await fetch('/api/founder/startups/', {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(submitData),
@@ -422,10 +496,29 @@ export default function StartupOnboardingPage() {
                                             setMagicLinkSent(false);
                                             setFeedback(null);
                                         }
+                                        setEmailExists(null);
                                     }}
                                     disabled={emailVerified}
                                     required
                                 />
+
+                                {/* Email already registered warning */}
+                                {emailExists?.exists && (
+                                    <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                                        <svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                        </svg>
+                                        <div>
+                                            <p className="text-sm font-medium text-amber-800">{emailExists.message}</p>
+                                            <a href="/login" className="text-sm text-accent hover:underline font-medium mt-1 inline-block">
+                                                Go to Login &rarr;
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
+                                {emailChecking && (
+                                    <p className="text-xs text-(--secondary) animate-pulse">Checking email...</p>
+                                )}
 
                                 {/* Status display */}
                                 <div className="text-center py-4">
@@ -478,7 +571,7 @@ export default function StartupOnboardingPage() {
                                 ) : !magicLinkSent ? (
                                     <Button
                                         onClick={handleSendMagicLink}
-                                        disabled={emailLoading || !data.primaryContactEmail.trim()}
+                                        disabled={emailLoading || !data.primaryContactEmail.trim() || !!emailExists?.exists || emailChecking}
                                         isLoading={emailLoading}
                                         className="w-full"
                                     >
