@@ -150,9 +150,9 @@ export default function AnalyticsPage() {
 										<p className="text-sm font-medium text-gray-900">{inst.name}</p>
 										<p className="text-xs text-gray-500">{inst.type} · {inst.city ?? 'N/A'}</p>
 									</div>
-									<span className={`text-xs px-2 py-0.5 rounded-full capitalize ${inst.status === 'approved' ? 'bg-green-100 text-green-700' :
-											inst.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-												'bg-gray-100 text-gray-600'
+									<span className={`text-xs px-2 py-0.5 rounded-full capitalize ${inst.status === 'published' ? 'bg-green-100 text-green-700' :
+										inst.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+											'bg-gray-100 text-gray-600'
 										}`}>
 										{inst.status}
 									</span>
