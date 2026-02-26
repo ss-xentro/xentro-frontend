@@ -60,6 +60,13 @@ export default function ProfileCompletionBanner() {
                 if (!res.ok) { setLoading(false); return; }
                 const profile = await res.json();
 
+                // If backend already flagged profile as completed, hide banner
+                if (profile.profile_completed) {
+                    setMissing([]);
+                    setCompleted(PROFILE_FIELDS.map((f) => f.key));
+                    return;
+                }
+
                 const miss: MissingField[] = [];
                 const done: string[] = [];
                 for (const f of PROFILE_FIELDS) {
