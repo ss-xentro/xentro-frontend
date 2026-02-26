@@ -9,6 +9,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    setSession: (user: User, token: string) => void;
     logout: () => void;
 }
 
@@ -77,6 +78,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    const setSession = useCallback((newUser: User, newToken: string) => {
+        setUser(newUser);
+        setToken(newToken);
+        const session = { user: newUser, token: newToken, expiresAt: Date.now() + FIVE_DAYS_MS };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    }, []);
+
     const logout = useCallback(() => {
         setUser(null);
         setToken(null);
@@ -93,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isAuthenticated: !!user,
                 isLoading,
                 login,
+                setSession,
                 logout,
             }}
         >

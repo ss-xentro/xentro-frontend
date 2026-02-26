@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
+import { useAuth } from '@/contexts/AuthContext';
 
 // All logins redirect to /feed — users navigate to their dashboard from there
 const DASHBOARD_MAP: Record<string, string> = {
@@ -18,17 +20,42 @@ const DASHBOARD_MAP: Record<string, string> = {
     explorer: '/feed',
 };
 
+function storeSession(data: { user: Record<string, unknown>; token: string; startupId?: string }) {
+    const role = (data.user?.account_type || data.user?.role || data.user?.accountType || 'explorer') as string;
+    const tokenKey = role === 'mentor' ? 'mentor_token'
+        : role === 'institution' ? 'institution_token'
+            : role === 'investor' ? 'investor_token'
+                : 'founder_token';
+
+    localStorage.setItem(tokenKey, data.token);
+
+    if (data.startupId) {
+        localStorage.setItem('startup_id', data.startupId);
+    }
+
+    // Also store in xentro_session for AuthContext
+    const session = {
+        user: { ...data.user, role },
+        token: data.token,
+        expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
+    };
+    localStorage.setItem('xentro_session', JSON.stringify(session));
+
+    return role;
+}
+
 export default function UnifiedLoginPage() {
     const router = useRouter();
+    const { setSession } = useAuth();
     const [step, setStep] = useState<'email' | 'otp'>('email');
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [sessionId, setSessionId] = useState<string | null>(null);
 
-    const handleSendOTP = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const sendOTP = async () => {
         setLoading(true);
         setError(null);
 
@@ -58,6 +85,11 @@ export default function UnifiedLoginPage() {
         }
     };
 
+    const handleSendOTP = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await sendOTP();
+    };
+
     const handleVerifyOTP = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -73,37 +105,50 @@ export default function UnifiedLoginPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.message || 'Invalid OTP');
+                throw new Error(data.error || data.message || 'Invalid OTP');
             }
 
-            // Store unified session
-            const role = data.user?.account_type || data.user?.role || data.accountType || 'explorer';
-            const tokenKey = role === 'mentor' ? 'mentor_token'
-                : role === 'institution' ? 'institution_token'
-                    : role === 'investor' ? 'investor_token'
-                        : 'founder_token';
-
-            localStorage.setItem(tokenKey, data.token);
-
-            if (data.startupId) {
-                localStorage.setItem('startup_id', data.startupId);
-            }
-
-            // Also store in xentro_session for AuthContext
-            const session = {
-                user: { ...data.user, role },
-                token: data.token,
-                expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
-            };
-            localStorage.setItem('xentro_session', JSON.stringify(session));
-
-            // Route to correct dashboard
+            const role = storeSession(data);
+            // Update AuthContext so AuthGuard sees the user as authenticated
+            setSession(data.user as any, data.token);
             const destination = DASHBOARD_MAP[role] || '/feed';
             router.push(destination);
         } catch (err) {
             setError((err as Error).message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async (idToken: string) => {
+        setGoogleLoading(true);
+        setError(null);
+
+        try {
+            const res = await fetch('/api/auth/google/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                if (data.code === 'USER_NOT_FOUND') {
+                    setError('No account found with this email. Please sign up first.');
+                    return;
+                }
+                throw new Error(data.error || data.message || 'Google login failed');
+            }
+
+            const role = storeSession(data);
+            setSession(data.user as any, data.token);
+            const destination = DASHBOARD_MAP[role] || '/feed';
+            router.push(destination);
+        } catch (err) {
+            setError((err as Error).message);
+        } finally {
+            setGoogleLoading(false);
         }
     };
 
@@ -138,46 +183,57 @@ export default function UnifiedLoginPage() {
 
                     <Card className="p-8">
                         {step === 'email' ? (
-                            <form onSubmit={handleSendOTP} className="space-y-6">
-                                <div className="space-y-2">
-                                    <h2 className="text-xl font-semibold text-(--primary)">Enter your email</h2>
-                                    <p className="text-sm text-(--secondary)">
-                                        We&apos;ll send you a one-time password to verify your identity
-                                    </p>
-                                </div>
-
-                                <Input
-                                    type="email"
-                                    label="Email Address"
-                                    placeholder="you@example.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    autoFocus
+                            <div className="space-y-6">
+                                {/* Google Sign-In */}
+                                <GoogleLoginButton
+                                    onSuccess={handleGoogleLogin}
+                                    onError={(err) => setError(err)}
+                                    isLoading={googleLoading}
                                 />
 
-                                {error && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900 text-sm">
-                                        {error}
+                                <div className="relative">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <div className="w-full border-t border-(--border)" />
                                     </div>
-                                )}
+                                    <div className="relative flex justify-center text-sm">
+                                        <span className="px-4 bg-white text-(--secondary)">or continue with email</span>
+                                    </div>
+                                </div>
 
-                                <Button
-                                    type="submit"
-                                    className="w-full"
-                                    disabled={loading || !email}
-                                    isLoading={loading}
-                                >
-                                    {loading ? 'Sending...' : 'Get OTP'}
-                                </Button>
+                                <form onSubmit={handleSendOTP} className="space-y-6">
+                                    <Input
+                                        type="email"
+                                        label="Email Address"
+                                        placeholder="you@example.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        autoFocus
+                                    />
 
-                                <p className="text-center text-sm text-(--secondary)">
-                                    Don&apos;t have an account?{' '}
-                                    <Link href="/join" className="text-accent hover:underline font-medium">
-                                        Join Xentro
-                                    </Link>
-                                </p>
-                            </form>
+                                    {error && (
+                                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900 text-sm">
+                                            {error}
+                                        </div>
+                                    )}
+
+                                    <Button
+                                        type="submit"
+                                        className="w-full"
+                                        disabled={loading || !email}
+                                        isLoading={loading}
+                                    >
+                                        {loading ? 'Sending...' : 'Get OTP'}
+                                    </Button>
+
+                                    <p className="text-center text-sm text-(--secondary)">
+                                        Don&apos;t have an account?{' '}
+                                        <Link href="/join" className="text-accent hover:underline font-medium">
+                                            Join Xentro
+                                        </Link>
+                                    </p>
+                                </form>
+                            </div>
                         ) : (
                             <form onSubmit={handleVerifyOTP} className="space-y-6">
                                 <div className="space-y-2">
@@ -228,7 +284,7 @@ export default function UnifiedLoginPage() {
 
                                 <button
                                     type="button"
-                                    onClick={handleSendOTP}
+                                    onClick={() => sendOTP()}
                                     disabled={loading}
                                     className="w-full text-sm text-accent hover:underline disabled:opacity-50"
                                 >

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStartupOnboardingStore } from '@/stores/useStartupOnboardingStore';
 import { StartupIdentitySection } from '@/components/onboarding/startup/StartupIdentitySection';
@@ -8,20 +8,33 @@ import { CompanyDetailsSection } from '@/components/onboarding/startup/CompanyDe
 import { FoundersSection } from '@/components/onboarding/startup/FoundersSection';
 import { FundingSection } from '@/components/onboarding/startup/FundingSection';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { cn } from '@/lib/utils'; // Assuming this exists
 
-const steps = [
-    { id: 1, title: 'Identity', description: 'Name & Pitch' },
-    { id: 2, title: 'Details', description: 'Stage & Status' },
-    { id: 3, title: 'Founders', description: 'Team & Roles' },
-    { id: 4, title: 'Funding', description: 'History & Investors' },
+const onboardingSteps = [
+    { id: 1, title: 'Account', description: 'Your Name' },
+    { id: 2, title: 'Email', description: 'Verify Email' },
+    { id: 3, title: 'Identity', description: 'Name & Pitch' },
+    { id: 4, title: 'Details', description: 'Stage & Status' },
+    { id: 5, title: 'Founders', description: 'Team & Roles' },
+    { id: 6, title: 'Funding', description: 'History & Investors' },
 ];
 
 export default function StartupOnboardingPage() {
     const router = useRouter();
-    const { currentStep, setStep, data, reset } = useStartupOnboardingStore();
+    const { currentStep, setStep, data, updateData, reset } = useStartupOnboardingStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+    // Account step state
+    const [founderName, setFounderName] = useState('');
+    const [founderEmail, setFounderEmail] = useState('');
+
+    // Email verification state
+    const [magicLinkSent, setMagicLinkSent] = useState(false);
+    const [emailVerified, setEmailVerified] = useState(false);
+    const [emailLoading, setEmailLoading] = useState(false);
 
     // Hydration fix for Zustand persist
     const [isMounted, setIsMounted] = useState(false);
@@ -29,8 +42,106 @@ export default function StartupOnboardingPage() {
         setIsMounted(true);
     }, []);
 
+    // Sync founder name/email with store on mount
+    useEffect(() => {
+        if (isMounted && data.founders[0]) {
+            if (data.founders[0].name) setFounderName(data.founders[0].name);
+            if (data.founders[0].email) setFounderEmail(data.founders[0].email);
+        }
+    }, [isMounted]);
+
+    const handleSendMagicLink = async () => {
+        setEmailLoading(true);
+        setFeedback(null);
+        try {
+            const res = await fetch('/api/auth/magic-link/send/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: founderEmail,
+                    name: founderName,
+                    purpose: 'signup',
+                }),
+            });
+            const resData = await res.json();
+            if (!res.ok) throw new Error(resData.error || resData.message || 'Failed to send verification link');
+            setMagicLinkSent(true);
+            setFeedback({ type: 'success', message: `Verification link sent to ${founderEmail}` });
+        } catch (err) {
+            setFeedback({ type: 'error', message: (err as Error).message });
+        } finally {
+            setEmailLoading(false);
+        }
+    };
+
+    const handleCheckVerification = async () => {
+        setEmailLoading(true);
+        setFeedback(null);
+        try {
+            const res = await fetch('/api/auth/magic-link/status/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: founderEmail }),
+            });
+            const resData = await res.json();
+            if (!res.ok) throw new Error(resData.message || 'Verification check failed');
+
+            if (resData.verified) {
+                setEmailVerified(true);
+                setFeedback({ type: 'success', message: 'Email verified!' });
+            } else {
+                setFeedback({ type: 'error', message: 'Not verified yet. Check your email and click the link.' });
+            }
+        } catch (err) {
+            setFeedback({ type: 'error', message: (err as Error).message });
+        } finally {
+            setEmailLoading(false);
+        }
+    };
+
     const handleNext = () => {
-        if (currentStep < steps.length) {
+        setError(null);
+        setFeedback(null);
+
+        if (currentStep === 1) {
+            // Validate name
+            if (!founderName.trim()) {
+                setError('Please enter your name.');
+                return;
+            }
+            setStep(currentStep + 1);
+            window.scrollTo(0, 0);
+            return;
+        }
+
+        if (currentStep === 2) {
+            // Validate email + verification
+            if (!founderEmail.trim()) {
+                setError('Please enter your email.');
+                return;
+            }
+            if (!emailVerified) {
+                setError('Please verify your email before continuing.');
+                return;
+            }
+            // Sync to store
+            updateData({ primaryContactEmail: founderEmail });
+            if (data.founders.length > 0) {
+                // Update the first founder's name and email
+                const updatedFounders = [...data.founders];
+                updatedFounders[0] = {
+                    ...updatedFounders[0],
+                    name: founderName,
+                    email: founderEmail,
+                };
+                updateData({ founders: updatedFounders });
+            }
+            setStep(currentStep + 1);
+            window.scrollTo(0, 0);
+            return;
+        }
+
+        if (currentStep < onboardingSteps.length) {
             setStep(currentStep + 1);
             window.scrollTo(0, 0);
         } else {
@@ -39,6 +150,8 @@ export default function StartupOnboardingPage() {
     };
 
     const handleBack = () => {
+        setError(null);
+        setFeedback(null);
         if (currentStep > 1) {
             setStep(currentStep - 1);
             window.scrollTo(0, 0);
@@ -70,16 +183,142 @@ export default function StartupOnboardingPage() {
 
             // Success
             reset(); // Clear store
-            router.push('/dashboard'); // Redirect to dashboard
-        } catch (err: any) {
+            router.push('/login'); // Redirect to login after creation
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
             console.error('Startup creation error:', err);
-            setError(err.message || 'Something went wrong. Please try again.');
+            setError(message);
         } finally {
             setIsSubmitting(false);
         }
     };
 
     if (!isMounted) return null; // Prevent hydration mismatch
+
+    const renderStep = () => {
+        switch (currentStep) {
+            case 1:
+                return (
+                    <div className="space-y-6 animate-fadeIn">
+                        <Input
+                            label="Your Full Name"
+                            placeholder="Jordan Patel"
+                            value={founderName}
+                            onChange={(e) => setFounderName(e.target.value)}
+                            autoFocus
+                            required
+                        />
+                        <p className="text-xs text-(--secondary)">This will be used as the primary founder name.</p>
+                    </div>
+                );
+
+            case 2:
+                return (
+                    <div className="space-y-5 animate-fadeIn">
+                        <Input
+                            label="Email Address"
+                            type="email"
+                            placeholder="you@example.com"
+                            value={founderEmail}
+                            onChange={(e) => {
+                                setFounderEmail(e.target.value);
+                                // Reset verification if email changes
+                                if (emailVerified || magicLinkSent) {
+                                    setEmailVerified(false);
+                                    setMagicLinkSent(false);
+                                    setFeedback(null);
+                                }
+                            }}
+                            disabled={emailVerified}
+                            required
+                        />
+
+                        <div className="text-center">
+                            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-accent/10 mb-4">
+                                {emailVerified ? (
+                                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                ) : (
+                                    <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                )}
+                            </div>
+
+                            {emailVerified ? (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-green-700 mb-1">Email verified!</h3>
+                                    <p className="text-sm text-(--secondary)">Click Continue to proceed with your startup profile.</p>
+                                </div>
+                            ) : magicLinkSent ? (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-(--primary) mb-1">Check your inbox</h3>
+                                    <p className="text-sm text-(--secondary)">
+                                        We sent a verification link to <strong>{founderEmail}</strong>.<br />
+                                        Click the link in the email, then come back here.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-(--primary) mb-1">Verify your email</h3>
+                                    <p className="text-sm text-(--secondary)">
+                                        We&apos;ll send a verification link to <strong>{founderEmail || 'your email'}</strong>
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {emailVerified ? (
+                            <div className="flex flex-col items-center gap-3 py-2">
+                                <div className="flex items-center gap-2 text-green-600 font-medium">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Verified
+                                </div>
+                            </div>
+                        ) : !magicLinkSent ? (
+                            <Button onClick={handleSendMagicLink} disabled={emailLoading || !founderEmail.trim()} isLoading={emailLoading} className="w-full">
+                                {emailLoading ? 'Sending...' : 'Send verification link'}
+                            </Button>
+                        ) : (
+                            <div className="space-y-3">
+                                <Button onClick={handleCheckVerification} disabled={emailLoading} isLoading={emailLoading} className="w-full">
+                                    {emailLoading ? 'Checking...' : "I've clicked the link"}
+                                </Button>
+                                <button
+                                    type="button"
+                                    onClick={handleSendMagicLink}
+                                    disabled={emailLoading}
+                                    className="w-full text-sm text-accent hover:underline disabled:opacity-50"
+                                >
+                                    Resend verification link
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                );
+
+            case 3:
+                return <StartupIdentitySection />;
+            case 4:
+                return <CompanyDetailsSection />;
+            case 5:
+                return <FoundersSection />;
+            case 6:
+                return <FundingSection />;
+            default:
+                return null;
+        }
+    };
+
+    const isLastStep = currentStep === onboardingSteps.length;
+    const canContinue = () => {
+        if (currentStep === 1) return founderName.trim().length > 0;
+        if (currentStep === 2) return emailVerified;
+        return true; // other steps validated by the sections themselves
+    };
 
     return (
         <div className="min-h-screen bg-(--background) py-12 px-4 sm:px-6 lg:px-8">
@@ -98,7 +337,7 @@ export default function StartupOnboardingPage() {
                 <div className="mb-10 relative">
                     <div className="absolute top-1/2 left-0 w-full h-0.5 bg-(--border) -z-10" />
                     <div className="flex justify-between">
-                        {steps.map((step) => {
+                        {onboardingSteps.map((step) => {
                             const isActive = step.id === currentStep;
                             const isCompleted = step.id < currentStep;
 
@@ -139,17 +378,27 @@ export default function StartupOnboardingPage() {
                 {/* content Card */}
                 <div className="bg-(--surface) border border-(--border) rounded-2xl shadow-sm p-6 md:p-8">
                     <h2 className="text-xl font-semibold mb-6 text-(--primary)">
-                        {steps[currentStep - 1].description}
+                        {onboardingSteps[currentStep - 1].description}
                     </h2>
 
-                    {currentStep === 1 && <StartupIdentitySection />}
-                    {currentStep === 2 && <CompanyDetailsSection />}
-                    {currentStep === 3 && <FoundersSection />}
-                    {currentStep === 4 && <FundingSection />}
+                    {renderStep()}
 
                     {error && (
                         <div className="mt-6 p-4 bg-error/10 border border-error/20 text-error rounded-lg text-sm">
                             {error}
+                        </div>
+                    )}
+
+                    {feedback && (
+                        <div
+                            className={cn(
+                                'mt-4 rounded-lg px-4 py-3 text-sm border',
+                                feedback.type === 'success'
+                                    ? 'border-green-200 bg-green-50 text-green-700'
+                                    : 'border-red-200 bg-red-50 text-red-700'
+                            )}
+                        >
+                            {feedback.message}
                         </div>
                     )}
 
@@ -164,14 +413,17 @@ export default function StartupOnboardingPage() {
                             Back
                         </Button>
 
-                        <Button
-                            type="button"
-                            onClick={handleNext}
-                            disabled={isSubmitting}
-                            isLoading={isSubmitting}
-                        >
-                            {currentStep === steps.length ? 'Create Startup' : 'Continue'}
-                        </Button>
+                        {/* Hide Continue on step 2 unless verified */}
+                        {(currentStep !== 2 || emailVerified) && (
+                            <Button
+                                type="button"
+                                onClick={handleNext}
+                                disabled={isSubmitting || !canContinue()}
+                                isLoading={isSubmitting}
+                            >
+                                {isLastStep ? 'Create Startup' : 'Continue'}
+                            </Button>
+                        )}
                     </div>
                 </div>
 

@@ -112,6 +112,11 @@ export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
         }),
         {
             name: 'startup-onboarding-storage',
+            version: 2,
+            migrate: () => ({
+                currentStep: 1,
+                data: initialData,
+            }),
         }
     )
 );
