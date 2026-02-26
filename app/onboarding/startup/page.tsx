@@ -115,6 +115,14 @@ export default function StartupOnboardingPage() {
         return () => clearInterval(pollInterval);
     }, [magicLinkSent, emailVerified, data.primaryContactEmail]);
 
+    // ── Auto-submit startup once email is verified ──
+    useEffect(() => {
+        if (emailVerified && !isSubmitting && currentStep === 4) {
+            handleSubmit();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [emailVerified]);
+
     // ── Email verification ──
     const handleSendMagicLink = async () => {
         setEmailLoading(true);
