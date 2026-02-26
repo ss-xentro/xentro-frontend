@@ -2,17 +2,23 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/Card'; // Assuming export exists, else verified manually
+import Image from 'next/image';
+import Link from 'next/link';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 
-// Fallback Card if not exported properly (defensive coding)
-function DefaultCard({ children, className }: { children: React.ReactNode; className?: string }) {
-    return <div className={`bg-(--surface) border border-(--border) rounded-xl shadow-sm ${className}`}>{children}</div>;
-}
+// All logins redirect to /feed — users navigate to their dashboard from there
+const DASHBOARD_MAP: Record<string, string> = {
+    startup: '/feed',
+    mentor: '/feed',
+    institution: '/feed',
+    investor: '/feed',
+    admin: '/admin/dashboard',
+    explorer: '/feed',
+};
 
-export default function FounderLoginPage() {
+export default function UnifiedLoginPage() {
     const router = useRouter();
     const [step, setStep] = useState<'email' | 'otp'>('email');
     const [email, setEmail] = useState('');
@@ -37,7 +43,7 @@ export default function FounderLoginPage() {
 
             if (!res.ok) {
                 if (data.code === 'USER_NOT_FOUND') {
-                    router.push('/onboarding/startup');
+                    setError('No account found with this email. Please sign up first.');
                     return;
                 }
                 throw new Error(data.error || data.message || 'Failed to send OTP');
@@ -70,81 +76,68 @@ export default function FounderLoginPage() {
                 throw new Error(data.message || 'Invalid OTP');
             }
 
-            // Store session token
-            localStorage.setItem('founder_token', data.token);
+            // Store unified session
+            const role = data.user?.account_type || data.user?.role || data.accountType || 'explorer';
+            const tokenKey = role === 'mentor' ? 'mentor_token'
+                : role === 'institution' ? 'institution_token'
+                    : role === 'investor' ? 'investor_token'
+                        : 'founder_token';
+
+            localStorage.setItem(tokenKey, data.token);
+
             if (data.startupId) {
                 localStorage.setItem('startup_id', data.startupId);
             }
 
-            // Redirect to dashboard
-            router.push('/dashboard');
+            // Also store in xentro_session for AuthContext
+            const session = {
+                user: { ...data.user, role },
+                token: data.token,
+                expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
+            };
+            localStorage.setItem('xentro_session', JSON.stringify(session));
+
+            // Route to correct dashboard
+            const destination = DASHBOARD_MAP[role] || '/feed';
+            router.push(destination);
         } catch (err) {
             setError((err as Error).message);
         } finally {
             setLoading(false);
         }
     };
-
-    const handleGoogleLogin = async (idToken: string) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await fetch('/api/auth/google/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken }),
-            });
-            const data = await res.json();
-            if (!res.ok) {
-                if (data.code === 'USER_NOT_FOUND') {
-                    router.push('/onboarding/startup');
-                    return;
-                }
-                throw new Error(data.message || data.error || 'Google login failed');
-            }
-
-            localStorage.setItem('founder_token', data.token);
-            if (data.user?.activeContext === 'startup') {
-                // Determine startup ID dynamically if possible, or redirect directly
-                router.push('/dashboard');
-            } else {
-                router.push('/dashboard'); // Explorer default
-            }
-        } catch (err) {
-            setError((err as Error).message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const CardComponent = Card || DefaultCard;
 
     return (
-        <main className="min-h-screen bg-(--background) flex items-center justify-center px-4 py-16">
-            <div className="w-full max-w-md space-y-8">
-                <div className="text-center">
-                    <h1 className="text-3xl font-bold text-(--primary) mb-2">Founder Login</h1>
-                    <p className="text-(--secondary)">Access your startup dashboard</p>
+        <div className="min-h-screen bg-(--background) flex flex-col">
+            {/* Minimal Navbar */}
+            <nav className="h-16 border-b border-(--border) bg-(--surface)/80 backdrop-blur-md sticky top-0 z-50">
+                <div className="container mx-auto px-4 h-full flex items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2">
+                        <Image src="/xentro-logo.png" alt="Xentro" width={32} height={32} className="rounded-lg" />
+                        <span className="text-lg font-bold text-(--primary)">Xentro</span>
+                    </Link>
+                    <Link
+                        href="/"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-lg transition-colors"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Exit
+                    </Link>
                 </div>
+            </nav>
 
-                <CardComponent className="p-8">
-                    {step === 'email' ? (
-                        <div className="space-y-6">
-                            <GoogleLoginButton
-                                onSuccess={handleGoogleLogin}
-                                onError={(msg) => setError(msg)}
-                                isLoading={loading}
-                            />
+            {/* Main */}
+            <main className="flex-1 flex items-center justify-center px-4 py-16">
+                <div className="w-full max-w-md space-y-8">
+                    <div className="text-center">
+                        <h1 className="text-3xl font-bold text-(--primary) mb-2">Welcome back</h1>
+                        <p className="text-(--secondary)">Log in to your Xentro account</p>
+                    </div>
 
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-(--border)"></div>
-                                </div>
-                                <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-(--surface) text-(--secondary)">Or continue with email</span>
-                                </div>
-                            </div>
-
+                    <Card className="p-8">
+                        {step === 'email' ? (
                             <form onSubmit={handleSendOTP} className="space-y-6">
                                 <div className="space-y-2">
                                     <h2 className="text-xl font-semibold text-(--primary)">Enter your email</h2>
@@ -156,7 +149,7 @@ export default function FounderLoginPage() {
                                 <Input
                                     type="email"
                                     label="Email Address"
-                                    placeholder="founder@startup.com"
+                                    placeholder="you@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
@@ -175,77 +168,77 @@ export default function FounderLoginPage() {
                                     disabled={loading || !email}
                                     isLoading={loading}
                                 >
-                                    {loading ? 'Sending...' : 'Send OTP'}
+                                    {loading ? 'Sending...' : 'Get OTP'}
                                 </Button>
 
                                 <p className="text-center text-sm text-(--secondary)">
                                     Don&apos;t have an account?{' '}
-                                    <a href="/onboarding/startup" className="text-accent hover:underline font-medium">
-                                        Create Startup
-                                    </a>
+                                    <Link href="/join" className="text-accent hover:underline font-medium">
+                                        Join Xentro
+                                    </Link>
                                 </p>
                             </form>
-                        </div>
-                    ) : (
-                        <form onSubmit={handleVerifyOTP} className="space-y-6">
-                            <div className="space-y-2">
-                                <h2 className="text-xl font-semibold text-(--primary)">Enter OTP</h2>
-                                <p className="text-sm text-(--secondary)">
-                                    We&apos;ve sent a 6-digit code to <strong>{email}</strong>
-                                </p>
-                            </div>
-
-                            <Input
-                                type="text"
-                                label="One-Time Password"
-                                placeholder="000000"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                                required
-                                autoFocus
-                                maxLength={6}
-                            />
-
-                            {error && (
-                                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900 text-sm">
-                                    {error}
+                        ) : (
+                            <form onSubmit={handleVerifyOTP} className="space-y-6">
+                                <div className="space-y-2">
+                                    <h2 className="text-xl font-semibold text-(--primary)">Enter OTP</h2>
+                                    <p className="text-sm text-(--secondary)">
+                                        We&apos;ve sent a 6-digit code to <strong>{email}</strong>
+                                    </p>
                                 </div>
-                            )}
 
-                            <div className="flex gap-3">
-                                <Button
-                                    type="submit"
-                                    className="flex-1"
-                                    disabled={loading || otp.length !== 6}
-                                    isLoading={loading}
-                                >
-                                    {loading ? 'Verifying...' : 'Verify & Login'}
-                                </Button>
-                                <Button
+                                <Input
+                                    type="text"
+                                    label="One-Time Password"
+                                    placeholder="000000"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                    required
+                                    autoFocus
+                                    maxLength={6}
+                                />
+
+                                {error && (
+                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900 text-sm">
+                                        {error}
+                                    </div>
+                                )}
+
+                                <div className="flex gap-3">
+                                    <Button
+                                        type="submit"
+                                        className="flex-1"
+                                        disabled={loading || otp.length !== 6}
+                                        isLoading={loading}
+                                    >
+                                        {loading ? 'Verifying...' : 'Verify & Login'}
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={() => {
+                                            setStep('email');
+                                            setOtp('');
+                                            setError(null);
+                                        }}
+                                    >
+                                        Back
+                                    </Button>
+                                </div>
+
+                                <button
                                     type="button"
-                                    variant="ghost"
-                                    onClick={() => {
-                                        setStep('email');
-                                        setOtp('');
-                                        setError(null);
-                                    }}
+                                    onClick={handleSendOTP}
+                                    disabled={loading}
+                                    className="w-full text-sm text-accent hover:underline disabled:opacity-50"
                                 >
-                                    Back
-                                </Button>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={handleSendOTP}
-                                disabled={loading}
-                                className="w-full text-sm text-accent hover:underline disabled:opacity-50"
-                            >
-                                Resend OTP
-                            </button>
-                        </form>
-                    )}
-                </CardComponent>
-            </div>
-        </main>
+                                    Resend OTP
+                                </button>
+                            </form>
+                        )}
+                    </Card>
+                </div>
+            </main>
+        </div>
     );
 }

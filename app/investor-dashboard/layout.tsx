@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { getRoleFromSession } from '@/lib/auth-utils';
 
 export default function InvestorDashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -14,12 +15,21 @@ export default function InvestorDashboardLayout({ children }: { children: React.
 
     useEffect(() => {
         const token = localStorage.getItem('investor_token');
-        if (!token) {
-            router.replace('/investor-login');
-        } else {
-            setIsAuthenticated(true);
-            setIsLoading(false);
+        const role = getRoleFromSession();
+
+        if (!token && role !== 'investor') {
+            router.replace('/login');
+            return;
         }
+
+        // If logged in but wrong role, redirect to feed
+        if (role && role !== 'investor') {
+            router.replace('/feed');
+            return;
+        }
+
+        setIsAuthenticated(true);
+        setIsLoading(false);
     }, [router]);
 
     const navItems = [

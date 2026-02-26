@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-// Client components shouldn't import server db directly usually, but logic here is client-side navigation.
-// Actually, we shouldn't import db in client component.
-// I will fetch user data via API in the layout.
+import { getRoleFromSession } from '@/lib/auth-utils';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -16,14 +14,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     useEffect(() => {
-        // Check auth
         const token = localStorage.getItem('founder_token');
-        if (!token) {
+        const role = getRoleFromSession();
+
+        // Must have token AND be a startup/founder role
+        if (!token && role !== 'startup' && role !== 'founder') {
             router.replace('/login');
-        } else {
-            setIsAuthenticated(true);
-            setIsLoading(false);
+            return;
         }
+
+        // If logged in but wrong role, redirect to feed
+        if (role && role !== 'startup' && role !== 'founder') {
+            router.replace('/feed');
+            return;
+        }
+
+        setIsAuthenticated(true);
+        setIsLoading(false);
     }, [router]);
 
     const navItems = [

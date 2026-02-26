@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner';
 
 export default function MentorDashboardPage() {
     const [loading, setLoading] = useState(true);
@@ -27,6 +28,9 @@ export default function MentorDashboardPage() {
 
     return (
         <div className="space-y-8 animate-fadeIn">
+            {/* Profile Completion Banner */}
+            <ProfileCompletionBanner />
+
             {/* Welcome Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -38,6 +42,14 @@ export default function MentorDashboardPage() {
                     </p>
                 </div>
                 <div className="flex gap-3">
+                    <Link href="/mentor-dashboard/profile">
+                        <Button variant="primary" size="sm">
+                            <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Complete Profile
+                        </Button>
+                    </Link>
                     <Link href="/explore/institute">
                         <Button variant="secondary" size="sm">
                             <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,6 +145,15 @@ export default function MentorDashboardPage() {
                 <Card className="p-6 h-fit">
                     <h3 className="text-lg font-semibold text-(--primary) mb-4">Quick Actions</h3>
                     <div className="space-y-3">
+                        <Link href="/mentor-dashboard/profile" className="block">
+                            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-accent/30 bg-accent/5 hover:bg-accent/10 transition-colors text-left">
+                                <span className="text-lg">✏️</span>
+                                <div>
+                                    <p className="text-sm font-medium text-accent">Complete Profile</p>
+                                    <p className="text-xs text-(--secondary)">Add achievements, slots & pricing</p>
+                                </div>
+                            </button>
+                        </Link>
                         <Link href="/explore/institute" className="block">
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors text-left">
                                 <span className="text-lg">🏛️</span>

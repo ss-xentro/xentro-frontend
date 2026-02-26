@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import AppShell from '@/components/ui/AppShell';
+import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner';
 import { cn } from '@/lib/utils';
 
 /* ─── Types ─── */
@@ -32,29 +33,40 @@ interface ActivityItem {
 function detectRole(): { role: DetectedRole; token: string | null } {
   if (typeof window === 'undefined') return { role: 'guest', token: null };
 
-  // Check role-specific tokens in priority order
+  // 1. Check the unified xentro_session first (set by the new login flow)
+  try {
+    const raw = localStorage.getItem('xentro_session');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed?.token && parsed?.expiresAt > Date.now()) {
+        const accountType = parsed.user?.role || parsed.user?.account_type || parsed.user?.accountType || 'explorer';
+        const roleMap: Record<string, DetectedRole> = {
+          admin: 'admin',
+          mentor: 'mentor',
+          institution: 'institution',
+          investor: 'investor',
+          startup: 'founder',
+          founder: 'founder',
+          explorer: 'guest',
+        };
+        const role = roleMap[accountType] || 'guest';
+        return { role, token: parsed.token };
+      }
+    }
+  } catch { /* ignore */ }
+
+  // 2. Fallback: check role-specific tokens
+  const mentorToken = localStorage.getItem('mentor_token');
+  if (mentorToken) return { role: 'mentor', token: mentorToken };
+
   const founderToken = localStorage.getItem('founder_token');
   if (founderToken) return { role: 'founder', token: founderToken };
 
   const institutionToken = localStorage.getItem('institution_token');
   if (institutionToken) return { role: 'institution', token: institutionToken };
 
-  const mentorToken = localStorage.getItem('mentor_token');
-  if (mentorToken) return { role: 'mentor', token: mentorToken };
-
   const investorToken = localStorage.getItem('investor_token');
   if (investorToken) return { role: 'investor', token: investorToken };
-
-  // Admin uses xentro_session
-  try {
-    const raw = localStorage.getItem('xentro_session');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed?.token && parsed?.expiresAt > Date.now()) {
-        return { role: 'admin', token: parsed.token };
-      }
-    }
-  } catch { /* ignore */ }
 
   return { role: 'guest', token: null };
 }
@@ -366,6 +378,9 @@ export default function HomePage() {
             </Link>
           )}
         </div>
+
+        {/* Profile Completion Banner (for mentors) */}
+        <ProfileCompletionBanner />
 
         {/* ── Stat Cards ── */}
         {(cards.length > 0 || loading) && (

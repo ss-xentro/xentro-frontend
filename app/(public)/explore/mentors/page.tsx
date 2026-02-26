@@ -40,7 +40,24 @@ export default function ExploreMentorsPage() {
                 const res = await fetch('/api/mentors', { signal: controller.signal });
                 if (!res.ok) return;
                 const json = await res.json();
-                setMentors(json.mentors ?? json.data ?? (Array.isArray(json) ? json : []));
+                const raw = json.mentors ?? json.data ?? (Array.isArray(json) ? json : []);
+
+                // Map API fields → UI fields
+                const mapped: Mentor[] = raw.map((m: Record<string, unknown>) => ({
+                    id: m.id as string,
+                    name: (m.user_name as string) || (m.name as string) || 'Mentor',
+                    title: (m.occupation as string) || (m.role_title as string) || '',
+                    company: (m.company as string) || '',
+                    expertise: typeof m.expertise === 'string'
+                        ? m.expertise.split(',').map((s: string) => s.trim()).filter(Boolean)
+                        : Array.isArray(m.expertise) ? m.expertise : [],
+                    avatar: m.avatar as string || null,
+                    bio: (m.bio as string) || (m.achievements as string) || '',
+                    location: m.location as string || '',
+                    status: (m.status as string) || 'approved',
+                }));
+
+                setMentors(mapped);
             } catch (err) {
                 if ((err as Error).name !== 'AbortError') console.error(err);
             } finally {
@@ -52,9 +69,6 @@ export default function ExploreMentorsPage() {
     }, []);
 
     const filtered = mentors.filter((m) => {
-        if (m.status !== 'approved' && m.status !== 'active' && m.status !== undefined) {
-            // Show all if status isn't set (mock/new data)
-        }
         const matchExpertise =
             expertise === 'all' || (m.expertise ?? []).some((e) => e.toLowerCase() === expertise.toLowerCase());
         return matchExpertise;

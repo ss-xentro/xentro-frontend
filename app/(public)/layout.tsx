@@ -19,12 +19,13 @@ export default function PublicLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const isAppShellPage = pathname === '/feed' || pathname === '/home' || pathname === '/notifications' || pathname.startsWith('/explore');
+    // Pages that render their own navbar (app shell pages = dark feed layout, standalone = own minimal navbar)
+    const hasOwnNavbar = pathname === '/feed' || pathname === '/home' || pathname === '/notifications' || pathname.startsWith('/explore') || pathname === '/login' || pathname === '/mentor-signup';
     const needsAuth = isProtectedRoute(pathname);
 
     return (
         <div className="min-h-screen bg-white flex flex-col">
-            {!isAppShellPage && <PublicNavbar />}
+            {!hasOwnNavbar && <PublicNavbar />}
             <main className="flex-1">
                 {needsAuth ? (
                     <AuthGuard>{children}</AuthGuard>
@@ -32,7 +33,7 @@ export default function PublicLayout({
                     children
                 )}
             </main>
-            {!isAppShellPage && <Footer />}
+            {!hasOwnNavbar && <Footer />}
         </div>
     );
 }

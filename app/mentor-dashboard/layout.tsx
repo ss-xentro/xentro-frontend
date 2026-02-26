@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import CompleteProfileModal from '@/components/ui/CompleteProfileModal';
+import { getRoleFromSession } from '@/lib/auth-utils';
 
 export default function MentorDashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -11,14 +13,31 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [showProfileModal, setShowProfileModal] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('mentor_token');
-        if (!token) {
-            router.replace('/mentor-login');
-        } else {
-            setIsAuthenticated(true);
-            setIsLoading(false);
+        const role = getRoleFromSession();
+
+        // Must have token or be mentor role
+        if (!token && role !== 'mentor') {
+            router.replace('/login');
+            return;
+        }
+
+        // If logged in but wrong role, redirect to feed
+        if (role && role !== 'mentor') {
+            router.replace('/feed');
+            return;
+        }
+
+        setIsAuthenticated(true);
+        setIsLoading(false);
+
+        // Show profile completion prompt if not dismissed
+        const dismissed = sessionStorage.getItem('profile_prompt_dismissed');
+        if (!dismissed) {
+            setShowProfileModal(true);
         }
     }, [router]);
 
@@ -34,6 +53,13 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
             name: 'Mentees', href: '/mentor-dashboard/mentees', icon: (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            )
+        },
+        {
+            name: 'Profile', href: '/mentor-dashboard/profile', icon: (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
             )
         },
@@ -154,6 +180,12 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
                     </div>
                 </main>
             </div>
+
+            {/* Profile completion prompt */}
+            <CompleteProfileModal
+                isOpen={showProfileModal}
+                onClose={() => setShowProfileModal(false)}
+            />
         </div>
     );
 }

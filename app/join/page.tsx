@@ -15,9 +15,9 @@ const PURPOSE_DESTINATIONS: Record<Exclude<Role, null>, string> = {
 
 const LOGIN_DESTINATIONS: Record<Exclude<Role, null>, string> = {
   startup: '/login',
-  mentor: '/mentor-login',
-  institution: '/institution-login',
-  investor: '/investor-login',
+  mentor: '/login',
+  institution: '/login',
+  investor: '/login',
 };
 
 export default function JoinPage() {
