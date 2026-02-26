@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Textarea } from '@/components/ui/Textarea';
 import { getSessionToken } from '@/lib/auth-utils';
 
 interface SlotEntry {
@@ -21,7 +20,7 @@ interface DocumentEntry {
 }
 
 interface ProfileData {
-    achievements: string;
+    achievements: string[] | string;
     pricing_per_hour: string;
     availability: string;
     documents: DocumentEntry[];
@@ -54,7 +53,8 @@ export default function MentorProfilePage() {
     const [error, setError] = useState<string | null>(null);
 
     // Form state
-    const [achievements, setAchievements] = useState('');
+    const [achievements, setAchievements] = useState<string[]>([]);
+    const [achievementInput, setAchievementInput] = useState('');
     const [pricingPerHour, setPricingPerHour] = useState('');
     const [slots, setSlots] = useState<SlotEntry[]>([{ day: 'Monday', startTime: '09:00', endTime: '10:00' }]);
     const [documents, setDocuments] = useState<DocumentEntry[]>([]);
@@ -80,7 +80,20 @@ export default function MentorProfilePage() {
             setProfileData(data);
 
             // Pre-fill form fields
-            if (data.achievements) setAchievements(data.achievements);
+            if (data.achievements) {
+                // Handle both string (legacy) and array formats
+                if (Array.isArray(data.achievements)) {
+                    setAchievements(data.achievements.filter(Boolean));
+                } else if (typeof data.achievements === 'string' && data.achievements.trim()) {
+                    // Convert legacy string to array: split by newlines or semicolons
+                    setAchievements(
+                        data.achievements
+                            .split(/[\n;]+/)
+                            .map((s: string) => s.replace(/^[-•*]\s*/, '').trim())
+                            .filter(Boolean)
+                    );
+                }
+            }
             if (data.pricing_per_hour) setPricingPerHour(data.pricing_per_hour);
             if (data.documents && Array.isArray(data.documents) && data.documents.length > 0) {
                 setDocuments(data.documents);
@@ -170,11 +183,30 @@ export default function MentorProfilePage() {
         setDocuments(documents.filter((_, i) => i !== index));
     };
 
+    // ── Achievement management ──
+    const addAchievement = () => {
+        const text = achievementInput.trim();
+        if (!text) return;
+        setAchievements((prev) => [...prev, text]);
+        setAchievementInput('');
+    };
+
+    const removeAchievement = (index: number) => {
+        setAchievements((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const handleAchievementKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addAchievement();
+        }
+    };
+
     // ── Submit ──
     const handleSubmit = async () => {
         // Validation
-        if (!achievements.trim()) {
-            setError('Please add your achievements');
+        if (achievements.length === 0) {
+            setError('Please add at least one achievement');
             return;
         }
         if (slots.length === 0) {
@@ -204,7 +236,7 @@ export default function MentorProfilePage() {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    achievements: achievements.trim(),
+                    achievements: achievements,
                     availability: JSON.stringify(slots),
                     pricing_per_hour: parseFloat(pricingPerHour),
                     documents,
@@ -262,7 +294,7 @@ export default function MentorProfilePage() {
             {/* Success Banner */}
             {success && (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3 animate-fadeIn">
-                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
                         <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
@@ -280,7 +312,7 @@ export default function MentorProfilePage() {
             {/* Error Banner */}
             {error && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
                         <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -338,18 +370,70 @@ export default function MentorProfilePage() {
                         </svg>
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-(--primary)">Achievements</h3>
-                        <p className="text-sm text-(--secondary)">Highlight your key accomplishments and expertise</p>
+                        <h3 className="text-lg font-semibold text-(--primary)">Achievements & Highlights</h3>
+                        <p className="text-sm text-(--secondary)">Add your key accomplishments one at a time</p>
                     </div>
                 </div>
-                <Textarea
-                    value={achievements}
-                    onChange={(e) => setAchievements(e.target.value)}
-                    placeholder="e.g., Mentored 50+ startups to Series A funding, 15 years in SaaS, Forbes 30 Under 30, Ex-Google Engineering Lead..."
-                    maxLength={2000}
-                    characterCount
-                    hint="List your notable achievements, awards, and professional highlights"
-                />
+
+                {/* Input + Add button */}
+                <div className="flex gap-2 mb-4">
+                    <input
+                        type="text"
+                        value={achievementInput}
+                        onChange={(e) => setAchievementInput(e.target.value)}
+                        onKeyDown={handleAchievementKeyDown}
+                        placeholder="e.g., Mentored 50+ startups to Series A funding"
+                        className="flex-1 h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) placeholder:text-(--secondary)/50 focus:outline-none focus:border-accent focus:ring-2 focus:ring-(--accent-light) transition-colors"
+                        maxLength={300}
+                    />
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={addAchievement}
+                        disabled={!achievementInput.trim()}
+                    >
+                        <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add
+                    </Button>
+                </div>
+
+                {/* Achievement list */}
+                {achievements.length > 0 ? (
+                    <ul className="space-y-2">
+                        {achievements.map((item, index) => (
+                            <li
+                                key={index}
+                                className="flex items-start gap-3 p-3 bg-(--surface-hover) rounded-lg group transition-colors hover:bg-(--surface-hover)/80"
+                            >
+                                <span className="mt-0.5 text-amber-500 shrink-0">
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <circle cx="10" cy="10" r="3" />
+                                    </svg>
+                                </span>
+                                <span className="flex-1 text-sm text-(--primary) leading-relaxed">{item}</span>
+                                <button
+                                    onClick={() => removeAchievement(index)}
+                                    className="w-7 h-7 flex items-center justify-center rounded-md text-(--secondary) hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100 shrink-0"
+                                    aria-label="Remove achievement"
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div className="text-center py-6 text-(--secondary)">
+                        <p className="text-sm">No achievements added yet. Type one above and press Enter or click Add.</p>
+                    </div>
+                )}
+
+                {achievements.length > 0 && (
+                    <p className="mt-3 text-xs text-(--secondary)">{achievements.length} achievement{achievements.length !== 1 ? 's' : ''} added</p>
+                )}
             </Card>
 
             {/* Section 2: Available Slots */}
@@ -416,7 +500,7 @@ export default function MentorProfilePage() {
                             {slots.length > 1 && (
                                 <button
                                     onClick={() => removeSlot(index)}
-                                    className="w-8 h-8 flex items-center justify-center rounded-lg text-(--secondary) hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
+                                    className="w-8 h-8 flex items-center justify-center rounded-lg text-(--secondary) hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
                                     aria-label="Remove slot"
                                 >
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -527,7 +611,7 @@ export default function MentorProfilePage() {
                                 key={index}
                                 className="flex items-center gap-3 p-3 bg-(--surface-hover) rounded-lg group"
                             >
-                                <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
                                     <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>

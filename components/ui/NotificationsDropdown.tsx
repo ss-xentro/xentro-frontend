@@ -199,7 +199,7 @@ export function NotificationsDropdown({ token }: NotificationsDropdownProps) {
                       !notification.isRead && 'bg-accent/5'
                     )}
                   >
-                    <span className="text-xl flex-shrink-0">
+                    <span className="text-xl shrink-0">
                       {getNotificationIcon(notification.type)}
                     </span>
                     <div className="flex-1 min-w-0">
@@ -219,7 +219,7 @@ export function NotificationsDropdown({ token }: NotificationsDropdownProps) {
                       </p>
                     </div>
                     {!notification.isRead && (
-                      <span className="w-2 h-2 bg-accent rounded-full flex-shrink-0 mt-2" />
+                      <span className="w-2 h-2 bg-accent rounded-full shrink-0 mt-2" />
                     )}
                   </div>
                 ))}
