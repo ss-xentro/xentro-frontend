@@ -6,6 +6,8 @@ export type StartupStatus = 'active' | 'stealth' | 'paused' | 'acquired' | 'shut
 export type FundingRound = 'bootstrapped' | 'pre_seed' | 'seed' | 'series_a' | 'series_b_plus' | 'unicorn';
 export type FounderRole = 'ceo' | 'cto' | 'coo' | 'cfo' | 'cpo' | 'founder' | 'co_founder';
 
+export type WhyXentroOption = 'mentorship' | 'invest' | 'raise_funding' | 'networking';
+
 export interface Founder {
     name: string;
     email: string;
@@ -14,27 +16,31 @@ export interface Founder {
 }
 
 export interface StartupData {
-    // Identity
+    // Card 1 – Identity
     name: string;
     tagline: string;
     logo: string | null;
-    pitch: string;
 
-    // Details
-    foundedDate: string; // ISO string
+    // Card 2 – Sector & Stage
+    sectors: string[];
     stage: StartupStage | '';
-    status: StartupStatus;
-    location: string;
 
-    // Founders
-    founders: Founder[];
+    // Card 3 – Why Xentro
+    whyXentro: WhyXentroOption | '';
+
+    // Card 4 – Email
     primaryContactEmail: string;
 
-    // Funding
+    // Carried over from legacy (populated with defaults on submit)
+    pitch: string;
+    foundedDate: string;
+    status: StartupStatus;
+    location: string;
+    founders: Founder[];
     fundingRound: FundingRound;
     fundsRaised: string;
     fundingCurrency: string;
-    investors: string[]; // List of names
+    investors: string[];
 }
 
 interface StartupOnboardingStore {
@@ -45,6 +51,7 @@ interface StartupOnboardingStore {
     addFounder: () => void;
     updateFounder: (index: number, founder: Partial<Founder>) => void;
     removeFounder: (index: number) => void;
+    toggleSector: (sector: string) => void;
     reset: () => void;
 }
 
@@ -52,13 +59,15 @@ const initialData: StartupData = {
     name: '',
     tagline: '',
     logo: null,
+    sectors: [],
+    stage: '',
+    whyXentro: '',
+    primaryContactEmail: '',
     pitch: '',
     foundedDate: '',
-    stage: '',
     status: 'active',
     location: '',
     founders: [{ name: '', email: '', role: 'founder' }],
-    primaryContactEmail: '',
     fundingRound: 'bootstrapped',
     fundsRaised: '',
     fundingCurrency: 'USD',
@@ -86,7 +95,6 @@ export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
                     newFounders[index] = { ...newFounders[index], ...founder };
 
                     const newData = { ...state.data, founders: newFounders };
-                    // Sync primary contact if updating first founder
                     if (index === 0 && founder.email !== undefined) {
                         newData.primaryContactEmail = founder.email;
                     }
@@ -95,24 +103,27 @@ export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
             removeFounder: (index) =>
                 set((state) => {
                     const newFounders = state.data.founders.filter((_, i) => i !== index);
-
                     const newData = { ...state.data, founders: newFounders };
-                    // Sync primary contact to new first founder
                     if (newFounders.length > 0) {
                         newData.primaryContactEmail = newFounders[0].email;
                     } else {
                         newData.primaryContactEmail = '';
                     }
-
-                    return {
-                        data: newData,
-                    };
+                    return { data: newData };
+                }),
+            toggleSector: (sector) =>
+                set((state) => {
+                    const current = state.data.sectors;
+                    const next = current.includes(sector)
+                        ? current.filter(s => s !== sector)
+                        : [...current, sector];
+                    return { data: { ...state.data, sectors: next } };
                 }),
             reset: () => set({ currentStep: 1, data: initialData }),
         }),
         {
             name: 'startup-onboarding-storage',
-            version: 2,
+            version: 3,
             migrate: () => ({
                 currentStep: 1,
                 data: initialData,

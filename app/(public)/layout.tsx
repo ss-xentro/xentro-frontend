@@ -20,7 +20,7 @@ export default function PublicLayout({
 }) {
     const pathname = usePathname();
     // Pages that render their own navbar (app shell pages = dark feed layout, standalone = own minimal navbar)
-    const hasOwnNavbar = pathname === '/feed' || pathname === '/home' || pathname === '/notifications' || pathname.startsWith('/explore') || pathname === '/login' || pathname === '/mentor-signup' || pathname === '/institution-onboarding' || pathname === '/investor-onboarding';
+    const hasOwnNavbar = pathname === '/feed' || pathname === '/home' || pathname === '/notifications' || pathname.startsWith('/explore') || pathname === '/login' || pathname === '/mentor-signup' || pathname === '/institution-onboarding' || pathname === '/investor-onboarding' || pathname.startsWith('/startups/');
     const needsAuth = isProtectedRoute(pathname);
 
     return (

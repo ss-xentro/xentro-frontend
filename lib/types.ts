@@ -172,6 +172,95 @@ export interface Startup {
   profileViews?: number;
   createdAt?: string;
   updatedAt?: string;
+
+  // Pitch sections (nested from API)
+  pitchAbout?: PitchAbout | null;
+  pitchCompetitors?: PitchCompetitor[];
+  pitchCustomers?: PitchCustomer[];
+  pitchBusinessModels?: PitchBusinessModelItem[];
+  pitchMarketSizes?: PitchMarketSizeItem[];
+  pitchVisionStrategies?: PitchVisionStrategyItem[];
+  pitchImpacts?: PitchImpactItem[];
+  pitchCertifications?: PitchCertificationItem[];
+}
+
+// ── Pitch Section Types ──────────────────────────────
+export interface PitchAbout {
+  id?: string;
+  about?: string | null;
+  problemStatement?: string | null;
+  solutionProposed?: string | null;
+}
+
+export interface PitchCompetitor {
+  id?: string;
+  name: string;
+  description?: string | null;
+  logo?: string | null;
+  website?: string | null;
+  position?: number;
+}
+
+export interface PitchCustomer {
+  id?: string;
+  name: string;
+  role?: string | null;
+  company?: string | null;
+  testimonial: string;
+  avatar?: string | null;
+  position?: number;
+}
+
+export interface PitchBusinessModelItem {
+  id?: string;
+  title: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  position?: number;
+}
+
+export interface PitchMarketSizeItem {
+  id?: string;
+  title: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  position?: number;
+}
+
+export interface PitchVisionStrategyItem {
+  id?: string;
+  title: string;
+  description?: string | null;
+  icon?: string | null;
+  position?: number;
+}
+
+export interface PitchImpactItem {
+  id?: string;
+  title: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  position?: number;
+}
+
+export interface PitchCertificationItem {
+  id?: string;
+  title: string;
+  issuer?: string | null;
+  dateAwarded?: string | null;
+  imageUrl?: string | null;
+  position?: number;
+}
+
+export interface StartupPitchData {
+  about?: PitchAbout | null;
+  competitors?: PitchCompetitor[];
+  customers?: PitchCustomer[];
+  businessModels?: PitchBusinessModelItem[];
+  marketSizes?: PitchMarketSizeItem[];
+  visionStrategies?: PitchVisionStrategyItem[];
+  impacts?: PitchImpactItem[];
+  certifications?: PitchCertificationItem[];
 }
 
 export interface StartupFounder {
