@@ -35,12 +35,17 @@ const fundingRoundOptions = [
     { value: 'unicorn', label: 'Unicorn' },
 ];
 
+// Roles that have write access
+const WRITE_ROLES = new Set(['founder', 'co_founder', 'ceo', 'cto', 'coo', 'cfo', 'cpo']);
+
 export default function StartupSettingsPage() {
     const [activeTab, setActiveTab] = useState<'details' | 'funding'>('details');
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [data, setData] = useState<any>(null);
+    const [myRole, setMyRole] = useState<string>('');
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const canEdit = WRITE_ROLES.has(myRole);
 
     useEffect(() => {
         fetchData();
@@ -58,6 +63,7 @@ export default function StartupSettingsPage() {
 
             if (res.ok) {
                 setData(json.data?.startup ?? null);
+                if (json.data?.founderRole) setMyRole(json.data.founderRole);
             }
         } catch (err) {
             console.error(err);
@@ -103,11 +109,15 @@ export default function StartupSettingsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-(--primary)">Startup Profile</h1>
-                    <p className="text-(--secondary)">Manage your startup&apos;s public information and settings.</p>
+                    <p className="text-(--secondary)">
+                        {canEdit ? "Manage your startup's public information and settings." : "View your startup's public information. You have view-only access."}
+                    </p>
                 </div>
-                <Button onClick={handleUpdate} isLoading={isSaving}>
-                    Save Changes
-                </Button>
+                {canEdit && (
+                    <Button onClick={handleUpdate} isLoading={isSaving}>
+                        Save Changes
+                    </Button>
+                )}
             </div>
 
             {message && (
@@ -121,8 +131,8 @@ export default function StartupSettingsPage() {
                 <button
                     onClick={() => setActiveTab('details')}
                     className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'details'
-                            ? 'border-accent text-accent'
-                            : 'border-transparent text-(--secondary) hover:text-(--primary)'
+                        ? 'border-accent text-accent'
+                        : 'border-transparent text-(--secondary) hover:text-(--primary)'
                         }`}
                 >
                     Company Details
@@ -130,8 +140,8 @@ export default function StartupSettingsPage() {
                 <button
                     onClick={() => setActiveTab('funding')}
                     className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'funding'
-                            ? 'border-accent text-accent'
-                            : 'border-transparent text-(--secondary) hover:text-(--primary)'
+                        ? 'border-accent text-accent'
+                        : 'border-transparent text-(--secondary) hover:text-(--primary)'
                         }`}
                 >
                     Funding & Financials
@@ -139,135 +149,137 @@ export default function StartupSettingsPage() {
             </div>
 
             <form onSubmit={handleUpdate}>
-                {activeTab === 'details' && (
-                    <div className="space-y-6">
-                        <Card className="p-6 space-y-6">
-                            <h3 className="text-lg font-semibold text-(--primary)">Identity</h3>
+                <fieldset disabled={!canEdit} className={!canEdit ? 'opacity-75' : ''}>
+                    {activeTab === 'details' && (
+                        <div className="space-y-6">
+                            <Card className="p-6 space-y-6">
+                                <h3 className="text-lg font-semibold text-(--primary)">Identity</h3>
 
-                            <div className="grid gap-6">
-                                <Input
-                                    label="Startup Name"
-                                    value={data.name}
-                                    onChange={(e) => setData({ ...data, name: e.target.value })}
-                                    required
-                                />
+                                <div className="grid gap-6">
+                                    <Input
+                                        label="Startup Name"
+                                        value={data.name}
+                                        onChange={(e) => setData({ ...data, name: e.target.value })}
+                                        required
+                                    />
 
-                                <div className="grid gap-2">
-                                    <label className="block text-sm font-medium text-(--primary) mb-2">Logo</label>
-                                    <div className="flex items-center gap-6">
-                                        <div className="w-20 h-20 rounded-xl bg-(--surface-hover) border border-(--border) flex items-center justify-center overflow-hidden">
-                                            {data.logo ? (
-                                                <img src={data.logo} alt="Logo" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <span className="text-2xl font-bold text-(--secondary)">
-                                                    {data.name.substring(0, 2).toUpperCase()}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="flex-1">
-                                            <FileUpload
-                                                value={data.logo}
-                                                onChange={(url) => setData({ ...data, logo: url })}
-                                                folder="startup-logos"
-                                                className="w-full"
-                                                accept="image/*"
-                                            />
+                                    <div className="grid gap-2">
+                                        <label className="block text-sm font-medium text-(--primary) mb-2">Logo</label>
+                                        <div className="flex items-center gap-6">
+                                            <div className="w-20 h-20 rounded-xl bg-(--surface-hover) border border-(--border) flex items-center justify-center overflow-hidden">
+                                                {data.logo ? (
+                                                    <img src={data.logo} alt="Logo" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <span className="text-2xl font-bold text-(--secondary)">
+                                                        {data.name.substring(0, 2).toUpperCase()}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <FileUpload
+                                                    value={data.logo}
+                                                    onChange={(url) => setData({ ...data, logo: url })}
+                                                    folder="startup-logos"
+                                                    className="w-full"
+                                                    accept="image/*"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
+
+                                    <Input
+                                        label="Tagline"
+                                        value={data.tagline || ''}
+                                        onChange={(e) => setData({ ...data, tagline: e.target.value })}
+                                    />
+
+                                    <Textarea
+                                        label="One-line Pitch"
+                                        value={data.pitch || ''}
+                                        onChange={(e) => setData({ ...data, pitch: e.target.value })}
+                                        maxLength={160}
+                                        characterCount
+                                    />
                                 </div>
+                            </Card>
 
-                                <Input
-                                    label="Tagline"
-                                    value={data.tagline || ''}
-                                    onChange={(e) => setData({ ...data, tagline: e.target.value })}
-                                />
+                            <Card className="p-6 space-y-6">
+                                <h3 className="text-lg font-semibold text-(--primary)">Status & Location</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <Select
+                                        label="Stage"
+                                        value={data.stage}
+                                        onChange={(val) => setData({ ...data, stage: val })}
+                                        options={stages}
+                                    />
 
-                                <Textarea
-                                    label="One-line Pitch"
-                                    value={data.pitch || ''}
-                                    onChange={(e) => setData({ ...data, pitch: e.target.value })}
-                                    maxLength={160}
-                                    characterCount
-                                />
-                            </div>
-                        </Card>
+                                    <Select
+                                        label="Current Status"
+                                        value={data.status}
+                                        onChange={(val) => setData({ ...data, status: val })}
+                                        options={statuses}
+                                    />
 
+                                    <Input
+                                        label="Founded Date"
+                                        type="date"
+                                        value={data.foundedDate ? new Date(data.foundedDate).toISOString().split('T')[0] : ''}
+                                        onChange={(e) => setData({ ...data, foundedDate: e.target.value })}
+                                    />
+
+                                    <Input
+                                        label="Location"
+                                        value={data.location || ''}
+                                        onChange={(e) => setData({ ...data, location: e.target.value })}
+                                    />
+                                </div>
+                            </Card>
+                        </div>
+                    )}
+
+                    {activeTab === 'funding' && (
                         <Card className="p-6 space-y-6">
-                            <h3 className="text-lg font-semibold text-(--primary)">Status & Location</h3>
+                            <h3 className="text-lg font-semibold text-(--primary)">Funding Information</h3>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <Select
-                                    label="Stage"
-                                    value={data.stage}
-                                    onChange={(val) => setData({ ...data, stage: val })}
-                                    options={stages}
-                                />
-
-                                <Select
-                                    label="Current Status"
-                                    value={data.status}
-                                    onChange={(val) => setData({ ...data, status: val })}
-                                    options={statuses}
+                                    label="Latest Round"
+                                    value={data.fundingRound}
+                                    onChange={(val) => setData({ ...data, fundingRound: val })}
+                                    options={fundingRoundOptions}
                                 />
 
                                 <Input
-                                    label="Founded Date"
-                                    type="date"
-                                    value={data.foundedDate ? new Date(data.foundedDate).toISOString().split('T')[0] : ''}
-                                    onChange={(e) => setData({ ...data, foundedDate: e.target.value })}
+                                    label="Total Funds Raised"
+                                    type="number"
+                                    value={data.fundsRaised || ''}
+                                    onChange={(e) => setData({ ...data, fundsRaised: e.target.value })}
+                                    icon={<span>$</span>}
                                 />
 
                                 <Input
-                                    label="Location"
-                                    value={data.location || ''}
-                                    onChange={(e) => setData({ ...data, location: e.target.value })}
+                                    label="Currency"
+                                    value={data.fundingCurrency}
+                                    onChange={(e) => setData({ ...data, fundingCurrency: e.target.value })}
+                                />
+                            </div>
+
+                            {/* Investors - simple text area for list management */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-(--primary)">Investors</label>
+                                <Textarea
+                                    value={(data.investors || []).join(', ')}
+                                    onChange={(e) => {
+                                        const list = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                                        setData({ ...data, investors: list });
+                                    }}
+                                    placeholder="Sequoia, a16z, etc. (comma separated)"
+                                    hint="List your key investors separated by commas."
                                 />
                             </div>
                         </Card>
-                    </div>
-                )}
-
-                {activeTab === 'funding' && (
-                    <Card className="p-6 space-y-6">
-                        <h3 className="text-lg font-semibold text-(--primary)">Funding Information</h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Select
-                                label="Latest Round"
-                                value={data.fundingRound}
-                                onChange={(val) => setData({ ...data, fundingRound: val })}
-                                options={fundingRoundOptions}
-                            />
-
-                            <Input
-                                label="Total Funds Raised"
-                                type="number"
-                                value={data.fundsRaised || ''}
-                                onChange={(e) => setData({ ...data, fundsRaised: e.target.value })}
-                                icon={<span>$</span>}
-                            />
-
-                            <Input
-                                label="Currency"
-                                value={data.fundingCurrency}
-                                onChange={(e) => setData({ ...data, fundingCurrency: e.target.value })}
-                            />
-                        </div>
-
-                        {/* Investors - simple text area for list management */}
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-(--primary)">Investors</label>
-                            <Textarea
-                                value={(data.investors || []).join(', ')}
-                                onChange={(e) => {
-                                    const list = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                                    setData({ ...data, investors: list });
-                                }}
-                                placeholder="Sequoia, a16z, etc. (comma separated)"
-                                hint="List your key investors separated by commas."
-                            />
-                        </div>
-                    </Card>
-                )}
+                    )}
+                </fieldset>
             </form>
         </div>
     );

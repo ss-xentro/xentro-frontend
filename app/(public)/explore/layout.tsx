@@ -101,7 +101,7 @@ export default function ExploreLayout({ children }: { children: React.ReactNode 
     const handleLogout = () => {
         logout();
         setProfileOpen(false);
-        router.push('/feed');
+        router.push('/guest');
     };
 
     return (

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/contexts/AuthContext';
+import { clearAllRoleTokens } from '@/lib/auth-utils';
 
 // All logins redirect to /feed — users navigate to their dashboard from there
 const DASHBOARD_MAP: Record<string, string> = {
@@ -21,6 +22,9 @@ const DASHBOARD_MAP: Record<string, string> = {
 };
 
 function storeSession(data: { user: Record<string, unknown>; token: string; startupId?: string }) {
+    // Clear ALL previous role tokens to prevent stale cross-role access
+    clearAllRoleTokens();
+
     const role = (data.user?.account_type || data.user?.role || data.user?.accountType || 'explorer') as string;
     const tokenKey = role === 'mentor' ? 'mentor_token'
         : role === 'institution' ? 'institution_token'

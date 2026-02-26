@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { getRoleFromSession } from '@/lib/auth-utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function InvestorDashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -14,16 +15,14 @@ export default function InvestorDashboardLayout({ children }: { children: React.
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('investor_token');
         const role = getRoleFromSession();
 
-        if (!token && role !== 'investor') {
+        if (!role) {
             router.replace('/login');
             return;
         }
 
-        // If logged in but wrong role, redirect to feed
-        if (role && role !== 'investor') {
+        if (role !== 'investor') {
             router.replace('/feed');
             return;
         }
@@ -63,9 +62,11 @@ export default function InvestorDashboardLayout({ children }: { children: React.
         },
     ];
 
+    const { logout } = useAuth();
+
     const handleLogout = () => {
-        localStorage.removeItem('investor_token');
-        router.push('/investor-login');
+        logout();
+        router.push('/login');
     };
 
     if (isLoading) {

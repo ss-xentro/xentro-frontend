@@ -1,5 +1,18 @@
 'use client';
 
+/** All role-specific localStorage keys used by the app */
+const ROLE_TOKEN_KEYS = ['founder_token', 'mentor_token', 'investor_token', 'institution_token'];
+const EXTRA_SESSION_KEYS = ['startup_id', 'startup-onboarding-storage'];
+
+/**
+ * clearAllRoleTokens — removes every role-specific token and session artifact
+ * from localStorage. Call this on login (before setting the new token) and on logout.
+ */
+export function clearAllRoleTokens() {
+    if (typeof window === 'undefined') return;
+    [...ROLE_TOKEN_KEYS, ...EXTRA_SESSION_KEYS].forEach((key) => localStorage.removeItem(key));
+}
+
 /**
  * getRoleFromSession — reads xentro_session from localStorage
  * and returns the account_type. Returns null if no valid session.

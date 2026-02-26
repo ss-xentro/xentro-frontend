@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { getRoleFromSession } from '@/lib/auth-utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -14,17 +15,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('founder_token');
         const role = getRoleFromSession();
 
-        // Must have token AND be a startup/founder role
-        if (!token && role !== 'startup' && role !== 'founder') {
+        if (!role) {
+            // No valid session — send to login
             router.replace('/login');
             return;
         }
 
-        // If logged in but wrong role, redirect to feed
-        if (role && role !== 'startup' && role !== 'founder') {
+        if (role !== 'startup' && role !== 'founder') {
+            // Valid session but wrong role — send to feed
             router.replace('/feed');
             return;
         }
@@ -64,10 +64,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         },
     ];
 
+    const { logout } = useAuth();
+
     const handleLogout = () => {
-        localStorage.removeItem('founder_token');
-        localStorage.removeItem('startup_id');
-        localStorage.removeItem('startup-onboarding-storage'); // Clean up onboarding draft
+        logout();
         router.push('/login');
     };
 

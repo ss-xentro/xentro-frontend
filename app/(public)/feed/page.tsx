@@ -254,7 +254,7 @@ export default function FeedPage() {
   const handleLogout = () => {
     logout();
     setProfileOpen(false);
-    router.push('/feed');
+    router.push('/guest');
   };
 
   return (
@@ -346,7 +346,7 @@ export default function FeedPage() {
             <nav className="space-y-1 w-full">
               {navItems.map((item) => {
                 let isActive = false;
-                
+
                 if (item.href === '/explore/institute') {
                   // Explore button - active on any /explore route
                   isActive = pathname.startsWith('/explore');
@@ -357,7 +357,7 @@ export default function FeedPage() {
                   // All other items - exact match
                   isActive = pathname === item.href;
                 }
-                
+
                 return (
                   <Link
                     key={item.icon}
@@ -564,7 +564,7 @@ export default function FeedPage() {
         <div className="flex items-center justify-around px-2 py-3">
           {navItems.map((item) => {
             let isActive = false;
-            
+
             if (item.href === '/explore/institute') {
               // Explore button - active on any /explore route
               isActive = pathname.startsWith('/explore');
@@ -575,7 +575,7 @@ export default function FeedPage() {
               // All other items - exact match
               isActive = pathname === item.href;
             }
-            
+
             return (
               <Link
                 key={item.icon}

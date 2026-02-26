@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import CompleteProfileModal from '@/components/ui/CompleteProfileModal';
 import { getRoleFromSession } from '@/lib/auth-utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function MentorDashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -16,17 +17,14 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
     const [showProfileModal, setShowProfileModal] = useState(false);
 
     useEffect(() => {
-        const token = localStorage.getItem('mentor_token');
         const role = getRoleFromSession();
 
-        // Must have token or be mentor role
-        if (!token && role !== 'mentor') {
+        if (!role) {
             router.replace('/login');
             return;
         }
 
-        // If logged in but wrong role, redirect to feed
-        if (role && role !== 'mentor') {
+        if (role !== 'mentor') {
             router.replace('/feed');
             return;
         }
@@ -79,9 +77,11 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
         },
     ];
 
+    const { logout } = useAuth();
+
     const handleLogout = () => {
-        localStorage.removeItem('mentor_token');
-        router.push('/mentor-login');
+        logout();
+        router.push('/login');
     };
 
     if (isLoading) {

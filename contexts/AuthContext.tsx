@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { User } from '@/lib/types';
+import { clearAllRoleTokens } from '@/lib/auth-utils';
 
 interface AuthContextType {
     user: User | null;
@@ -90,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(null);
         if (typeof window !== 'undefined') {
             localStorage.removeItem(SESSION_KEY);
+            clearAllRoleTokens();
         }
     }, []);
 

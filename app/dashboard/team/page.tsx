@@ -24,13 +24,17 @@ const roleOptions = [
     { value: 'cpo', label: 'CPO' },
     { value: 'founder', label: 'Founder' },
     { value: 'co_founder', label: 'Co-Founder' },
-    { value: 'employee', label: 'Employee' }, // Added for flexibility
+    { value: 'employee', label: 'Employee' },
 ];
+
+// Roles that have write access (can invite/remove members, edit startup)
+const WRITE_ROLES = new Set(['founder', 'co_founder', 'ceo', 'cto', 'coo', 'cfo', 'cpo']);
 
 export default function TeamPage() {
     const [team, setTeam] = useState<TeamMember[]>([]);
     const [loading, setLoading] = useState(true);
     const [inviteOpen, setInviteOpen] = useState(false);
+    const [myRole, setMyRole] = useState<string>('');
 
     // Invite Form State
     const [newMember, setNewMember] = useState({ name: '', email: '', role: 'founder' });
@@ -48,7 +52,10 @@ export default function TeamPage() {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const json = await res.json();
-            if (res.ok) setTeam(json.members || json.data || []);
+            if (res.ok) {
+                setTeam(json.members || json.data || []);
+                if (json.myRole) setMyRole(json.myRole);
+            }
         } catch (e) {
             console.error(e);
         } finally {
@@ -117,7 +124,7 @@ export default function TeamPage() {
                     <h1 className="text-2xl font-bold text-(--primary)">Team Management</h1>
                     <p className="text-(--secondary)">Manage your startup&apos;s founders and team members.</p>
                 </div>
-                {!inviteOpen && (
+                {!inviteOpen && WRITE_ROLES.has(myRole) && (
                     <Button onClick={() => setInviteOpen(true)}>
                         + Add Member
                     </Button>
@@ -182,7 +189,7 @@ export default function TeamPage() {
                                 {member.role.replace('_', ' ')}
                             </Badge>
 
-                            {!member.isPrimary && (
+                            {!member.isPrimary && WRITE_ROLES.has(myRole) && (
                                 <button
                                     onClick={() => handleRemove(member.id)}
                                     className="text-xs text-error hover:underline opacity-0 group-hover:opacity-100 transition-opacity"

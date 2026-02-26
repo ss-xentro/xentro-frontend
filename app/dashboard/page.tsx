@@ -34,6 +34,9 @@ interface DashboardData {
     recentActivity: ActivityLog[];
 }
 
+// Roles that have write access (can edit startup, invite members)
+const WRITE_ROLES = new Set(['founder', 'co_founder', 'ceo', 'cto', 'coo', 'cfo', 'cpo']);
+
 export default function DashboardOverviewPage() {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -111,11 +114,13 @@ export default function DashboardOverviewPage() {
                             View Public Profile
                         </Button>
                     </Link>
-                    <Link href="/dashboard/startup">
-                        <Button variant="primary" size="sm">
-                            Edit Profile
-                        </Button>
-                    </Link>
+                    {WRITE_ROLES.has(data.founderRole) && (
+                        <Link href="/dashboard/startup">
+                            <Button variant="primary" size="sm">
+                                Edit Profile
+                            </Button>
+                        </Link>
+                    )}
                 </div>
             </div>
 
@@ -229,8 +234,8 @@ function ChecklistItem({ label, checked }: { label: string; checked: boolean }) 
     return (
         <div className="flex items-center gap-3">
             <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${checked
-                    ? 'bg-success border-success text-white'
-                    : 'bg-transparent border-(--border) text-transparent'
+                ? 'bg-success border-success text-white'
+                : 'bg-transparent border-(--border) text-transparent'
                 }`}>
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
