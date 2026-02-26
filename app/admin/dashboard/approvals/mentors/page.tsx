@@ -6,24 +6,30 @@ import { Button, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 type MentorRow = {
-  userId: string;
-  name: string | null;
-  email: string | null;
+  id: string;
+  user: string;
+  user_name: string | null;
+  user_email: string | null;
   occupation: string | null;
   expertise: string | null;
   rate: string | number | null;
+  pricing_per_hour: string | number | null;
+  achievements: string | null;
+  availability: string | null;
+  documents: { name: string; url: string }[] | null;
+  profile_completed: boolean;
   status: string;
+  created_at: string | null;
 };
 
-export default function MentorApprovalsPage() {
+export default function MentorVerificationPage() {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<MentorRow[]>([]);
   const [message, setMessage] = useState<string | null>(null);
-  const [rejectingId, setRejectingId] = useState<string | null>(null);
-  const [remark, setRemark] = useState('');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  async function fetchPending() {
+  async function fetchMentors() {
     if (!token) return;
     setLoading(true);
     setMessage(null);
@@ -33,7 +39,9 @@ export default function MentorApprovalsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to load');
-      setRows(data.data || []);
+      // Show only mentors who have completed their profile
+      const mentors = (data.mentors || data.data || []) as MentorRow[];
+      setRows(mentors.filter((m) => m.profile_completed));
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Failed to load');
     } finally {
@@ -42,119 +50,162 @@ export default function MentorApprovalsPage() {
   }
 
   useEffect(() => {
-    if (token) fetchPending();
+    if (token) fetchMentors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  async function handleApprove(userId: string) {
-    if (!token) return;
-    setLoading(true);
-    setMessage(null);
+  function parseAvailability(raw: string | null): { day: string; startTime: string; endTime: string }[] {
+    if (!raw) return [];
     try {
-      const res = await fetch('/api/approvals/mentors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ mentorUserId: userId, decision: 'approve', loginUrl: '/mentor-login' }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Action failed');
-      setMessage('Mentor approved — notification email sent');
-      await fetchPending();
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Action failed');
-    } finally {
-      setLoading(false);
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
     }
   }
 
-  async function handleReject(userId: string) {
-    if (!remark.trim()) {
-      setMessage('Please add a remark before rejecting.');
-      return;
-    }
-    if (!token) return;
-    setLoading(true);
-    setMessage(null);
-    try {
-      const res = await fetch('/api/approvals/mentors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ mentorUserId: userId, decision: 'reject', reason: remark.trim(), loginUrl: '/mentor-login' }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Action failed');
-      setMessage('Mentor rejected — notification email sent');
-      setRejectingId(null);
-      setRemark('');
-      await fetchPending();
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Action failed');
-    } finally {
-      setLoading(false);
-    }
-  }
+  const statusBadge = (status: string) => {
+    const map: Record<string, { bg: string; text: string; label: string }> = {
+      approved: { bg: 'bg-green-50', text: 'text-green-700', label: 'Approved' },
+      pending: { bg: 'bg-yellow-50', text: 'text-yellow-700', label: 'Pending' },
+      rejected: { bg: 'bg-red-50', text: 'text-red-700', label: 'Rejected' },
+      suspended: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Suspended' },
+    };
+    const s = map[status] || { bg: 'bg-gray-100', text: 'text-gray-600', label: status };
+    return (
+      <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', s.bg, s.text)}>
+        {s.label}
+      </span>
+    );
+  };
 
   return (
     <div className="space-y-4 animate-fadeInUp">
       <Card className="p-4 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold">Mentor Approvals</h1>
-            <p className="text-sm text-muted-foreground">Approve or reject mentor applications. Rejections require a remark.</p>
+            <h1 className="text-2xl font-semibold">Mentor Verification</h1>
+            <p className="text-sm text-muted-foreground">
+              Mentors who have completed their full profile are automatically approved and shown here.
+            </p>
           </div>
-          <Button variant="secondary" onClick={fetchPending} disabled={loading}>
+          <Button variant="secondary" onClick={fetchMentors} disabled={loading}>
             Refresh
           </Button>
         </div>
+
         <div className="space-y-3">
-          {rows.map((row) => (
-            <div key={row.userId} className="rounded-xl border bg-card p-4 space-y-3">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <div className="space-y-1">
-                  <div className="font-medium">{row.name || 'Unnamed mentor'}</div>
-                  <div className="text-sm text-muted-foreground">{row.email}</div>
-                  {row.occupation && <div className="text-sm">{row.occupation}</div>}
-                  {row.expertise && <div className="text-sm text-muted-foreground">{row.expertise}</div>}
-                  {row.rate && <div className="text-xs text-muted-foreground">Rate: ${row.rate}/hr</div>}
-                </div>
-                <div className="flex gap-2">
-                  {rejectingId === row.userId ? (
-                    <Button variant="secondary" onClick={() => { setRejectingId(null); setRemark(''); }} disabled={loading}>
-                      Cancel
-                    </Button>
-                  ) : (
-                    <Button variant="secondary" onClick={() => setRejectingId(row.userId)} disabled={loading}>
-                      Reject
-                    </Button>
-                  )}
-                  <Button onClick={() => handleApprove(row.userId)} disabled={loading}>
-                    Approve
-                  </Button>
-                </div>
-              </div>
-              {rejectingId === row.userId && (
-                <div className="flex flex-col gap-2 border-t pt-3">
-                  <label className="text-sm font-medium text-gray-700">Rejection remark <span className="text-red-500">*</span></label>
-                  <textarea
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 resize-none"
-                    rows={2}
-                    placeholder="Explain why this application is being rejected…"
-                    value={remark}
-                    onChange={(e) => setRemark(e.target.value)}
-                  />
-                  <div className="flex justify-end">
-                    <Button variant="secondary" onClick={() => handleReject(row.userId)} disabled={loading || !remark.trim()}>
-                      Confirm Rejection
+          {rows.map((row) => {
+            const isExpanded = expandedId === row.id;
+            const slots = parseAvailability(typeof row.availability === 'string' ? row.availability : null);
+
+            return (
+              <div key={row.id} className="rounded-xl border bg-card p-4 space-y-3">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{row.user_name || 'Unnamed mentor'}</span>
+                      {statusBadge(row.status)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">{row.user_email}</div>
+                    {row.occupation && <div className="text-sm">{row.occupation}</div>}
+                    {row.expertise && (
+                      <div className="text-sm text-muted-foreground">
+                        Expertise: {typeof row.expertise === 'string' ? row.expertise : JSON.stringify(row.expertise)}
+                      </div>
+                    )}
+                    {(row.pricing_per_hour || row.rate) && (
+                      <div className="text-xs text-muted-foreground">
+                        Rate: ${row.pricing_per_hour || row.rate}/hr
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      onClick={() => setExpandedId(isExpanded ? null : row.id)}
+                    >
+                      {isExpanded ? 'Collapse' : 'View Details'}
                     </Button>
                   </div>
                 </div>
-              )}
+
+                {isExpanded && (
+                  <div className="border-t pt-3 space-y-4 animate-fadeIn">
+                    {/* Achievements */}
+                    {row.achievements && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Achievements</h4>
+                        <p className="text-sm text-gray-600 whitespace-pre-wrap">{typeof row.achievements === 'string' ? row.achievements : JSON.stringify(row.achievements)}</p>
+                      </div>
+                    )}
+
+                    {/* Availability */}
+                    {slots.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Availability</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {slots.map((slot, i) => (
+                            <span key={i} className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 text-xs text-gray-700">
+                              {slot.day} {slot.startTime}–{slot.endTime}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Documents */}
+                    {row.documents && row.documents.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Documents</h4>
+                        <ul className="space-y-1">
+                          {row.documents.map((doc, i) => (
+                            <li key={i}>
+                              <a
+                                href={doc.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline"
+                              >
+                                {doc.name || `Document ${i + 1}`}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {row.created_at && (
+                      <div className="text-xs text-muted-foreground">
+                        Joined: {new Date(row.created_at).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {!loading && !rows.length && (
+            <div className="text-center py-8">
+              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <p className="text-sm text-muted-foreground">No mentors with completed profiles yet.</p>
+              <p className="text-xs text-muted-foreground mt-1">Mentors will appear here once they complete their full profile.</p>
             </div>
-          ))}
-          {!loading && !rows.length && <p className="text-sm text-muted-foreground">No pending mentors.</p>}
+          )}
+
           {loading && <p className="text-sm text-muted-foreground animate-pulse">Loading…</p>}
         </div>
-        {message && <p className={cn('text-sm', message.toLowerCase().includes('fail') || message.toLowerCase().includes('please') ? 'text-red-600' : 'text-green-600')}>{message}</p>}
+
+        {message && (
+          <p className={cn('text-sm', message.toLowerCase().includes('fail') ? 'text-red-600' : 'text-green-600')}>
+            {message}
+          </p>
+        )}
       </Card>
     </div>
   );
