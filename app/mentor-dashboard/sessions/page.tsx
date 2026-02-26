@@ -50,7 +50,7 @@ export default function SessionsPage() {
 
         Promise.all([
             fetch('/api/mentor-bookings', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
-            fetch(`/api/mentor-slots?mentorId=${getMentorId()}`, {}).then(r => r.json()),
+            fetch(`/api/mentor-slots?mentorId=${getMentorId()}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
         ]).then(([bookingsRes, slotsRes]) => {
             setBookings(bookingsRes.data || []);
             const slotsData = slotsRes.data || [];
@@ -250,8 +250,8 @@ export default function SessionsPage() {
                                                     <button
                                                         onClick={() => toggleSlot(day, time)}
                                                         className={`w-full h-9 rounded-lg border transition-all duration-150 text-xs font-medium ${selected
-                                                                ? 'bg-accent/15 border-accent text-accent hover:bg-accent/25'
-                                                                : 'bg-(--surface) border-(--border) text-(--secondary) hover:bg-(--surface-hover) hover:border-(--secondary)'
+                                                            ? 'bg-accent/15 border-accent text-accent hover:bg-accent/25'
+                                                            : 'bg-(--surface) border-(--border) text-(--secondary) hover:bg-(--surface-hover) hover:border-(--secondary)'
                                                             }`}
                                                     >
                                                         {selected ? '✓' : ''}
