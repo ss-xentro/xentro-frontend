@@ -121,7 +121,6 @@ export default function MentorDetailPage() {
 	const [submitting, setSubmitting] = useState(false);
 
 	// Booking flow state
-	const [showBookingModal, setShowBookingModal] = useState(false);
 	const [slots, setSlots] = useState<MentorSlot[]>([]);
 	const [slotsLoading, setSlotsLoading] = useState(false);
 	const [selectedSlot, setSelectedSlot] = useState<MentorSlot | null>(null);
@@ -178,7 +177,7 @@ export default function MentorDetailPage() {
 		load();
 	}, [mentorId]);
 
-	// Load connection status
+	// Load connection status + slots when connected
 	useEffect(() => {
 		async function loadConnection() {
 			const token = getSessionToken();
@@ -192,7 +191,10 @@ export default function MentorDetailPage() {
 				const match = (json.data ?? []).find(
 					(r: { mentor: string }) => r.mentor === mentorId
 				);
-				if (match) setConnectionStatus(match.status);
+				if (match) {
+					setConnectionStatus(match.status);
+					if (match.status === 'accepted') loadSlots();
+				}
 			} catch { /* ignore */ }
 		}
 		loadConnection();
@@ -256,16 +258,6 @@ export default function MentorDetailPage() {
 		} finally {
 			setSlotsLoading(false);
 		}
-	};
-
-	const openBookingModal = () => {
-		setBookingError('');
-		setBookingSuccess(false);
-		setSelectedSlot(null);
-		setSelectedDate('');
-		setBookingNotes('');
-		loadSlots();
-		setShowBookingModal(true);
 	};
 
 	const handleBookSession = async () => {
@@ -427,7 +419,7 @@ export default function MentorDetailPage() {
 								<button
 									onClick={() => {
 										if (connectionStatus === 'accepted') {
-											openBookingModal();
+											document.getElementById('availability-booking')?.scrollIntoView({ behavior: 'smooth' });
 										} else if (!connectBtnDisabled) {
 											handleConnect();
 										}
@@ -513,41 +505,213 @@ export default function MentorDetailPage() {
 						</Section>
 					)}
 
-					{/* Availability & Booking */}
-					{mentor.availability && Object.keys(mentor.availability).length > 0 && (
+					{/* Availability & Booking — interactive when connected */}
+					<div id="availability-booking">
 						<Section
 							title="Availability & Booking"
 							icon={<svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>}
 						>
-							<div className="space-y-3">
-								{ORDERED_DAYS.map((day) => {
-									const slots = (mentor.availability as Record<string, string[]>)?.[day];
-									if (!slots || slots.length === 0) return null;
-									return (
-										<div key={day} className="bg-white/3 border border-white/5 rounded-lg p-4">
-											<div className="flex items-center justify-between mb-2">
-												<div>
-													<p className="text-sm font-semibold text-white">{DAY_LABELS[day] || day}</p>
-													<p className="text-xs text-gray-600">{FULL_DAY[day] || day}</p>
-												</div>
-												<svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-													<rect x="3" y="4" width="18" height="18" rx="2" />
-													<path d="M16 2v4M8 2v4M3 10h18" />
-												</svg>
-											</div>
-											<div className="flex flex-wrap gap-2">
-												{slots.map((slot, i) => (
-													<span key={i} className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-400">
-														{formatTimeSlot(slot)}
-													</span>
-												))}
-											</div>
+							{/* Real slots from API (shown when connected) */}
+							{connectionStatus === 'accepted' && (
+								<>
+									{slotsLoading ? (
+										<div className="space-y-3">
+											{[1, 2, 3].map((i) => (
+												<div key={i} className="h-20 bg-white/3 border border-white/5 rounded-lg animate-pulse" />
+											))}
 										</div>
-									);
-								})}
-							</div>
+									) : slots.length === 0 ? (
+										<p className="text-sm text-gray-500 py-6 text-center">
+											This mentor hasn&apos;t set up any bookable slots yet.
+										</p>
+									) : (
+										<div className="space-y-3">
+											{/* Group slots by dayOfWeek */}
+											{ORDERED_DAYS.map((day) => {
+												const daySlots = slots.filter((s) => s.dayOfWeek.toLowerCase() === day);
+												if (daySlots.length === 0) return null;
+												return (
+													<div key={day} className="bg-white/3 border border-white/5 rounded-lg p-4">
+														<div className="flex items-center justify-between mb-3">
+															<div>
+																<p className="text-sm font-semibold text-white">{DAY_LABELS[day] || day}</p>
+																<p className="text-xs text-gray-600">{FULL_DAY[day] || day}</p>
+															</div>
+															<svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+																<rect x="3" y="4" width="18" height="18" rx="2" />
+																<path d="M16 2v4M8 2v4M3 10h18" />
+															</svg>
+														</div>
+														<div className="flex flex-wrap gap-2">
+															{daySlots.map((slot) => (
+																<button
+																	key={slot.id}
+																	onClick={() => {
+																		setSelectedSlot(slot);
+																		setSelectedDate(getNextDateForDay(slot.dayOfWeek));
+																		setBookingError('');
+																		setBookingSuccess(false);
+																		setBookingNotes('');
+																	}}
+																	className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${selectedSlot?.id === slot.id
+																		? 'border-violet-500/50 bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/30'
+																		: 'border-white/10 text-gray-400 hover:border-violet-500/30 hover:text-violet-300 hover:bg-violet-500/5'
+																		}`}
+																>
+																	{formatTime(slot.startTime)} – {formatTime(slot.endTime)}
+																</button>
+															))}
+														</div>
+													</div>
+												);
+											})}
+
+											{/* Inline booking form — shown when a slot is selected */}
+											{selectedSlot && !bookingSuccess && (
+												<div className="bg-violet-500/5 border border-violet-500/20 rounded-lg p-4 mt-1 animate-in fade-in slide-in-from-top-2 duration-200">
+													<div className="flex items-center gap-2 mb-3">
+														<svg className="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+															<path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+														</svg>
+														<p className="text-sm font-medium text-violet-300">
+															{FULL_DAY[selectedSlot.dayOfWeek.toLowerCase()] || selectedSlot.dayOfWeek} · {formatTime(selectedSlot.startTime)} – {formatTime(selectedSlot.endTime)}
+														</p>
+														<button
+															onClick={() => setSelectedSlot(null)}
+															className="ml-auto text-gray-500 hover:text-white transition-colors"
+														>
+															<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+																<path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+															</svg>
+														</button>
+													</div>
+
+													<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+														<div>
+															<label className="block text-xs font-medium text-gray-400 mb-1">Date</label>
+															<input
+																type="date"
+																value={selectedDate}
+																onChange={(e) => setSelectedDate(e.target.value)}
+																min={new Date().toISOString().split('T')[0]}
+																className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-violet-500/50 transition-colors scheme-dark"
+															/>
+														</div>
+														<div>
+															<label className="block text-xs font-medium text-gray-400 mb-1">Notes (optional)</label>
+															<input
+																type="text"
+																value={bookingNotes}
+																onChange={(e) => setBookingNotes(e.target.value)}
+																placeholder="Topic to discuss..."
+																className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 transition-colors"
+																maxLength={500}
+															/>
+														</div>
+													</div>
+
+													{bookingError && (
+														<div className="mb-3 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-300">
+															{bookingError}
+														</div>
+													)}
+
+													<button
+														onClick={handleBookSession}
+														disabled={bookingSubmitting || !selectedDate}
+														className="w-full py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:bg-violet-600/40 disabled:cursor-not-allowed text-sm font-semibold text-white transition-colors flex items-center justify-center gap-2"
+													>
+														{bookingSubmitting ? (
+															<>
+																<svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+																	<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+																	<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+																</svg>
+																Booking...
+															</>
+														) : (
+															<>
+																<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+																	<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+																</svg>
+																Confirm Booking
+															</>
+														)}
+													</button>
+												</div>
+											)}
+
+											{/* Booking success */}
+											{bookingSuccess && (
+												<div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-4 mt-1 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+													<div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+														<svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+															<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+														</svg>
+													</div>
+													<div className="flex-1">
+														<p className="text-sm font-semibold text-emerald-400">Session Booked!</p>
+														<p className="text-xs text-emerald-400/70 mt-0.5">
+															{mentor?.name} will be notified. You&apos;ll see this session in your dashboard.
+														</p>
+													</div>
+													<button
+														onClick={() => { setBookingSuccess(false); setSelectedSlot(null); }}
+														className="text-xs text-emerald-400 hover:text-emerald-300 shrink-0"
+													>
+														Book another
+													</button>
+												</div>
+											)}
+										</div>
+									)}
+								</>
+							)}
+
+							{/* Static availability display (not connected yet) */}
+							{connectionStatus !== 'accepted' && mentor.availability && Object.keys(mentor.availability).length > 0 && (
+								<div className="space-y-3">
+									{ORDERED_DAYS.map((day) => {
+										const avSlots = (mentor.availability as Record<string, string[]>)?.[day];
+										if (!avSlots || avSlots.length === 0) return null;
+										return (
+											<div key={day} className="bg-white/3 border border-white/5 rounded-lg p-4">
+												<div className="flex items-center justify-between mb-2">
+													<div>
+														<p className="text-sm font-semibold text-white">{DAY_LABELS[day] || day}</p>
+														<p className="text-xs text-gray-600">{FULL_DAY[day] || day}</p>
+													</div>
+													<svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+														<rect x="3" y="4" width="18" height="18" rx="2" />
+														<path d="M16 2v4M8 2v4M3 10h18" />
+													</svg>
+												</div>
+												<div className="flex flex-wrap gap-2">
+													{avSlots.map((slot, i) => (
+														<span key={i} className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-400">
+															{formatTimeSlot(slot)}
+														</span>
+													))}
+												</div>
+											</div>
+										);
+									})}
+									{!connectionStatus && (
+										<p className="text-xs text-gray-500 text-center pt-1">
+											Connect with this mentor to book a session
+										</p>
+									)}
+								</div>
+							)}
+
+							{/* No availability at all */}
+							{connectionStatus !== 'accepted' && (!mentor.availability || Object.keys(mentor.availability).length === 0) && (
+								<p className="text-sm text-gray-500 py-4 text-center">
+									Availability not set yet.
+								</p>
+							)}
 						</Section>
-					)}
+					</div>
 
 					{/* Documents / Certifications */}
 					{mentor.documents && mentor.documents.length > 0 && (
@@ -635,7 +799,7 @@ export default function MentorDetailPage() {
 							))}
 						</ul>
 						<button
-							onClick={() => { if (connectionStatus === 'accepted') openBookingModal(); else if (!connectBtnDisabled) handleConnect(); }}
+							onClick={() => { if (connectionStatus === 'accepted') document.getElementById('availability-booking')?.scrollIntoView({ behavior: 'smooth' }); else if (!connectBtnDisabled) handleConnect(); }}
 							disabled={connectBtnDisabled}
 							className="w-full py-2.5 rounded-xl text-sm font-semibold border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition-colors disabled:opacity-50 disabled:cursor-default"
 						>
@@ -659,7 +823,7 @@ export default function MentorDetailPage() {
 								))}
 							</ul>
 							<button
-								onClick={() => { if (connectionStatus === 'accepted') openBookingModal(); else if (!connectBtnDisabled) handleConnect(); }}
+								onClick={() => { if (connectionStatus === 'accepted') document.getElementById('availability-booking')?.scrollIntoView({ behavior: 'smooth' }); else if (!connectBtnDisabled) handleConnect(); }}
 								disabled={connectBtnDisabled}
 								className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-gray-900 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-default"
 							>
@@ -772,188 +936,6 @@ export default function MentorDetailPage() {
 				</div>
 			)}
 
-			{/* ═══════════════════════════════════════════════
-			    BOOKING SESSION MODAL
-			═══════════════════════════════════════════════ */}
-			{showBookingModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-					<div
-						className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-						onClick={() => !bookingSubmitting && setShowBookingModal(false)}
-					/>
-					<div className="relative bg-[#12141a] border border-white/10 rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-						<button
-							onClick={() => !bookingSubmitting && setShowBookingModal(false)}
-							className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
-						>
-							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-							</svg>
-						</button>
-
-						{bookingSuccess ? (
-							<div className="text-center py-6">
-								<div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-									<svg className="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-										<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-									</svg>
-								</div>
-								<h3 className="text-lg font-semibold text-white mb-2">Session Booked!</h3>
-								<p className="text-sm text-gray-400 mb-6">
-									Your session request has been sent to {mentor?.name}. You&apos;ll be notified when they confirm.
-								</p>
-								<button
-									onClick={() => setShowBookingModal(false)}
-									className="px-6 py-2.5 rounded-xl bg-white text-gray-900 text-sm font-semibold hover:bg-gray-100 transition-colors"
-								>
-									Done
-								</button>
-							</div>
-						) : (
-							<>
-								<div className="flex items-center gap-3 mb-6">
-									<div className="w-12 h-12 rounded-full bg-linear-to-br from-violet-500/30 to-indigo-500/30 border border-white/10 flex items-center justify-center overflow-hidden">
-										{mentor?.avatar ? (
-											<img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" />
-										) : (
-											<span className="text-base font-bold text-gray-300">
-												{mentor?.name.charAt(0).toUpperCase()}
-											</span>
-										)}
-									</div>
-									<div>
-										<h3 className="text-lg font-semibold text-white">Book a Session</h3>
-										<p className="text-xs text-gray-500">with {mentor?.name}</p>
-									</div>
-								</div>
-
-								{/* Step 1: Select a slot */}
-								<div className="mb-5">
-									<label className="block text-sm font-medium text-gray-300 mb-2">
-										Select a Time Slot
-									</label>
-									{slotsLoading ? (
-										<div className="space-y-2">
-											{[1, 2, 3].map((i) => (
-												<div key={i} className="h-12 bg-white/5 rounded-lg animate-pulse" />
-											))}
-										</div>
-									) : slots.length === 0 ? (
-										<p className="text-sm text-gray-500 py-4 text-center">
-											This mentor hasn&apos;t set up any availability slots yet.
-										</p>
-									) : (
-										<div className="space-y-2 max-h-48 overflow-y-auto">
-											{slots.map((slot) => (
-												<button
-													key={slot.id}
-													onClick={() => {
-														setSelectedSlot(slot);
-														setSelectedDate(getNextDateForDay(slot.dayOfWeek));
-													}}
-													className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border text-left transition-colors ${selectedSlot?.id === slot.id
-														? 'border-violet-500/50 bg-violet-500/10'
-														: 'border-white/10 bg-white/3 hover:border-white/20'
-														}`}
-												>
-													<div>
-														<p className={`text-sm font-medium ${selectedSlot?.id === slot.id ? 'text-violet-300' : 'text-white'}`}>
-															{FULL_DAY[slot.dayOfWeek.toLowerCase()] || slot.dayOfWeek}
-														</p>
-														<p className="text-xs text-gray-500">
-															{formatTime(slot.startTime)} – {formatTime(slot.endTime)}
-														</p>
-													</div>
-													{selectedSlot?.id === slot.id && (
-														<svg className="w-5 h-5 text-violet-400" fill="currentColor" viewBox="0 0 20 20">
-															<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-														</svg>
-													)}
-												</button>
-											))}
-										</div>
-									)}
-								</div>
-
-								{/* Step 2: Pick a date */}
-								{selectedSlot && (
-									<div className="mb-5">
-										<label className="block text-sm font-medium text-gray-300 mb-2">
-											Pick a Date
-										</label>
-										<input
-											type="date"
-											value={selectedDate}
-											onChange={(e) => setSelectedDate(e.target.value)}
-											min={new Date().toISOString().split('T')[0]}
-											className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500/50 transition-colors [color-scheme:dark]"
-										/>
-										<p className="text-xs text-gray-500 mt-1">
-											Slot is on {FULL_DAY[selectedSlot.dayOfWeek.toLowerCase()] || selectedSlot.dayOfWeek}s
-										</p>
-									</div>
-								)}
-
-								{/* Step 3: Notes */}
-								{selectedSlot && selectedDate && (
-									<div className="mb-5">
-										<label className="block text-sm font-medium text-gray-300 mb-2">
-											Notes (optional)
-										</label>
-										<textarea
-											value={bookingNotes}
-											onChange={(e) => setBookingNotes(e.target.value)}
-											placeholder="What would you like to discuss?"
-											rows={3}
-											className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 resize-none transition-colors"
-											maxLength={500}
-										/>
-									</div>
-								)}
-
-								{bookingError && (
-									<div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-300">
-										{bookingError}
-									</div>
-								)}
-
-								{/* Actions */}
-								<div className="flex gap-3">
-									<button
-										onClick={() => !bookingSubmitting && setShowBookingModal(false)}
-										className="flex-1 px-4 py-2.5 rounded-xl border border-white/10 text-sm font-medium text-gray-400 hover:text-white hover:border-white/20 transition-colors"
-										disabled={bookingSubmitting}
-									>
-										Cancel
-									</button>
-									<button
-										onClick={handleBookSession}
-										disabled={bookingSubmitting || !selectedSlot || !selectedDate}
-										className="flex-1 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:bg-violet-600/50 disabled:cursor-not-allowed text-sm font-medium text-white transition-colors flex items-center justify-center gap-2"
-									>
-										{bookingSubmitting ? (
-											<>
-												<svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-													<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-													<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-												</svg>
-												Booking...
-											</>
-										) : (
-											<>
-												<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-													<path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-												</svg>
-												Book Session
-											</>
-										)}
-									</button>
-								</div>
-							</>
-						)}
-					</div>
-				</div>
-			)}
 		</div>
 	);
 }
