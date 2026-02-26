@@ -7,13 +7,14 @@ import { getSessionToken } from '@/lib/auth-utils';
 interface Mentor {
     id: string;
     name: string;
-    title: string;
-    company: string;
+    occupation: string;
     expertise: string[];
     avatar?: string | null;
-    bio?: string;
-    location?: string;
+    verified: boolean;
     status: string;
+    rate?: string | null;
+    achievements: string[];
+    packages: string[];
 }
 
 interface ConnectionRequest {
@@ -34,6 +35,27 @@ const EXPERTISE_OPTIONS = [
     'Growth',
     'Operations',
 ];
+
+/* ── Verified / Approved badge icon ── */
+function VerifiedBadge({ verified, status }: { verified: boolean; status: string }) {
+    if (verified) {
+        return (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+                <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.403 12.652a3 3 0 010-5.304 3 3 0 00-1.06-1.06 3 3 0 01-5.304 0 3 3 0 00-1.06 1.06 3 3 0 010 5.304 3 3 0 001.06 1.06 3 3 0 015.304 0 3 3 0 001.06-1.06zM13.28 8.72a.75.75 0 010 1.06l-3 3a.75.75 0 01-1.06 0l-1.5-1.5a.75.75 0 111.06-1.06l.97.97 2.47-2.47a.75.75 0 011.06 0z" clipRule="evenodd" /></svg>
+                Verified
+            </span>
+        );
+    }
+    if (status === 'approved') {
+        return (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
+                <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" /></svg>
+                Approved
+            </span>
+        );
+    }
+    return null;
+}
 
 export default function ExploreMentorsPage() {
     const [mentors, setMentors] = useState<Mentor[]>([]);
@@ -57,20 +79,42 @@ export default function ExploreMentorsPage() {
                 const json = await res.json();
                 const raw = json.mentors ?? json.data ?? (Array.isArray(json) ? json : []);
 
-                // Map API fields → UI fields
-                const mapped: Mentor[] = raw.map((m: Record<string, unknown>) => ({
-                    id: m.id as string,
-                    name: (m.user_name as string) || (m.name as string) || 'Mentor',
-                    title: (m.occupation as string) || (m.role_title as string) || '',
-                    company: (m.company as string) || '',
-                    expertise: typeof m.expertise === 'string'
-                        ? m.expertise.split(',').map((s: string) => s.trim()).filter(Boolean)
-                        : Array.isArray(m.expertise) ? m.expertise : [],
-                    avatar: m.avatar as string || null,
-                    bio: (m.bio as string) || (m.achievements as string) || '',
-                    location: m.location as string || '',
-                    status: (m.status as string) || 'approved',
-                }));
+                const mapped: Mentor[] = raw.map((m: Record<string, unknown>) => {
+                    // expertise
+                    let exp: string[] = [];
+                    if (typeof m.expertise === 'string') {
+                        exp = m.expertise.split(',').map((s: string) => s.trim()).filter(Boolean);
+                    } else if (Array.isArray(m.expertise)) {
+                        exp = m.expertise as string[];
+                    }
+                    // achievements
+                    let ach: string[] = [];
+                    if (typeof m.achievements === 'string') {
+                        ach = m.achievements.split('\n').map((s: string) => s.trim()).filter(Boolean);
+                    } else if (Array.isArray(m.achievements)) {
+                        ach = m.achievements as string[];
+                    }
+                    // packages
+                    let pkgs: string[] = [];
+                    if (typeof m.packages === 'string') {
+                        pkgs = m.packages.split('\n').map((s: string) => s.trim()).filter(Boolean);
+                    } else if (Array.isArray(m.packages)) {
+                        pkgs = m.packages as string[];
+                    }
+
+                    return {
+                        id: m.id as string,
+                        name: (m.user_name as string) || (m.name as string) || 'Mentor',
+                        occupation: (m.occupation as string) || '',
+                        expertise: exp,
+                        avatar: (m.avatar as string) || null,
+                        verified: !!m.verified,
+                        status: (m.status as string) || 'approved',
+                        rate: m.rate as string || m.pricing_per_hour as string || null,
+                        achievements: ach,
+                        packages: pkgs,
+                    };
+                });
 
                 setMentors(mapped);
             } catch (err) {
@@ -118,7 +162,6 @@ export default function ExploreMentorsPage() {
     const handleConnectClick = (mentor: Mentor) => {
         const token = getSessionToken();
         if (!token) {
-            // Redirect to login
             window.location.href = '/login';
             return;
         }
@@ -172,113 +215,165 @@ export default function ExploreMentorsPage() {
         return 'Connect';
     };
 
-    const getConnectionStyle = (mentorId: string) => {
+    const getConnectionDisabled = (mentorId: string) =>
+        ['pending', 'accepted'].includes(connectionStatuses[mentorId]);
+
+    const getConnectionBtnClass = (mentorId: string) => {
         const status = connectionStatuses[mentorId];
-        if (status === 'pending') return 'bg-amber-500/20 text-amber-300 border border-amber-500/30 cursor-default';
-        if (status === 'accepted') return 'bg-green-500/20 text-green-300 border border-green-500/30 cursor-default';
-        if (status === 'rejected') return 'bg-red-500/20 text-red-300 border border-red-500/30 cursor-default';
-        return 'bg-white/10 hover:bg-white/20 text-white';
+        if (status === 'pending') return 'bg-amber-500/15 text-amber-400 border-amber-500/25 cursor-default';
+        if (status === 'accepted') return 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25 cursor-default';
+        if (status === 'rejected') return 'bg-red-500/15 text-red-400 border-red-500/25 cursor-default';
+        return 'bg-white text-gray-900 border-white/80 hover:bg-gray-100';
     };
 
     return (
         <div className="p-6">
             {/* Filters */}
-            <div className="flex gap-3 mb-8">
-                <select
-                    value={expertise}
-                    onChange={(e) => setExpertise(e.target.value)}
-                    className="h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-white/30"
-                >
-                    {EXPERTISE_OPTIONS.map((opt) => (
-                        <option key={opt} value={opt} className="bg-[#0B0D10]">
-                            {opt === 'all' ? 'All Expertise' : opt}
-                        </option>
-                    ))}
-                </select>
+            <div className="flex flex-wrap gap-2 mb-8">
+                {EXPERTISE_OPTIONS.map((opt) => (
+                    <button
+                        key={opt}
+                        onClick={() => setExpertise(opt)}
+                        className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${expertise === opt
+                                ? 'bg-white text-gray-900 border-white/80 shadow-sm'
+                                : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-gray-200'
+                            }`}
+                    >
+                        {opt === 'all' ? 'All' : opt}
+                    </button>
+                ))}
             </div>
 
             {/* Skeleton */}
             {loading && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="h-48 rounded-2xl bg-white/5 border border-white/10 animate-pulse" />
+                        <div key={i} className="rounded-2xl bg-white/3 border border-white/6 overflow-hidden">
+                            <div className="flex flex-col items-center pt-8 pb-4 px-5">
+                                <div className="w-20 h-20 rounded-full bg-white/5 animate-pulse mb-4" />
+                                <div className="h-4 w-32 bg-white/5 rounded animate-pulse mb-2" />
+                                <div className="h-3 w-24 bg-white/5 rounded animate-pulse mb-4" />
+                                <div className="flex gap-2">
+                                    <div className="h-6 w-16 bg-white/5 rounded-full animate-pulse" />
+                                    <div className="h-6 w-16 bg-white/5 rounded-full animate-pulse" />
+                                </div>
+                            </div>
+                            <div className="px-5 pb-5">
+                                <div className="h-10 bg-white/5 rounded-xl animate-pulse" />
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}
 
             {/* Grid */}
             {!loading && displayMentors.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {displayMentors.map((mentor, index) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {displayMentors.map((mentor) => (
                         <div
                             key={mentor.id}
-                            className="group bg-white/5 hover:bg-white/8 border border-white/10 hover:border-white/20 rounded-2xl p-5 transition-all duration-300 flex flex-col"
-                            style={{ animationDelay: `${index * 40}ms` }}
+                            className="group relative bg-white/3 hover:bg-white/6 border border-white/6 hover:border-white/12 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col"
                         >
-                            {/* Avatar + Name */}
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-12 h-12 rounded-full bg-linear-to-br from-violet-500/30 to-indigo-500/30 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                    {mentor.avatar ? (
-                                        <img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span className="text-base font-bold text-gray-300">{mentor.name.charAt(0).toUpperCase()}</span>
+                            {/* Card body */}
+                            <div className="flex flex-col items-center pt-7 pb-2 px-5">
+                                {/* Avatar + verified indicator */}
+                                <div className="relative mb-4">
+                                    <div className="w-19 h-19 rounded-full bg-linear-to-br from-violet-500/20 to-indigo-500/20 border-2 border-white/10 flex items-center justify-center overflow-hidden">
+                                        {mentor.avatar ? (
+                                            <img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-2xl font-bold text-gray-400">
+                                                {mentor.name.charAt(0).toUpperCase()}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {/* Verified dot */}
+                                    {mentor.verified && (
+                                        <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-[#0B0D10] flex items-center justify-center">
+                                            <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </div>
                                     )}
                                 </div>
-                                <div className="min-w-0">
-                                    <h3 className="text-[15px] font-semibold text-white truncate">{mentor.name}</h3>
-                                    <p className="text-xs text-gray-500 truncate">
-                                        {mentor.title}{mentor.company ? ` · ${mentor.company}` : ''}
-                                    </p>
+
+                                {/* Name + badge */}
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h3 className="text-[15px] font-semibold text-white truncate max-w-45">
+                                        {mentor.name}
+                                    </h3>
+                                    <VerifiedBadge verified={mentor.verified} status={mentor.status} />
                                 </div>
+
+                                {/* Occupation */}
+                                {mentor.occupation && (
+                                    <p className="text-xs text-gray-500 mb-3 text-center line-clamp-1">
+                                        {mentor.occupation}
+                                    </p>
+                                )}
+
+                                {/* Expertise tags */}
+                                {mentor.expertise.length > 0 && (
+                                    <div className="flex flex-wrap justify-center gap-1.5 mb-3">
+                                        {mentor.expertise.slice(0, 4).map((tag) => (
+                                            <span
+                                                key={tag}
+                                                className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-white/6 text-gray-300 border border-white/8"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                        {mentor.expertise.length > 4 && (
+                                            <span className="text-[11px] text-gray-600 px-1.5 py-0.5">
+                                                +{mentor.expertise.length - 4}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Achievements */}
+                                {mentor.achievements.length > 0 && (
+                                    <div className="w-full mt-1 mb-2">
+                                        <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-white/3 border border-white/5">
+                                            <svg className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" />
+                                            </svg>
+                                            <p className="text-[11px] text-gray-400 line-clamp-1">
+                                                {mentor.achievements[0]}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Rate */}
+                                {mentor.rate && (
+                                    <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>${Number(mentor.rate).toLocaleString()}/hr</span>
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Bio */}
-                            {mentor.bio && (
-                                <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">{mentor.bio}</p>
-                            )}
-
-                            {/* Expertise tags */}
-                            {(mentor.expertise ?? []).length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mb-4">
-                                    {mentor.expertise.slice(0, 4).map((tag) => (
-                                        <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-300 border border-violet-500/20">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Footer */}
-                            <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-                                {mentor.location && (
-                                    <span className="flex items-center gap-1 text-xs text-gray-500">
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        {mentor.location}
-                                    </span>
-                                )}
-                                <div className="ml-auto flex items-center gap-2">
-                                    <Link
-                                        href={`/explore/mentors/${mentor.id}`}
-                                        className="text-xs font-medium px-3 py-1.5 rounded-xl border border-white/10 hover:border-white/20 text-gray-300 hover:text-white transition-colors"
-                                    >
-                                        View
-                                    </Link>
-                                    <button
-                                        onClick={() => {
-                                            const status = connectionStatuses[mentor.id];
-                                            if (!status || status === 'rejected') {
-                                                handleConnectClick(mentor);
-                                            }
-                                        }}
-                                        disabled={['pending', 'accepted'].includes(connectionStatuses[mentor.id])}
-                                        className={`text-xs font-medium px-3 py-1.5 rounded-xl transition-colors ${getConnectionStyle(mentor.id)}`}
-                                    >
-                                        {getConnectionLabel(mentor.id)}
-                                    </button>
-                                </div>
+                            {/* Footer actions */}
+                            <div className="mt-auto px-5 pb-5 pt-3 flex gap-2">
+                                <Link
+                                    href={`/explore/mentors/${mentor.id}`}
+                                    className="flex-1 text-center text-sm font-medium py-2.5 rounded-xl border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition-colors"
+                                >
+                                    View Profile
+                                </Link>
+                                <button
+                                    onClick={() => {
+                                        const st = connectionStatuses[mentor.id];
+                                        if (!st || st === 'rejected') handleConnectClick(mentor);
+                                    }}
+                                    disabled={getConnectionDisabled(mentor.id)}
+                                    className={`flex-1 text-sm font-medium py-2.5 rounded-xl border transition-colors ${getConnectionBtnClass(mentor.id)}`}
+                                >
+                                    {getConnectionLabel(mentor.id)}
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -297,15 +392,11 @@ export default function ExploreMentorsPage() {
             {/* Connection Request Modal */}
             {showConnectModal && selectedMentor && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    {/* Backdrop */}
                     <div
                         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                         onClick={() => !submitting && setShowConnectModal(false)}
                     />
-
-                    {/* Modal */}
                     <div className="relative bg-[#12141a] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                        {/* Close button */}
                         <button
                             onClick={() => !submitting && setShowConnectModal(false)}
                             className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
@@ -315,7 +406,6 @@ export default function ExploreMentorsPage() {
                             </svg>
                         </button>
 
-                        {/* Header */}
                         <div className="flex items-center gap-3 mb-6">
                             <div className="w-12 h-12 rounded-full bg-linear-to-br from-violet-500/30 to-indigo-500/30 border border-white/10 flex items-center justify-center overflow-hidden">
                                 {selectedMentor.avatar ? (
@@ -328,17 +418,14 @@ export default function ExploreMentorsPage() {
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold text-white">Connect with {selectedMentor.name}</h3>
-                                <p className="text-xs text-gray-500">
-                                    {selectedMentor.title}{selectedMentor.company ? ` · ${selectedMentor.company}` : ''}
-                                </p>
+                                {selectedMentor.occupation && (
+                                    <p className="text-xs text-gray-500">{selectedMentor.occupation}</p>
+                                )}
                             </div>
                         </div>
 
-                        {/* Message input */}
                         <div className="mb-6">
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Introduce yourself
-                            </label>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Introduce yourself</label>
                             <textarea
                                 value={connectMessage}
                                 onChange={(e) => setConnectMessage(e.target.value)}
@@ -347,12 +434,9 @@ export default function ExploreMentorsPage() {
                                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 resize-none transition-colors"
                                 maxLength={1000}
                             />
-                            <p className="text-xs text-gray-600 mt-1.5 text-right">
-                                {connectMessage.length}/1000
-                            </p>
+                            <p className="text-xs text-gray-600 mt-1.5 text-right">{connectMessage.length}/1000</p>
                         </div>
 
-                        {/* Actions */}
                         <div className="flex gap-3">
                             <button
                                 onClick={() => !submitting && setShowConnectModal(false)}
