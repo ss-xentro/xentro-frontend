@@ -18,10 +18,23 @@ interface ConnectionRequest {
     created_at: string;
 }
 
+interface MentorStats {
+    activeMentees: number;
+    sessionsThisMonth: number;
+    totalSessions: number;
+    rating: number | null;
+    pendingRequests: number;
+    totalBookings: number;
+}
+
 export default function MentorDashboardPage() {
     const [loading, setLoading] = useState(true);
     const [pendingRequests, setPendingRequests] = useState<ConnectionRequest[]>([]);
     const [requestsLoading, setRequestsLoading] = useState(true);
+    const [stats, setStats] = useState<MentorStats>({
+        activeMentees: 0, sessionsThisMonth: 0, totalSessions: 0,
+        rating: null, pendingRequests: 0, totalBookings: 0,
+    });
 
     useEffect(() => {
         const timer = setTimeout(() => setLoading(false), 500);
@@ -52,6 +65,26 @@ export default function MentorDashboardPage() {
             }
         }
         loadRequests();
+    }, []);
+
+    // Load mentor stats
+    useEffect(() => {
+        async function loadStats() {
+            const token = getSessionToken('mentor');
+            if (!token) return;
+            try {
+                const res = await fetch('/api/mentor-stats/', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (res.ok) {
+                    const json = await res.json();
+                    setStats(json.data ?? json);
+                }
+            } catch {
+                // ignore
+            }
+        }
+        loadStats();
     }, []);
 
     if (loading) {
@@ -112,7 +145,7 @@ export default function MentorDashboardPage() {
                         </div>
                         <div>
                             <p className="text-sm text-(--secondary)">Active Mentees</p>
-                            <p className="text-2xl font-bold text-(--primary)">0</p>
+                            <p className="text-2xl font-bold text-(--primary)">{stats.activeMentees}</p>
                         </div>
                     </div>
                 </Card>
@@ -126,7 +159,7 @@ export default function MentorDashboardPage() {
                         </div>
                         <div>
                             <p className="text-sm text-(--secondary)">Sessions This Month</p>
-                            <p className="text-2xl font-bold text-(--primary)">0</p>
+                            <p className="text-2xl font-bold text-(--primary)">{stats.sessionsThisMonth}</p>
                         </div>
                     </div>
                 </Card>
@@ -140,7 +173,7 @@ export default function MentorDashboardPage() {
                         </div>
                         <div>
                             <p className="text-sm text-(--secondary)">Rating</p>
-                            <p className="text-2xl font-bold text-(--primary)">—</p>
+                            <p className="text-2xl font-bold text-(--primary)">{stats.rating ? `${stats.rating.toFixed(1)} ★` : '—'}</p>
                         </div>
                     </div>
                 </Card>
@@ -153,8 +186,8 @@ export default function MentorDashboardPage() {
                             </svg>
                         </div>
                         <div>
-                            <p className="text-sm text-(--secondary)">Earnings</p>
-                            <p className="text-2xl font-bold text-(--primary)">$0</p>
+                            <p className="text-sm text-(--secondary)">Total Bookings</p>
+                            <p className="text-2xl font-bold text-(--primary)">{stats.totalBookings}</p>
                         </div>
                     </div>
                 </Card>
@@ -178,7 +211,7 @@ export default function MentorDashboardPage() {
                         {pendingRequests.map((req) => (
                             <div
                                 key={req.id}
-                                className="flex items-start gap-3 p-3 rounded-lg border border-(--border) bg-(--background) hover:bg-(--surface-hover) transition-colors"
+                                className="flex items-start gap-3 p-3 rounded-lg border border-(--border) bg-background hover:bg-(--surface-hover) transition-colors"
                             >
                                 <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold shrink-0">
                                     {req.requester_name?.charAt(0).toUpperCase() || '?'}
