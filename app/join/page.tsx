@@ -129,7 +129,13 @@ export default function JoinPage() {
                       {role.description}
                     </p>
 
-                    <div className={`hidden md:flex items-center text-sm group-hover:translate-x-1 transition-transform duration-200 ${selectedRole === role.id ? 'text-gray-200' : 'text-gray-700'}`}>
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(PURPOSE_DESTINATIONS[role.id]);
+                      }}
+                      className={`hidden md:flex items-center text-sm group-hover:translate-x-1 transition-transform duration-200 cursor-pointer hover:opacity-80 ${selectedRole === role.id ? 'text-gray-200' : 'text-gray-700'}`}
+                    >
                       <span className="mr-2">Continue</span>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
