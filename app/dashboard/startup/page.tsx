@@ -166,7 +166,7 @@ export default function StartupSettingsPage() {
                                     <div className="grid gap-2">
                                         <label className="block text-sm font-medium text-(--primary) mb-2">Logo</label>
                                         <div className="flex items-center gap-6">
-                                            <div className="w-20 h-20 rounded-xl bg-(--surface-hover) border border-(--border) flex items-center justify-center overflow-hidden">
+                                            <div className="w-20 h-20 rounded-xl bg-(--surface-hover) border border-(--border) flex items-center justify-center overflow-hidden shrink-0">
                                                 {data.logo ? (
                                                     <img src={data.logo} alt="Logo" className="w-full h-full object-cover" />
                                                 ) : (
@@ -177,13 +177,32 @@ export default function StartupSettingsPage() {
                                             </div>
                                             <div className="flex-1">
                                                 <FileUpload
-                                                    value={data.logo}
-                                                    onChange={(url) => setData({ ...data, logo: url })}
+                                                    value={data.logo || ''}
+                                                    onChange={(url) => setData((prev: any) => ({ ...prev, logo: url }))}
                                                     folder="startup-logos"
                                                     className="w-full"
                                                     accept="image/*"
                                                 />
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <label className="block text-sm font-medium text-(--primary) mb-2">Cover Photo</label>
+                                        <div className="flex flex-col gap-3">
+                                            {data.coverImage && (
+                                                <div className="w-full h-32 sm:h-40 rounded-xl bg-(--surface-hover) border border-(--border) overflow-hidden shrink-0">
+                                                    <img src={data.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                                                </div>
+                                            )}
+                                            <FileUpload
+                                                value={data.coverImage || ''}
+                                                onChange={(url) => setData((prev: any) => ({ ...prev, coverImage: url }))}
+                                                folder="startup-covers"
+                                                className="w-full"
+                                                accept="image/*"
+                                            />
+                                            <p className="text-xs text-(--secondary)">Recommended size: 1200 x 400px (3:1 aspect ratio).</p>
                                         </div>
                                     </div>
 

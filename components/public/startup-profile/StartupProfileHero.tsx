@@ -23,11 +23,22 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 
 	return (
 		<section className="border-b border-(--border)">
-			<div className="max-w-5xl mx-auto px-4 sm:px-6 pt-10 pb-8">
+			{/* Cover Photo */}
+			{startup.coverImage && (
+				<div className="w-full h-48 sm:h-64 md:h-80 bg-(--surface-hover) relative">
+					<img src={startup.coverImage} alt="Cover" className="w-full h-full object-cover" />
+					{/* Optional gradient overlay for better contrast if elements overlap it */}
+					<div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
+				</div>
+			)}
+			<div className={cn("max-w-5xl mx-auto px-4 sm:px-6 pb-8", startup.coverImage ? "" : "pt-10")}>
 				{/* Top row: Logo + Info + Actions */}
 				<div className="flex flex-col sm:flex-row gap-6">
 					{/* Logo */}
-					<div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border border-(--border) bg-(--surface) shadow-(--shadow-sm) flex items-center justify-center overflow-hidden shrink-0">
+					<div className={cn(
+						"w-20 h-20 sm:w-28 sm:h-28 rounded-2xl border-4 border-(--surface) bg-(--surface) shadow-(--shadow-sm) flex items-center justify-center overflow-hidden shrink-0",
+						startup.coverImage ? "-mt-10 sm:-mt-14 relative z-10" : ""
+					)}>
 						{startup.logo ? (
 							<img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
 						) : (
@@ -36,7 +47,7 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 					</div>
 
 					{/* Info */}
-					<div className="flex-1 min-w-0">
+					<div className={cn("flex-1 min-w-0", startup.coverImage ? "pt-2 sm:pt-3" : "")}>
 						<div className="flex flex-wrap items-center gap-2.5 mb-1">
 							<h1 className="text-2xl sm:text-3xl font-bold text-(--primary) tracking-tight">{startup.name}</h1>
 							<span className={cn('px-2.5 py-0.5 rounded-full text-xs font-medium', statusInfo.color)}>
