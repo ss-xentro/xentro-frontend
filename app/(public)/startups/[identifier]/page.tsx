@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { StartupProfileNavbar } from '@/components/public/StartupProfileNavbar';
 import {
   StartupProfileHero,
-  StartupDemoVideo,
   PitchAboutCards,
   PitchCompetitors,
   PitchCustomers,
@@ -139,11 +138,6 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                     &ldquo;{startup.pitch}&rdquo;
                   </p>
                 </section>
-              )}
-
-              {/* Demo Video */}
-              {startup.demoVideoUrl && (
-                <StartupDemoVideo demoVideoUrl={startup.demoVideoUrl} />
               )}
 
               {/* About / Problem / Solution */}

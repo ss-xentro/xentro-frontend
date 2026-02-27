@@ -1,6 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui';
+import { Button } from '@/components/ui'; // Keep existing Button import
+import { VideoModal } from '@/components/ui/VideoModal'; // Add new VideoModal import
+import { useState } from 'react'; // Add useState import
 import { startupStageLabels, startupStatusLabels, fundingRoundLabels } from '@/lib/types';
 import { cn, formatCurrency } from '@/lib/utils';
 import type { StartupWithDetails } from './types';
@@ -10,6 +12,8 @@ interface StartupProfileHeroProps {
 }
 
 export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
+	const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
 	const stageInfo = startup.stage ? startupStageLabels[startup.stage] : null;
 	const statusInfo = startupStatusLabels[startup.status];
 	const fundingInfo = startup.fundingRound ? fundingRoundLabels[startup.fundingRound] : null;
@@ -70,65 +74,85 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 					</div>
 
 					{/* Info Below Logo */}
-					<div className="flex flex-col min-w-0 pt-1">
-						<div className="flex flex-wrap items-center gap-2.5 mb-2">
-							<h1 className="text-2xl sm:text-3xl font-bold text-(--primary) tracking-tight">{startup.name}</h1>
-							<span className={cn('px-2.5 py-0.5 rounded-full text-xs font-medium', statusInfo.color)}>
-								{statusInfo.label}
-							</span>
+					<div className="flex flex-col md:flex-row gap-6 pt-1">
+
+						{/* Left Column: Info */}
+						<div className="flex-1 min-w-0 flex flex-col">
+							<div className="flex flex-wrap items-center gap-2.5 mb-2">
+								<h1 className="text-2xl sm:text-3xl font-bold text-(--primary) tracking-tight">{startup.name}</h1>
+								<span className={cn('px-2.5 py-0.5 rounded-full text-xs font-medium', statusInfo.color)}>
+									{statusInfo.label}
+								</span>
+							</div>
+
+							{startup.tagline && (
+								<p className="text-base text-(--secondary) mb-4 max-w-xl leading-relaxed">{startup.tagline}</p>
+							)}
+
+							{/* Meta row */}
+							<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-(--secondary)">
+								{stageInfo && (
+									<span className="flex items-center gap-1.5">
+										<span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+										{stageInfo.label}
+									</span>
+								)}
+								{fundingInfo && (
+									<span className="flex items-center gap-1.5">
+										<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+										{fundingInfo.label}
+									</span>
+								)}
+								{startup.industry && (
+									<span className="flex items-center gap-1.5">
+										<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+										{startup.industry}
+									</span>
+								)}
+								{location && (
+									<span className="flex items-center gap-1.5">
+										<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+										{location}
+									</span>
+								)}
+								{startup.foundedDate && (
+									<span className="flex items-center gap-1.5">
+										<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+										Founded {new Date(startup.foundedDate).getFullYear()}
+									</span>
+								)}
+								{startup.teamSize && (
+									<span className="flex items-center gap-1.5">
+										<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+										{startup.teamSize} people
+									</span>
+								)}
+							</div>
 						</div>
 
-						{startup.tagline && (
-							<p className="text-base text-(--secondary) mb-4 max-w-xl leading-relaxed">{startup.tagline}</p>
+						{/* Right Column: Funding Progress (Desktop) / Mobile wraps below */}
+						{fundingGoal > 0 && (
+							<div className="w-full md:w-80 shrink-0 p-4 rounded-xl border border-(--border) bg-(--surface-hover)/30 flex flex-col justify-center">
+								<div className="flex items-center justify-between mb-2">
+									<div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+										<span className="text-lg font-bold text-(--primary)">{formatCurrency(fundsRaised, startup.fundingCurrency || 'USD')}</span>
+										<span className="text-xs sm:text-sm text-(--secondary)">raised of {formatCurrency(fundingGoal, startup.fundingCurrency || 'USD')}</span>
+									</div>
+									<span className="text-sm font-medium text-(--primary) ml-2 shrink-0">{Math.round(fundingProgress)}%</span>
+								</div>
+								<div className="w-full h-1.5 bg-(--border) rounded-full overflow-hidden mt-1">
+									<div className="h-full bg-(--primary) rounded-full transition-all duration-700" style={{ width: `${fundingProgress}%` }} />
+								</div>
+							</div>
 						)}
-
-						{/* Meta row */}
-						<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-(--secondary)">
-							{stageInfo && (
-								<span className="flex items-center gap-1.5">
-									<span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-									{stageInfo.label}
-								</span>
-							)}
-							{fundingInfo && (
-								<span className="flex items-center gap-1.5">
-									<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-									{fundingInfo.label}
-								</span>
-							)}
-							{startup.industry && (
-								<span className="flex items-center gap-1.5">
-									<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-									{startup.industry}
-								</span>
-							)}
-							{location && (
-								<span className="flex items-center gap-1.5">
-									<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-									{location}
-								</span>
-							)}
-							{startup.foundedDate && (
-								<span className="flex items-center gap-1.5">
-									<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-									Founded {new Date(startup.foundedDate).getFullYear()}
-								</span>
-							)}
-							{startup.teamSize && (
-								<span className="flex items-center gap-1.5">
-									<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-									{startup.teamSize} people
-								</span>
-							)}
-						</div>
 					</div>
 
 					{/* Mobile Actions */}
-					<div className="flex sm:hidden items-center gap-2 mt-2">
+					<div className="flex sm:hidden flex-wrap items-center gap-2 mt-4">
 						{startup.website && (
-							<a href={startup.website} target="_blank" rel="noopener noreferrer" className="flex-1">
+							<a href={startup.website} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-[120px]">
 								<Button variant="primary" size="sm" className="w-full gap-2 justify-center">
-									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+									<svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
 									Website
 								</Button>
 							</a>
@@ -137,29 +161,41 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 							variant="secondary"
 							size="sm"
 							onClick={() => { navigator.clipboard.writeText(window.location.href); }}
-							className="flex-1 gap-2 justify-center"
+							className="flex-1 min-w-[120px] gap-2 justify-center"
 						>
-							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+							<svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
 							Share
 						</Button>
+
+						{startup.demoVideoUrl && (
+							<Button
+								variant="secondary"
+								size="sm"
+								className="w-full gap-2 justify-center mt-2"
+								onClick={() => setIsVideoModalOpen(true)}
+							>
+								<svg className="w-4 h-4 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
+								Watch Video
+							</Button>
+						)}
 					</div>
 				</div>
 
-				{/* Funding bar — inline */}
-				{fundingGoal > 0 && (
-					<div className="mt-6 p-4 rounded-xl border border-(--border) bg-(--surface-hover)/30">
-						<div className="flex items-center justify-between mb-2">
-							<div className="flex items-baseline gap-2">
-								<span className="text-lg font-bold text-(--primary)">{formatCurrency(fundsRaised, startup.fundingCurrency || 'USD')}</span>
-								<span className="text-sm text-(--secondary)">raised of {formatCurrency(fundingGoal, startup.fundingCurrency || 'USD')}</span>
-							</div>
-							<span className="text-sm font-medium text-(--primary)">{Math.round(fundingProgress)}%</span>
-						</div>
-						<div className="w-full h-1.5 bg-(--border) rounded-full overflow-hidden">
-							<div className="h-full bg-(--primary) rounded-full transition-all duration-700" style={{ width: `${fundingProgress}%` }} />
-						</div>
-					</div>
-				)}
+				{/* Previous inline funding bar was removed from here. Replacing with Watch Video. */}
+				<div className="mt-6">
+					{startup.demoVideoUrl && (
+						<Button
+							variant="secondary"
+							size="sm"
+							className="gap-2 hidden sm:inline-flex"
+							onClick={() => setIsVideoModalOpen(true)}
+						>
+							{/* YouTube Icon */}
+							<svg className="w-5 h-5 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
+							Watch Video
+						</Button>
+					)}
+				</div>
 
 				{/* Social links row */}
 				{(startup.linkedin || startup.twitter || startup.instagram || startup.pitchDeckUrl) && (
@@ -191,6 +227,15 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 					</div>
 				)}
 			</div>
+
+			{/* Video Modal rendered cleanly outside normal document flow via portal */}
+			{startup.demoVideoUrl && (
+				<VideoModal
+					isOpen={isVideoModalOpen}
+					onClose={() => setIsVideoModalOpen(false)}
+					videoUrl={startup.demoVideoUrl}
+				/>
+			)}
 		</section>
 	);
 }

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { FileUpload } from '@/components/ui/FileUpload';
+import { VideoUpload } from '@/components/ui/VideoUpload';
 import {
     StartupPitchData,
     PitchAbout,
@@ -21,6 +22,14 @@ import {
 
 /* ─── Section config ─── */
 const SECTIONS = [
+    {
+        key: 'videoPitch',
+        label: 'Video Pitch',
+        subtitle: 'Elevator pitch video',
+        icon: (
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        ),
+    },
     {
         key: 'about',
         label: 'Story',
@@ -172,9 +181,10 @@ export default function PitchEditorPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-    const [activeSection, setActiveSection] = useState<SectionKey>('about');
+    const [activeSection, setActiveSection] = useState<SectionKey>('videoPitch');
 
     // Pitch data state
+    const [demoVideoUrl, setDemoVideoUrl] = useState<string | null>(null);
     const [aboutData, setAboutData] = useState<PitchAbout>({ about: '', problemStatement: '', solutionProposed: '' });
     const [competitors, setCompetitors] = useState<PitchCompetitor[]>([]);
     const [customers, setCustomers] = useState<PitchCustomer[]>([]);
@@ -189,6 +199,7 @@ export default function PitchEditorPage() {
     /* ─── Completion tracking ─── */
     const sectionCompletion = useMemo(() => {
         return {
+            videoPitch: !!demoVideoUrl,
             about: hasValidPitchContent(aboutData.about) || hasValidPitchContent(aboutData.problemStatement) || hasValidPitchContent(aboutData.solutionProposed),
             competitors: competitors.some(hasValidPitchItem),
             customers: customers.some(hasValidPitchItem),
@@ -198,7 +209,7 @@ export default function PitchEditorPage() {
             impacts: impacts.some(hasValidPitchItem),
             certifications: certifications.some(hasValidPitchItem),
         };
-    }, [aboutData, competitors, customers, businessModels, marketSizes, visionStrategies, impacts, certifications]);
+    }, [aboutData, competitors, customers, businessModels, marketSizes, visionStrategies, impacts, certifications, demoVideoUrl]);
 
     const completedCount = useMemo(
         () => Object.values(sectionCompletion).filter(Boolean).length,
@@ -234,6 +245,7 @@ export default function PitchEditorPage() {
             const sid = startup.id;
             setStartupId(sid);
             if (startupJson.data?.founderRole) setMyRole(startupJson.data.founderRole);
+            if (startup.demoVideoUrl) setDemoVideoUrl(startup.demoVideoUrl);
 
             const pitchRes = await fetch(`/api/startups/${sid}/pitch/`, {
                 headers: { 'x-public-view': 'true' },
@@ -282,7 +294,20 @@ export default function PitchEditorPage() {
                 body: JSON.stringify(payload),
             });
 
-            if (!res.ok) throw new Error('Failed to save');
+            if (!res.ok) throw new Error('Failed to save pitch sections');
+
+            // Save demoVideoUrl to Startup model
+            const startupRes = await fetch(`/api/founder/startups/${startupId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ demoVideoUrl }),
+            });
+
+            if (!startupRes.ok) throw new Error('Failed to save video pitch');
+
             setMessage({ type: 'success', text: 'All changes saved successfully.' });
         } catch {
             setMessage({ type: 'error', text: 'Failed to save. Please try again.' });
@@ -471,6 +496,29 @@ export default function PitchEditorPage() {
                     </div>
 
                     <fieldset disabled={!canEdit} className={!canEdit ? 'opacity-75' : ''}>
+                        {/* ─── Video Pitch ─── */}
+                        {activeSection === 'videoPitch' && (
+                            <div className="space-y-5 animate-fadeInUp">
+                                <Card padding="none" className="overflow-hidden">
+                                    <div className="px-6 py-4 bg-linear-to-r from-(--surface-hover) to-transparent border-b border-(--border)">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-(--primary)" />
+                                            <span className="text-sm font-medium text-(--primary)">Video Pitch</span>
+                                        </div>
+                                        <p className="text-xs text-(--secondary) mt-0.5 ml-4">Record a short video introducing your startup. Max duration: 3 mins 5 secs.</p>
+                                    </div>
+                                    <div className="p-6">
+                                        <VideoUpload
+                                            value={demoVideoUrl}
+                                            onChange={setDemoVideoUrl}
+                                            folder="startup-demo-videos"
+                                            maxDuration={185}
+                                        />
+                                    </div>
+                                </Card>
+                            </div>
+                        )}
+
                         {/* ─── About / Problem / Solution ─── */}
                         {activeSection === 'about' && (
                             <div className="space-y-5 animate-fadeInUp">

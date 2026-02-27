@@ -27,7 +27,7 @@ interface ProfileData {
     profile_completed: boolean;
     user_name: string;
     user_email: string;
-    expertise: string;
+    expertise: string | string[];
     occupation: string;
     status: string;
 }
@@ -348,12 +348,12 @@ export default function MentorProfilePage() {
                     </div>
                     {profileData.expertise && (
                         <div className="mt-3 flex flex-wrap gap-2">
-                            {profileData.expertise.split(',').map((skill, idx) => (
+                            {(Array.isArray(profileData.expertise) ? profileData.expertise : String(profileData.expertise).split(',')).map((skill, idx) => (
                                 <span
                                     key={idx}
                                     className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-(--surface-hover) text-(--primary)"
                                 >
-                                    {skill.trim()}
+                                    {typeof skill === 'string' ? skill.trim() : skill}
                                 </span>
                             ))}
                         </div>

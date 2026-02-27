@@ -1,5 +1,4 @@
 export { StartupProfileHero } from './StartupProfileHero';
-export { StartupDemoVideo } from './StartupDemoVideo';
 export { PitchAboutCards } from './PitchAboutCards';
 export { PitchCompetitors } from './PitchCompetitors';
 export { PitchCustomers } from './PitchCustomers';
