@@ -1,9 +1,16 @@
 'use client';
 
 import type { PitchVisionStrategyItem } from './types';
+import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 
 interface PitchVisionStrategyProps {
 	items: PitchVisionStrategyItem[];
+}
+
+/** Check if a string contains HTML tags */
+function isHtml(str: string | null | undefined): boolean {
+	if (!str) return false;
+	return /<[a-z][\s\S]*>/i.test(str);
 }
 
 export function PitchVisionStrategy({ items }: PitchVisionStrategyProps) {
@@ -26,7 +33,11 @@ export function PitchVisionStrategy({ items }: PitchVisionStrategyProps) {
 						</div>
 						<h4 className="text-sm font-medium text-(--primary) mb-1">{item.title}</h4>
 						{item.description && (
-							<p className="text-xs text-(--secondary) leading-relaxed">{item.description}</p>
+							isHtml(item.description) ? (
+								<RichTextDisplay html={item.description} compact className="text-xs text-(--secondary)" />
+							) : (
+								<p className="text-xs text-(--secondary) leading-relaxed">{item.description}</p>
+							)
 						)}
 					</div>
 				))}

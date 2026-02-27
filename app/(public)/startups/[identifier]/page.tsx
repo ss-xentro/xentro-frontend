@@ -16,7 +16,7 @@ import {
   StartupSidebar,
 } from '@/components/public/startup-profile';
 import type { StartupWithDetails } from '@/components/public/startup-profile';
-import { cn } from '@/lib/utils';
+import { cn, hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
 
 type Tab = 'about' | 'team' | 'activity';
 
@@ -73,15 +73,21 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
   }
 
   // Pitch data
-  const pitchAbout = startup.pitchAbout;
-  const competitors = startup.pitchCompetitors || [];
-  const customers = startup.pitchCustomers || [];
-  const businessModels = startup.pitchBusinessModels || [];
-  const marketSizes = startup.pitchMarketSizes || [];
-  const visionStrategies = startup.pitchVisionStrategies || [];
-  const impacts = startup.pitchImpacts || [];
-  const certifications = startup.pitchCertifications || [];
-  const hasPitchContent = pitchAbout || competitors.length > 0 || customers.length > 0 || businessModels.length > 0;
+  const pitchAboutRaw = startup.pitchAbout;
+  const pitchAbout = pitchAboutRaw ? {
+    about: hasValidPitchContent(pitchAboutRaw.about) ? pitchAboutRaw.about : undefined,
+    problemStatement: hasValidPitchContent(pitchAboutRaw.problemStatement) ? pitchAboutRaw.problemStatement : undefined,
+    solutionProposed: hasValidPitchContent(pitchAboutRaw.solutionProposed) ? pitchAboutRaw.solutionProposed : undefined,
+  } : undefined;
+
+  const competitors = (startup.pitchCompetitors || []).filter(hasValidPitchItem);
+  const customers = (startup.pitchCustomers || []).filter(hasValidPitchItem);
+  const businessModels = (startup.pitchBusinessModels || []).filter(hasValidPitchItem);
+  const marketSizes = (startup.pitchMarketSizes || []).filter(hasValidPitchItem);
+  const visionStrategies = (startup.pitchVisionStrategies || []).filter(hasValidPitchItem);
+  const impacts = (startup.pitchImpacts || []).filter(hasValidPitchItem);
+  const certifications = (startup.pitchCertifications || []).filter(hasValidPitchItem);
+  const hasPitchContent = (pitchAbout && (pitchAbout.about || pitchAbout.problemStatement || pitchAbout.solutionProposed)) || competitors.length > 0 || customers.length > 0 || businessModels.length > 0 || marketSizes.length > 0 || visionStrategies.length > 0 || impacts.length > 0 || certifications.length > 0;
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'about', label: 'About' },

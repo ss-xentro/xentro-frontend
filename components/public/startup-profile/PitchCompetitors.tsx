@@ -1,9 +1,16 @@
 'use client';
 
 import type { PitchCompetitor } from './types';
+import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 
 interface PitchCompetitorsProps {
 	competitors: PitchCompetitor[];
+}
+
+/** Check if a string contains HTML tags */
+function isHtml(str: string | null | undefined): boolean {
+	if (!str) return false;
+	return /<[a-z][\s\S]*>/i.test(str);
 }
 
 export function PitchCompetitors({ competitors }: PitchCompetitorsProps) {
@@ -33,7 +40,11 @@ export function PitchCompetitors({ competitors }: PitchCompetitorsProps) {
 							</div>
 						</div>
 						{comp.description && (
-							<p className="text-xs text-(--secondary) leading-relaxed line-clamp-3">{comp.description}</p>
+							isHtml(comp.description) ? (
+								<RichTextDisplay html={comp.description} compact className="text-xs text-(--secondary) line-clamp-3" />
+							) : (
+								<p className="text-xs text-(--secondary) leading-relaxed line-clamp-3">{comp.description}</p>
+							)
 						)}
 					</div>
 				))}

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Textarea } from '@/components/ui/Textarea';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { FileUpload } from '@/components/ui/FileUpload';
 import {
     StartupPitchData,
@@ -187,16 +188,15 @@ export default function PitchEditorPage() {
 
     /* ─── Completion tracking ─── */
     const sectionCompletion = useMemo(() => {
-        const has = (v: string | null | undefined) => !!v?.trim();
         return {
-            about: has(aboutData.about) || has(aboutData.problemStatement) || has(aboutData.solutionProposed),
-            competitors: competitors.length > 0,
-            customers: customers.length > 0,
-            businessModels: businessModels.length > 0,
-            marketSizes: marketSizes.length > 0,
-            visionStrategies: visionStrategies.length > 0,
-            impacts: impacts.length > 0,
-            certifications: certifications.length > 0,
+            about: hasValidPitchContent(aboutData.about) || hasValidPitchContent(aboutData.problemStatement) || hasValidPitchContent(aboutData.solutionProposed),
+            competitors: competitors.some(hasValidPitchItem),
+            customers: customers.some(hasValidPitchItem),
+            businessModels: businessModels.some(hasValidPitchItem),
+            marketSizes: marketSizes.some(hasValidPitchItem),
+            visionStrategies: visionStrategies.some(hasValidPitchItem),
+            impacts: impacts.some(hasValidPitchItem),
+            certifications: certifications.some(hasValidPitchItem),
         };
     }, [aboutData, competitors, customers, businessModels, marketSizes, visionStrategies, impacts, certifications]);
 
@@ -342,8 +342,8 @@ export default function PitchEditorPage() {
             {/* ─── Toast message ─── */}
             {message && (
                 <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-(--shadow-lg) text-sm font-medium transition-all duration-300 animate-slideInRight ${message.type === 'success'
-                        ? 'bg-white border border-success/20 text-success'
-                        : 'bg-white border border-error/20 text-error'
+                    ? 'bg-white border border-success/20 text-success'
+                    : 'bg-white border border-error/20 text-error'
                     }`}>
                     {message.type === 'success' ? <CheckIcon className="w-4 h-4" /> : (
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -398,16 +398,16 @@ export default function PitchEditorPage() {
                                     key={s.key}
                                     onClick={() => setActiveSection(s.key)}
                                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-200 group ${isActive
-                                            ? 'bg-(--surface) shadow-(--shadow-sm) border border-(--border)'
-                                            : 'hover:bg-(--surface-hover)'
+                                        ? 'bg-(--surface) shadow-(--shadow-sm) border border-(--border)'
+                                        : 'hover:bg-(--surface-hover)'
                                         }`}
                                 >
                                     {/* Step indicator */}
                                     <span className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200 ${isDone
-                                            ? 'bg-success/10 text-success'
-                                            : isActive
-                                                ? 'bg-(--primary) text-white'
-                                                : 'bg-(--surface-hover) text-(--secondary) group-hover:bg-(--surface-pressed)'
+                                        ? 'bg-success/10 text-success'
+                                        : isActive
+                                            ? 'bg-(--primary) text-white'
+                                            : 'bg-(--surface-hover) text-(--secondary) group-hover:bg-(--surface-pressed)'
                                         }`}>
                                         {isDone ? <CheckIcon className="w-3.5 h-3.5" /> : (
                                             <span className="text-xs font-semibold">{idx + 1}</span>
@@ -437,10 +437,10 @@ export default function PitchEditorPage() {
                                     key={s.key}
                                     onClick={() => setActiveSection(s.key)}
                                     className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-[10px] font-medium transition-all min-w-15 ${isActive
-                                            ? 'bg-(--primary) text-white'
-                                            : isDone
-                                                ? 'text-success'
-                                                : 'text-(--secondary)'
+                                        ? 'bg-(--primary) text-white'
+                                        : isDone
+                                            ? 'text-success'
+                                            : 'text-(--secondary)'
                                         }`}
                                 >
                                     {isDone && !isActive ? <CheckIcon className="w-3.5 h-3.5" /> : (
@@ -483,11 +483,11 @@ export default function PitchEditorPage() {
                                         <p className="text-xs text-(--secondary) mt-0.5 ml-4">Give a concise overview of what your startup does.</p>
                                     </div>
                                     <div className="p-6">
-                                        <Textarea
+                                        <RichTextEditor
                                             value={aboutData.about || ''}
-                                            onChange={e => setAboutData({ ...aboutData, about: e.target.value })}
+                                            onChange={html => setAboutData({ ...aboutData, about: html })}
                                             placeholder="We are building..."
-                                            rows={4}
+                                            disabled={!canEdit}
                                         />
                                     </div>
                                 </Card>
@@ -501,11 +501,11 @@ export default function PitchEditorPage() {
                                         <p className="text-xs text-(--secondary) mt-0.5 ml-4">What pain point or gap in the market are you addressing?</p>
                                     </div>
                                     <div className="p-6">
-                                        <Textarea
+                                        <RichTextEditor
                                             value={aboutData.problemStatement || ''}
-                                            onChange={e => setAboutData({ ...aboutData, problemStatement: e.target.value })}
+                                            onChange={html => setAboutData({ ...aboutData, problemStatement: html })}
                                             placeholder="The core problem is..."
-                                            rows={4}
+                                            disabled={!canEdit}
                                         />
                                     </div>
                                 </Card>
@@ -519,11 +519,11 @@ export default function PitchEditorPage() {
                                         <p className="text-xs text-(--secondary) mt-0.5 ml-4">How does your product/service solve this problem uniquely?</p>
                                     </div>
                                     <div className="p-6">
-                                        <Textarea
+                                        <RichTextEditor
                                             value={aboutData.solutionProposed || ''}
-                                            onChange={e => setAboutData({ ...aboutData, solutionProposed: e.target.value })}
+                                            onChange={html => setAboutData({ ...aboutData, solutionProposed: html })}
                                             placeholder="Our solution works by..."
-                                            rows={4}
+                                            disabled={!canEdit}
                                         />
                                     </div>
                                 </Card>
@@ -562,7 +562,7 @@ export default function PitchEditorPage() {
                                                     <Input label="Website" value={comp.website || ''} onChange={e => updateItem(setCompetitors, idx, { website: e.target.value })} placeholder="https://..." />
                                                 </div>
                                                 <div className="mt-4">
-                                                    <Textarea label="Description" value={comp.description || ''} onChange={e => updateItem(setCompetitors, idx, { description: e.target.value })} rows={2} placeholder="What do they do? How are you different?" />
+                                                    <RichTextEditor label="Description" value={comp.description || ''} onChange={html => updateItem(setCompetitors, idx, { description: html })} placeholder="What do they do? How are you different?" minimal disabled={!canEdit} />
                                                 </div>
                                                 <div className="mt-4">
                                                     <label className="block text-sm font-medium text-(--primary) mb-2">Logo</label>
@@ -608,7 +608,7 @@ export default function PitchEditorPage() {
                                                     <Input label="Company" value={cust.company || ''} onChange={e => updateItem(setCustomers, idx, { company: e.target.value })} placeholder="Acme Inc." />
                                                 </div>
                                                 <div className="mt-4">
-                                                    <Textarea label="Testimonial" value={cust.testimonial} onChange={e => updateItem(setCustomers, idx, { testimonial: e.target.value })} rows={3} required placeholder="What they said about your product..." />
+                                                    <RichTextEditor label="Testimonial" value={cust.testimonial} onChange={html => updateItem(setCustomers, idx, { testimonial: html })} placeholder="What they said about your product..." minimal disabled={!canEdit} />
                                                 </div>
                                                 <div className="mt-4">
                                                     <label className="block text-sm font-medium text-(--primary) mb-2">Avatar</label>
@@ -650,7 +650,7 @@ export default function PitchEditorPage() {
                                             <ItemCard key={idx} index={idx} onRemove={() => removeItem(setBusinessModels, idx)} canEdit={canEdit}>
                                                 <Input label="Title" value={item.title} onChange={e => updateItem(setBusinessModels, idx, { title: e.target.value })} required placeholder="Revenue stream name" />
                                                 <div className="mt-4">
-                                                    <Textarea label="Description" value={item.description || ''} onChange={e => updateItem(setBusinessModels, idx, { description: e.target.value })} rows={3} placeholder="Describe this revenue stream..." />
+                                                    <RichTextEditor label="Description" value={item.description || ''} onChange={html => updateItem(setBusinessModels, idx, { description: html })} placeholder="Describe this revenue stream..." minimal disabled={!canEdit} />
                                                 </div>
                                                 <div className="mt-4">
                                                     <label className="block text-sm font-medium text-(--primary) mb-2">Image</label>
@@ -692,7 +692,7 @@ export default function PitchEditorPage() {
                                             <ItemCard key={idx} index={idx} onRemove={() => removeItem(setMarketSizes, idx)} canEdit={canEdit}>
                                                 <Input label="Title" value={item.title} onChange={e => updateItem(setMarketSizes, idx, { title: e.target.value })} required placeholder="e.g., Total Addressable Market" />
                                                 <div className="mt-4">
-                                                    <Textarea label="Description" value={item.description || ''} onChange={e => updateItem(setMarketSizes, idx, { description: e.target.value })} rows={3} placeholder="Market size details and data sources..." />
+                                                    <RichTextEditor label="Description" value={item.description || ''} onChange={html => updateItem(setMarketSizes, idx, { description: html })} placeholder="Market size details and data sources..." minimal disabled={!canEdit} />
                                                 </div>
                                                 <div className="mt-4">
                                                     <label className="block text-sm font-medium text-(--primary) mb-2">Image</label>
@@ -734,7 +734,7 @@ export default function PitchEditorPage() {
                                             <ItemCard key={idx} index={idx} onRemove={() => removeItem(setVisionStrategies, idx)} canEdit={canEdit}>
                                                 <Input label="Title" value={item.title} onChange={e => updateItem(setVisionStrategies, idx, { title: e.target.value })} required placeholder="Vision milestone" />
                                                 <div className="mt-4">
-                                                    <Textarea label="Description" value={item.description || ''} onChange={e => updateItem(setVisionStrategies, idx, { description: e.target.value })} rows={3} placeholder="Describe this strategic goal..." />
+                                                    <RichTextEditor label="Description" value={item.description || ''} onChange={html => updateItem(setVisionStrategies, idx, { description: html })} placeholder="Describe this strategic goal..." minimal disabled={!canEdit} />
                                                 </div>
                                                 <div className="mt-4">
                                                     <label className="block text-sm font-medium text-(--primary) mb-2">Icon image (optional)</label>
@@ -776,7 +776,7 @@ export default function PitchEditorPage() {
                                             <ItemCard key={idx} index={idx} onRemove={() => removeItem(setImpacts, idx)} canEdit={canEdit}>
                                                 <Input label="Title" value={item.title} onChange={e => updateItem(setImpacts, idx, { title: e.target.value })} required placeholder="Impact area" />
                                                 <div className="mt-4">
-                                                    <Textarea label="Description" value={item.description || ''} onChange={e => updateItem(setImpacts, idx, { description: e.target.value })} rows={3} placeholder="Describe the impact..." />
+                                                    <RichTextEditor label="Description" value={item.description || ''} onChange={html => updateItem(setImpacts, idx, { description: html })} placeholder="Describe the impact..." minimal disabled={!canEdit} />
                                                 </div>
                                                 <div className="mt-4">
                                                     <label className="block text-sm font-medium text-(--primary) mb-2">Image</label>

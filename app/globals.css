@@ -282,3 +282,189 @@ select {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ========================================
+   Rich Text Editor (Tiptap)
+======================================== */
+
+/* Editor content area */
+.rich-text-editor-content {
+  color: var(--primary);
+}
+
+.rich-text-editor-content p {
+  margin-bottom: 0.5em;
+}
+
+.rich-text-editor-content p:last-child {
+  margin-bottom: 0;
+}
+
+.rich-text-editor-content h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  color: var(--primary);
+}
+
+.rich-text-editor-content h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0.75em;
+  margin-bottom: 0.4em;
+  color: var(--primary);
+}
+
+.rich-text-editor-content ul,
+.rich-text-editor-content ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.rich-text-editor-content ul {
+  list-style-type: disc;
+}
+
+.rich-text-editor-content ol {
+  list-style-type: decimal;
+}
+
+.rich-text-editor-content li {
+  margin-bottom: 0.2em;
+}
+
+.rich-text-editor-content blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1em;
+  margin: 0.75em 0;
+  color: var(--secondary);
+  font-style: italic;
+}
+
+.rich-text-editor-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1em 0;
+}
+
+.rich-text-editor-content a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.rich-text-editor-content mark {
+  background-color: #fef08a;
+  padding: 0.1em 0.2em;
+  border-radius: 2px;
+}
+
+.rich-text-editor-content strong {
+  font-weight: 600;
+}
+
+/* Placeholder */
+.rich-text-editor-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--secondary-light);
+  pointer-events: none;
+  height: 0;
+}
+
+/* ── Rich Text Display (public profile) ── */
+.rich-text-display {
+  line-height: 1.7;
+  color: var(--primary);
+}
+
+.rich-text-display p {
+  margin-bottom: 0.6em;
+}
+
+.rich-text-display p:last-child {
+  margin-bottom: 0;
+}
+
+.rich-text-display h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  color: var(--primary);
+}
+
+.rich-text-display h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-top: 0.75em;
+  margin-bottom: 0.4em;
+  color: var(--primary);
+}
+
+.rich-text-display ul,
+.rich-text-display ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.6em;
+}
+
+.rich-text-display ul {
+  list-style-type: disc;
+}
+
+.rich-text-display ol {
+  list-style-type: decimal;
+}
+
+.rich-text-display li {
+  margin-bottom: 0.2em;
+}
+
+.rich-text-display blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1em;
+  margin: 0.75em 0;
+  color: var(--secondary);
+  font-style: italic;
+}
+
+.rich-text-display hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1em 0;
+}
+
+.rich-text-display a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.rich-text-display mark {
+  background-color: #fef08a;
+  padding: 0.1em 0.2em;
+  border-radius: 2px;
+}
+
+.rich-text-display strong {
+  font-weight: 600;
+}
+
+/* Compact variant — tighter spacing for cards */
+.rich-text-display--compact p {
+  margin-bottom: 0.3em;
+}
+
+.rich-text-display--compact h2 {
+  font-size: 1rem;
+  margin-top: 0.5em;
+}
+
+.rich-text-display--compact h3 {
+  font-size: 0.9rem;
+  margin-top: 0.4em;
+}
+
+.rich-text-display--compact ul,
+.rich-text-display--compact ol {
+  margin-bottom: 0.3em;
+}

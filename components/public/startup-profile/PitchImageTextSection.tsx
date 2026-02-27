@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 
 interface ImageTextItem {
 	title: string;
@@ -11,6 +12,12 @@ interface ImageTextItem {
 interface PitchImageTextSectionProps {
 	title: string;
 	items: ImageTextItem[];
+}
+
+/** Check if a string contains HTML tags */
+function isHtml(str: string | null | undefined): boolean {
+	if (!str) return false;
+	return /<[a-z][\s\S]*>/i.test(str);
 }
 
 export function PitchImageTextSection({ title, items }: PitchImageTextSectionProps) {
@@ -33,7 +40,11 @@ export function PitchImageTextSection({ title, items }: PitchImageTextSectionPro
 						<div className={cn('w-full', item.imageUrl ? 'md:w-3/5' : '')}>
 							<h3 className="text-sm font-semibold text-(--primary) mb-2">{item.title}</h3>
 							{item.description && (
-								<p className="text-sm text-(--secondary) leading-relaxed">{item.description}</p>
+								isHtml(item.description) ? (
+									<RichTextDisplay html={item.description} compact className="text-sm text-(--secondary)" />
+								) : (
+									<p className="text-sm text-(--secondary) leading-relaxed">{item.description}</p>
+								)
 							)}
 						</div>
 					</div>
