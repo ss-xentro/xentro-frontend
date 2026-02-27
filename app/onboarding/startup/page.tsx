@@ -255,7 +255,7 @@ export default function StartupOnboardingPage() {
                 whyXentroOther: data.whyXentroOther,
                 stage: data.stage,
                 primaryContactEmail: data.primaryContactEmail,
-                status: data.status || 'active',
+                status: data.status || 'private',
                 location: data.location || null,
                 fundingRound: data.fundingRound || null,
                 fundsRaised: data.fundsRaised ? data.fundsRaised : null,
