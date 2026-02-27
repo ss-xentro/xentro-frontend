@@ -31,24 +31,48 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 					<div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
 				</div>
 			)}
+			{/* <div className={cn("max-w-5xl mx-auto px-4 sm:px-6 pb-8", startup.coverImage ? "" : "pt-10")}> */}
 			<div className={cn("max-w-5xl mx-auto px-4 sm:px-6 pb-8", startup.coverImage ? "" : "pt-10")}>
 				{/* Top row: Logo + Info + Actions */}
-				<div className="flex flex-col sm:flex-row gap-6">
-					{/* Logo */}
-					<div className={cn(
-						"w-20 h-20 sm:w-28 sm:h-28 rounded-2xl border-4 border-(--surface) bg-(--surface) shadow-(--shadow-sm) flex items-center justify-center overflow-hidden shrink-0",
-						startup.coverImage ? "-mt-10 sm:-mt-14 relative z-10" : ""
-					)}>
-						{startup.logo ? (
-							<img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
-						) : (
-							<span className="text-3xl font-semibold text-(--secondary-light)">{startup.name.charAt(0)}</span>
-						)}
+				<div className="flex flex-col gap-4 relative">
+					{/* Logo Row (Overlaps Banner) */}
+					<div className="flex justify-between items-end">
+						<div className={cn(
+							"w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-(--surface) bg-(--surface) shadow-(--shadow-sm) flex items-center justify-center overflow-hidden shrink-0",
+							startup.coverImage ? "-mt-12 sm:-mt-16 z-10" : ""
+						)}>
+							{startup.logo ? (
+								<img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
+							) : (
+								<span className="text-4xl font-semibold text-(--secondary-light)">{startup.name.charAt(0)}</span>
+							)}
+						</div>
+
+						{/* Desktop Actions (aligned right of logo) */}
+						<div className="hidden sm:flex items-center gap-2 mb-2">
+							{startup.website && (
+								<a href={startup.website} target="_blank" rel="noopener noreferrer">
+									<Button variant="primary" size="sm" className="gap-2">
+										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+										Website
+									</Button>
+								</a>
+							)}
+							<Button
+								variant="secondary"
+								size="sm"
+								onClick={() => { navigator.clipboard.writeText(window.location.href); }}
+								className="gap-2"
+							>
+								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+								Share
+							</Button>
+						</div>
 					</div>
 
-					{/* Info */}
-					<div className={cn("flex-1 min-w-0", startup.coverImage ? "pt-2 sm:pt-3" : "")}>
-						<div className="flex flex-wrap items-center gap-2.5 mb-1">
+					{/* Info Below Logo */}
+					<div className="flex flex-col min-w-0 pt-1">
+						<div className="flex flex-wrap items-center gap-2.5 mb-2">
 							<h1 className="text-2xl sm:text-3xl font-bold text-(--primary) tracking-tight">{startup.name}</h1>
 							<span className={cn('px-2.5 py-0.5 rounded-full text-xs font-medium', statusInfo.color)}>
 								{statusInfo.label}
@@ -56,7 +80,7 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 						</div>
 
 						{startup.tagline && (
-							<p className="text-base text-(--secondary) mb-3 max-w-xl leading-relaxed">{startup.tagline}</p>
+							<p className="text-base text-(--secondary) mb-4 max-w-xl leading-relaxed">{startup.tagline}</p>
 						)}
 
 						{/* Meta row */}
@@ -100,11 +124,11 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 						</div>
 					</div>
 
-					{/* Actions */}
-					<div className="flex items-start gap-2 shrink-0 sm:pt-1">
+					{/* Mobile Actions */}
+					<div className="flex sm:hidden items-center gap-2 mt-2">
 						{startup.website && (
-							<a href={startup.website} target="_blank" rel="noopener noreferrer">
-								<Button variant="primary" size="sm" className="gap-2">
+							<a href={startup.website} target="_blank" rel="noopener noreferrer" className="flex-1">
+								<Button variant="primary" size="sm" className="w-full gap-2 justify-center">
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
 									Website
 								</Button>
@@ -114,7 +138,7 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 							variant="secondary"
 							size="sm"
 							onClick={() => { navigator.clipboard.writeText(window.location.href); }}
-							className="gap-2"
+							className="flex-1 gap-2 justify-center"
 						>
 							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
 							Share
