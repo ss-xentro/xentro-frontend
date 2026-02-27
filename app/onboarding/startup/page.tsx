@@ -114,6 +114,17 @@ export default function StartupOnboardingPage() {
                 if (res.ok && resData.verified) {
                     setEmailVerified(true);
                     setFeedback({ type: 'success', message: 'Email verified!' });
+
+                    // Store the authentication token if provided
+                    if (resData.token) {
+                        localStorage.setItem('founder_token', resData.token);
+                        localStorage.setItem('xentro_session', JSON.stringify({
+                            token: resData.token,
+                            user: resData.user,
+                            expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+                        }));
+                    }
+
                     clearInterval(pollInterval);
                 }
             } catch {
