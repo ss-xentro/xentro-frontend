@@ -28,8 +28,13 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
 
   useEffect(() => {
     params.then(p => {
+      let headers: HeadersInit = { 'x-public-view': 'true' };
+      const token = localStorage.getItem('founder_token') || localStorage.getItem('explorer_token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
       fetch(`/api/startups/public/${p.identifier}`, {
-        headers: { 'x-public-view': 'true' },
+        headers,
       })
         .then(res => {
           if (!res.ok) throw new Error('Not found');
