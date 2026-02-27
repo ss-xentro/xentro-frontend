@@ -26,7 +26,7 @@ export interface StartupData {
     stage: StartupStage | '';
 
     // Card 3 – Why Xentro
-    whyXentro: WhyXentroOption | '';
+    whyXentro: WhyXentroOption[];
 
     // Card 4 – Email
     primaryContactEmail: string;
@@ -52,6 +52,7 @@ interface StartupOnboardingStore {
     updateFounder: (index: number, founder: Partial<Founder>) => void;
     removeFounder: (index: number) => void;
     toggleSector: (sector: string) => void;
+    toggleWhyXentro: (option: WhyXentroOption) => void;
     reset: () => void;
 }
 
@@ -61,7 +62,7 @@ const initialData: StartupData = {
     logo: null,
     sectors: [],
     stage: '',
-    whyXentro: '',
+    whyXentro: [],
     primaryContactEmail: '',
     pitch: '',
     foundedDate: '',
@@ -118,6 +119,14 @@ export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
                         ? current.filter(s => s !== sector)
                         : [...current, sector];
                     return { data: { ...state.data, sectors: next } };
+                }),
+            toggleWhyXentro: (option) =>
+                set((state) => {
+                    const current = state.data.whyXentro;
+                    const next = current.includes(option)
+                        ? current.filter(o => o !== option)
+                        : [...current, option];
+                    return { data: { ...state.data, whyXentro: next } };
                 }),
             reset: () => set({ currentStep: 1, data: initialData }),
         }),

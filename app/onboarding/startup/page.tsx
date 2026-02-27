@@ -41,7 +41,7 @@ const STEPS = [
 
 export default function StartupOnboardingPage() {
     const router = useRouter();
-    const { currentStep, setStep, data, updateData, toggleSector, reset } = useStartupOnboardingStore();
+    const { currentStep, setStep, data, updateData, toggleSector, toggleWhyXentro, reset } = useStartupOnboardingStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -176,7 +176,7 @@ export default function StartupOnboardingPage() {
     const canContinue = () => {
         if (currentStep === 1) return data.name.trim().length > 0;
         if (currentStep === 2) return data.sectors.length > 0 && data.stage !== '';
-        if (currentStep === 3) return data.whyXentro !== '';
+        if (currentStep === 3) return data.whyXentro.length > 0;
         if (currentStep === 4) return emailVerified;
         return true;
     };
@@ -193,7 +193,7 @@ export default function StartupOnboardingPage() {
             if (data.sectors.length === 0) { setError('Select at least one sector.'); return; }
             if (!data.stage) { setError('Select your current stage.'); return; }
         }
-        if (currentStep === 3 && !data.whyXentro) {
+        if (currentStep === 3 && data.whyXentro.length === 0) {
             setError('Please select why you want to join Xentro.');
             return;
         }
@@ -388,7 +388,7 @@ export default function StartupOnboardingPage() {
                                 {/* Sectors */}
                                 <div>
                                     <h2 className="text-xl font-semibold text-(--primary)">What sector are you in?</h2>
-                                    <p className="text-sm text-(--secondary) mt-1">Select all that apply.</p>
+                                    <p className="text-sm text-(--secondary) mt-1">Select one.</p>
                                     <div className="flex flex-wrap gap-2 mt-4">
                                         {SECTOR_OPTIONS.map(sector => {
                                             const isSelected = data.sectors.includes(sector);
@@ -396,7 +396,7 @@ export default function StartupOnboardingPage() {
                                                 <button
                                                     key={sector}
                                                     type="button"
-                                                    onClick={() => toggleSector(sector)}
+                                                    onClick={() => updateData({ sectors: [sector] })}
                                                     className={cn(
                                                         'px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200',
                                                         isSelected
@@ -453,17 +453,17 @@ export default function StartupOnboardingPage() {
                             <div className="p-6 md:p-8 space-y-6 animate-fadeIn">
                                 <div>
                                     <h2 className="text-xl font-semibold text-(--primary)">Why are you joining Xentro?</h2>
-                                    <p className="text-sm text-(--secondary) mt-1">This helps us tailor your experience.</p>
+                                    <p className="text-sm text-(--secondary) mt-1">Select all that apply. This helps us tailor your experience.</p>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {WHY_XENTRO_OPTIONS.map(opt => {
-                                        const isSelected = data.whyXentro === opt.value;
+                                        const isSelected = data.whyXentro.includes(opt.value);
                                         return (
                                             <button
                                                 key={opt.value}
                                                 type="button"
-                                                onClick={() => updateData({ whyXentro: opt.value })}
+                                                onClick={() => toggleWhyXentro(opt.value)}
                                                 className={cn(
                                                     'p-5 rounded-xl border text-left transition-all duration-200 group',
                                                     isSelected
