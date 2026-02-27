@@ -128,7 +128,7 @@ export interface Event {
 
 // Startup Types
 export type StartupStage = 'idea' | 'mvp' | 'early_traction' | 'growth' | 'scale';
-export type StartupStatus = 'active' | 'stealth' | 'paused' | 'acquired' | 'shut_down';
+export type StartupStatus = 'public' | 'private';
 export type FundingRound = 'bootstrapped' | 'pre_seed' | 'seed' | 'series_a' | 'series_b_plus' | 'unicorn';
 export type FounderRole = 'ceo' | 'cto' | 'coo' | 'cfo' | 'cpo' | 'founder' | 'co_founder';
 
@@ -397,11 +397,8 @@ export const startupStageLabels: Record<StartupStage, { label: string; descripti
 };
 
 export const startupStatusLabels: Record<StartupStatus, { label: string; color: string }> = {
-  active: { label: 'Active', color: 'bg-green-100 text-green-800' },
-  stealth: { label: 'Stealth Mode', color: 'bg-gray-100 text-gray-800' },
-  paused: { label: 'Paused', color: 'bg-yellow-100 text-yellow-800' },
-  acquired: { label: 'Acquired', color: 'bg-blue-100 text-blue-800' },
-  shut_down: { label: 'Shut Down', color: 'bg-red-100 text-red-800' },
+  public: { label: 'Public', color: 'bg-green-100 text-green-800' },
+  private: { label: 'Private', color: 'bg-gray-100 text-gray-800' },
 };
 
 export const fundingRoundLabels: Record<FundingRound, { label: string; description: string; color: string }> = {

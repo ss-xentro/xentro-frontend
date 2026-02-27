@@ -1,6 +1,6 @@
 /**
  * XENTRO Unified Types
- * 
+ *
  * Type definitions for the context-based architecture
  */
 
@@ -64,7 +64,7 @@ export interface OtpPurpose {
 // FORMS ENGINE
 // ============================================
 
-export type FormType = 
+export type FormType =
   | 'startup_create'
   | 'startup_update'
   | 'mentor_apply'
@@ -76,7 +76,7 @@ export type FormType =
   | 'team_invite'
   | 'general';
 
-export type FormStatus = 
+export type FormStatus =
   | 'draft'
   | 'submitted'
   | 'under_review'
@@ -178,7 +178,7 @@ export interface InstitutionCreateFormData {
 // ============================================
 
 export type StartupStage = 'idea' | 'mvp' | 'early_traction' | 'growth' | 'scale';
-export type StartupStatus = 'active' | 'stealth' | 'paused' | 'acquired' | 'shut_down';
+export type StartupStatus = 'public' | 'private';
 export type FundingRound = 'bootstrapped' | 'pre_seed' | 'seed' | 'series_a' | 'series_b_plus';
 export type StartupRole = 'founder' | 'co_founder' | 'cto' | 'coo' | 'cfo' | 'team_member';
 
@@ -346,12 +346,12 @@ export const ADMIN_PERMISSIONS = {
   // L1 - Basic review
   REVIEW_FORMS: 'review_forms',
   VIEW_REPORTS: 'view_reports',
-  
+
   // L2 - Moderation
   APPROVE_FORMS: 'approve_forms',
   REJECT_FORMS: 'reject_forms',
   MODERATE_CONTENT: 'moderate_content',
-  
+
   // L3 - Full control
   MANAGE_ADMINS: 'manage_admins',
   MANAGE_USERS: 'manage_users',
@@ -416,7 +416,7 @@ export interface FeedInteraction {
 // NOTIFICATIONS
 // ============================================
 
-export type NotificationType = 
+export type NotificationType =
   | 'form_submitted'
   | 'form_approved'
   | 'form_rejected'
@@ -462,31 +462,31 @@ export const ACTIVITY_ACTIONS = {
   LOGIN: 'login',
   LOGOUT: 'logout',
   PASSWORD_CHANGE: 'password_change',
-  
+
   // Forms
   FORM_CREATED: 'form_created',
   FORM_SUBMITTED: 'form_submitted',
   FORM_APPROVED: 'form_approved',
   FORM_REJECTED: 'form_rejected',
-  
+
   // Startup
   STARTUP_CREATED: 'startup_created',
   STARTUP_UPDATED: 'startup_updated',
   TEAM_MEMBER_ADDED: 'team_member_added',
   TEAM_MEMBER_REMOVED: 'team_member_removed',
-  
+
   // Institution
   INSTITUTION_CREATED: 'institution_created',
   INSTITUTION_UPDATED: 'institution_updated',
-  
+
   // Mentor
   MENTOR_APPLIED: 'mentor_applied',
   MENTOR_APPROVED: 'mentor_approved',
-  
+
   // Feed
   FEED_APPRECIATED: 'feed_appreciated',
   FEED_SAVED: 'feed_saved',
-  
+
   // Context
   CONTEXT_SWITCHED: 'context_switched',
 } as const;

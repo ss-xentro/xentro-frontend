@@ -101,11 +101,8 @@ export default function StartupsAdminPage() {
                         className="h-12 px-4 bg-(--surface) border border-(--border) rounded-lg text-(--primary) focus:outline-none focus:border-accent"
                     >
                         <option value="all">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="stealth">Stealth Mode</option>
-                        <option value="paused">Paused</option>
-                        <option value="acquired">Acquired</option>
-                        <option value="shut_down">Shut Down</option>
+                        <option value="public">Public</option>
+                        <option value="private">Private</option>
                     </select>
                     <div className="flex items-center gap-1 p-1 bg-(--surface-hover) rounded-md">
                         <button

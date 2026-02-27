@@ -19,11 +19,8 @@ const stages = [
 ];
 
 const statuses = [
-    { value: 'active', label: 'Active' },
-    { value: 'stealth', label: 'Stealth Mode' },
-    { value: 'paused', label: 'Paused' },
-    { value: 'acquired', label: 'Acquired' },
-    { value: 'shut_down', label: 'Shut Down' },
+    { value: 'public', label: 'Public' },
+    { value: 'private', label: 'Private' },
 ];
 
 const fundingRoundOptions = [

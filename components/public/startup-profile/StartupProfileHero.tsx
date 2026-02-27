@@ -31,7 +31,6 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 					<div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
 				</div>
 			)}
-			{/* <div className={cn("max-w-5xl mx-auto px-4 sm:px-6 pb-8", startup.coverImage ? "" : "pt-10")}> */}
 			<div className={cn("max-w-5xl mx-auto px-4 sm:px-6 pb-8", startup.coverImage ? "" : "pt-10")}>
 				{/* Top row: Logo + Info + Actions */}
 				<div className="flex flex-col gap-4 relative">
