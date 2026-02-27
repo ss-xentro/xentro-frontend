@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useStartupOnboardingStore, WhyXentroOption } from '@/stores/useStartupOnboardingStore';
+import { useStartupOnboardingStore } from '@/stores/useStartupOnboardingStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FileUpload } from '@/components/ui/FileUpload';
@@ -25,11 +25,20 @@ const STAGE_OPTIONS = [
     { value: 'scale', label: 'Scaling', description: 'Expanding markets', emoji: '🌍' },
 ] as const;
 
-const WHY_XENTRO_OPTIONS: { value: WhyXentroOption; label: string; icon: string; description: string }[] = [
-    { value: 'mentorship', label: 'Mentorship', icon: '🧭', description: 'Get guidance from industry experts' },
-    { value: 'invest', label: 'To Invest', icon: '💼', description: 'Discover investment opportunities' },
-    { value: 'raise_funding', label: 'Raise Funding', icon: '💰', description: 'Connect with investors & VCs' },
-    { value: 'networking', label: 'Networking', icon: '🤝', description: 'Build your startup community' },
+const WHY_XENTRO_OPTIONS = [
+    { value: 'connect_verified_mentors', label: 'To connect with verified mentors who can guide our startup journey' },
+    { value: 'access_investors', label: 'To gain access to investors actively looking for early-stage startups' },
+    { value: 'increase_visibility', label: 'To increase visibility for our startup within a trusted ecosystem' },
+    { value: 'participate_programs', label: 'To participate in incubator and accelerator programs' },
+    { value: 'validate_idea', label: 'To validate our idea through expert feedback' },
+    { value: 'build_partnerships', label: 'To build strategic partnerships with institutions and industry leaders' },
+    { value: 'find_cofounders_team', label: 'To find co-founders or key team members' },
+    { value: 'prepare_fundraising', label: 'To prepare for fundraising (pitch refinement, investor readiness)' },
+    { value: 'access_resources', label: 'To access curated resources, tools, and startup support' },
+    { value: 'expand_network', label: 'To expand our professional network within the startup ecosystem' },
+    { value: 'stay_updated', label: 'To stay updated on startup opportunities, grants, and competitions' },
+    { value: 'build_credibility', label: 'To build credibility through association with Xentro' },
+    { value: 'Other', label: 'Other:' },
 ];
 
 const STEPS = [
@@ -193,9 +202,15 @@ export default function StartupOnboardingPage() {
             if (data.sectors.length === 0) { setError('Select at least one sector.'); return; }
             if (!data.stage) { setError('Select your current stage.'); return; }
         }
-        if (currentStep === 3 && data.whyXentro.length === 0) {
-            setError('Please select why you want to join Xentro.');
-            return;
+        if (currentStep === 3) {
+            if (data.whyXentro.length === 0) {
+                setError('Please select why you want to join Xentro.');
+                return;
+            }
+            if (data.whyXentro.includes('Other') && !data.whyXentroOther.trim()) {
+                setError('Please specify your other reason for joining Xentro.');
+                return;
+            }
         }
         if (currentStep === 4) {
             if (!data.primaryContactEmail.trim()) { setError('Please enter your email.'); return; }
@@ -234,6 +249,10 @@ export default function StartupOnboardingPage() {
                 tagline: data.tagline || '',
                 logo: data.logo || null,
                 sectors: data.sectors,
+                whyXentro: data.whyXentro.map(opt =>
+                    opt === 'Other' ? 'Other' : WHY_XENTRO_OPTIONS.find(o => o.value === opt)?.label || opt
+                ),
+                whyXentroOther: data.whyXentroOther,
                 stage: data.stage,
                 primaryContactEmail: data.primaryContactEmail,
                 status: data.status || 'active',
@@ -456,28 +475,46 @@ export default function StartupOnboardingPage() {
                                     <p className="text-sm text-(--secondary) mt-1">Select all that apply. This helps us tailor your experience.</p>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-3">
                                     {WHY_XENTRO_OPTIONS.map(opt => {
                                         const isSelected = data.whyXentro.includes(opt.value);
+                                        const isOther = opt.value === 'Other';
                                         return (
-                                            <button
-                                                key={opt.value}
-                                                type="button"
-                                                onClick={() => toggleWhyXentro(opt.value)}
-                                                className={cn(
-                                                    'p-5 rounded-xl border text-left transition-all duration-200 group',
+                                            <div key={opt.value} className="flex flex-col gap-2">
+                                                <label className={cn(
+                                                    'flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200',
                                                     isSelected
-                                                        ? 'border-accent bg-accent/5 ring-2 ring-accent/20'
+                                                        ? 'border-accent bg-accent/5 ring-1 ring-accent/20'
                                                         : 'border-(--border) hover:border-accent/30 hover:bg-(--surface-hover)'
+                                                )}>
+                                                    <div className="flex items-center h-5 mt-0.5">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={() => toggleWhyXentro(opt.value)}
+                                                            className="w-4 h-4 rounded text-accent focus:ring-accent border-gray-300 transition-colors"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <span className={cn(
+                                                            'font-medium text-sm',
+                                                            isSelected ? 'text-accent' : 'text-(--primary)'
+                                                        )}>{opt.label}</span>
+                                                    </div>
+                                                </label>
+
+                                                {/* If 'Other' is selected, show an inline input below it */}
+                                                {isOther && isSelected && (
+                                                    <div className="pl-9 pr-4 pb-2 animate-fadeIn">
+                                                        <Input
+                                                            placeholder="Please specify your reason"
+                                                            value={data.whyXentroOther}
+                                                            onChange={e => updateData({ whyXentroOther: e.target.value })}
+                                                            autoFocus
+                                                        />
+                                                    </div>
                                                 )}
-                                            >
-                                                <span className="text-3xl block mb-3">{opt.icon}</span>
-                                                <p className={cn(
-                                                    'font-semibold text-sm mb-1',
-                                                    isSelected ? 'text-accent' : 'text-(--primary)'
-                                                )}>{opt.label}</p>
-                                                <p className="text-xs text-(--secondary)">{opt.description}</p>
-                                            </button>
+                                            </div>
                                         );
                                     })}
                                 </div>

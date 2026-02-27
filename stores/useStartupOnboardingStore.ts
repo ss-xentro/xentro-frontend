@@ -6,7 +6,7 @@ export type StartupStatus = 'public' | 'private';
 export type FundingRound = 'bootstrapped' | 'pre_seed' | 'seed' | 'series_a' | 'series_b_plus' | 'unicorn';
 export type FounderRole = 'ceo' | 'cto' | 'coo' | 'cfo' | 'cpo' | 'founder' | 'co_founder';
 
-export type WhyXentroOption = 'mentorship' | 'invest' | 'raise_funding' | 'networking';
+
 
 export interface Founder {
     name: string;
@@ -26,7 +26,8 @@ export interface StartupData {
     stage: StartupStage | '';
 
     // Card 3 – Why Xentro
-    whyXentro: WhyXentroOption[];
+    whyXentro: string[];
+    whyXentroOther: string;
 
     // Card 4 – Email
     primaryContactEmail: string;
@@ -52,7 +53,7 @@ interface StartupOnboardingStore {
     updateFounder: (index: number, founder: Partial<Founder>) => void;
     removeFounder: (index: number) => void;
     toggleSector: (sector: string) => void;
-    toggleWhyXentro: (option: WhyXentroOption) => void;
+    toggleWhyXentro: (option: string) => void;
     reset: () => void;
 }
 
@@ -63,6 +64,7 @@ const initialData: StartupData = {
     sectors: [],
     stage: '',
     whyXentro: [],
+    whyXentroOther: '',
     primaryContactEmail: '',
     pitch: '',
     foundedDate: '',
