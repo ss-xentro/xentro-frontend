@@ -40,22 +40,14 @@ async function handleProxy(request: NextRequest) {
   headers.delete('host');
 
   // Extract body for mutation requests
-  let body = null;
-  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-    const contentType = request.headers.get('content-type') || '';
+  let body: ReadableStream | string | null = null;
+  let duplex: 'half' | undefined = undefined;
 
-    if (contentType.includes('multipart/form-data')) {
-      try {
-        body = await request.blob();
-      } catch (e) {
-        body = await request.arrayBuffer();
-      }
-    } else {
-      const text = await request.text();
-      if (text) {
-        body = text;
-      }
-    }
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    // Stream the body directly instead of buffering it into memory
+    // This prevents 502 Bad Gateway errors on large uploads
+    body = request.body;
+    duplex = 'half';
   }
 
   // Proxy fetch to Django
@@ -64,16 +56,17 @@ async function handleProxy(request: NextRequest) {
       method,
       headers,
       body,
+      // @ts-expect-error duplex is required in Node.js for streaming requests
+      duplex,
       redirect: 'manual',
       cache: 'no-store'
     });
 
-    const responseData = await response.arrayBuffer();
     const responseHeaders = new Headers(response.headers);
     responseHeaders.delete('content-encoding');
     responseHeaders.delete('content-length');
 
-    return new NextResponse(responseData, {
+    return new NextResponse(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: responseHeaders
