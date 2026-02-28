@@ -96,8 +96,42 @@ export default function InstitutionDashboardPage() {
     const urlToken = searchParams.get('token');
     if (urlToken) {
       localStorage.setItem('institution_token', urlToken);
-      // Remove token from URL to keep it clean
-      router.replace('/institution-dashboard');
+
+      // Also set up unified xentro_session so AuthGuard + layout role checks work
+      (async () => {
+        try {
+          const res = await fetch('/api/auth/me/', {
+            headers: { 'Authorization': `Bearer ${urlToken}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const session = {
+              user: { ...data.user, role: 'institution' },
+              token: urlToken,
+              expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
+            };
+            localStorage.setItem('xentro_session', JSON.stringify(session));
+          } else {
+            // Minimal session if /me fails
+            const session = {
+              user: { role: 'institution' },
+              token: urlToken,
+              expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
+            };
+            localStorage.setItem('xentro_session', JSON.stringify(session));
+          }
+        } catch {
+          const session = {
+            user: { role: 'institution' },
+            token: urlToken,
+            expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
+          };
+          localStorage.setItem('xentro_session', JSON.stringify(session));
+        }
+        // Remove token from URL to keep it clean
+        router.replace('/institution-dashboard');
+      })();
+      return; // Don't navigate yet — wait for async setup
     }
   }, [searchParams, router]);
 

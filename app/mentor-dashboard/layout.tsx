@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import CompleteProfileModal from '@/components/ui/CompleteProfileModal';
-import { getRoleFromSession } from '@/lib/auth-utils';
+import { getRoleFromSession, getUnlockedContexts } from '@/lib/auth-utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function MentorDashboardLayout({ children }: { children: React.ReactNode }) {
@@ -18,13 +18,14 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
 
     useEffect(() => {
         const role = getRoleFromSession();
+        const contexts = getUnlockedContexts();
 
         if (!role) {
             router.replace('/login');
             return;
         }
 
-        if (role !== 'mentor') {
+        if (role !== 'mentor' && !contexts.includes('mentor')) {
             router.replace('/feed');
             return;
         }

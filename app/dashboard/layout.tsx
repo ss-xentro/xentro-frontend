@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { getRoleFromSession } from '@/lib/auth-utils';
+import { getRoleFromSession, getUnlockedContexts } from '@/lib/auth-utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -16,6 +16,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     useEffect(() => {
         const role = getRoleFromSession();
+        const contexts = getUnlockedContexts();
 
         if (!role) {
             // No valid session — send to login
@@ -23,8 +24,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             return;
         }
 
-        if (role !== 'startup' && role !== 'founder') {
-            // Valid session but wrong role — send to feed
+        // Allow if role is startup/founder OR if unlocked_contexts includes startup
+        if (role !== 'startup' && role !== 'founder' && !contexts.includes('startup')) {
+            // Valid session but no startup access — send to feed
             router.replace('/feed');
             return;
         }

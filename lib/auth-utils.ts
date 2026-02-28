@@ -32,6 +32,24 @@ export function getRoleFromSession(): string | null {
 }
 
 /**
+ * getUnlockedContexts — reads the user's unlocked_contexts from xentro_session.
+ * Returns an array of context strings the user has access to.
+ */
+export function getUnlockedContexts(): string[] {
+    if (typeof window === 'undefined') return [];
+
+    try {
+        const raw = localStorage.getItem('xentro_session');
+        if (!raw) return [];
+        const session = JSON.parse(raw);
+        if (!session?.token || !session?.expiresAt || session.expiresAt < Date.now()) return [];
+        return session.user?.unlockedContexts || session.user?.unlocked_contexts || ['explorer'];
+    } catch {
+        return [];
+    }
+}
+
+/**
  * getSessionToken — gets the token from xentro_session or falls back to role-specific tokens.
  */
 export function getSessionToken(expectedRole?: string): string | null {
@@ -59,6 +77,14 @@ export function getSessionToken(expectedRole?: string): string | null {
 
     if (expectedRole && tokenMap[expectedRole]) {
         return localStorage.getItem(tokenMap[expectedRole]);
+    }
+
+    // No expectedRole — check all role tokens as last resort
+    if (!expectedRole) {
+        for (const key of Object.values(tokenMap)) {
+            const t = localStorage.getItem(key);
+            if (t) return t;
+        }
     }
 
     return null;

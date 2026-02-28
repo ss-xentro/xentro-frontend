@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { getRoleFromSession } from '@/lib/auth-utils';
+import { getRoleFromSession, getUnlockedContexts } from '@/lib/auth-utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function InvestorDashboardLayout({ children }: { children: React.ReactNode }) {
@@ -16,13 +16,14 @@ export default function InvestorDashboardLayout({ children }: { children: React.
 
     useEffect(() => {
         const role = getRoleFromSession();
+        const contexts = getUnlockedContexts();
 
         if (!role) {
             router.replace('/login');
             return;
         }
 
-        if (role !== 'investor') {
+        if (role !== 'investor' && !contexts.includes('investor')) {
             router.replace('/feed');
             return;
         }
