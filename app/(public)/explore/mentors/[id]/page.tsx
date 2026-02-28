@@ -19,6 +19,8 @@ interface MentorDetail {
 	packages: string[];
 	availability?: Record<string, string[]> | null;
 	documents?: Array<{ name?: string; url?: string; type?: string }>;
+	institutionId?: string | null;
+	institutionName?: string | null;
 }
 
 /* ── Helper: format day label ── */
@@ -72,6 +74,17 @@ function VerifiedBadge({ verified, status }: { verified: boolean; status: string
 		);
 	}
 	return null;
+}
+
+function InstitutionalBadge({ name }: { name: string }) {
+	return (
+		<span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/25">
+			<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1v1H9V7zm5 0h1v1h-1V7zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1z" />
+			</svg>
+			{name} Mentor
+		</span>
+	);
 }
 
 /* ── Stat card ── */
@@ -167,6 +180,8 @@ export default function MentorDetailPage() {
 					packages: parseArr(found.packages),
 					availability: found.availability || null,
 					documents: Array.isArray(found.documents) ? found.documents : [],
+					institutionId: found.institutionId || null,
+					institutionName: found.institutionName || null,
 				});
 			} catch (err) {
 				console.error(err);
@@ -399,7 +414,11 @@ export default function MentorDetailPage() {
 							<div>
 								<div className="flex items-center gap-3 flex-wrap mb-1">
 									<h1 className="text-2xl font-bold text-white">{mentor.name}</h1>
-									<VerifiedBadge verified={mentor.verified} status={mentor.status} />
+									{mentor.institutionName ? (
+										<InstitutionalBadge name={mentor.institutionName} />
+									) : (
+										<VerifiedBadge verified={mentor.verified} status={mentor.status} />
+									)}
 								</div>
 								{mentor.occupation && (
 									<p className="text-sm text-gray-400 mt-1">{mentor.occupation}</p>

@@ -41,6 +41,15 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
       )
     },
     {
+      name: 'Mentors',
+      href: '/institution-dashboard/mentors',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5V4H2v16h5m10 0v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4m10 0H7" />
+        </svg>
+      )
+    },
+    {
       name: 'Programs',
       href: '/institution-dashboard/programs',
       icon: (

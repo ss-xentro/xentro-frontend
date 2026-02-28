@@ -137,7 +137,7 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 									</svg>
 								</div>
 								<div className="flex-1 min-w-0">
-									<h4 className="text-sm font-medium text-(--primary) truncate">Institution Partner</h4>
+									<h4 className="text-sm font-medium text-(--primary) truncate">{(startup as any).institutionName || 'Institutional Partner'}</h4>
 									<p className="text-xs text-(--secondary) capitalize truncate">Associated Institution</p>
 								</div>
 							</div>

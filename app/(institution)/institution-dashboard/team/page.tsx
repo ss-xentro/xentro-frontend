@@ -7,10 +7,13 @@ import { Card, Button, Badge } from '@/components/ui';
 
 interface TeamMember {
   id: string;
+  institutionId: string;
   userId: string;
-  role: 'owner' | 'admin' | 'manager' | 'viewer';
+  role: 'super_admin' | 'admin' | 'ambassador' | 'viewer';
   invitedAt: string;
   acceptedAt: string | null;
+  adminApproved: boolean;
+  superAdminApproved: boolean;
   user: {
     id: string;
     name: string;
@@ -19,9 +22,9 @@ interface TeamMember {
 }
 
 const roleColors = {
-  owner: 'bg-purple-100 text-purple-800',
+  super_admin: 'bg-purple-100 text-purple-800',
   admin: 'bg-blue-100 text-blue-800',
-  manager: 'bg-green-100 text-green-800',
+  ambassador: 'bg-green-100 text-green-800',
   viewer: 'bg-gray-100 text-gray-800',
 };
 
@@ -77,6 +80,39 @@ export default function TeamPage() {
       }
 
       setTeam(team.filter(m => m.id !== id));
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
+
+  const handleApprove = async (memberId: string, actionType: 'admin_approve' | 'super_admin_approve') => {
+    try {
+      const token = localStorage.getItem('institution_token');
+      const member = team.find(m => m.id === memberId);
+      if (!member) return;
+
+      const res = await fetch(`/api/institutions/${member.institutionId}/approve_ambassador/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ member_id: memberId, action_type: actionType }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to approve');
+      }
+
+      // Update the team member in state
+      setTeam(team.map(m => m.id === memberId ? {
+        ...m,
+        adminApproved: actionType === 'admin_approve' ? true : m.adminApproved,
+        superAdminApproved: actionType === 'super_admin_approve' ? true : m.superAdminApproved
+      } : m));
+
+      alert('Approved successfully!');
     } catch (err) {
       alert((err as Error).message);
     }
@@ -156,21 +192,48 @@ export default function TeamPage() {
 
                 <div className="text-xs text-(--secondary) mb-4">
                   Joined {new Date(member.invitedAt).toLocaleDateString()}
+                  {member.role === 'ambassador' && (
+                    <div className="mt-2 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${member.adminApproved ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                        <span>Admin Approval: {member.adminApproved ? 'Yes' : 'Pending'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${member.superAdminApproved ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                        <span>Super Admin Approval: {member.superAdminApproved ? 'Yes' : 'Pending'}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {member.role !== 'owner' && (
+                {member.role === 'ambassador' && (!member.adminApproved || !member.superAdminApproved) && (
+                  <div className="flex gap-2 mb-4">
+                    {!member.adminApproved && (
+                      <Button variant="secondary" size="sm" onClick={() => handleApprove(member.id, 'admin_approve')} className="flex-1 text-xs">
+                        Admin Approve
+                      </Button>
+                    )}
+                    {!member.superAdminApproved && (
+                      <Button variant="secondary" size="sm" onClick={() => handleApprove(member.id, 'super_admin_approve')} className="flex-1 text-xs">
+                        Super Approve
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {member.role !== 'super_admin' && (
                   <div className="flex gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="flex-1"
                       onClick={() => router.push(`/institution-dashboard/team/${member.id}/edit`)}
                     >
                       Edit Role
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       onClick={() => handleRemove(member.id)}
                     >

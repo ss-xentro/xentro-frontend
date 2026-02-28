@@ -8,7 +8,7 @@ import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 // Roles that can be assigned to team members (owner is reserved)
 const roleOptions = [
   { value: 'admin', label: 'Admin - Full access to manage institution' },
-  { value: 'manager', label: 'Manager - Can manage programs, startups, and events' },
+  { value: 'ambassador', label: 'Ambassador - Represent institution, requires approval' },
   { value: 'viewer', label: 'Viewer - View-only access to dashboard' },
 ];
 
@@ -16,11 +16,11 @@ export default function AddTeamMemberPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'manager',
+    role: 'ambassador',
     phone: '',
   });
 
@@ -37,7 +37,7 @@ export default function AddTeamMemberPage() {
 
       const res = await fetch('/api/institution-team', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
@@ -109,13 +109,12 @@ export default function AddTeamMemberPage() {
                 </label>
                 <div className="space-y-3">
                   {roleOptions.map((option) => (
-                    <label 
+                    <label
                       key={option.value}
-                      className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all ${
-                        formData.role === option.value 
-                          ? 'border-gray-900 bg-gray-50' 
+                      className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all ${formData.role === option.value
+                          ? 'border-gray-900 bg-gray-50'
                           : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       <input
                         type="radio"
