@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
+import { getSessionToken } from '@/lib/auth-utils';
 
 const projectStatusOptions = [
   { value: 'planning', label: 'Planning' },
@@ -31,7 +32,7 @@ export default function AddProjectPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       if (!token) {
         throw new Error('Authentication required. Please log in again.');
       }

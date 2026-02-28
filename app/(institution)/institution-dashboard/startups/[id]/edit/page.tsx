@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
+import { getSessionToken } from '@/lib/auth-utils';
 
 const stageOptions = [
   { value: 'idea', label: 'Idea' },
@@ -36,14 +37,14 @@ export default function EditStartupPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [locationSearch, setLocationSearch] = useState('');
   const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const locationInputRef = useRef<HTMLInputElement>(null);
   const locationSuggestionsRef = useRef<HTMLDivElement>(null);
-  
+
   const [formData, setFormData] = useState({
     name: '',
     stage: 'idea',
@@ -57,7 +58,7 @@ export default function EditStartupPage() {
 
   const loadStartup = async () => {
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       if (!token) {
         router.push('/institution-login');
         return;
@@ -73,7 +74,7 @@ export default function EditStartupPage() {
 
       const data = await res.json();
       const startup = data.data;
-      
+
       setFormData({
         name: startup.name || '',
         stage: startup.stage || 'idea',
@@ -141,7 +142,7 @@ export default function EditStartupPage() {
     const city = suggestion.address.city || suggestion.address.town || suggestion.address.village || '';
     const country = suggestion.address.country || '';
     const location = `${city}, ${country}`;
-    
+
     setFormData({ ...formData, location });
     setLocationSearch(location);
     setShowLocationSuggestions(false);
@@ -153,14 +154,14 @@ export default function EditStartupPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       if (!token) {
         throw new Error('Authentication required. Please log in again.');
       }
 
       const res = await fetch(`/api/startups/${startupId}`, {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
@@ -170,7 +171,7 @@ export default function EditStartupPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to update startup');
+        throw new Error(data.error || data.message || 'Failed to update startup');
       }
 
       router.push('/institution-dashboard/startups');
@@ -252,7 +253,7 @@ export default function EditStartupPage() {
                     aria-label="Startup location"
                     autoComplete="off"
                   />
-                  
+
                   {locationLoading && (
                     <div className="absolute right-3 top-10.5 pointer-events-none">
                       <svg className="animate-spin h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24">

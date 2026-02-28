@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Input, Textarea, Select, FileUpload } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
+import { getSessionToken } from '@/lib/auth-utils';
 
 const stageOptions = [
   { value: 'idea', label: 'Idea' },
@@ -154,7 +155,7 @@ export default function AddStartupPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       if (!token) {
         throw new Error('Authentication required. Please log in again.');
       }
@@ -168,31 +169,45 @@ export default function AddStartupPage() {
       // Submit each founder's startup (or submit as array if backend supports)
       const primaryFounder = validFounders[0];
 
-      const res = await fetch('/api/institution-startups/create/', {
+      const payload = {
+        name: formData.name,
+        stage: formData.stage,
+        location: `${formData.city}, ${formData.country}`,
+        city: formData.city,
+        country: formData.country,
+        country_code: formData.countryCode,
+        one_liner: formData.oneLiner,
+        logo: formData.logo,
+        founder_name: primaryFounder.name,
+        founder_email: primaryFounder.email,
+        primary_contact_email: primaryFounder.email,
+        additional_founders: validFounders.slice(1),
+      };
+
+      let res = await fetch('/api/institution-startups/create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: formData.name,
-          stage: formData.stage,
-          location: `${formData.city}, ${formData.country}`,
-          city: formData.city,
-          country: formData.country,
-          countryCode: formData.countryCode,
-          oneLiner: formData.oneLiner,
-          logo: formData.logo,
-          founderName: primaryFounder.name,
-          founderEmail: primaryFounder.email,
-          additionalFounders: validFounders.slice(1), // Send other founders
-        }),
+        body: JSON.stringify(payload),
       });
+
+      if (res.status === 404) {
+        res = await fetch('/api/startups/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+      }
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to add startup');
+        throw new Error(data.error || data.message || 'Failed to add startup');
       }
 
       router.push('/institution-dashboard/startups');

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
 import { useProjectStore } from '@/stores/useProjectStore';
+import { getSessionToken } from '@/lib/auth-utils';
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   planning: { label: 'Planning', color: 'bg-blue-100 text-blue-800' },
@@ -30,7 +31,7 @@ export default function ProjectsPage() {
   // Get token from localStorage (client-side only)
   const getToken = () => {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('institution_token');
+    return getSessionToken('institution');
   };
 
   // Initial fetch
@@ -155,16 +156,7 @@ export default function ProjectsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="flex-1"
-                      onClick={() => router.push(`/institution-dashboard/projects/${project.id}/edit`)}
-                      disabled={isOptimistic}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
                       onClick={() => handleDelete(project.id)}
                       disabled={isOptimistic}
                     >

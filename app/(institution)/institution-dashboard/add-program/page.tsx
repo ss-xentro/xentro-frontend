@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
+import { getSessionToken } from '@/lib/auth-utils';
 
 const programTypeOptions = [
     { value: 'incubation', label: 'Incubation Program' },
@@ -36,7 +37,7 @@ export default function AddProgramPage() {
         setError(null);
 
         try {
-            const token = localStorage.getItem('institution_token');
+            const token = getSessionToken('institution');
             if (!token) {
                 throw new Error('Authentication required. Please log in again.');
             }

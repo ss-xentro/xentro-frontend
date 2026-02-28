@@ -82,7 +82,7 @@ export default function InstitutionsPage() {
                     <h2 className="text-2xl font-bold text-(--primary)">Institutions</h2>
                     <p className="text-(--secondary) mt-1">Manage and monitor all onboarded institutions</p>
                 </div>
-                <Link href="/dashboard/add-institution">
+                <Link href="/admin/dashboard/add-institution">
                     <Button>
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -200,7 +200,7 @@ export default function InstitutionsPage() {
                         </div>
                         <h3 className="text-lg font-semibold text-(--primary) mb-2">No institutions yet</h3>
                         <p className="text-(--secondary) mb-6">Get started by adding your first institution to the platform.</p>
-                        <Link href="/dashboard/add-institution">
+                        <Link href="/admin/dashboard/add-institution">
                             <Button>
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -311,7 +311,7 @@ export default function InstitutionsPage() {
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     </svg>
                                                 </Link>
-                                                <Link href={`/dashboard/institutions/${institution.id}/edit`} className="p-2 text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-md transition-colors">
+                                                <Link href={`/admin/dashboard/institutions/${institution.id}/edit`} className="p-2 text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-md transition-colors">
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
@@ -392,7 +392,7 @@ function InstitutionCard({ institution, index, onDelete }: { institution: Instit
                 <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => router.push(`/dashboard/institutions/${institution.id}/preview`)}
+                    onClick={() => router.push(`/admin/dashboard/institutions/${institution.id}/preview`)}
                 >
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -403,7 +403,7 @@ function InstitutionCard({ institution, index, onDelete }: { institution: Instit
                 <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => router.push(`/dashboard/institutions/${institution.id}/edit`)}
+                    onClick={() => router.push(`/admin/dashboard/institutions/${institution.id}/edit`)}
                 >
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

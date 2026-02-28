@@ -6,6 +6,7 @@ import { institutionTypeLabels, operatingModeLabels, sdgLabels, sectorLabels, SD
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { Card, Button, Badge, VerifiedBadge, SDGBadge, StatusBadge } from '@/components/ui';
 import { InstitutionTabs } from '@/components/institution/InstitutionTabs';
+import { useAuth } from '@/contexts/AuthContext';
 
 type Institution = any;
 type Program = any;
@@ -15,6 +16,7 @@ type TeamMember = any;
 
 export default function AdminInstitutionPreviewPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
+    const { token } = useAuth();
     const [institutionId, setInstitutionId] = useState<string>('');
     const [institution, setInstitution] = useState<Institution | null>(null);
     const [programs, setPrograms] = useState<Program[]>([]);
@@ -25,17 +27,36 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const getAuthToken = () => {
+        if (token) return token;
+        if (typeof window === 'undefined') return null;
+        try {
+            const raw = localStorage.getItem('xentro_session');
+            if (!raw) return null;
+            const parsed = JSON.parse(raw) as { token?: string; expiresAt?: number };
+            if (parsed?.expiresAt && parsed.expiresAt <= Date.now()) return null;
+            return parsed?.token || null;
+        } catch {
+            return null;
+        }
+    };
+
     useEffect(() => {
         // Verify admin auth
-        const token = localStorage.getItem('admin_token');
-        if (!token) {
-            router.push('/admin-login');
+        const authToken = getAuthToken();
+        if (!authToken) {
+            router.push('/admin/login');
+            setLoading(false);
             return;
         }
 
         params.then(p => {
             setInstitutionId(p.id);
-            fetch(`/api/institutions/${p.id}`)
+            fetch(`/api/institutions/${p.id}`, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                },
+            })
                 .then(res => {
                     if (!res.ok) throw new Error('Not found');
                     return res.json();
@@ -50,16 +71,22 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
                 .catch(() => setError('Institution not found'))
                 .finally(() => setLoading(false));
         });
-    }, [params, router]);
+    }, [params, router, token]);
 
     const handleApprove = async () => {
         if (!confirm('Are you sure you want to publish this institution?')) return;
 
         setUpdating(true);
         try {
+            const authToken = getAuthToken();
+            if (!authToken) throw new Error('Admin session expired. Please log in again.');
+
             const res = await fetch(`/api/institutions/${institutionId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`,
+                },
                 body: JSON.stringify({ status: 'published' }),
             });
 
@@ -80,9 +107,15 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
 
         setUpdating(true);
         try {
+            const authToken = getAuthToken();
+            if (!authToken) throw new Error('Admin session expired. Please log in again.');
+
             const res = await fetch(`/api/institutions/${institutionId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`,
+                },
                 body: JSON.stringify({ status: 'archived' }),
             });
 
@@ -111,7 +144,7 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
                 <Card className="p-8 text-center max-w-md">
                     <h2 className="text-xl font-bold text-(--primary) mb-2">Institution Not Found</h2>
                     <p className="text-(--secondary) mb-4">{error || 'Unable to load institution data.'}</p>
-                    <Button onClick={() => router.push('/dashboard/institutions')}>
+                    <Button onClick={() => router.push('/admin/dashboard/institutions')}>
                         Back to Institutions
                     </Button>
                 </Card>
@@ -129,7 +162,7 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
                 <div className="container mx-auto px-4 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => router.push('/dashboard/institutions')}
+                            onClick={() => router.push('/admin/dashboard/institutions')}
                             className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -25,14 +25,32 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
   const [remark, setRemark] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  const getAuthToken = () => {
+    if (token) return token;
+    if (typeof window === 'undefined') return null;
+    try {
+      const raw = localStorage.getItem('xentro_session');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { token?: string; expiresAt?: number };
+      if (parsed?.expiresAt && parsed.expiresAt <= Date.now()) return null;
+      return parsed?.token || null;
+    } catch {
+      return null;
+    }
+  };
+
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
+        const authToken = getAuthToken();
+        if (!authToken) {
+          throw new Error('Admin session expired. Please log in again.');
+        }
         // We reuse the existing list endpoint, but in a real app you'd add a detail GET endpoint
         const res = await fetch('/api/institution-applications', {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${authToken}`
           }
         });
         const payload = await res.json();
@@ -48,26 +66,31 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
       }
     };
     load();
-  }, [resolvedParams.id]);
+  }, [resolvedParams.id, token]);
 
   const handleAction = async (action: 'approved' | 'rejected') => {
     if (!app) return;
     try {
       setSubmitting(true);
+      const authToken = getAuthToken();
+      if (!authToken) {
+        throw new Error('Admin session expired. Please log in again.');
+      }
       const res = await fetch(`/api/institution-applications/${app.id}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({ action, remark }),
       });
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.message || 'Update failed');
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(payload.message || payload.error || 'Update failed');
       alert(`Institution ${action === 'approved' ? 'approved' : 'rejected'} successfully!`);
       router.push('/admin/dashboard/institution-approvals');
     } catch (err) {
       setError((err as Error).message);
+    } finally {
       setSubmitting(false);
     }
   };

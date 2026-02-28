@@ -7,6 +7,7 @@ import { Card, Input, Textarea, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Institution, InstitutionType, OperatingMode } from '@/lib/types';
 import { institutionTypeLabels, operatingModeLabels } from '@/lib/types';
+import { getSessionToken } from '@/lib/auth-utils';
 
 export default function EditInstitutionPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function EditInstitutionPage() {
   useEffect(() => {
     const loadInstitution = async () => {
       try {
-        const token = localStorage.getItem('institution_token');
+        const token = getSessionToken('institution');
         if (!token) {
           router.push('/institution-login');
           return;
@@ -75,7 +76,8 @@ export default function EditInstitutionPage() {
     setSaving(true);
 
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
+      if (!token) throw new Error('Authentication required. Please log in again.');
       const res = await fetch(`/api/institutions/${institution?.id}`, {
         method: 'PATCH',
         headers: {
@@ -86,7 +88,8 @@ export default function EditInstitutionPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to update institution');
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || data.message || 'Failed to update institution');
       }
 
       alert('Institution updated successfully!');

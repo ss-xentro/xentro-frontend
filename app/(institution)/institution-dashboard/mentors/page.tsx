@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
+import { getSessionToken } from '@/lib/auth-utils';
 
 interface Mentor {
   id: string;
@@ -33,36 +34,18 @@ export default function MentorsPage() {
 
   const loadMentors = async () => {
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       if (!token) {
         router.push('/institution-login');
         return;
       }
 
-      // Fetch the dashboard info which includes team, programs, startups, etc.
-      // Or we can fetch institutions API for our own institution.
-      // Wait, there is no direct `/api/institution-mentors` GET right now,
-      // but the `institution_item_api` returns the full payload!
-      const res = await fetch('/api/institution-team', {
+      const res = await fetch('/api/mentors/', {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to load institution data');
       const data = await res.json();
-
-      // Let's get the institution ID from the team members (just the first member)
-      const member = data.data?.[0];
-      if (!member) return;
-
-      const instRes = await fetch(`/api/institutions/${member.institutionId}/`);
-      const instData = await instRes.json();
-
-      // The institution_item_api returns startups and team, but maybe not mentors.
-      // Let's fetch mentors using the generic mentors endpoint with institution filter
-      const mentorsRes = await fetch(`/api/mentors/?institution=${member.institutionId}`);
-      if (mentorsRes.ok) {
-        const mentorsData = await mentorsRes.json();
-        setMentors(mentorsData.data || []);
-      }
+      setMentors(data.data || []);
       setError(null);
     } catch (err) {
       setError((err as Error).message);
@@ -77,7 +60,8 @@ export default function MentorsPage() {
 
     setLinkLoading(true);
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
+      if (!token) throw new Error('Authentication required. Please log in again.');
       const res = await fetch('/api/institution-mentors/link/', {
         method: 'POST',
         headers: {

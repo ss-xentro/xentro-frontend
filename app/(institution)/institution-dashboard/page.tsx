@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, Button, ProgressIndicator } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus, Institution, operatingModeLabels, sdgLabels, sectorLabels } from '@/lib/types';
+import { getSessionToken } from '@/lib/auth-utils';
 
 // Import all slides
 import InstitutionTypeSlide from '@/components/onboarding/InstitutionTypeSlide';
@@ -104,7 +105,7 @@ export default function InstitutionDashboardPage() {
     const load = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('institution_token');
+        const token = getSessionToken('institution');
         if (!token) {
           router.push('/institution-login');
           return;
@@ -181,7 +182,7 @@ export default function InstitutionDashboardPage() {
 
           // If approved, fetch dashboard stats
           if (latest.status === 'approved') {
-            const token = localStorage.getItem('institution_token');
+            const token = getSessionToken('institution');
             if (token) {
               const [startupsRes, teamRes, programsRes, instRes] = await Promise.all([
                 fetch('/api/startups', { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -244,7 +245,7 @@ export default function InstitutionDashboardPage() {
     if (!application?.id) return;
     try {
       setSubmitting(true);
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       const res = await fetch(`/api/institution-applications/${application.id}/`, {
         method: 'PUT',
         headers: {
@@ -302,7 +303,7 @@ export default function InstitutionDashboardPage() {
 
     try {
       setSubmitting(true);
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       // Use PUT endpoint for final submission with status pending
       const res = await fetch(`/api/institution-applications/${application.id}/`, {
         method: 'PUT',

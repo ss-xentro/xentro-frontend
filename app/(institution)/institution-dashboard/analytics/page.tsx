@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card } from '@/components/ui';
+import { getSessionToken } from '@/lib/auth-utils';
 
 interface AnalyticsData {
   profileViews: number;
@@ -31,7 +32,7 @@ export default function AnalyticsPage() {
 
   const loadAnalytics = async () => {
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       if (!token) {
         router.push('/institution-login');
         return;
@@ -143,7 +144,7 @@ export default function AnalyticsPage() {
             <h3 className="font-bold mb-4">Quick Actions</h3>
             <div className="space-y-3">
               <button
-                onClick={() => router.push('/institution-dashboard/add-project')}
+                onClick={() => router.push('/institution-dashboard/add-program')}
                 className="w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
               >
                 <span className="font-medium">Add Program</span>

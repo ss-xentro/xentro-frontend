@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Input, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
+import { getSessionToken } from '@/lib/auth-utils';
 
 // Roles that can be assigned to team members (owner is reserved)
 const roleOptions = [
@@ -31,7 +32,7 @@ export default function AddTeamMemberPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       if (!token) {
         throw new Error('Authentication required. Please log in again.');
       }
@@ -48,7 +49,7 @@ export default function AddTeamMemberPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to add team member');
+        throw new Error(data.error || data.message || 'Failed to add team member');
       }
 
       router.push('/institution-dashboard/team');

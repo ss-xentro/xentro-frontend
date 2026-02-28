@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, Badge } from '@/components/ui';
+import { getSessionToken } from '@/lib/auth-utils';
 
 interface Program {
     id: string;
@@ -42,7 +43,7 @@ export default function ProgramsPage() {
 
     const loadPrograms = async () => {
         try {
-            const token = localStorage.getItem('institution_token');
+            const token = getSessionToken('institution');
             if (!token) {
                 router.push('/institution-login');
                 return;
@@ -71,7 +72,8 @@ export default function ProgramsPage() {
 
         setDeletingId(id);
         try {
-            const token = localStorage.getItem('institution_token');
+            const token = getSessionToken('institution');
+            if (!token) throw new Error('Authentication required. Please log in again.');
             const res = await fetch(`/api/programs/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
@@ -79,7 +81,7 @@ export default function ProgramsPage() {
 
             if (!res.ok) {
                 const data = await res.json();
-                throw new Error(data.message || 'Failed to delete program');
+                throw new Error(data.error || data.message || 'Failed to delete program');
             }
 
             setPrograms(programs.filter(p => p.id !== id));
@@ -192,15 +194,7 @@ export default function ProgramsPage() {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="flex-1"
-                                            onClick={() => router.push(`/institution-dashboard/programs/${program.id}/edit`)}
-                                        >
-                                            Edit
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
                                             onClick={() => handleDelete(program.id)}
                                             disabled={deletingId === program.id}
                                         >

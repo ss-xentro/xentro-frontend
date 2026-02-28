@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useState } from 'react';
+import { getSessionToken } from '@/lib/auth-utils';
 
 interface DashboardSidebarProps {
   children: ReactNode;
@@ -89,7 +90,7 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       if (token) {
         await fetch('/api/auth/logout/', {
           method: 'POST',
@@ -99,6 +100,7 @@ export function DashboardSidebar({ children }: DashboardSidebarProps) {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      localStorage.removeItem('xentro_session');
       localStorage.removeItem('institution_token');
       window.location.href = '/institution-login';
     }

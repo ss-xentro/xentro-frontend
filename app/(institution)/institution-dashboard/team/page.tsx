@@ -4,21 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, Badge } from '@/components/ui';
+import { getSessionToken } from '@/lib/auth-utils';
 
 interface TeamMember {
   id: string;
-  institutionId: string;
-  userId: string;
   role: 'admin' | 'manager' | 'ambassador' | 'viewer';
-  invitedAt: string;
-  acceptedAt: string | null;
+  createdAt: string;
   managerApproved: boolean;
   adminApproved: boolean;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  userName?: string;
+  userEmail?: string;
 }
 
 const roleColors: Record<string, string> = {
@@ -40,13 +35,13 @@ export default function TeamPage() {
 
   const loadTeam = async () => {
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       if (!token) {
         router.push('/institution-login');
         return;
       }
 
-      const res = await fetch('/api/institution-team', {
+      const res = await fetch('/api/institution-team/', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -68,8 +63,9 @@ export default function TeamPage() {
     if (!confirm('Are you sure you want to remove this team member?')) return;
 
     try {
-      const token = localStorage.getItem('institution_token');
-      const res = await fetch(`/api/institution-team/${id}`, {
+      const token = getSessionToken('institution');
+      if (!token) throw new Error('Authentication required. Please log in again.');
+      const res = await fetch(`/api/institution-team/${id}/`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -79,40 +75,7 @@ export default function TeamPage() {
         throw new Error(data.message || 'Failed to remove team member');
       }
 
-      setTeam(team.filter(m => m.id !== id));
-    } catch (err) {
-      alert((err as Error).message);
-    }
-  };
-
-  const handleApprove = async (memberId: string, actionType: 'admin_approve' | 'super_admin_approve') => {
-    try {
-      const token = localStorage.getItem('institution_token');
-      const member = team.find(m => m.id === memberId);
-      if (!member) return;
-
-      const res = await fetch(`/api/institutions/${member.institutionId}/approve_ambassador/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ member_id: memberId, action_type: actionType }),
-      });
-
-      if (!res.ok) throw new Error('Failed to approve member');
-
-      setTeam(team.map(m => {
-        if (m.id === memberId) {
-          return {
-            ...m,
-            managerApproved: actionType === 'admin_approve' ? true : m.managerApproved,
-            adminApproved: actionType === 'super_admin_approve' ? true : m.adminApproved
-          };
-        }
-        return m;
-      }));
-      alert('Approved successfully!');
+      setTeam((prev) => prev.filter(m => m.id !== id));
     } catch (err) {
       alert((err as Error).message);
     }
@@ -178,11 +141,11 @@ export default function TeamPage() {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-(--surface-hover) flex items-center justify-center text-xl font-bold text-(--primary)">
-                      {member.user?.name?.[0]?.toUpperCase() || '?'}
+                      {member.userName?.[0]?.toUpperCase() || '?'}
                     </div>
                     <div>
-                      <h3 className="font-bold text-(--primary)">{member.user?.name || 'Unknown'}</h3>
-                      <p className="text-sm text-(--secondary)">{member.user?.email || ''}</p>
+                      <h3 className="font-bold text-(--primary)">{member.userName || 'Unknown'}</h3>
+                      <p className="text-sm text-(--secondary)">{member.userEmail || ''}</p>
                     </div>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[member.role]}`}>
@@ -191,47 +154,11 @@ export default function TeamPage() {
                 </div>
 
                 <div className="text-xs text-(--secondary) mb-4">
-                  Joined {new Date(member.invitedAt).toLocaleDateString()}
-                  {member.role === 'ambassador' && (
-                    <div className="mt-2 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${member.managerApproved ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                        <span>Manager Approval: {member.managerApproved ? 'Yes' : 'Pending'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${member.adminApproved ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                        <span>Admin Approval: {member.adminApproved ? 'Yes' : 'Pending'}</span>
-                      </div>
-                    </div>
-                  )}
+                  Joined {new Date(member.createdAt).toLocaleDateString()}
                 </div>
 
-                {member.role === 'ambassador' && (!member.managerApproved || !member.adminApproved) && (
-                  <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-100">
-                    <div className="text-xs font-medium text-gray-700 mb-2">Pending Approvals:</div>
-                    <div className="flex gap-2">
-                      {!member.managerApproved && (
-                        <Button variant="secondary" size="sm" onClick={() => handleApprove(member.id, 'admin_approve')} className="flex-1 text-xs">
-                          Manager Approve
-                        </Button>
-                      )}
-                      {!member.adminApproved && (
-                        <Button variant="secondary" size="sm" onClick={() => handleApprove(member.id, 'super_admin_approve')} className="flex-1 text-xs">
-                          Admin Approve
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}  {member.role !== 'admin' && (
+                {member.role !== 'admin' && (
                   <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => router.push(`/institution-dashboard/team/${member.id}/edit`)}
-                    >
-                      Edit Role
-                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"

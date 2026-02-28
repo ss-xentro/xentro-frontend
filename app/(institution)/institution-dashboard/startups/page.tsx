@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
+import { getSessionToken } from '@/lib/auth-utils';
 
 interface Startup {
   id: string;
@@ -31,7 +32,7 @@ export default function StartupsPage() {
 
   const loadStartups = async () => {
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
       if (!token) {
         router.push('/institution-login');
         return;
@@ -64,7 +65,8 @@ export default function StartupsPage() {
 
     setDeletingId(id);
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
+      if (!token) throw new Error('Authentication required. Please log in again.');
       const res = await fetch(`/api/startups/${id}`, {
         method: 'DELETE',
         headers: {
@@ -73,7 +75,8 @@ export default function StartupsPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to delete startup');
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || data.message || 'Failed to delete startup');
       }
 
       setStartups(startups.filter(s => s.id !== id));
@@ -90,7 +93,8 @@ export default function StartupsPage() {
 
     setLinkLoading(true);
     try {
-      const token = localStorage.getItem('institution_token');
+      const token = getSessionToken('institution');
+      if (!token) throw new Error('Authentication required. Please log in again.');
       const res = await fetch('/api/institution-startups/link/', {
         method: 'POST',
         headers: {
