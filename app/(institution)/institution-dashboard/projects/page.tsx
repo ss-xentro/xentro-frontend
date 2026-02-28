@@ -119,7 +119,8 @@ export default function ProjectsPage() {
               return (
                 <Card
                   key={project.id}
-                  className={`p-6 transition-opacity ${isOptimistic ? 'opacity-70' : 'opacity-100'}`}
+                  className={`p-6 transition-opacity cursor-pointer hover:shadow-md ${isOptimistic ? 'opacity-70' : 'opacity-100'}`}
+                  onClick={() => router.push(`/institution-dashboard/projects/${project.id}`)}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
@@ -156,8 +157,24 @@ export default function ProjectsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="flex-1"
+                      onClick={(e: React.MouseEvent) => { e.stopPropagation(); router.push(`/institution-dashboard/projects/${project.id}`); }}
+                    >
+                      View Details
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1"
+                      onClick={(e: React.MouseEvent) => { e.stopPropagation(); router.push(`/institution-dashboard/projects/${project.id}/edit`); }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleDelete(project.id)}
+                      onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(project.id); }}
                       disabled={isOptimistic}
                     >
                       Delete

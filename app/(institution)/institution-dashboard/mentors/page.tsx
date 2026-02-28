@@ -9,12 +9,11 @@ import { getSessionToken } from '@/lib/auth-utils';
 
 interface Mentor {
   id: string;
-  user: {
-    name: string;
-    email: string;
-  };
+  user_name: string | null;
+  user_email: string | null;
   title: string | null;
   company: string | null;
+  occupation: string | null;
   expertise: string[];
 }
 
@@ -167,11 +166,12 @@ export default function MentorsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mentors.map((mentor) => (
-              <Card key={mentor.id} className="p-6 bg-white border border-gray-200 hover:shadow-md transition-shadow">
+              <Card key={mentor.id} className="p-6 bg-white border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/institution-dashboard/mentors/${mentor.id}`)}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">{mentor.user?.name}</h3>
-                    <p className="text-sm text-gray-600">{mentor.title} {mentor.company && `at ${mentor.company}`}</p>
+                    <h3 className="font-bold text-lg text-gray-900 mb-1">{mentor.user_name || 'Unnamed Mentor'}</h3>
+                    <p className="text-sm text-gray-600">{mentor.occupation || mentor.title} {mentor.company && `at ${mentor.company}`}</p>
+                    {mentor.user_email && <p className="text-xs text-gray-400 mt-1">{mentor.user_email}</p>}
                   </div>
                 </div>
 
@@ -189,6 +189,15 @@ export default function MentorsPage() {
                     )}
                   </div>
                 )}
+
+                <div className="flex gap-2 border-t border-gray-200 pt-4 mt-4">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); router.push(`/institution-dashboard/mentors/${mentor.id}`); }}
+                    className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    View Details
+                  </button>
+                </div>
               </Card>
             ))}
           </div>

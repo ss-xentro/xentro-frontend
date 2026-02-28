@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, Input, Textarea, Select, Button, Badge, VerifiedBadge, FileUpload } from '@/components/ui';
 import { institutionTypeLabels, Institution } from '@/lib/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 const statusOptions = [
   { value: 'published', label: 'Published' },
@@ -11,9 +12,24 @@ const statusOptions = [
   { value: 'archived', label: 'Archived' },
 ];
 
+function getAuthToken(token: string | null): string | null {
+  if (token) return token;
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('xentro_session');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { token?: string; expiresAt?: number };
+    if (parsed?.expiresAt && parsed.expiresAt <= Date.now()) return null;
+    return parsed?.token || null;
+  } catch {
+    return null;
+  }
+}
+
 export default function EditInstitutionPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { token } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +43,11 @@ export default function EditInstitutionPage() {
     async function load() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/institutions/${id}`, { signal: controller.signal });
+        const authToken = getAuthToken(token);
+        const res = await fetch(`/api/institutions/${id}`, {
+          signal: controller.signal,
+          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
+        });
         if (!res.ok) throw new Error('Failed to load institution');
         const data = await res.json();
         setInstitution(data.institution);
@@ -57,9 +77,13 @@ export default function EditInstitutionPage() {
     setError(null);
     setMessage(null);
     try {
+      const authToken = getAuthToken(token);
       const res = await fetch(`/api/institutions/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
+        },
         body: JSON.stringify({
           name: institution.name,
           type: institution.type,

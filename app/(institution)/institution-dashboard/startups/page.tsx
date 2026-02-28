@@ -214,7 +214,7 @@ export default function StartupsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {startups.map((startup) => (
-              <Card key={startup.id} className="p-6 bg-white border border-gray-200 hover:shadow-md transition-shadow">
+              <Card key={startup.id} className="p-6 bg-white border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/institution-dashboard/startups/${startup.id}`)}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <h3 className="font-bold text-lg text-gray-900 mb-1">{startup.name}</h3>
@@ -224,7 +224,7 @@ export default function StartupsPage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <button
-                      onClick={() => router.push(`/institution-dashboard/startups/${startup.id}/edit`)}
+                      onClick={(e) => { e.stopPropagation(); router.push(`/institution-dashboard/startups/${startup.id}/edit`); }}
                       className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Edit"
                     >
@@ -233,7 +233,7 @@ export default function StartupsPage() {
                       </svg>
                     </button>
                     <button
-                      onClick={() => handleDelete(startup.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(startup.id); }}
                       disabled={deletingId === startup.id}
                       className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                       title="Delete"
@@ -265,6 +265,15 @@ export default function StartupsPage() {
                 {startup.oneLiner && (
                   <p className="text-sm text-gray-600 line-clamp-3">{startup.oneLiner}</p>
                 )}
+
+                <div className="flex gap-2 border-t border-gray-200 pt-4 mt-4">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); router.push(`/institution-dashboard/startups/${startup.id}`); }}
+                    className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    View Details
+                  </button>
+                </div>
               </Card>
             ))}
           </div>

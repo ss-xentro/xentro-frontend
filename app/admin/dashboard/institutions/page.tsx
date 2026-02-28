@@ -6,6 +6,21 @@ import { institutionTypeLabels, Institution } from '@/lib/types';
 import { formatNumber } from '@/lib/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+
+function getAuthToken(token: string | null): string | null {
+    if (token) return token;
+    if (typeof window === 'undefined') return null;
+    try {
+        const raw = localStorage.getItem('xentro_session');
+        if (!raw) return null;
+        const parsed = JSON.parse(raw) as { token?: string; expiresAt?: number };
+        if (parsed?.expiresAt && parsed.expiresAt <= Date.now()) return null;
+        return parsed?.token || null;
+    } catch {
+        return null;
+    }
+}
 
 export default function InstitutionsPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -17,6 +32,7 @@ export default function InstitutionsPage() {
     const [error, setError] = useState<string | null>(null);
     const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const { token } = useAuth();
 
     useEffect(() => {
         const controller = new AbortController();
@@ -48,8 +64,10 @@ export default function InstitutionsPage() {
     const handleDelete = async (id: string) => {
         try {
             setDeleting(true);
+            const authToken = getAuthToken(token);
             const response = await fetch(`/api/institutions/${id}`, {
                 method: 'DELETE',
+                headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
             });
 
             if (!response.ok) {

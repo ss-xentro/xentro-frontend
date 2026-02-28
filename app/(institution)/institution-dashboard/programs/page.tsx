@@ -150,7 +150,7 @@ export default function ProgramsPage() {
                         {programs.map((program) => {
                             const typeInfo = typeLabels[program.type] || typeLabels.other;
                             return (
-                                <Card key={program.id} className="p-6">
+                                <Card key={program.id} className="p-6 cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/institution-dashboard/programs/${program.id}`)}>
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-1">
@@ -194,8 +194,24 @@ export default function ProgramsPage() {
                                         <Button
                                             variant="ghost"
                                             size="sm"
+                                            className="flex-1"
+                                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); router.push(`/institution-dashboard/programs/${program.id}`); }}
+                                        >
+                                            View Details
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="flex-1"
+                                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); router.push(`/institution-dashboard/programs/${program.id}/edit`); }}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                            onClick={() => handleDelete(program.id)}
+                                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(program.id); }}
                                             disabled={deletingId === program.id}
                                         >
                                             {deletingId === program.id ? 'Deleting...' : 'Delete'}

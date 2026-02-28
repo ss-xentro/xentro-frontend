@@ -8,11 +8,10 @@ import { getSessionToken } from '@/lib/auth-utils';
 
 const stageOptions = [
   { value: 'idea', label: 'Idea' },
-  { value: 'validation', label: 'Validation' },
-  { value: 'early-stage', label: 'Early Stage' },
+  { value: 'mvp', label: 'Pre-Seed / MVP' },
+  { value: 'early_traction', label: 'Early Traction' },
   { value: 'growth', label: 'Growth' },
-  { value: 'scaling', label: 'Scaling' },
-  { value: 'maturity', label: 'Maturity' },
+  { value: 'scale', label: 'Scale' },
 ];
 
 interface Founder {

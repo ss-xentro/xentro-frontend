@@ -137,7 +137,7 @@ export default function TeamPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {team.map((member) => (
-              <Card key={member.id} className="p-6">
+              <Card key={member.id} className="p-6 cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/institution-dashboard/team/${member.id}`)}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-(--surface-hover) flex items-center justify-center text-xl font-bold text-(--primary)">
@@ -157,18 +157,26 @@ export default function TeamPage() {
                   Joined {new Date(member.createdAt).toLocaleDateString()}
                 </div>
 
-                {member.role !== 'admin' && (
-                  <div className="flex gap-2">
+                <div className="flex gap-2 border-t border-(--border) pt-4 mt-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1"
+                    onClick={(e: React.MouseEvent) => { e.stopPropagation(); router.push(`/institution-dashboard/team/${member.id}`); }}
+                  >
+                    View Details
+                  </Button>
+                  {member.role !== 'admin' && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleRemove(member.id)}
+                      className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleRemove(member.id); }}
                     >
                       Remove
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
               </Card>
             ))}
           </div>
