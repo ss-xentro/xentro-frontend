@@ -7,6 +7,7 @@ import { Card, Button, Textarea } from '@/components/ui';
 import { InstitutionApplication } from '@/lib/types';
 import { formatNumber } from '@/lib/utils';
 import { use } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -17,6 +18,7 @@ const statusColors: Record<string, string> = {
 export default function InstitutionApprovalDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const router = useRouter();
+  const { token } = useAuth();
   const [app, setApp] = useState<InstitutionApplication | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,11 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
       try {
         setLoading(true);
         // We reuse the existing list endpoint, but in a real app you'd add a detail GET endpoint
-        const res = await fetch('/api/institution-applications');
+        const res = await fetch('/api/institution-applications', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         const payload = await res.json();
         if (!res.ok) throw new Error(payload.message || 'Failed to load application');
         const apps = payload.data ?? [];
@@ -48,9 +54,12 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
     if (!app) return;
     try {
       setSubmitting(true);
-      const res = await fetch(`/api/institution-applications/${app.id}`, {
+      const res = await fetch(`/api/institution-applications/${app.id}/`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ action, remark }),
       });
       const payload = await res.json();

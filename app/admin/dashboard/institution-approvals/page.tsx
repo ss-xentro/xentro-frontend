@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
 import { InstitutionApplication } from '@/lib/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -12,6 +13,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function InstitutionApprovalsPage() {
+  const { token } = useAuth();
   const [applications, setApplications] = useState<InstitutionApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +22,11 @@ export default function InstitutionApprovalsPage() {
   const load = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/institution-applications');
+      const res = await fetch('/api/institution-applications', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.message || 'Failed to load applications');
       setApplications(payload.data ?? []);
