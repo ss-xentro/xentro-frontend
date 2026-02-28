@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, Button, ProgressIndicator } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus, Institution } from '@/lib/types';
+import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus, Institution, operatingModeLabels, sdgLabels, sectorLabels } from '@/lib/types';
 
 // Import all slides
 import InstitutionTypeSlide from '@/components/onboarding/InstitutionTypeSlide';
@@ -125,6 +125,37 @@ export default function InstitutionDashboardPage() {
 
         // Pre-fill form with application data if available
         if (latest) {
+          // Normalization logic for legacy data values (e.g. "Local" -> "local", "SaaS" -> "saas")
+          const normalizeOperatingMode = (mode: string | null | undefined): OperatingMode | null => {
+            if (!mode) return null;
+            const modeLower = mode.toLowerCase();
+            const validKeys = Object.keys(operatingModeLabels) as OperatingMode[];
+            if (validKeys.includes(modeLower as OperatingMode)) return modeLower as OperatingMode;
+            return null;
+          };
+
+          const normalizeSDG = (sdgs: string[] | null | undefined): SDGFocus[] => {
+            if (!Array.isArray(sdgs)) return [];
+            return sdgs.map(sdgLabel => {
+              // If it's already a valid key, return it
+              if (Object.keys(sdgLabels).includes(sdgLabel)) return sdgLabel as SDGFocus;
+              // Otherwise try to find it by full name
+              const entry = Object.entries(sdgLabels).find(([, value]) => value.fullName.toLowerCase() === sdgLabel.toLowerCase());
+              return entry ? (entry[0] as SDGFocus) : null;
+            }).filter(Boolean) as SDGFocus[];
+          };
+
+          const normalizeSector = (sectors: string[] | null | undefined): SectorFocus[] => {
+            if (!Array.isArray(sectors)) return [];
+            return sectors.map(sectorLabel => {
+              if (Object.keys(sectorLabels).includes(sectorLabel)) return sectorLabel as SectorFocus;
+              // map by label name, e.g. "SaaS" to "saas", "AI & ML" to "ai"
+              const entry = Object.entries(sectorLabels).find(([, value]) => value.label.toLowerCase() === sectorLabel.toLowerCase() || sectorLabel.toLowerCase() === value.label.toLowerCase().replace(' & ', ''));
+              // fallback to lowercase string
+              return entry ? (entry[0] as SectorFocus) : (sectorLabel.toLowerCase().replace(/ & /g, '').replace(/ /g, '-') as SectorFocus);
+            }).filter(s => Object.keys(sectorLabels).includes(s)) as SectorFocus[];
+          };
+
           setFormData({
             type: latest.type as InstitutionType,
             name: latest.name,
@@ -132,13 +163,13 @@ export default function InstitutionDashboardPage() {
             city: latest.city ?? '',
             country: latest.country ?? '',
             countryCode: latest.countryCode ?? '',
-            operatingMode: (latest.operatingMode as OperatingMode) ?? null,
+            operatingMode: normalizeOperatingMode(latest.operatingMode as string),
             startupsSupported: latest.startupsSupported ?? 0,
             studentsMentored: latest.studentsMentored ?? 0,
             fundingFacilitated: Number(latest.fundingFacilitated ?? 0),
             fundingCurrency: latest.fundingCurrency ?? 'USD',
-            sdgFocus: (latest.sdgFocus as SDGFocus[]) ?? [],
-            sectorFocus: (latest.sectorFocus as SectorFocus[]) ?? [],
+            sdgFocus: normalizeSDG(latest.sdgFocus as string[]),
+            sectorFocus: normalizeSector(latest.sectorFocus as string[]),
             logo: latest.logo ?? null,
             website: latest.website ?? '',
             linkedin: latest.linkedin ?? '',
