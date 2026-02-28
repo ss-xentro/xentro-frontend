@@ -13,12 +13,27 @@ export function StartupSidebar({ startup }: StartupSidebarProps) {
 	const hasSDG = startup.sdgFocus && startup.sdgFocus.length > 0;
 	const hasInvestors = startup.investors && startup.investors.length > 0;
 	const hasHighlights = startup.highlights && startup.highlights.length > 0;
+	const hasPrograms = startup.programs && startup.programs.length > 0;
 
 	// Show nothing if there's no metadata to display
-	if (!hasSectors && !hasSDG && !hasInvestors && !hasHighlights) return null;
+	if (!hasSectors && !hasSDG && !hasInvestors && !hasHighlights && !hasPrograms) return null;
 
 	return (
 		<section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+			{/* Programs */}
+			{hasPrograms && (
+				<div>
+					<h3 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-3">Program</h3>
+					<div className="flex flex-wrap gap-2">
+						{startup.programs!.map((program) => (
+							<Badge key={program.id} variant="outline" className="text-xs">
+								{program.name}
+							</Badge>
+						))}
+					</div>
+				</div>
+			)}
+
 			{/* Investors */}
 			{hasInvestors && (
 				<div>

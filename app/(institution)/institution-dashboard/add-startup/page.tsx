@@ -20,6 +20,12 @@ interface Founder {
   email: string;
 }
 
+interface ProgramOption {
+  id: string;
+  name: string;
+  type: string;
+}
+
 interface LocationSuggestion {
   place_id: number;
   display_name: string;
@@ -56,11 +62,40 @@ export default function AddStartupPage() {
     countryCode: '',
     oneLiner: '',
     logo: null as string | null,
+    programId: '' as string,
   });
 
   const [founders, setFounders] = useState<Founder[]>([
     { id: '1', name: '', email: '' }
   ]);
+
+  // Programs for this institution
+  const [programs, setPrograms] = useState<ProgramOption[]>([]);
+  const [programsLoading, setProgramsLoading] = useState(false);
+
+  // Fetch institution programs on mount
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      setProgramsLoading(true);
+      try {
+        const token = getSessionToken('institution');
+        if (!token) return;
+        const res = await fetch('/api/programs/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const list = data.programs || data.data || (Array.isArray(data) ? data : data.results || []);
+          setPrograms(Array.isArray(list) ? list.filter((p: Record<string, unknown>) => !p.isDeleted && !p.is_deleted) : []);
+        }
+      } catch {
+        // ignore — programs dropdown will just be empty
+      } finally {
+        setProgramsLoading(false);
+      }
+    };
+    fetchPrograms();
+  }, []);
 
   // Location autocomplete with Nominatim (OpenStreetMap)
   useEffect(() => {
@@ -181,6 +216,7 @@ export default function AddStartupPage() {
         founder_email: primaryFounder.email,
         primary_contact_email: primaryFounder.email,
         additional_founders: validFounders.slice(1),
+        ...(formData.programId ? { program_id: formData.programId } : {}),
       };
 
       let res = await fetch('/api/institution-startups/create/', {
@@ -327,6 +363,28 @@ export default function AddStartupPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Program (optional) */}
+                  {programs.length > 0 && (
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-2">
+                        Assign to Program <span className="text-gray-400">(optional)</span>
+                      </label>
+                      <select
+                        value={formData.programId}
+                        onChange={(e) => setFormData({ ...formData, programId: e.target.value })}
+                        className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+                        aria-label="Assign to program"
+                      >
+                        <option value="">No program</option>
+                        {programs.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} — {p.type}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
 
                 {/* What You're Building */}

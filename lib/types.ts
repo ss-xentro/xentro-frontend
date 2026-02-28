@@ -171,6 +171,7 @@ export interface Startup {
   mediaFeatures?: { title: string; url: string; source: string }[] | null;
   institutionId?: string | null;
   ownerId?: string | null;
+  programs?: { id: string; name: string; type: string; description?: string | null; isActive?: boolean }[] | null;
   profileViews?: number;
   createdAt?: string;
   updatedAt?: string;
