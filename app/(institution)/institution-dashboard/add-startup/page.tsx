@@ -39,7 +39,7 @@ export default function AddStartupPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Location autocomplete
   const [locationSearch, setLocationSearch] = useState('');
   const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
@@ -47,7 +47,7 @@ export default function AddStartupPage() {
   const [locationLoading, setLocationLoading] = useState(false);
   const locationInputRef = useRef<HTMLInputElement>(null);
   const locationSuggestionsRef = useRef<HTMLDivElement>(null);
-  
+
   const [formData, setFormData] = useState({
     name: '',
     stage: 'idea',
@@ -115,7 +115,7 @@ export default function AddStartupPage() {
     const city = suggestion.address.city || suggestion.address.town || suggestion.address.village || '';
     const country = suggestion.address.country || '';
     const countryCode = suggestion.address.country_code?.toUpperCase() || '';
-    
+
     setFormData({
       ...formData,
       city,
@@ -160,17 +160,17 @@ export default function AddStartupPage() {
       }
 
       const validFounders = founders.filter(f => f.name.trim() && f.email.trim());
-      
+
       if (validFounders.length === 0) {
         throw new Error('At least one founder is required');
       }
 
       // Submit each founder's startup (or submit as array if backend supports)
       const primaryFounder = validFounders[0];
-      
-      const res = await fetch('/api/startups', {
+
+      const res = await fetch('/api/institution-startups/create/', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
@@ -231,7 +231,7 @@ export default function AddStartupPage() {
                       aspectRatio={1}
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-2">
                       Startup Name *
@@ -279,7 +279,7 @@ export default function AddStartupPage() {
                         aria-label="Startup location"
                         autoComplete="off"
                       />
-                      
+
                       {/* Loading indicator */}
                       {locationLoading && (
                         <div className="absolute right-3 top-10.5 pointer-events-none">
@@ -365,7 +365,7 @@ export default function AddStartupPage() {
                       )}
 
                       <p className="text-sm font-medium text-gray-700">Founder {index + 1}</p>
-                      
+
                       <div>
                         <label className="block text-xs font-medium text-gray-500 mb-2">
                           Name *

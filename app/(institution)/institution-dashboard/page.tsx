@@ -213,9 +213,13 @@ export default function InstitutionDashboardPage() {
     if (!application?.id) return;
     try {
       setSubmitting(true);
-      const res = await fetch(`/api/institution-applications/${application.id}`, {
+      const token = localStorage.getItem('institution_token');
+      const res = await fetch(`/api/institution-applications/${application.id}/`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           name: formData.name,
           type: formData.type,
@@ -267,10 +271,14 @@ export default function InstitutionDashboardPage() {
 
     try {
       setSubmitting(true);
-      // Use POST endpoint for final submission with validation
-      const res = await fetch(`/api/institution-applications/${application.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const token = localStorage.getItem('institution_token');
+      // Use PUT endpoint for final submission with status pending
+      const res = await fetch(`/api/institution-applications/${application.id}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           name: formData.name,
           type: formData.type,
@@ -292,6 +300,7 @@ export default function InstitutionDashboardPage() {
           phone: formData.phone,
           description: formData.description,
           legalDocuments: formData.legalDocuments,
+          status: 'pending',
         }),
       });
       if (!res.ok) {

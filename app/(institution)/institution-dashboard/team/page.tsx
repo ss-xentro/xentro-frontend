@@ -9,11 +9,11 @@ interface TeamMember {
   id: string;
   institutionId: string;
   userId: string;
-  role: 'super_admin' | 'admin' | 'ambassador' | 'viewer';
+  role: 'admin' | 'manager' | 'ambassador' | 'viewer';
   invitedAt: string;
   acceptedAt: string | null;
+  managerApproved: boolean;
   adminApproved: boolean;
-  superAdminApproved: boolean;
   user: {
     id: string;
     name: string;
@@ -21,9 +21,9 @@ interface TeamMember {
   };
 }
 
-const roleColors = {
-  super_admin: 'bg-purple-100 text-purple-800',
-  admin: 'bg-blue-100 text-blue-800',
+const roleColors: Record<string, string> = {
+  admin: 'bg-purple-100 text-purple-800',
+  manager: 'bg-blue-100 text-blue-800',
   ambassador: 'bg-green-100 text-green-800',
   viewer: 'bg-gray-100 text-gray-800',
 };
@@ -100,18 +100,18 @@ export default function TeamPage() {
         body: JSON.stringify({ member_id: memberId, action_type: actionType }),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to approve');
-      }
+      if (!res.ok) throw new Error('Failed to approve member');
 
-      // Update the team member in state
-      setTeam(team.map(m => m.id === memberId ? {
-        ...m,
-        adminApproved: actionType === 'admin_approve' ? true : m.adminApproved,
-        superAdminApproved: actionType === 'super_admin_approve' ? true : m.superAdminApproved
-      } : m));
-
+      setTeam(team.map(m => {
+        if (m.id === memberId) {
+          return {
+            ...m,
+            managerApproved: actionType === 'admin_approve' ? true : m.managerApproved,
+            adminApproved: actionType === 'super_admin_approve' ? true : m.adminApproved
+          };
+        }
+        return m;
+      }));
       alert('Approved successfully!');
     } catch (err) {
       alert((err as Error).message);
@@ -195,33 +195,34 @@ export default function TeamPage() {
                   {member.role === 'ambassador' && (
                     <div className="mt-2 space-y-1">
                       <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${member.adminApproved ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                        <span>Admin Approval: {member.adminApproved ? 'Yes' : 'Pending'}</span>
+                        <div className={`w-2 h-2 rounded-full ${member.managerApproved ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                        <span>Manager Approval: {member.managerApproved ? 'Yes' : 'Pending'}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${member.superAdminApproved ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                        <span>Super Admin Approval: {member.superAdminApproved ? 'Yes' : 'Pending'}</span>
+                        <div className={`w-2 h-2 rounded-full ${member.adminApproved ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                        <span>Admin Approval: {member.adminApproved ? 'Yes' : 'Pending'}</span>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {member.role === 'ambassador' && (!member.adminApproved || !member.superAdminApproved) && (
-                  <div className="flex gap-2 mb-4">
-                    {!member.adminApproved && (
-                      <Button variant="secondary" size="sm" onClick={() => handleApprove(member.id, 'admin_approve')} className="flex-1 text-xs">
-                        Admin Approve
-                      </Button>
-                    )}
-                    {!member.superAdminApproved && (
-                      <Button variant="secondary" size="sm" onClick={() => handleApprove(member.id, 'super_admin_approve')} className="flex-1 text-xs">
-                        Super Approve
-                      </Button>
-                    )}
+                {member.role === 'ambassador' && (!member.managerApproved || !member.adminApproved) && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-100">
+                    <div className="text-xs font-medium text-gray-700 mb-2">Pending Approvals:</div>
+                    <div className="flex gap-2">
+                      {!member.managerApproved && (
+                        <Button variant="secondary" size="sm" onClick={() => handleApprove(member.id, 'admin_approve')} className="flex-1 text-xs">
+                          Manager Approve
+                        </Button>
+                      )}
+                      {!member.adminApproved && (
+                        <Button variant="secondary" size="sm" onClick={() => handleApprove(member.id, 'super_admin_approve')} className="flex-1 text-xs">
+                          Admin Approve
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                )}
-
-                {member.role !== 'super_admin' && (
+                )}  {member.role !== 'admin' && (
                   <div className="flex gap-2">
                     <Button
                       variant="ghost"

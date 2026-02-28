@@ -12,7 +12,7 @@ export type SectorFocus = 'ai' | 'healthtech' | 'edtech' | 'climatetech' | 'fint
 
 export type InstitutionStatus = 'draft' | 'published' | 'archived' | 'pending';
 
-export type InstitutionRole = 'super_admin' | 'admin' | 'ambassador' | 'viewer';
+export type InstitutionRole = 'admin' | 'manager' | 'ambassador' | 'viewer';
 
 export interface Institution {
   id: string;
@@ -51,8 +51,8 @@ export interface InstitutionMember {
   role: InstitutionRole;
   invitedAt: string;
   acceptedAt?: string | null;
-  adminApproved?: boolean;
-  superAdminApproved?: boolean;
+  managerApproved: boolean;
+  adminApproved: boolean;
   isActive: boolean;
   user?: {
     id: string;

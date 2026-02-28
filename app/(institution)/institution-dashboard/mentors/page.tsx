@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
+import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
 
 interface Mentor {
@@ -22,7 +23,7 @@ export default function MentorsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [isLinking, setIsLinking] = useState(false);
+  const [showLinkForm, setShowLinkForm] = useState(false);
   const [linkEmail, setLinkEmail] = useState('');
   const [linkLoading, setLinkLoading] = useState(false);
 
@@ -90,7 +91,7 @@ export default function MentorsPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to link mentor');
 
       alert('Mentor linked successfully!');
-      setIsLinking(false);
+      setShowLinkForm(false);
       setLinkEmail('');
       loadMentors(); // Reload list
     } catch (err) {
@@ -116,22 +117,28 @@ export default function MentorsPage() {
   return (
     <DashboardSidebar>
       <div className="p-8 space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Mentors</h1>
-            <p className="text-gray-600 mt-1">Manage your institution's mentor network</p>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">Mentors</h1>
+            <p className="text-sm text-gray-600">Manage and link mentors associated with your institution.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsLinking(!isLinking)}
-              className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+            <Link href="/institution-dashboard/add-mentor">
+              <Button>
+                New Mentor
+              </Button>
+            </Link>
+            <Button
+              variant="secondary"
+              onClick={() => setShowLinkForm(!showLinkForm)}
+              className="flex items-center gap-2"
             >
               Plus Add Mentor
-            </button>
+            </Button>
           </div>
         </div>
 
-        {isLinking && (
+        {showLinkForm && (
           <Card className="p-6 bg-blue-50 border-blue-100">
             <h3 className="font-semibold text-gray-900 mb-2">Link an Existing Mentor</h3>
             <p className="text-sm text-gray-600 mb-4">Enter the mentor's registered email address to link them to your institution.</p>

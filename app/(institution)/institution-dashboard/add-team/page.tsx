@@ -7,9 +7,10 @@ import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 
 // Roles that can be assigned to team members (owner is reserved)
 const roleOptions = [
-  { value: 'admin', label: 'Admin - Full access to manage institution' },
-  { value: 'ambassador', label: 'Ambassador - Represent institution, requires approval' },
-  { value: 'viewer', label: 'Viewer - View-only access to dashboard' },
+  { value: 'admin', label: 'Admin', description: 'Full access to manage the institution profile, team, and network' },
+  { value: 'manager', label: 'Manager', description: 'Can manage startups and mentors, and invite members' },
+  { value: 'ambassador', label: 'Ambassador', description: 'Organizes events and campus activities (requires approval)' },
+  { value: 'viewer', label: 'Viewer', description: 'Can view dashboard and reports only' },
 ];
 
 export default function AddTeamMemberPage() {
@@ -112,8 +113,8 @@ export default function AddTeamMemberPage() {
                     <label
                       key={option.value}
                       className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all ${formData.role === option.value
-                          ? 'border-gray-900 bg-gray-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-gray-900 bg-gray-50'
+                        : 'border-gray-200 hover:border-gray-300'
                         }`}
                     >
                       <input
