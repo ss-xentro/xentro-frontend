@@ -71,7 +71,7 @@ export default function SearchPage() {
 	const [total, setTotal] = useState(0);
 	const [loading, setLoading] = useState(false);
 	const [activeFilter, setActiveFilter] = useState<string>('');
-	const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const doSearch = useCallback(async (q: string, type?: string) => {
 		if (q.length < 2) {
@@ -158,8 +158,8 @@ export default function SearchPage() {
 						<button
 							onClick={() => handleFilterClick('')}
 							className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${!activeFilter
-									? 'bg-gray-900 text-white'
-									: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+								? 'bg-gray-900 text-white'
+								: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
 								}`}
 						>
 							All ({total})
@@ -172,8 +172,8 @@ export default function SearchPage() {
 									key={key}
 									onClick={() => handleFilterClick(typeKey)}
 									className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${activeFilter === typeKey
-											? 'bg-gray-900 text-white'
-											: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+										? 'bg-gray-900 text-white'
+										: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
 										}`}
 								>
 									{TYPE_ICONS[typeKey]} {TYPE_LABELS[typeKey]} ({items.length})

@@ -113,7 +113,7 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 	}
 
 	/* ─── Generic title+description+image section renderer ─── */
-	function renderTitleDescImageSection<T extends { title: string; description?: string; imageUrl?: string; icon?: string }>(
+	function renderTitleDescImageSection<T extends { title: string; description?: string | null; imageUrl?: string | null; icon?: string | null }>(
 		items: T[],
 		setter: React.Dispatch<React.SetStateAction<T[]>>,
 		template: T,
