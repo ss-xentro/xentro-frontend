@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { getSessionToken } from '@/lib/auth-utils';
 
 // Types (should ideally be shared)
 interface ActivityLog {
@@ -45,7 +46,7 @@ export default function DashboardOverviewPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('founder_token');
+                const token = getSessionToken('founder');
                 if (!token) return; // Layout handles redirect
 
                 const res = await fetch('/api/founder/my-startup', {

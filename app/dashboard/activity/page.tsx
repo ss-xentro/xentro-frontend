@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
+import { getSessionToken } from '@/lib/auth-utils';
 
 interface ActivityLog {
     id: string;
@@ -18,7 +19,7 @@ export default function ActivityPage() {
     useEffect(() => {
         const fetchLogs = async () => {
             try {
-                const token = localStorage.getItem('founder_token');
+                const token = getSessionToken('founder');
                 const res = await fetch('/api/founder/activity', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });

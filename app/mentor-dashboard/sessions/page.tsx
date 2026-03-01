@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { getSessionToken } from '@/lib/auth-utils';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
@@ -43,7 +44,7 @@ export default function SessionsPage() {
     const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
     const [message, setMessage] = useState<string | null>(null);
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('mentor_token') : null;
+    const token = typeof window !== 'undefined' ? getSessionToken('mentor') : null;
 
     useEffect(() => {
         if (!token) return;

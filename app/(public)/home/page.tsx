@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AppShell from '@/components/ui/AppShell';
 import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner';
 import { cn } from '@/lib/utils';
+import { getSessionToken, getRoleFromSession } from '@/lib/auth-utils';
 
 /* ─── Types ─── */
 type DetectedRole = 'admin' | 'founder' | 'mentor' | 'investor' | 'institution' | 'guest';
@@ -33,42 +34,21 @@ interface ActivityItem {
 function detectRole(): { role: DetectedRole; token: string | null } {
   if (typeof window === 'undefined') return { role: 'guest', token: null };
 
-  // 1. Check the unified xentro_session first (set by the new login flow)
-  try {
-    const raw = localStorage.getItem('xentro_session');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed?.token && parsed?.expiresAt > Date.now()) {
-        const accountType = parsed.user?.role || parsed.user?.account_type || parsed.user?.accountType || 'explorer';
-        const roleMap: Record<string, DetectedRole> = {
-          admin: 'admin',
-          mentor: 'mentor',
-          institution: 'institution',
-          investor: 'investor',
-          startup: 'founder',
-          founder: 'founder',
-          explorer: 'guest',
-        };
-        const role = roleMap[accountType] || 'guest';
-        return { role, token: parsed.token };
-      }
-    }
-  } catch { /* ignore */ }
+  const token = getSessionToken();
+  if (!token) return { role: 'guest', token: null };
 
-  // 2. Fallback: check role-specific tokens
-  const mentorToken = localStorage.getItem('mentor_token');
-  if (mentorToken) return { role: 'mentor', token: mentorToken };
-
-  const founderToken = localStorage.getItem('founder_token');
-  if (founderToken) return { role: 'founder', token: founderToken };
-
-  const institutionToken = localStorage.getItem('institution_token');
-  if (institutionToken) return { role: 'institution', token: institutionToken };
-
-  const investorToken = localStorage.getItem('investor_token');
-  if (investorToken) return { role: 'investor', token: investorToken };
-
-  return { role: 'guest', token: null };
+  const sessionRole = getRoleFromSession();
+  const roleMap: Record<string, DetectedRole> = {
+    admin: 'admin',
+    mentor: 'mentor',
+    institution: 'institution',
+    investor: 'investor',
+    startup: 'founder',
+    founder: 'founder',
+    explorer: 'guest',
+  };
+  const role = roleMap[sessionRole ?? ''] || 'guest';
+  return { role, token };
 }
 
 /* ─── Role configs ─── */

@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AppShell from '@/components/ui/AppShell';
 import { cn } from '@/lib/utils';
+import { getSessionToken } from '@/lib/auth-utils';
+import { useNotifications, WsNotification } from '@/lib/useNotifications';
 
 interface Notification {
   id: string;
@@ -23,12 +25,31 @@ export default function NotificationsPage() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
+  // Real-time WebSocket notifications
+  const handleWsNotification = useCallback((n: WsNotification) => {
+    const mapped: Notification = {
+      id: n.id || crypto.randomUUID(),
+      type: n.type,
+      title: n.title,
+      message: n.body,
+      entityType: n.entityType,
+      entityId: n.entityId,
+      actionUrl: n.actionUrl,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications((prev) => [mapped, ...prev]);
+    setUnreadCount((prev) => prev + 1);
+  }, []);
+
+  const { connected } = useNotifications({ onNotification: handleWsNotification });
+
   useEffect(() => {
     fetchNotifications();
   }, [filter]);
 
   const fetchNotifications = async () => {
-    const token = localStorage.getItem('xentro_token');
+    const token = getSessionToken();
     if (!token) {
       setError('Please login to view notifications');
       setLoading(false);
@@ -56,7 +77,7 @@ export default function NotificationsPage() {
   };
 
   const markAsRead = async (id: string) => {
-    const token = localStorage.getItem('xentro_token');
+    const token = getSessionToken();
     if (!token) return;
 
     try {
@@ -74,7 +95,7 @@ export default function NotificationsPage() {
   };
 
   const markAllAsRead = async () => {
-    const token = localStorage.getItem('xentro_token');
+    const token = getSessionToken();
     if (!token) return;
 
     try {
@@ -132,7 +153,15 @@ export default function NotificationsPage() {
         <div className="sticky top-0 z-10 backdrop-blur-xl bg-[#0B0D10]/80 border-b border-white/10 px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">Notifications</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-white tracking-tight">Notifications</h1>
+                {connected && (
+                  <span className="flex items-center gap-1 text-xs text-green-400" title="Real-time updates active">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                    Live
+                  </span>
+                )}
+              </div>
               {unreadCount > 0 && (
                 <p className="text-sm text-gray-400 mt-0.5">
                   {unreadCount} unread notification{unreadCount > 1 ? 's' : ''}

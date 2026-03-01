@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
+import { getSessionToken } from '@/lib/auth-utils';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -232,7 +233,7 @@ export default function PitchEditorPage() {
 
     const fetchStartupAndPitch = async () => {
         try {
-            const token = localStorage.getItem('founder_token');
+            const token = getSessionToken('founder');
             if (!token) return;
 
             const startupRes = await fetch('/api/founder/my-startup', {
@@ -273,7 +274,7 @@ export default function PitchEditorPage() {
         setIsSaving(true);
         setMessage(null);
         try {
-            const token = localStorage.getItem('founder_token');
+            const token = getSessionToken('founder');
             const payload: StartupPitchData = {
                 about: aboutData,
                 competitors,

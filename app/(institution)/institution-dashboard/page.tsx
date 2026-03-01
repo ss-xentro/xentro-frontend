@@ -377,7 +377,9 @@ export default function InstitutionDashboardPage() {
       alert(result.message || 'Application submitted for approval successfully!');
       setShowOnboarding(false);
       // Reload application to show updated status
-      const reload = await fetch('/api/institution-applications');
+      const reload = await fetch('/api/institution-applications', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
       if (reload.ok) {
         const payload = await reload.json();
         const apps = (payload.data ?? []) as InstitutionApplication[];

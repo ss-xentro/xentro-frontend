@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { getSessionToken } from '@/lib/auth-utils';
 
 type Booking = {
     id: string;
@@ -20,7 +21,7 @@ export default function MenteesPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('mentor_token');
+        const token = getSessionToken('mentor');
         if (!token) return;
 
         fetch('/api/mentor-bookings', {

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
+import { getSessionToken } from '@/lib/auth-utils';
 
 interface TeamMember {
     id: string;
@@ -47,7 +48,7 @@ export default function TeamPage() {
 
     const fetchTeam = async () => {
         try {
-            const token = localStorage.getItem('founder_token');
+            const token = getSessionToken('founder');
             const res = await fetch('/api/founder/team', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -69,7 +70,7 @@ export default function TeamPage() {
         setInviteError(null);
 
         try {
-            const token = localStorage.getItem('founder_token');
+            const token = getSessionToken('founder');
             const res = await fetch('/api/founder/team', {
                 method: 'POST',
                 headers: {
@@ -98,7 +99,7 @@ export default function TeamPage() {
         if (!confirm('Are you sure you want to remove this member?')) return;
 
         try {
-            const token = localStorage.getItem('founder_token');
+            const token = getSessionToken('founder');
             const res = await fetch(`/api/founder/team/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }

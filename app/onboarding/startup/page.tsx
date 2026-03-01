@@ -8,6 +8,7 @@ import { useStartupOnboardingStore } from '@/stores/useStartupOnboardingStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FileUpload } from '@/components/ui/FileUpload';
+import { getSessionToken } from '@/lib/auth-utils';
 import { cn } from '@/lib/utils';
 
 const SECTOR_OPTIONS = [
@@ -250,7 +251,7 @@ export default function StartupOnboardingPage() {
         setIsSubmitting(true);
         setError(null);
         try {
-            const token = localStorage.getItem('founder_token');
+            const token = getSessionToken('founder');
             const headers: Record<string, string> = { 'Content-Type': 'application/json' };
             if (token) headers['Authorization'] = `Bearer ${token}`;
 

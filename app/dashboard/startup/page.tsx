@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { Badge } from '@/components/ui/Badge';
+import { getSessionToken } from '@/lib/auth-utils';
 
 // Reusing options from onboarding (should be shared constants)
 const stages = [
@@ -50,7 +51,7 @@ export default function StartupSettingsPage() {
 
     const fetchData = async () => {
         try {
-            const token = localStorage.getItem('founder_token');
+            const token = getSessionToken('founder');
             if (!token) return;
 
             const res = await fetch('/api/founder/my-startup', {
@@ -75,7 +76,7 @@ export default function StartupSettingsPage() {
         setMessage(null);
 
         try {
-            const token = localStorage.getItem('founder_token');
+            const token = getSessionToken('founder');
             const res = await fetch(`/api/founder/startups/${data.id}`, {
                 method: 'PATCH',
                 headers: {

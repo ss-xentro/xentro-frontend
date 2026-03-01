@@ -16,6 +16,7 @@ import {
 } from '@/components/public/startup-profile';
 import type { StartupWithDetails } from '@/components/public/startup-profile';
 import { cn, hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
+import { getSessionToken } from '@/lib/auth-utils';
 
 type Tab = 'about' | 'team' | 'activity';
 
@@ -28,7 +29,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
   useEffect(() => {
     params.then(p => {
       let headers: HeadersInit = { 'x-public-view': 'true' };
-      const token = localStorage.getItem('founder_token') || localStorage.getItem('explorer_token');
+      const token = getSessionToken();
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }

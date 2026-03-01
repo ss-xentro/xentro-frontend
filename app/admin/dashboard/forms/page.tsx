@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, Badge, Button, Textarea } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { getSessionToken } from '@/lib/auth-utils';
 
 interface Form {
   id: string;
@@ -68,13 +69,13 @@ export default function AdminFormsPage() {
   const fetchForms = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('xentro_session')
-        ? JSON.parse(localStorage.getItem('xentro_session')!).token
-        : null;
-      
-      // For demo, also try mock admin token
-      const adminToken = token || await getAdminToken();
-      
+      const adminToken = getSessionToken();
+      if (!adminToken) {
+        setError('Please login as admin to view forms');
+        setLoading(false);
+        return;
+      }
+
       const params = new URLSearchParams();
       if (statusFilter) params.set('status', statusFilter);
       if (typeFilter) params.set('type', typeFilter);
@@ -82,7 +83,7 @@ export default function AdminFormsPage() {
       const res = await fetch(`/api/admin/forms?${params}`, {
         headers: { Authorization: `Bearer ${adminToken}` },
       });
-      
+
       if (!res.ok) throw new Error('Failed to load forms');
       const data = await res.json();
       setForms(data.forms || []);
@@ -93,28 +94,12 @@ export default function AdminFormsPage() {
     }
   };
 
-  const getAdminToken = async () => {
-    // Get mock admin token for development
-    try {
-      const res = await fetch('/api/dev/mock-admin');
-      if (res.ok) {
-        const data = await res.json();
-        return data.token;
-      }
-    } catch (e) {
-      console.error('Failed to get mock admin token');
-    }
-    return null;
-  };
-
   const handleReview = async (action: 'approve' | 'reject' | 'request_changes') => {
     if (!selectedForm) return;
-    
+
     setReviewing(true);
     try {
-      const token = localStorage.getItem('xentro_session')
-        ? JSON.parse(localStorage.getItem('xentro_session')!).token
-        : await getAdminToken();
+      const token = getSessionToken();
 
       const res = await fetch(`/api/admin/forms/${selectedForm.id}/review`, {
         method: 'POST',
@@ -225,7 +210,7 @@ export default function AdminFormsPage() {
           <div className="text-4xl mb-4">📋</div>
           <h3 className="text-lg font-semibold text-(--primary) mb-2">No forms found</h3>
           <p className="text-(--secondary)">
-            {statusFilter === 'submitted' 
+            {statusFilter === 'submitted'
               ? 'No pending submissions to review'
               : 'No forms match your filters'}
           </p>
@@ -261,7 +246,7 @@ export default function AdminFormsPage() {
                         {statusInfo.label}
                       </Badge>
                     </div>
-                    
+
                     {/* Form Data Preview */}
                     <div className="mt-3 text-sm text-(--secondary)">
                       {(() => {
