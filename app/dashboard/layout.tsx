@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { getRoleFromSession, getUnlockedContexts } from '@/lib/auth-utils';
+import { getRoleFromSession, getUnlockedContexts, getSessionToken } from '@/lib/auth-utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -15,24 +15,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     useEffect(() => {
-        const role = getRoleFromSession();
-        const contexts = getUnlockedContexts();
+        const checkAccess = async () => {
+            const role = getRoleFromSession();
+            const contexts = getUnlockedContexts();
 
-        if (!role) {
-            // No valid session — send to login
-            router.replace('/login');
-            return;
-        }
+            if (!role) {
+                router.replace('/login');
+                return;
+            }
 
-        // Allow if role is startup/founder OR if unlocked_contexts includes startup
-        if (role !== 'startup' && role !== 'founder' && !contexts.includes('startup')) {
-            // Valid session but no startup access — send to feed
-            router.replace('/feed');
-            return;
-        }
+            // Quick client-side check first
+            if (role !== 'startup' && role !== 'founder' && !contexts.includes('startup')) {
+                router.replace('/feed');
+                return;
+            }
 
-        setIsAuthenticated(true);
-        setIsLoading(false);
+            // Server-side ownership verification — only the startup owner can access
+            try {
+                const token = getSessionToken('founder');
+                if (!token) {
+                    router.replace('/login');
+                    return;
+                }
+                const res = await fetch('/api/founder/my-startup', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) {
+                    // 403 = not the owner, anything else = no startup
+                    router.replace('/feed');
+                    return;
+                }
+            } catch {
+                router.replace('/feed');
+                return;
+            }
+
+            setIsAuthenticated(true);
+            setIsLoading(false);
+        };
+
+        checkAccess();
     }, [router]);
 
     const navItems = [
