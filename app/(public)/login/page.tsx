@@ -77,6 +77,10 @@ export default function UnifiedLoginPage() {
                     setError('No account found with this email. Please sign up first.');
                     return;
                 }
+                if (data.code === 'ACCESS_DENIED') {
+                    setError(data.error || 'Access restricted. Only startup founders, mentors, investors, institutions, and admins can log in.');
+                    return;
+                }
                 throw new Error(data.error || data.message || 'Failed to send OTP');
             }
 
@@ -140,6 +144,10 @@ export default function UnifiedLoginPage() {
             if (!res.ok) {
                 if (data.code === 'USER_NOT_FOUND') {
                     setError('No account found with this email. Please sign up first.');
+                    return;
+                }
+                if (data.code === 'ACCESS_DENIED') {
+                    setError(data.error || 'Access restricted. Only startup founders, mentors, investors, institutions, and admins can log in.');
                     return;
                 }
                 throw new Error(data.error || data.message || 'Google login failed');
