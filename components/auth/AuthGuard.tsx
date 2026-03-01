@@ -26,7 +26,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated && !hasRoleToken) {
-            router.replace('/');
+            router.replace('/guest');
         }
     }, [isAuthenticated, isLoading, hasRoleToken, router]);
 

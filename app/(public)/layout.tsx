@@ -5,7 +5,7 @@ import { PublicNavbar, Footer } from '@/components/public/Layout';
 import AuthGuard from '@/components/auth/AuthGuard';
 
 // Routes that require authentication
-const PROTECTED_PREFIXES = ['/feed', '/home', '/notifications', '/explore'];
+const PROTECTED_PREFIXES = ['/home', '/notifications', '/explore'];
 
 function isProtectedRoute(pathname: string): boolean {
     return PROTECTED_PREFIXES.some(
@@ -37,4 +37,3 @@ export default function PublicLayout({
         </div>
     );
 }
-
