@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, Button, ProgressIndicator } from '@/components/ui';
 import { OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus } from '@/lib/types';
 import { InstitutionApplication } from '@/lib/types';
@@ -46,8 +46,12 @@ export default function OnboardingWizard({
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
+	// Keep a ref to the latest formData to avoid stale closures in callbacks
+	const formDataRef = useRef(formData);
+	formDataRef.current = formData;
+
 	const updateFormData = <K extends keyof OnboardingFormData>(key: K, value: OnboardingFormData[K]) => {
-		setFormData({ ...formData, [key]: value });
+		setFormData({ ...formDataRef.current, [key]: value });
 	};
 
 	const handleNext = () => {
@@ -222,7 +226,7 @@ export default function OnboardingWizard({
 						city={formData.city}
 						countryCode={formData.countryCode}
 						onCityChange={(city: string) => updateFormData('city', city)}
-						onCountryChange={(country: string, code: string) => { updateFormData('country', country); updateFormData('countryCode', code); }}
+						onCountryChange={(country: string, code: string) => { setFormData({ ...formDataRef.current, country, countryCode: code }); }}
 					/>
 				);
 			case 5:
