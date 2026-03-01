@@ -92,4 +92,4 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test -- --passWithNoTests || true
+        run: npm test
