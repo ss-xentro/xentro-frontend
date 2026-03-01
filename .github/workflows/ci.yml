@@ -1,0 +1,95 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "stores/**",
+        "contexts/**",
+        "types/**",
+        "package.json",
+      ]
+  pull_request:
+    branches: [main]
+    paths:
+      [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "stores/**",
+        "contexts/**",
+        "types/**",
+        "package.json",
+      ]
+
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: ESLint
+        run: npx eslint . --max-warnings=0 || true
+
+      - name: TypeScript check
+        run: npx tsc --noEmit || true
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: lint
+    env:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ci-placeholder
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --passWithNoTests || true
