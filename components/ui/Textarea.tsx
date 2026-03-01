@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { TextareaHTMLAttributes, forwardRef } from 'react';
+import { TextareaHTMLAttributes, forwardRef, useId } from 'react';
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
     label?: string;
@@ -13,19 +13,32 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     ({ className, label, error, hint, characterCount, maxLength, value, ...props }, ref) => {
+        const autoId = useId();
+        const id = props.id || autoId;
+        const errorId = `${id}-error`;
+        const hintId = `${id}-hint`;
+        const countId = `${id}-count`;
         const currentLength = typeof value === 'string' ? value.length : 0;
+
+        const describedBy = [
+            error ? errorId : hint ? hintId : null,
+            characterCount && maxLength ? countId : null,
+        ].filter(Boolean).join(' ') || undefined;
 
         return (
             <div className="w-full">
                 {label && (
-                    <label className="block text-sm font-medium text-(--primary) mb-2">
+                    <label htmlFor={id} className="block text-sm font-medium text-(--primary) mb-2">
                         {label}
                     </label>
                 )}
                 <textarea
                     ref={ref}
+                    id={id}
                     value={value}
                     maxLength={maxLength}
+                    aria-invalid={error ? 'true' : undefined}
+                    aria-describedby={describedBy}
                     className={cn(
                         `w-full min-h-30 px-4 py-3 text-(--primary) bg-(--surface)
             border border-(--border) rounded-lg
@@ -42,14 +55,14 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 />
                 <div className="flex justify-between mt-2">
                     {error ? (
-                        <p className="text-sm text-error">{error}</p>
+                        <p id={errorId} className="text-sm text-error" role="alert">{error}</p>
                     ) : hint ? (
-                        <p className="text-sm text-(--secondary)">{hint}</p>
+                        <p id={hintId} className="text-sm text-(--secondary)">{hint}</p>
                     ) : (
                         <span />
                     )}
                     {characterCount && maxLength && (
-                        <p className={cn(
+                        <p id={countId} aria-live="polite" className={cn(
                             "text-sm",
                             currentLength >= maxLength ? 'text-error' : 'text-(--secondary)'
                         )}>

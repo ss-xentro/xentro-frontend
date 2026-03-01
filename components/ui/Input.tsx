@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { InputHTMLAttributes, forwardRef } from 'react';
+import { InputHTMLAttributes, forwardRef, useId } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -12,21 +12,25 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
     ({ className, label, error, hint, icon, type = 'text', ...props }, ref) => {
+        const autoId = useId();
+        const id = props.id || autoId;
+
         return (
             <div className="w-full">
                 {label && (
-                    <label className="block text-sm font-medium text-(--primary) mb-2">
+                    <label htmlFor={id} className="block text-sm font-medium text-(--primary) mb-2">
                         {label}
                     </label>
                 )}
                 <div className="relative">
                     {icon && (
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--secondary)">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--secondary)" aria-hidden="true">
                             {icon}
                         </div>
                     )}
                     <input
                         ref={ref}
+                        id={id}
                         type={type}
                         className={cn(
                             `w-full min-h-11 h-12 px-4 text-(--primary) bg-(--surface)
@@ -41,7 +45,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                             className
                         )}
                         aria-invalid={error ? 'true' : 'false'}
-                        aria-describedby={error ? `${props.id}-error` : hint ? `${props.id}-hint` : undefined}
+                        aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
                         onFocus={(e) => {
                             props.onFocus?.(e);
                         }}
@@ -52,10 +56,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     />
                 </div>
                 {error && (
-                    <p id={`${props.id}-error`} className="mt-2 text-sm text-error" role="alert">{error}</p>
+                    <p id={`${id}-error`} className="mt-2 text-sm text-error" role="alert">{error}</p>
                 )}
                 {hint && !error && (
-                    <p id={`${props.id}-hint`} className="mt-2 text-sm text-(--secondary)">{hint}</p>
+                    <p id={`${id}-hint`} className="mt-2 text-sm text-(--secondary)">{hint}</p>
                 )}
             </div>
         );

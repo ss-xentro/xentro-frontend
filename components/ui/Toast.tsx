@@ -98,12 +98,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 		<ToastContext.Provider value={value}>
 			{children}
 			{/* Toast Container */}
-			<div className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+			<div className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none" aria-live="polite" aria-relevant="additions removals">
 				{toasts.map((t) => {
 					const config = TOAST_CONFIG[t.type];
 					return (
 						<div
 							key={t.id}
+							role={t.type === 'error' ? 'alert' : 'status'}
 							className={cn(
 								'pointer-events-auto flex items-start gap-3 px-4 py-3 rounded-xl border backdrop-blur-xl shadow-lg',
 								'animate-in slide-in-from-right-5 fade-in duration-200',
@@ -118,6 +119,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 							<button
 								onClick={() => dismiss(t.id)}
 								className="text-(--secondary) hover:text-(--primary) shrink-0 text-sm"
+								aria-label="Dismiss notification"
 							>
 								✕
 							</button>

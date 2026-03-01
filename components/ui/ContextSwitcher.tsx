@@ -69,7 +69,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
       }
 
       const data = await res.json();
-      
+
       // Store the new context token
       localStorage.setItem('xentro_context_token', data.token);
       localStorage.setItem('xentro_current_context', targetContext.context);
@@ -78,7 +78,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
       }
 
       onContextSwitch?.(targetContext);
-      
+
       // Navigate to the context's dashboard
       const meta = CONTEXT_META[targetContext.context];
       if (meta) {
@@ -110,6 +110,9 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={switching}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-label={`Switch context — current: ${currentMeta.label}`}
         className={cn(
           'flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors',
           'bg-(--background) hover:bg-(--border)',
@@ -123,13 +126,14 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-hidden="true"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-56 bg-(--surface) border border-(--border) rounded-xl shadow-xl z-50 overflow-hidden animate-fadeInUp">
+        <div className="absolute left-0 mt-2 w-56 bg-(--surface) border border-(--border) rounded-xl shadow-xl z-50 overflow-hidden animate-fadeInUp" role="listbox" aria-label="Available contexts">
           <div className="px-4 py-2 border-b border-(--border)">
             <p className="text-xs text-(--secondary)">Switch context</p>
           </div>
@@ -143,6 +147,8 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
                   key={`${ctx.context}-${ctx.entityId || index}`}
                   onClick={() => handleSwitch(ctx)}
                   disabled={switching}
+                  role="option"
+                  aria-selected={isActive}
                   className={cn(
                     'w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors',
                     'hover:bg-(--background)',
@@ -162,7 +168,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
                     )}
                   </div>
                   {isActive && (
-                    <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   )}

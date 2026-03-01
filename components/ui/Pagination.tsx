@@ -61,7 +61,7 @@ export function Pagination({
 	const to = total ? Math.min(page * perPage, total) : undefined;
 
 	return (
-		<div className={`flex items-center justify-between ${className}`}>
+		<nav aria-label="Pagination" className={`flex items-center justify-between ${className}`}>
 			{/* Range info */}
 			<div className="text-xs text-(--secondary)">
 				{total != null && from != null && to != null ? (
@@ -87,7 +87,7 @@ export function Pagination({
 
 				{pages.map((item, idx) =>
 					item === 'ellipsis' ? (
-						<span key={`e-${idx}`} className="px-2 py-1 text-xs text-(--secondary)">
+						<span key={`e-${idx}`} className="px-2 py-1 text-xs text-(--secondary)" aria-hidden="true">
 							…
 						</span>
 					) : (
@@ -95,8 +95,8 @@ export function Pagination({
 							key={item}
 							onClick={() => onPageChange(item)}
 							className={`min-w-[28px] px-2 py-1 rounded text-xs font-medium transition-colors ${item === page
-									? 'bg-(--primary) text-white'
-									: 'border border-(--border) text-(--secondary) hover:bg-(--surface-hover)'
+								? 'bg-(--primary) text-white'
+								: 'border border-(--border) text-(--secondary) hover:bg-(--surface-hover)'
 								}`}
 							aria-label={`Page ${item}`}
 							aria-current={item === page ? 'page' : undefined}
@@ -118,6 +118,6 @@ export function Pagination({
 					</svg>
 				</button>
 			</div>
-		</div>
+		</nav>
 	);
 }
