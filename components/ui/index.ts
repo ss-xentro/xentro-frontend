@@ -12,3 +12,4 @@ export { NotificationsDropdown } from './NotificationsDropdown';
 export { ContextSwitcher } from './ContextSwitcher';
 export { ToastProvider, useToast } from './Toast';
 export type { ToastType } from './Toast';
+export { Pagination } from './Pagination';
