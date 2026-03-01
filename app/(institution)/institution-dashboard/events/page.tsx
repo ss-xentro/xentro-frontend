@@ -315,7 +315,7 @@ export default function InstitutionEventsPage() {
 								setForm((f) => ({ ...f, description: e.target.value }))
 							}
 						/>
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<Input
 								label="Type"
 								placeholder="Workshop, Demo Day, Meetup…"
@@ -333,7 +333,7 @@ export default function InstitutionEventsPage() {
 								}
 							/>
 						</div>
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<Input
 								label="Start time"
 								type="datetime-local"
@@ -351,7 +351,7 @@ export default function InstitutionEventsPage() {
 								}
 							/>
 						</div>
-						<div className="grid grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<Input
 								label="Price (USD)"
 								type="number"

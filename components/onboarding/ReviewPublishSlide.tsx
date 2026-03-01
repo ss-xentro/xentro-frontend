@@ -149,7 +149,7 @@ export default function ReviewPublishSlide({
             </div>
 
             {/* Action Bar */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-(--surface) border-t border-(--border) flex items-center justify-between md:pl-72 z-10 glass">
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-(--surface) border-t border-(--border) flex flex-col sm:flex-row items-center justify-between gap-2 md:pl-72 z-10 glass">
                 <Button variant="ghost" onClick={onSaveDraft}>
                     Save as Draft
                 </Button>

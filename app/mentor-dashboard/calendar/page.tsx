@@ -280,7 +280,9 @@ export default function MentorCalendarPage() {
 					</div>
 
 					{/* Calendar Grid */}
-					<Card className="overflow-auto">
+					<Card className="overflow-hidden">
+						<p className="text-xs text-(--secondary) px-4 py-2 sm:hidden border-b border-(--border)">← Scroll horizontally to view full week →</p>
+						<div className="overflow-x-auto">
 						<div className="min-w-[700px]">
 							{/* Header row */}
 							<div className="grid grid-cols-8 border-b border-(--border)">
@@ -335,6 +337,7 @@ export default function MentorCalendarPage() {
 									})}
 								</div>
 							))}
+						</div>
 						</div>
 					</Card>
 				</>

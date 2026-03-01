@@ -230,7 +230,7 @@ export default function SessionsPage() {
                 <div className="space-y-4">
                     <p className="text-sm text-(--secondary)">Click to toggle time slots. Selected slots are shown in accent color.</p>
                     <div className="overflow-x-auto">
-                        <table className="w-full border-collapse text-sm">
+                        <table className="w-full min-w-[640px] border-collapse text-sm">
                             <thead>
                                 <tr>
                                     <th className="w-20 p-2 text-left text-xs text-(--secondary) font-medium">Time</th>

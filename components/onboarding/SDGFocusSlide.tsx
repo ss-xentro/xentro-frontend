@@ -35,7 +35,7 @@ export default function SDGFocusSlide({ value, onChange, className }: SDGFocusSl
 
             {/* SDG Grid - 17 squares in rows */}
             <div className="max-w-5xl mx-auto">
-                <div className="grid grid-cols-6 gap-3 mb-6">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 mb-6">
                     {sdgOptions.map(([sdg, { label, fullName, color }]) => {
                         const isSelected = value.includes(sdg);
                         const isDisabled = !isSelected && value.length >= 5;

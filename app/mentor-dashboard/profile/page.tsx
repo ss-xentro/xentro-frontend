@@ -460,7 +460,7 @@ export default function MentorProfilePage() {
 
                 <div className="space-y-3">
                     {slots.map((slot, index) => (
-                        <div key={index} className="flex items-center gap-3 p-3 bg-(--surface-hover) rounded-lg">
+                        <div key={index} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 bg-(--surface-hover) rounded-lg">
                             {/* Day */}
                             <select
                                 value={slot.day}

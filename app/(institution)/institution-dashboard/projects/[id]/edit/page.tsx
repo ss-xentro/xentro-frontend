@@ -117,7 +117,7 @@ export default function EditProjectPage() {
 
 						<div className="space-y-6 pt-6">
 							<h3 className="text-base font-semibold text-gray-900 mb-6">Timeline</h3>
-							<div className="grid grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<div>
 									<label className="block text-xs font-medium text-gray-500 mb-2">Start Date</label>
 									<input type="date" value={formData.start_date} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors" />

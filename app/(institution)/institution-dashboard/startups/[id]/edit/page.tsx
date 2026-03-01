@@ -352,7 +352,7 @@ export default function EditStartupPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-2">Logo URL</label>
                     <input
@@ -380,7 +380,7 @@ export default function EditStartupPage() {
               <Card className="p-6 space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900">Status & Location</h3>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-2">Stage</label>
                     <Select
@@ -399,7 +399,7 @@ export default function EditStartupPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-2">Founded Date</label>
                     <input
@@ -460,7 +460,7 @@ export default function EditStartupPage() {
             <Card className="p-6 space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Funding Information</h3>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-2">Latest Round</label>
                   <Select
@@ -502,7 +502,7 @@ export default function EditStartupPage() {
             <Card className="p-6 space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Links & Social</h3>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-2">Website</label>
                   <input type="url" value={formData.website} onChange={(e) => set('website', e.target.value)} className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none" placeholder="https://..." />
@@ -513,7 +513,7 @@ export default function EditStartupPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-2">Twitter</label>
                   <input type="url" value={formData.twitter} onChange={(e) => set('twitter', e.target.value)} className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none" placeholder="https://twitter.com/..." />
@@ -524,7 +524,7 @@ export default function EditStartupPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-2">Pitch Deck URL</label>
                   <input type="url" value={formData.pitchDeckUrl} onChange={(e) => set('pitchDeckUrl', e.target.value)} className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none" placeholder="https://..." />

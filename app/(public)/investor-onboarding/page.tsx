@@ -241,7 +241,7 @@ export default function InvestorOnboardingPage() {
                             onChange={(e) => updateField('investmentStages', e.target.value)}
                             autoFocus
                         />
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Input
                                 label="Min check size (USD)"
                                 type="number"

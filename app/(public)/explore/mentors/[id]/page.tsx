@@ -190,7 +190,7 @@ export default function MentorDetailPage() {
 			<div className="p-6 max-w-5xl mx-auto animate-pulse space-y-5">
 				<div className="h-5 w-36 bg-white/5 rounded-lg" />
 				<div className="h-48 bg-white/3 border border-white/6 rounded-xl" />
-				<div className="grid grid-cols-4 gap-3">{[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-white/3 border border-white/6 rounded-xl" />)}</div>
+				<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">{[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-white/3 border border-white/6 rounded-xl" />)}</div>
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 					<div className="lg:col-span-2 space-y-5"><div className="h-40 bg-white/3 border border-white/6 rounded-xl" /><div className="h-28 bg-white/3 border border-white/6 rounded-xl" /></div>
 					<div className="h-64 bg-white/3 border border-white/6 rounded-xl" />
