@@ -149,37 +149,6 @@ export default function StartupsPage() {
     }
   };
 
-  const handleLinkStartup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!linkEmail) return;
-
-    setLinkLoading(true);
-    try {
-      const token = getSessionToken('institution');
-      if (!token) throw new Error('Authentication required. Please log in again.');
-      const res = await fetch('/api/institution-startups/link/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ email: linkEmail }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to link startup');
-
-      alert('Startup linked successfully!');
-      setIsLinking(false);
-      setLinkEmail('');
-      loadStartups(); // Reload list
-    } catch (err) {
-      alert((err as Error).message);
-    } finally {
-      setLinkLoading(false);
-    }
-  };
-
   const formatStage = (stage: string | null) => {
     if (!stage) return 'Not specified';
     return stage.charAt(0).toUpperCase() + stage.slice(1).replace('-', ' ');
@@ -254,7 +223,7 @@ export default function StartupsPage() {
                         <p className="text-xs text-gray-400 mt-1">{new Date(endorsement.createdAt).toLocaleDateString()}</p>
                       </div>
                       {respondingId === endorsement.id ? (
-                        <div className="space-y-2 ml-4 min-w-[200px]">
+                        <div className="space-y-2 ml-4 min-w-50">
                           <textarea
                             value={responseComment}
                             onChange={(e) => setResponseComment(e.target.value)}
