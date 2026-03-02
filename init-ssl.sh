@@ -47,12 +47,12 @@ docker volume create xentro_certbot_certs >/dev/null 2>&1 || true
 # ── 3. Start a standalone Nginx for the ACME challenge (port 80) ─────────────
 echo "▶ Starting temporary Nginx (HTTP-only) for ACME challenge..."
 
+# Remove the default nginx config so ours is the only one
 docker run -d --rm \
   --name xentro-nginx-init \
   -p 80:80 \
-  -v "$(pwd)/nginx/nginx-initial.conf:/etc/nginx/templates/default.conf.template:ro" \
+  -v "$(pwd)/nginx/nginx-initial.conf:/etc/nginx/conf.d/default.conf:ro" \
   -v xentro_certbot_www:/var/www/certbot \
-  -e "DOMAIN=$DOMAIN" \
   nginx:1.27-alpine
 
 # Give Nginx a moment to start
