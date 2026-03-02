@@ -1,0 +1,44 @@
+services:
+  # ── Next.js application ───────────────────────────────────────────────
+  nextjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    env_file:
+      - .env
+    restart: unless-stopped
+    expose:
+      - "3000"
+
+  # ── Nginx reverse-proxy (SSL + HSTS) ─────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/templates/default.conf.template:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_certs:/etc/letsencrypt:ro
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+    depends_on:
+      - nextjs-app
+    restart: unless-stopped
+
+  # ── Certbot (Let's Encrypt SSL) ──────────────────────────────────────
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_certs:/etc/letsencrypt
+    # Auto-renew every 12 hours
+    entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'
+    depends_on:
+      - nginx
+
+volumes:
+  certbot_www:
+  certbot_certs:
