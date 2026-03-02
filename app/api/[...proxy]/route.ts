@@ -24,8 +24,9 @@ async function handleProxy(request: NextRequest) {
   const url = new URL(request.url);
   const method = request.method;
 
-  // All requests go to Django (port 8000)
-  const DJANGO_URL = process.env.DJANGO_API_URL || 'http://localhost:8000';
+  // All requests go to Django — strip quotes that Docker env_file may include
+  const rawUrl = process.env.DJANGO_API_URL || 'http://localhost:8000';
+  const DJANGO_URL = rawUrl.replace(/^["']|["']$/g, '').trim();
 
   // Django requires trailing slashes
   let pathname = url.pathname;
@@ -34,10 +35,18 @@ async function handleProxy(request: NextRequest) {
   }
 
   const targetUrl = `${DJANGO_URL}${pathname}${url.search}`;
+  console.log(`[API Proxy] ${method} ${pathname} → ${targetUrl}`);
 
-  // Extract headers
+  // Extract headers — remove hop-by-hop headers that must not be forwarded
   const headers = new Headers(request.headers);
   headers.delete('host');
+  headers.delete('connection');
+  headers.delete('upgrade');
+  headers.delete('keep-alive');
+  headers.delete('transfer-encoding');
+  headers.delete('te');
+  headers.delete('proxy-authorization');
+  headers.delete('proxy-connection');
 
   // Extract body for mutation requests
   let body: ReadableStream | string | null = null;
@@ -73,9 +82,9 @@ async function handleProxy(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error(`[API Gateway Error] Proxy to Django failed:`, error);
+    console.error(`[API Gateway Error] ${method} ${targetUrl} failed:`, error);
     return NextResponse.json(
-      { error: 'API Gateway Timeout or Connection Refused', details: String(error) },
+      { error: 'API Gateway Timeout or Connection Refused', target: targetUrl, details: String(error) },
       { status: 502 }
     );
   }
