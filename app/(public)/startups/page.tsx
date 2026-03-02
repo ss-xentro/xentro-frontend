@@ -102,12 +102,12 @@ function StartupsContent() {
     return (
         <div className="min-h-screen bg-background">
             {/* Hero */}
-            <div className="bg-linear-to-b from-surface-hover to-background pt-20 pb-12 border-b border-(--border)">
+            <div className="bg-linear-to-b from-surface-hover to-background pt-12 sm:pt-16 md:pt-20 pb-8 sm:pb-12 border-b border-(--border)">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-linear-to-r from-accent to-accent-hover mb-4">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-linear-to-r from-accent to-accent-hover mb-3 sm:mb-4">
                         Discover Innovative Startups
                     </h1>
-                    <p className="text-lg md:text-xl text-(--secondary) max-w-2xl mx-auto">
+                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-(--secondary) max-w-2xl mx-auto">
                         Explore the next generation of companies built on XENTRO.
                     </p>
                 </div>
@@ -115,8 +115,8 @@ function StartupsContent() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Filters Bar */}
-                <div className="flex flex-col md:flex-row gap-4 mb-8 items-center bg-(--surface) p-4 rounded-xl border border-(--border) shadow-sm">
-                    <div className="flex-1 w-full">
+                <div className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8 bg-(--surface) p-3 sm:p-4 rounded-xl border border-(--border) shadow-sm">
+                    <div className="w-full">
                         <Input
                             placeholder="Search startups, taglines..."
                             value={search}
@@ -125,24 +125,26 @@ function StartupsContent() {
                         />
                     </div>
 
-                    <div className="flex gap-4 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-                        <div className="w-48 shrink-0">
-                            <Select
-                                value={stage}
-                                onChange={setStage}
-                                options={stages}
-                                placeholder="Filter by Stage"
-                            />
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
+                        <div className="grid grid-cols-2 sm:flex gap-3 sm:gap-4 flex-1">
+                            <div className="w-full sm:w-48">
+                                <Select
+                                    value={stage}
+                                    onChange={setStage}
+                                    options={stages}
+                                    placeholder="Filter by Stage"
+                                />
+                            </div>
+                            <div className="w-full sm:w-48">
+                                <Select
+                                    value={funding}
+                                    onChange={setFunding}
+                                    options={fundingRounds}
+                                    placeholder="Filter by Funding"
+                                />
+                            </div>
                         </div>
-                        <div className="w-48 shrink-0">
-                            <Select
-                                value={funding}
-                                onChange={setFunding}
-                                options={fundingRounds}
-                                placeholder="Filter by Funding"
-                            />
-                        </div>
-                        <div className="flex gap-1 bg-background p-1 rounded-lg border border-(--border)">
+                        <div className="hidden sm:flex gap-1 bg-background p-1 rounded-lg border border-(--border) shrink-0">
                             <button
                                 onClick={() => setView('grid')}
                                 className={`p-2 rounded ${view === 'grid' ? 'bg-(--surface-hover) text-(--primary)' : 'text-(--secondary)'}`}
@@ -165,9 +167,9 @@ function StartupsContent() {
 
                 {/* Results */}
                 {loading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-pulse">
                         {[1, 2, 3, 4, 5, 6].map(i => (
-                            <div key={i} className="h-64 bg-(--surface) rounded-xl border border-(--border)"></div>
+                            <div key={i} className="h-48 sm:h-56 md:h-64 bg-(--surface) rounded-xl border border-(--border)"></div>
                         ))}
                     </div>
                 ) : startups.length === 0 ? (
@@ -184,15 +186,15 @@ function StartupsContent() {
                         </Button>
                     </div>
                 ) : view === 'grid' ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fadeIn">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-fadeIn">
                         {startups.map((startup) => (
                             <Card
                                 key={startup.id}
-                                className="p-6 hover:shadow-lg transition-all group flex flex-col h-full cursor-pointer hover:border-accent/50"
+                                className="p-4 sm:p-5 md:p-6 hover:shadow-lg transition-all group flex flex-col h-full cursor-pointer hover:border-accent/50"
                                 onClick={() => router.push(`/startups/${startup.id}`)}
                             >
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="w-14 h-14 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center overflow-hidden">
+                                <div className="flex items-start justify-between mb-3 sm:mb-4">
+                                    <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center overflow-hidden">
                                         {startup.logo ? (
                                             <img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
                                         ) : (
@@ -204,11 +206,11 @@ function StartupsContent() {
                                     {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
                                 </div>
 
-                                <div className="mb-4 flex-1">
-                                    <h3 className="text-xl font-bold text-(--primary) group-hover:text-accent transition-colors">
+                                <div className="mb-3 sm:mb-4 flex-1">
+                                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-(--primary) group-hover:text-accent transition-colors">
                                         {startup.name}
                                     </h3>
-                                    <p className="text-(--secondary) mt-1 line-clamp-2 text-sm leading-relaxed">
+                                    <p className="text-(--secondary) mt-1 line-clamp-2 text-xs sm:text-sm leading-relaxed">
                                         {startup.tagline || "Building something amazing."}
                                     </p>
                                 </div>
@@ -231,27 +233,34 @@ function StartupsContent() {
                         ))}
                     </div>
                 ) : (
-                    <div className="space-y-4 animate-fadeIn">
+                    <div className="space-y-3 sm:space-y-4 animate-fadeIn">
                         {startups.map((startup) => (
                             <Card
                                 key={startup.id}
-                                className="p-4 hover:shadow-md transition-all flex items-center gap-6 cursor-pointer hover:border-accent/50"
+                                className="p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer hover:border-accent/50"
                                 onClick={() => router.push(`/startups/${startup.id}`)}
                             >
-                                <div className="w-16 h-16 rounded-lg bg-(--surface-hover) border border-(--border) shrink-0 flex items-center justify-center overflow-hidden">
-                                    {startup.logo ? (
-                                        <img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span className="text-xl font-bold text-(--secondary)">
-                                            {startup.name.substring(0, 2).toUpperCase()}
-                                        </span>
-                                    )}
+                                <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
+                                    <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg bg-(--surface-hover) border border-(--border) shrink-0 flex items-center justify-center overflow-hidden">
+                                        {startup.logo ? (
+                                            <img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-base sm:text-lg md:text-xl font-bold text-(--secondary)">
+                                                {startup.name.substring(0, 2).toUpperCase()}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-base sm:text-lg font-bold text-(--primary)">{startup.name}</h3>
+                                        <p className="text-(--secondary) truncate text-xs sm:text-sm">{startup.tagline || 'Building something amazing'}</p>
+                                    </div>
+                                    <div className="hidden sm:flex items-center gap-2 md:gap-4 shrink-0">
+                                        {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
+                                        {startup.fundingRound && <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>}
+                                    </div>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="text-lg font-bold text-(--primary)">{startup.name}</h3>
-                                    <p className="text-(--secondary) truncate text-sm">{startup.tagline || 'Building something amazing'}</p>
-                                </div>
-                                <div className="flex items-center gap-4 shrink-0">
+                                {/* Mobile badges row */}
+                                <div className="flex sm:hidden items-center gap-2 mt-2 pl-15">
                                     {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
                                     {startup.fundingRound && <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>}
                                 </div>

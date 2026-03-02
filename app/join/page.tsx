@@ -80,30 +80,30 @@ export default function JoinPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
+      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
         <div className="w-full max-w-250">
           {/* Step Indicator */}
-          <div className="text-center mb-8">
-            <p className="text-xs font-medium text-gray-500 tracking-[0.15em] uppercase mb-6">
+          <div className="text-center mb-6 sm:mb-8">
+            <p className="text-xs font-medium text-gray-500 tracking-[0.15em] uppercase mb-4 sm:mb-6">
               STEP 1 OF 3
             </p>
 
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-3 sm:mb-4 tracking-tight">
               Select Your Role
             </h1>
 
-            <p className="text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-gray-600">
               Choose how you will participate in the Xentro ecosystem.
             </p>
           </div>
 
           {/* Role Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 mt-12">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8 mt-8 sm:mt-12">
             {roles.map((role) => (
               <div key={role.id} className="flex flex-col">
                 <button
                   onClick={() => setSelectedRole(role.id)}
-                  className={`group relative border text-left transition-all duration-200 aspect-square md:aspect-auto p-4 md:p-8 flex-1 ${selectedRole === role.id
+                  className={`group relative border text-left transition-all duration-200 aspect-square sm:aspect-auto p-3 sm:p-4 md:p-8 flex-1 rounded-lg sm:rounded-none ${selectedRole === role.id
                     ? 'bg-gray-900 border-gray-900 scale-[1.02]'
                     : 'bg-white border-gray-200 hover:border-gray-400'
                     }`}
@@ -117,15 +117,17 @@ export default function JoinPage() {
                   </div>
 
                   <div className="relative z-10 flex flex-col h-full">
-                    <div className={`mb-3 ${selectedRole === role.id ? 'text-white' : 'text-gray-900'}`}>
-                      {role.icon}
+                    <div className={`mb-2 sm:mb-3 ${selectedRole === role.id ? 'text-white' : 'text-gray-900'}`}>
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 [&>svg]:w-full [&>svg]:h-full">
+                        {role.icon}
+                      </div>
                     </div>
 
-                    <h3 className={`text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-white' : 'text-gray-900'}`}>
+                    <h3 className={`text-sm sm:text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-white' : 'text-gray-900'}`}>
                       {role.title}
                     </h3>
 
-                    <p className={`text-xs md:text-sm mb-0 md:mb-6 flex-1 ${selectedRole === role.id ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <p className={`text-[10px] sm:text-xs md:text-sm mb-0 md:mb-6 flex-1 leading-snug ${selectedRole === role.id ? 'text-gray-300' : 'text-gray-600'}`}>
                       {role.description}
                     </p>
 
@@ -157,10 +159,10 @@ export default function JoinPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-center gap-4 mt-12">
+          <div className="flex items-center justify-center gap-3 sm:gap-4 mt-8 sm:mt-12">
             <button
               onClick={handleBack}
-              className="px-6 py-3 border border-gray-300 text-gray-900 text-sm font-medium hover:bg-gray-50 transition-all duration-200"
+              className="px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 text-gray-900 text-sm font-medium hover:bg-gray-50 transition-all duration-200 rounded-lg sm:rounded-none"
             >
               Back
             </button>
@@ -168,7 +170,7 @@ export default function JoinPage() {
             <button
               onClick={handleContinue}
               disabled={!selectedRole}
-              className={`px-8 py-3 text-sm font-medium transition-all duration-200 ${selectedRole
+              className={`px-6 sm:px-8 py-2.5 sm:py-3 text-sm font-medium transition-all duration-200 rounded-lg sm:rounded-none ${selectedRole
                 ? 'bg-gray-900 text-white hover:bg-gray-800'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}

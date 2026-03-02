@@ -186,14 +186,14 @@ export default function UnifiedLoginPage() {
             </nav>
 
             {/* Main */}
-            <main className="flex-1 flex items-center justify-center px-4 py-16">
-                <div className="w-full max-w-md space-y-8">
+            <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12 md:py-16">
+                <div className="w-full max-w-md space-y-6 sm:space-y-8">
                     <div className="text-center">
-                        <h1 className="text-3xl font-bold text-(--primary) mb-2">Welcome back</h1>
-                        <p className="text-(--secondary)">Log in to your Xentro account</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-(--primary) mb-2">Welcome back</h1>
+                        <p className="text-sm sm:text-base text-(--secondary)">Log in to your Xentro account</p>
                     </div>
 
-                    <Card className="p-8">
+                    <Card className="p-4 sm:p-6 md:p-8">
                         {step === 'email' ? (
                             <div className="space-y-6">
                                 {/* Google Sign-In */}
