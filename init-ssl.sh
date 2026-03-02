@@ -33,20 +33,39 @@ echo "  Staging: ${STAGING:-no}"
 echo "============================================"
 echo ""
 
-# ── 1. Start Nginx with HTTP-only config for ACME challenge ──────────────────
-echo "▶ Starting Nginx with initial HTTP-only config..."
+# ── 1. Tear down any previous run ─────────────────────────────────────────────
+echo "▶ Cleaning up any previous containers..."
+docker compose down 2>/dev/null || true
+docker stop xentro-nginx-init 2>/dev/null || true
+docker rm xentro-nginx-init 2>/dev/null || true
 
-# Swap in the initial (no-SSL) nginx config
-docker compose -f docker-compose.yml run --rm -d \
+# ── 2. Ensure shared volumes exist ───────────────────────────────────────────
+echo "▶ Creating shared volumes..."
+docker volume create xentro_certbot_www  >/dev/null 2>&1 || true
+docker volume create xentro_certbot_certs >/dev/null 2>&1 || true
+
+# ── 3. Start a standalone Nginx for the ACME challenge (port 80) ─────────────
+echo "▶ Starting temporary Nginx (HTTP-only) for ACME challenge..."
+
+docker run -d --rm \
   --name xentro-nginx-init \
-  -v "$(pwd)/nginx/nginx-initial.conf:/etc/nginx/templates/default.conf.template:ro" \
   -p 80:80 \
-  nginx
+  -v "$(pwd)/nginx/nginx-initial.conf:/etc/nginx/templates/default.conf.template:ro" \
+  -v xentro_certbot_www:/var/www/certbot \
+  -e "DOMAIN=$DOMAIN" \
+  nginx:1.27-alpine
 
 # Give Nginx a moment to start
 sleep 3
 
-# ── 2. Request the certificate ────────────────────────────────────────────────
+# Verify it's running
+if ! docker ps --format '{{.Names}}' | grep -q xentro-nginx-init; then
+  echo "❌ Temporary Nginx failed to start. Check 'docker logs xentro-nginx-init'."
+  exit 1
+fi
+echo "  ✓ Nginx is listening on port 80"
+
+# ── 4. Request the certificate via standalone Certbot container ───────────────
 echo "▶ Requesting certificate from Let's Encrypt..."
 
 CERTBOT_ARGS=(
@@ -70,14 +89,16 @@ if [ "$STAGING" = "--staging" ]; then
   echo "  ⚠ Using Let's Encrypt STAGING environment (certs won't be trusted)"
 fi
 
-docker compose run --rm certbot "${CERTBOT_ARGS[@]}"
+docker run --rm \
+  -v xentro_certbot_www:/var/www/certbot \
+  -v xentro_certbot_certs:/etc/letsencrypt \
+  certbot/certbot:latest "${CERTBOT_ARGS[@]}"
 
-# ── 3. Stop the temporary Nginx ──────────────────────────────────────────────
+# ── 5. Stop the temporary Nginx ──────────────────────────────────────────────
 echo "▶ Stopping temporary Nginx..."
 docker stop xentro-nginx-init 2>/dev/null || true
-docker rm xentro-nginx-init 2>/dev/null || true
 
-# ── 4. Start the full stack ──────────────────────────────────────────────────
+# ── 6. Start the full stack ──────────────────────────────────────────────────
 echo "▶ Starting full stack (Next.js + Nginx with SSL + Certbot auto-renew)..."
 docker compose up -d
 

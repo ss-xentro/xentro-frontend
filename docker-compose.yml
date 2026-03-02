@@ -41,4 +41,8 @@ services:
 
 volumes:
   certbot_www:
+    external: true
+    name: xentro_certbot_www
   certbot_certs:
+    external: true
+    name: xentro_certbot_certs
