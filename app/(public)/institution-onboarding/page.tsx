@@ -121,15 +121,15 @@ export default function InstitutionOnboardingPage() {
         </div>
       </nav>
 
-      <main className="flex-1 py-16 px-4" role="main">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="text-center space-y-2">
-            <p className="text-accent font-semibold text-sm uppercase tracking-wide">Institution Onboarding</p>
-            <h1 className="text-3xl font-bold text-(--primary)">Join Xentro as an Institution</h1>
-            <p className="text-(--secondary) max-w-2xl mx-auto">Get verified and start showcasing your programs to aspiring entrepreneurs and innovators.</p>
+      <main className="flex-1 py-8 sm:py-12 md:py-16 px-3 sm:px-4" role="main">
+        <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
+          <div className="text-center space-y-1.5 sm:space-y-2">
+            <p className="text-accent font-semibold text-xs sm:text-sm uppercase tracking-wide">Institution Onboarding</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-(--primary)">Join Xentro as an Institution</h1>
+            <p className="text-sm sm:text-base text-(--secondary) max-w-2xl mx-auto">Get verified and start showcasing your programs to aspiring entrepreneurs and innovators.</p>
           </div>
 
-          <Card className="p-6 space-y-6">
+          <Card className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             <ProgressIndicator currentStep={step + 1} totalSteps={steps.length} />
 
             {step === 0 && (

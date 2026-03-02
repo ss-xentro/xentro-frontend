@@ -390,16 +390,16 @@ export default function MentorSignupPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-4 py-10">
-        <Card className="w-full max-w-3xl p-6 md:p-8 space-y-6 shadow-lg bg-white/90 backdrop-blur animate-fadeInUp">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-bold text-(--primary)">Mentor onboarding</h1>
-            <p className="text-sm text-(--secondary)">{stepTitles[step - 1]}</p>
+      <main className="flex-1 flex items-center justify-center px-3 sm:px-4 py-6 sm:py-10">
+        <Card className="w-full max-w-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-lg bg-white/90 backdrop-blur animate-fadeInUp">
+          <div className="flex flex-col gap-1.5 sm:gap-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-(--primary)">Mentor onboarding</h1>
+            <p className="text-xs sm:text-sm text-(--secondary)">{stepTitles[step - 1]}</p>
           </div>
 
           <ProgressIndicator currentStep={step} totalSteps={TOTAL_STEPS} />
 
-          <div className="bg-(--surface-hover) border border-(--border) rounded-lg p-5 md:p-6 space-y-4">
+          <div className="bg-(--surface-hover) border border-(--border) rounded-lg p-3 sm:p-5 md:p-6 space-y-3 sm:space-y-4">
             {renderStep()}
           </div>
 

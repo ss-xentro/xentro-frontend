@@ -12,16 +12,16 @@ export function ProgressIndicator({ currentStep, totalSteps, className }: Progre
     const progress = (currentStep / totalSteps) * 100;
 
     return (
-        <div className={cn('w-full', className)}>
-            <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-(--primary)">
+        <div className={cn('w-full max-w-md mx-auto', className)}>
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <span className="text-xs sm:text-sm font-medium text-(--primary)">
                     Step {currentStep} of {totalSteps}
                 </span>
-                <span className="text-sm text-(--secondary)">
+                <span className="text-xs sm:text-sm text-(--secondary)">
                     {Math.round(progress)}% complete
                 </span>
             </div>
-            <div className="h-2 bg-(--border-light) rounded-(--radius-full) overflow-hidden">
+            <div className="h-1.5 sm:h-2 bg-(--border-light) rounded-(--radius-full) overflow-hidden">
                 <div
                     className="h-full bg-accent rounded-(--radius-full) transition-all duration-500 ease-out"
                     style={{ width: `${progress}%` }}
@@ -40,17 +40,17 @@ interface StepDotsProps {
 
 export function StepDots({ currentStep, totalSteps, className }: StepDotsProps) {
     return (
-        <div className={cn('flex items-center gap-2', className)}>
+        <div className={cn('flex items-center justify-center gap-1.5 sm:gap-2', className)}>
             {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
                 <div
                     key={step}
                     className={cn(
-                        'w-2 h-2 rounded-full transition-all duration-300',
+                        'h-1.5 sm:h-2 rounded-full transition-all duration-300',
                         step === currentStep
-                            ? 'w-6 bg-accent'
+                            ? 'w-5 sm:w-6 bg-accent'
                             : step < currentStep
-                                ? 'bg-accent'
-                                : 'bg-(--border)'
+                                ? 'w-1.5 sm:w-2 bg-accent'
+                                : 'w-1.5 sm:w-2 bg-(--border)'
                     )}
                 />
             ))}

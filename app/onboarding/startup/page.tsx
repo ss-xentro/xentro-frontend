@@ -317,35 +317,35 @@ export default function StartupOnboardingPage() {
             <div className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-2xl mx-auto">
                     {/* Header */}
-                    <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold text-(--primary) tracking-tight">
+                    <div className="text-center mb-6 sm:mb-8">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-(--primary) tracking-tight">
                             Create your Startup Profile
                         </h1>
-                        <p className="mt-2 text-(--secondary)">
+                        <p className="mt-1.5 sm:mt-2 text-sm sm:text-base text-(--secondary)">
                             Launch your presence on XENTRO in minutes.
                         </p>
                     </div>
 
                     {/* Step Indicators — 4 dots */}
-                    <div className="flex items-center justify-center gap-3 mb-8">
+                    <div className="flex items-center justify-center gap-1.5 sm:gap-3 mb-6 sm:mb-8">
                         {STEPS.map((step) => {
                             const isActive = step.id === currentStep;
                             const isCompleted = step.id < currentStep;
                             return (
-                                <div key={step.id} className="flex items-center gap-3">
+                                <div key={step.id} className="flex items-center gap-1.5 sm:gap-3">
                                     <div className="flex flex-col items-center">
                                         <div
                                             className={cn(
-                                                'w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300',
+                                                'w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm transition-all duration-300',
                                                 isActive
-                                                    ? 'bg-accent text-white ring-4 ring-accent/20 scale-110'
+                                                    ? 'bg-accent text-white ring-2 sm:ring-4 ring-accent/20 scale-110'
                                                     : isCompleted
                                                         ? 'bg-accent text-white'
                                                         : 'bg-(--surface-hover) text-(--secondary)'
                                             )}
                                         >
                                             {isCompleted ? (
-                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                 </svg>
                                             ) : (
@@ -353,7 +353,7 @@ export default function StartupOnboardingPage() {
                                             )}
                                         </div>
                                         <span className={cn(
-                                            'mt-1.5 text-xs font-medium',
+                                            'mt-1 sm:mt-1.5 text-[10px] sm:text-xs font-medium',
                                             isActive ? 'text-(--primary)' : 'text-(--secondary)'
                                         )}>
                                             {step.title}
@@ -361,7 +361,7 @@ export default function StartupOnboardingPage() {
                                     </div>
                                     {step.id < 4 && (
                                         <div className={cn(
-                                            'w-12 h-0.5 mt-[-18px] rounded-full transition-colors',
+                                            'w-6 sm:w-12 h-0.5 mt-[-18px] rounded-full transition-colors',
                                             step.id < currentStep ? 'bg-accent' : 'bg-(--border)'
                                         )} />
                                     )}
