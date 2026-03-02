@@ -16,18 +16,35 @@ interface Startup {
   createdAt: Date;
 }
 
+interface EndorsementRequest {
+  id: string;
+  requesterName: string;
+  requesterEmail: string;
+  requesterAvatar: string | null;
+  entityType: string;
+  message: string | null;
+  status: string;
+  responseComment: string | null;
+  createdAt: string;
+}
+
 export default function StartupsPage() {
   const router = useRouter();
   const [startups, setStartups] = useState<Startup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [isLinking, setIsLinking] = useState(false);
-  const [linkEmail, setLinkEmail] = useState('');
-  const [linkLoading, setLinkLoading] = useState(false);
+
+  // Endorsement requests
+  const [endorsements, setEndorsements] = useState<EndorsementRequest[]>([]);
+  const [endorsementsLoading, setEndorsementsLoading] = useState(true);
+  const [showEndorsements, setShowEndorsements] = useState(false);
+  const [respondingId, setRespondingId] = useState<string | null>(null);
+  const [responseComment, setResponseComment] = useState('');
 
   useEffect(() => {
     loadStartups();
+    loadEndorsements();
   }, []);
 
   const loadStartups = async () => {
@@ -55,6 +72,51 @@ export default function StartupsPage() {
       setError((err as Error).message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadEndorsements = async () => {
+    try {
+      const token = getSessionToken('institution');
+      if (!token) return;
+
+      const res = await fetch('/api/endorsements/?status=pending&entity_type=startup', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setEndorsements(data.data || data.endorsements || []);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setEndorsementsLoading(false);
+    }
+  };
+
+  const handleRespondEndorsement = async (id: string, action: 'accepted' | 'rejected') => {
+    try {
+      const token = getSessionToken('institution');
+      if (!token) throw new Error('Authentication required');
+
+      const res = await fetch(`/api/endorsements/${id}/respond/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action, comment: responseComment }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to respond');
+
+      setRespondingId(null);
+      setResponseComment('');
+      loadEndorsements();
+      if (action === 'accepted') loadStartups();
+    } catch (err) {
+      alert((err as Error).message);
     }
   };
 
@@ -123,6 +185,8 @@ export default function StartupsPage() {
     return stage.charAt(0).toUpperCase() + stage.slice(1).replace('-', ' ');
   };
 
+  const pendingCount = endorsements.length;
+
   if (loading) {
     return (
       <DashboardSidebar>
@@ -146,10 +210,15 @@ export default function StartupsPage() {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsLinking(!isLinking)}
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={() => setShowEndorsements(!showEndorsements)}
+              className="relative px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Plus Existing
+              Endorsement Requests
+              {pendingCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  {pendingCount}
+                </span>
+              )}
             </button>
             <button
               onClick={() => router.push('/institution-dashboard/add-startup')}
@@ -163,27 +232,70 @@ export default function StartupsPage() {
           </div>
         </div>
 
-        {isLinking && (
-          <Card className="p-6 bg-blue-50 border-blue-100">
-            <h3 className="font-semibold text-gray-900 mb-2">Link an Existing Startup</h3>
-            <p className="text-sm text-gray-600 mb-4">Enter the primary founder's email address to link their startup to your institution.</p>
-            <form onSubmit={handleLinkStartup} className="flex gap-3">
-              <input
-                type="email"
-                value={linkEmail}
-                onChange={(e) => setLinkEmail(e.target.value)}
-                placeholder="founder@example.com"
-                className="flex-1 px-4 py-2 border border-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              <button
-                type="submit"
-                disabled={linkLoading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              >
-                {linkLoading ? 'Linking...' : 'Link Startup'}
-              </button>
-            </form>
+        {/* Endorsement Requests Section */}
+        {showEndorsements && (
+          <Card className="p-6 bg-blue-50 border-blue-100 space-y-4">
+            <h3 className="font-semibold text-gray-900">Pending Startup Endorsement Requests</h3>
+            {endorsementsLoading ? (
+              <p className="text-sm text-gray-500">Loading requests...</p>
+            ) : endorsements.length === 0 ? (
+              <p className="text-sm text-gray-500">No pending endorsement requests from startups.</p>
+            ) : (
+              <div className="space-y-3">
+                {endorsements.map((endorsement) => (
+                  <div key={endorsement.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-semibold text-gray-900">{endorsement.requesterName}</p>
+                        <p className="text-sm text-gray-500">{endorsement.requesterEmail}</p>
+                        {endorsement.message && (
+                          <p className="text-sm text-gray-600 mt-1 italic">&ldquo;{endorsement.message}&rdquo;</p>
+                        )}
+                        <p className="text-xs text-gray-400 mt-1">{new Date(endorsement.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      {respondingId === endorsement.id ? (
+                        <div className="space-y-2 ml-4 min-w-[200px]">
+                          <textarea
+                            value={responseComment}
+                            onChange={(e) => setResponseComment(e.target.value)}
+                            placeholder="Add a comment..."
+                            rows={2}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 resize-none"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleRespondEndorsement(endorsement.id, 'accepted')}
+                              className="px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => handleRespondEndorsement(endorsement.id, 'rejected')}
+                              className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700"
+                            >
+                              Reject
+                            </button>
+                            <button
+                              onClick={() => { setRespondingId(null); setResponseComment(''); }}
+                              className="px-3 py-1.5 text-xs bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setRespondingId(endorsement.id)}
+                          className="px-3 py-1.5 text-xs bg-gray-900 text-white rounded-lg hover:bg-gray-800"
+                        >
+                          Respond
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
         )}
 

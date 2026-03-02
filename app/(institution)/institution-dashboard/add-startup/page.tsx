@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, Button, Input, Textarea, Select, FileUpload } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
+import { useEmailCheck } from '@/lib/useEmailCheck';
 
 const stageOptions = [
   { value: 'idea', label: 'Idea' },
@@ -38,6 +39,43 @@ interface LocationSuggestion {
     country?: string;
     country_code?: string;
   };
+}
+
+/** Inline email check indicator for founder emails */
+function FounderEmailCheck({ email }: { email: string }) {
+  const { checking, result } = useEmailCheck(email, 'create_user');
+
+  if (!email || !email.includes('@')) return null;
+
+  return (
+    <div className="mt-1">
+      {checking && (
+        <p className="text-xs text-gray-400 flex items-center gap-1">
+          <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          Checking email...
+        </p>
+      )}
+      {!checking && result && result.canProceed && (
+        <p className="text-xs text-green-600 flex items-center gap-1">
+          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          Email is available
+        </p>
+      )}
+      {!checking && result && !result.canProceed && (
+        <p className="text-xs text-red-600 flex items-center gap-1">
+          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          {result.message}
+        </p>
+      )}
+    </div>
+  );
 }
 
 export default function AddStartupPage() {
@@ -464,6 +502,7 @@ export default function AddStartupPage() {
                           placeholder="founder@startup.com"
                           aria-label="Founder email"
                         />
+                        <FounderEmailCheck email={founder.email} />
                       </div>
                     </div>
                   ))}
