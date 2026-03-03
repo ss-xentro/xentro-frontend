@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui';
-import { sdgLabels, sectorLabels, SDGFocus, SectorFocus } from '@/lib/types';
+import { sdgLabels, sectorLabels, SDGFocus } from '@/lib/types';
 import type { StartupWithDetails } from './types';
 
 interface StartupSidebarProps {
@@ -52,7 +52,7 @@ export function StartupSidebar({ startup }: StartupSidebarProps) {
 					<h3 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-3">Sectors</h3>
 					<div className="flex flex-wrap gap-2">
 						{startup.sectors!.map((sector) => {
-							const info = sectorLabels[sector as SectorFocus];
+							const info = sectorLabels[sector];
 							return (
 								<Badge key={sector} variant="outline" className="text-xs">
 									{info ? `${info.emoji} ${info.label}` : sector}

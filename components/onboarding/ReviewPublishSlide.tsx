@@ -139,7 +139,7 @@ export default function ReviewPublishSlide({
                             <div className="flex flex-wrap gap-2">
                                 {formData.sectorFocus.map((sector) => (
                                     <Badge key={sector} variant="outline" className="gap-1">
-                                        {sectorLabels[sector].emoji} {sectorLabels[sector].label}
+                                        {sectorLabels[sector]?.emoji} {sectorLabels[sector]?.label ?? sector}
                                     </Badge>
                                 ))}
                             </div>

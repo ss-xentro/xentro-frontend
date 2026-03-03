@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from '@/components/ui';
-import { OnboardingFormData } from '@/lib/types';
+import { OnboardingFormData, sectorLabels } from '@/lib/types';
 
 interface OnboardingPreviewSidebarProps {
 	formData: OnboardingFormData;
@@ -105,7 +105,7 @@ export default function OnboardingPreviewSidebar({ formData }: OnboardingPreview
 						<div className="flex flex-wrap gap-1">
 							{formData.sectorFocus.map((sector) => (
 								<span key={sector} className="text-xs px-2 py-1 rounded-full bg-(--accent-light) text-accent">
-									{sector}
+									{sectorLabels[sector]?.emoji} {sectorLabels[sector]?.label ?? sector}
 								</span>
 							))}
 						</div>

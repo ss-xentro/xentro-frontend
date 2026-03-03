@@ -8,7 +8,85 @@ export type OperatingMode = 'local' | 'national' | 'global' | 'remote-first';
 
 export type SDGFocus = 'sdg-1' | 'sdg-2' | 'sdg-3' | 'sdg-4' | 'sdg-5' | 'sdg-6' | 'sdg-7' | 'sdg-8' | 'sdg-9' | 'sdg-10' | 'sdg-11' | 'sdg-12' | 'sdg-13' | 'sdg-14' | 'sdg-15' | 'sdg-16' | 'sdg-17';
 
-export type SectorFocus = 'ai' | 'healthtech' | 'edtech' | 'climatetech' | 'fintech' | 'saas' | 'social-impact';
+// ── Sector Categories (18 parent sectors) ──────────────────
+export type SectorCategory =
+  | 'technology-software'
+  | 'fintech'
+  | 'healthtech-biotech'
+  | 'edtech'
+  | 'ecommerce-retail'
+  | 'food-agritech'
+  | 'cleantech-climatetech'
+  | 'mobility-transportation'
+  | 'real-estate-proptech'
+  | 'media-entertainment'
+  | 'enterprise-b2b'
+  | 'social-impact'
+  | 'fashion-lifestyle'
+  | 'travel-hospitality'
+  | 'sports-gaming'
+  | 'spacetech-deeptech'
+  | 'consumer-services'
+  | 'manufacturing-industry4';
+
+// ── Sub-sector slugs ────────────────────────────────────────
+export type SubSector =
+  // Technology & Software
+  | 'saas' | 'ai-ml' | 'generative-ai' | 'cybersecurity' | 'cloud-computing'
+  | 'devtools' | 'web3-blockchain' | 'iot' | 'ar-vr-xr' | 'quantum-computing'
+  | 'robotics-automation'
+  // FinTech
+  | 'digital-payments' | 'neobanking' | 'lending-platforms' | 'wealthtech'
+  | 'insurtech' | 'regtech' | 'crypto-digital-assets'
+  // HealthTech & BioTech
+  | 'telemedicine' | 'health-saas' | 'diagnostics' | 'medical-devices'
+  | 'biotech-research' | 'mental-health' | 'fitness-wellness'
+  // EdTech
+  | 'online-learning' | 'skill-development' | 'test-prep' | 'corporate-training'
+  | 'language-learning' | 'ai-tutors' | 'school-management'
+  // E-commerce & Retail
+  | 'd2c-brands' | 'marketplaces' | 'social-commerce' | 'quick-commerce' | 'retail-tech'
+  // Food & AgriTech
+  | 'cloud-kitchens' | 'food-delivery-tech' | 'agri-supply-chain'
+  | 'precision-farming' | 'organic-sustainable-farming' | 'farm-to-consumer'
+  // CleanTech & ClimateTech
+  | 'renewable-energy' | 'ev-mobility-tech' | 'carbon-tracking'
+  | 'waste-management' | 'watertech' | 'sustainable-materials'
+  // Mobility & Transportation
+  | 'ride-sharing' | 'ev-infrastructure' | 'logistics-tech'
+  | 'fleet-management' | 'autonomous-vehicles'
+  // Real Estate & PropTech
+  | 'real-estate-marketplaces' | 'smart-homes' | 'construction-tech'
+  | 'co-living-co-working' | 'property-management-saas'
+  // Media, Entertainment & Creator Economy
+  | 'ott-platforms' | 'gaming' | 'esports' | 'creator-tools'
+  | 'influencer-platforms' | 'musictech' | 'animation-vfx'
+  // Enterprise & B2B Solutions
+  | 'hrtech' | 'legaltech' | 'supply-chain-tech'
+  | 'procurement-platforms' | 'crm-erp'
+  // Social Impact & Non-Profit Tech
+  | 'rural-development' | 'accessibility-tech' | 'ngo-platforms'
+  | 'govtech' | 'civictech'
+  // Fashion & Lifestyle
+  | 'sustainable-fashion' | 'beautytech' | 'personal-care'
+  | 'luxury-brands' | 'wearables'
+  // Travel & Hospitality
+  | 'traveltech' | 'booking-platforms' | 'tourism-experience' | 'hoteltech'
+  // Sports & Gaming Infrastructure
+  | 'sports-analytics' | 'fantasy-sports' | 'athlete-management'
+  | 'training-tech' | 'motorsport-tech'
+  // SpaceTech & DeepTech
+  | 'satellite-tech' | 'aerospace' | 'defensetech'
+  | 'advanced-materials' | 'semiconductors'
+  // Consumer Services
+  | 'home-services' | 'on-demand-services' | 'subscription-services'
+  | 'pettech' | 'senior-care'
+  // Manufacturing & Industry 4.0
+  | 'smart-manufacturing' | 'industrial-automation' | '3d-printing'
+  | 'supply-chain-robotics';
+
+// SectorFocus = parent category OR sub-sector (any valid slug)
+export type SectorFocus = SectorCategory | SubSector;
 
 export type InstitutionStatus = 'draft' | 'published' | 'archived' | 'pending';
 
@@ -353,15 +431,230 @@ export const sdgLabels: Record<SDGFocus, { label: string; fullName: string; colo
   'sdg-17': { label: '17', fullName: 'Partnerships for the Goals', color: '#19486A' },
 };
 
-export const sectorLabels: Record<SectorFocus, { label: string; emoji: string }> = {
-  ai: { label: 'AI & ML', emoji: '🤖' },
-  healthtech: { label: 'HealthTech', emoji: '⚕️' },
-  edtech: { label: 'EdTech', emoji: '📚' },
-  climatetech: { label: 'ClimateTech', emoji: '🌿' },
-  fintech: { label: 'FinTech', emoji: '💳' },
-  saas: { label: 'SaaS', emoji: '☁️' },
-  'social-impact': { label: 'Social Impact', emoji: '❤️' },
+// ── Sector category labels (18 parent sectors) ─────────────
+export interface SectorCategoryInfo {
+  label: string;
+  emoji: string;
+  subSectors: { slug: SubSector; label: string }[];
+}
+
+export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = {
+  'technology-software': {
+    label: 'Technology & Software', emoji: '💻',
+    subSectors: [
+      { slug: 'saas', label: 'SaaS' },
+      { slug: 'ai-ml', label: 'AI / Machine Learning' },
+      { slug: 'generative-ai', label: 'Generative AI' },
+      { slug: 'cybersecurity', label: 'Cybersecurity' },
+      { slug: 'cloud-computing', label: 'Cloud Computing' },
+      { slug: 'devtools', label: 'DevTools' },
+      { slug: 'web3-blockchain', label: 'Web3 / Blockchain' },
+      { slug: 'iot', label: 'IoT' },
+      { slug: 'ar-vr-xr', label: 'AR/VR / Extended Reality' },
+      { slug: 'quantum-computing', label: 'Quantum Computing' },
+      { slug: 'robotics-automation', label: 'Robotics & Automation' },
+    ],
+  },
+  fintech: {
+    label: 'FinTech', emoji: '💳',
+    subSectors: [
+      { slug: 'digital-payments', label: 'Digital Payments' },
+      { slug: 'neobanking', label: 'Neobanking' },
+      { slug: 'lending-platforms', label: 'Lending Platforms' },
+      { slug: 'wealthtech', label: 'WealthTech' },
+      { slug: 'insurtech', label: 'InsurTech' },
+      { slug: 'regtech', label: 'RegTech' },
+      { slug: 'crypto-digital-assets', label: 'Crypto & Digital Assets' },
+    ],
+  },
+  'healthtech-biotech': {
+    label: 'HealthTech & BioTech', emoji: '⚕️',
+    subSectors: [
+      { slug: 'telemedicine', label: 'Telemedicine' },
+      { slug: 'health-saas', label: 'Health SaaS' },
+      { slug: 'diagnostics', label: 'Diagnostics' },
+      { slug: 'medical-devices', label: 'Medical Devices' },
+      { slug: 'biotech-research', label: 'Biotech Research' },
+      { slug: 'mental-health', label: 'Mental Health Platforms' },
+      { slug: 'fitness-wellness', label: 'Fitness & Wellness Tech' },
+    ],
+  },
+  edtech: {
+    label: 'EdTech', emoji: '📚',
+    subSectors: [
+      { slug: 'online-learning', label: 'Online Learning Platforms' },
+      { slug: 'skill-development', label: 'Skill Development' },
+      { slug: 'test-prep', label: 'Test Prep' },
+      { slug: 'corporate-training', label: 'Corporate Training' },
+      { slug: 'language-learning', label: 'Language Learning' },
+      { slug: 'ai-tutors', label: 'AI Tutors' },
+      { slug: 'school-management', label: 'School Management Systems' },
+    ],
+  },
+  'ecommerce-retail': {
+    label: 'E-commerce & Retail', emoji: '🛒',
+    subSectors: [
+      { slug: 'd2c-brands', label: 'D2C Brands' },
+      { slug: 'marketplaces', label: 'Marketplaces (B2B / B2C / C2C)' },
+      { slug: 'social-commerce', label: 'Social Commerce' },
+      { slug: 'quick-commerce', label: 'Quick Commerce' },
+      { slug: 'retail-tech', label: 'Retail Tech' },
+    ],
+  },
+  'food-agritech': {
+    label: 'Food & AgriTech', emoji: '🌾',
+    subSectors: [
+      { slug: 'cloud-kitchens', label: 'Cloud Kitchens' },
+      { slug: 'food-delivery-tech', label: 'Food Delivery Tech' },
+      { slug: 'agri-supply-chain', label: 'Agri Supply Chain' },
+      { slug: 'precision-farming', label: 'Precision Farming' },
+      { slug: 'organic-sustainable-farming', label: 'Organic & Sustainable Farming' },
+      { slug: 'farm-to-consumer', label: 'Farm-to-Consumer Platforms' },
+    ],
+  },
+  'cleantech-climatetech': {
+    label: 'CleanTech & ClimateTech', emoji: '🌿',
+    subSectors: [
+      { slug: 'renewable-energy', label: 'Renewable Energy' },
+      { slug: 'ev-mobility-tech', label: 'EV & Mobility Tech' },
+      { slug: 'carbon-tracking', label: 'Carbon Tracking' },
+      { slug: 'waste-management', label: 'Waste Management' },
+      { slug: 'watertech', label: 'WaterTech' },
+      { slug: 'sustainable-materials', label: 'Sustainable Materials' },
+    ],
+  },
+  'mobility-transportation': {
+    label: 'Mobility & Transportation', emoji: '🚗',
+    subSectors: [
+      { slug: 'ride-sharing', label: 'Ride-sharing' },
+      { slug: 'ev-infrastructure', label: 'EV Infrastructure' },
+      { slug: 'logistics-tech', label: 'Logistics Tech' },
+      { slug: 'fleet-management', label: 'Fleet Management' },
+      { slug: 'autonomous-vehicles', label: 'Autonomous Vehicles' },
+    ],
+  },
+  'real-estate-proptech': {
+    label: 'Real Estate & PropTech', emoji: '🏠',
+    subSectors: [
+      { slug: 'real-estate-marketplaces', label: 'Real Estate Marketplaces' },
+      { slug: 'smart-homes', label: 'Smart Homes' },
+      { slug: 'construction-tech', label: 'Construction Tech' },
+      { slug: 'co-living-co-working', label: 'Co-living / Co-working' },
+      { slug: 'property-management-saas', label: 'Property Management SaaS' },
+    ],
+  },
+  'media-entertainment': {
+    label: 'Media, Entertainment & Creator Economy', emoji: '🎬',
+    subSectors: [
+      { slug: 'ott-platforms', label: 'OTT Platforms' },
+      { slug: 'gaming', label: 'Gaming' },
+      { slug: 'esports', label: 'Esports' },
+      { slug: 'creator-tools', label: 'Creator Tools' },
+      { slug: 'influencer-platforms', label: 'Influencer Platforms' },
+      { slug: 'musictech', label: 'MusicTech' },
+      { slug: 'animation-vfx', label: 'Animation & VFX' },
+    ],
+  },
+  'enterprise-b2b': {
+    label: 'Enterprise & B2B Solutions', emoji: '🏢',
+    subSectors: [
+      { slug: 'hrtech', label: 'HRTech' },
+      { slug: 'legaltech', label: 'LegalTech' },
+      { slug: 'supply-chain-tech', label: 'Supply Chain Tech' },
+      { slug: 'procurement-platforms', label: 'Procurement Platforms' },
+      { slug: 'crm-erp', label: 'CRM & ERP Solutions' },
+    ],
+  },
+  'social-impact': {
+    label: 'Social Impact & Non-Profit Tech', emoji: '❤️',
+    subSectors: [
+      { slug: 'rural-development', label: 'Rural Development' },
+      { slug: 'accessibility-tech', label: 'Accessibility Tech' },
+      { slug: 'ngo-platforms', label: 'NGO Platforms' },
+      { slug: 'govtech', label: 'GovTech' },
+      { slug: 'civictech', label: 'CivicTech' },
+    ],
+  },
+  'fashion-lifestyle': {
+    label: 'Fashion & Lifestyle', emoji: '👗',
+    subSectors: [
+      { slug: 'sustainable-fashion', label: 'Sustainable Fashion' },
+      { slug: 'beautytech', label: 'BeautyTech' },
+      { slug: 'personal-care', label: 'Personal Care' },
+      { slug: 'luxury-brands', label: 'Luxury Brands' },
+      { slug: 'wearables', label: 'Wearables' },
+    ],
+  },
+  'travel-hospitality': {
+    label: 'Travel & Hospitality', emoji: '✈️',
+    subSectors: [
+      { slug: 'traveltech', label: 'TravelTech' },
+      { slug: 'booking-platforms', label: 'Booking Platforms' },
+      { slug: 'tourism-experience', label: 'Tourism Experience Tech' },
+      { slug: 'hoteltech', label: 'HotelTech' },
+    ],
+  },
+  'sports-gaming': {
+    label: 'Sports & Gaming Infrastructure', emoji: '⚽',
+    subSectors: [
+      { slug: 'sports-analytics', label: 'Sports Analytics' },
+      { slug: 'fantasy-sports', label: 'Fantasy Sports' },
+      { slug: 'athlete-management', label: 'Athlete Management' },
+      { slug: 'training-tech', label: 'Training Tech' },
+      { slug: 'motorsport-tech', label: 'Motorsport Tech' },
+    ],
+  },
+  'spacetech-deeptech': {
+    label: 'SpaceTech & DeepTech', emoji: '🚀',
+    subSectors: [
+      { slug: 'satellite-tech', label: 'Satellite Tech' },
+      { slug: 'aerospace', label: 'Aerospace' },
+      { slug: 'defensetech', label: 'DefenseTech' },
+      { slug: 'advanced-materials', label: 'Advanced Materials' },
+      { slug: 'semiconductors', label: 'Semiconductors' },
+    ],
+  },
+  'consumer-services': {
+    label: 'Consumer Services', emoji: '🏡',
+    subSectors: [
+      { slug: 'home-services', label: 'Home Services' },
+      { slug: 'on-demand-services', label: 'On-demand Services' },
+      { slug: 'subscription-services', label: 'Subscription Services' },
+      { slug: 'pettech', label: 'PetTech' },
+      { slug: 'senior-care', label: 'Senior Care' },
+    ],
+  },
+  'manufacturing-industry4': {
+    label: 'Manufacturing & Industry 4.0', emoji: '🏭',
+    subSectors: [
+      { slug: 'smart-manufacturing', label: 'Smart Manufacturing' },
+      { slug: 'industrial-automation', label: 'Industrial Automation' },
+      { slug: '3d-printing', label: '3D Printing' },
+      { slug: 'supply-chain-robotics', label: 'Supply Chain Robotics' },
+    ],
+  },
 };
+
+// ── Flat lookup: slug → { label, emoji } for any sector/sub-sector ──
+export const sectorLabels: Record<string, { label: string; emoji: string }> = (() => {
+  const map: Record<string, { label: string; emoji: string }> = {};
+  for (const [catSlug, cat] of Object.entries(sectorCategoryLabels)) {
+    map[catSlug] = { label: cat.label, emoji: cat.emoji };
+    for (const sub of cat.subSectors) {
+      map[sub.slug] = { label: sub.label, emoji: cat.emoji };
+    }
+  }
+  return map;
+})();
+
+// Helper: get parent category for a sub-sector slug
+export function getSectorCategory(slug: string): SectorCategory | null {
+  for (const [catSlug, cat] of Object.entries(sectorCategoryLabels)) {
+    if (catSlug === slug) return catSlug as SectorCategory;
+    if (cat.subSectors.some(s => s.slug === slug)) return catSlug as SectorCategory;
+  }
+  return null;
+}
 
 export const countries = [
   { code: 'IN', name: 'India', flag: '🇮🇳' },
