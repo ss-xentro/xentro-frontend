@@ -367,6 +367,7 @@ export default function OnboardingWizard({
 								setCurrentStep(step);
 							}}
 							isStepComplete={canProceed}
+							collapsed={showPreview}
 						/>
 						<Button
 							variant="secondary"

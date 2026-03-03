@@ -27,6 +27,8 @@ interface StepNavigationSidebarProps {
 	onStepClick: (step: number) => void;
 	/** Returns true when the given 1-based step has valid data */
 	isStepComplete?: (step: number) => boolean;
+	/** When true, show a compact minimized view */
+	collapsed?: boolean;
 }
 
 export default function StepNavigationSidebar({
@@ -34,7 +36,58 @@ export default function StepNavigationSidebar({
 	totalSteps,
 	onStepClick,
 	isStepComplete,
+	collapsed = false,
 }: StepNavigationSidebarProps) {
+	if (collapsed) {
+		return (
+			<Card className="p-3 sticky top-6">
+				<div className="flex items-center justify-between mb-2">
+					<h3 className="text-xs font-semibold text-(--secondary) uppercase tracking-wide">
+						Step {currentStep} of {totalSteps}
+					</h3>
+					<span className="text-xs text-(--secondary)">
+						{STEPS[currentStep - 1]?.label}
+					</span>
+				</div>
+				<nav aria-label="Onboarding steps">
+					<ol className="flex flex-wrap gap-1.5">
+						{STEPS.slice(0, totalSteps).map((step, idx) => {
+							const stepNum = idx + 1;
+							const isCurrent = stepNum === currentStep;
+							const completed = isStepComplete?.(stepNum) ?? stepNum < currentStep;
+
+							return (
+								<li key={stepNum}>
+									<button
+										type="button"
+										onClick={() => onStepClick(stepNum)}
+										aria-current={isCurrent ? 'step' : undefined}
+										title={step.label}
+										className={`
+											w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold border transition-colors
+											${isCurrent
+												? 'bg-accent text-white border-accent'
+												: completed
+													? 'bg-green-500 text-white border-green-500'
+													: 'bg-(--surface) text-(--secondary) border-(--border) hover:bg-(--surface-hover)'
+											}
+										`}
+									>
+										{completed && !isCurrent ? (
+											<AppIcon name="check" className="w-3 h-3" />
+										) : (
+											stepNum
+										)}
+									</button>
+								</li>
+							);
+						})}
+					</ol>
+				</nav>
+			</Card>
+		);
+	}
+
 	return (
 		<Card className="p-4 sticky top-6">
 			<h3 className="text-sm font-semibold text-(--secondary) uppercase tracking-wide mb-3">
