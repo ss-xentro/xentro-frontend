@@ -3,20 +3,18 @@ name: Deploy Frontend to EC2
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+  # workflow_dispatch:
 
 concurrency:
   group: deploy-frontend
   cancel-in-progress: false
-
-env:
-  DEPLOY_DIR: /opt/xentro/frontend
 
 jobs:
   deploy:
     name: Deploy Frontend
     runs-on: ubuntu-latest
     environment: production
+
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
@@ -36,66 +34,46 @@ jobs:
 
             cd "$DEPLOY_DIR"
 
-            # ── Pull latest code ──────────────────────────
-            echo "→ Pulling latest code from main..."
+            # ── Ensure clean git state ─────────────────────
+            echo "→ Syncing with origin/main..."
             git fetch origin main
-            git pull origin main
+            git reset --hard origin/main
+            git clean -fd
 
-            # ── Copy env file ─────────────────────────────
+            # ── Copy environment file ──────────────────────
+            echo "→ Applying environment configuration..."
             cp ../.env .
 
-            # ── Stop & remove existing containers ─────────
-            echo "→ Stopping existing containers..."
-            docker compose down -v
-
-            # ── Build & start services ────────────────────────────────
-            echo "→ Building frontend..."
-            docker compose build nextjs-app
-
-            echo "→ Starting services..."
-            docker compose up -d
-
-            # ── Cleanup ───────────────────────────────────
+            # ── Free disk space before build ───────────────
             echo "→ Pruning unused Docker resources..."
-            docker system prune -af
+            docker system prune -af || true
 
-            # ── Health check ──────────────────────────────
-            echo "→ Waiting for frontend to start..."
-            sleep 15
+            # ── Rebuild & restart services ─────────────────
+            echo "→ Rebuilding and starting containers..."
+            docker compose up -d --build --remove-orphans
 
-            # Check via docker compose (container-level check)
-            if docker compose exec -T nextjs-app curl -sf http://localhost:3000 > /dev/null 2>&1; then
-              echo "✓ Frontend (nextjs-app) is healthy"
-            elif curl -sf http://localhost > /dev/null 2>&1; then
-              echo "✓ Frontend is healthy (via nginx)"
-            elif curl -sfk https://localhost > /dev/null 2>&1; then
-              echo "✓ Frontend is healthy (via nginx/https)"
-            else
-              echo "⚠ Health check could not verify, checking container status..."
-              if docker compose ps nextjs-app | grep -q "Up"; then
-                echo "✓ nextjs-app container is running"
-              else
-                echo "✗ nextjs-app container is NOT running!"
-                docker compose logs --tail=50 nextjs-app
-                exit 1
+            # ── Health check with enforcement ──────────────
+            echo "→ Performing health check..."
+
+            HEALTHY=false
+
+            for i in {1..30}; do
+              if curl -sf http://localhost > /dev/null; then
+                echo "✓ Frontend is healthy"
+                HEALTHY=true
+                break
               fi
+              sleep 2
+            done
+
+            if [ "$HEALTHY" = false ]; then
+              echo "✗ Frontend failed health check"
+              docker compose ps
+              docker compose logs --tail=50 nextjs-app
+              exit 1
             fi
 
             echo ""
             echo "══════════════════════════════════════════════"
             echo "  Frontend deploy complete — $(date)"
             echo "══════════════════════════════════════════════"
-
-      # - name: Notify on failure
-      #   if: failure()
-      #   uses: appleboy/telegram-action@master
-      #   continue-on-error: true
-      #   with:
-      #     to: ${{ secrets.TELEGRAM_CHAT_ID }}
-      #     token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      #     message: |
-      #       ❌ Xentro frontend deploy FAILED
-      #       Branch: ${{ github.ref_name }}
-      #       Commit: ${{ github.sha }}
-      #       Author: ${{ github.actor }}
-      #       Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
