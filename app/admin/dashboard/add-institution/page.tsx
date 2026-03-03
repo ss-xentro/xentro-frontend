@@ -310,15 +310,23 @@ export default function AddInstitutionPage() {
                         </svg>
                         Back
                     </Button>
-                    <Button
-                        onClick={handleNext}
-                        disabled={!canProceed()}
-                    >
-                        Continue
-                        <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="secondary"
+                            onClick={handleSaveDraft}
+                        >
+                            💾 Save Draft
+                        </Button>
+                        <Button
+                            onClick={handleNext}
+                            disabled={!canProceed()}
+                        >
+                            Continue
+                            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </Button>
+                    </div>
                 </div>
             )}
         </div>

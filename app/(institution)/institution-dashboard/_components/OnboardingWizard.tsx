@@ -319,9 +319,14 @@ export default function OnboardingWizard({
 								</Button>
 								<div className="flex gap-2">
 									{currentStep < TOTAL_STEPS && (
-										<Button onClick={handleNext} disabled={!canProceed() || submitting} aria-label="Go to next step" className="min-h-11">
-											Next →
-										</Button>
+										<>
+											<Button variant="secondary" onClick={handleSaveDraft} disabled={submitting} aria-label="Save draft" className="min-h-11">
+												💾 Save Draft
+											</Button>
+											<Button onClick={handleNext} disabled={!canProceed() || submitting} aria-label="Go to next step" className="min-h-11">
+												Next →
+											</Button>
+										</>
 									)}
 								</div>
 							</div>

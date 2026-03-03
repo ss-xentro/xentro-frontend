@@ -13,10 +13,23 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    // Validate all files are PDFs
+    const invalidFiles: string[] = [];
+    for (let i = 0; i < files.length; i++) {
+      if (files[i].type !== 'application/pdf' && !files[i].name.toLowerCase().endsWith('.pdf')) {
+        invalidFiles.push(files[i].name);
+      }
+    }
+    if (invalidFiles.length > 0) {
+      alert(`Only PDF files are accepted. The following files are not PDFs:\n${invalidFiles.join('\n')}`);
+      e.target.value = '';
+      return;
+    }
+
     setUploading(true);
     try {
       const uploadedUrls: string[] = [];
-      
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const uploadFormData = new FormData();
@@ -79,7 +92,7 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
               <li>GST Registration Certificate</li>
             </ul>
             <p className="text-blue-800 text-sm mt-2">
-              <strong>Formats:</strong> PDF, JPG, PNG (Max 10MB per file)
+              <strong>Format:</strong> PDF only (Max 10MB per file)
             </p>
           </div>
         </div>
@@ -91,13 +104,13 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
           type="file"
           id="legal-docs-upload"
           multiple
-          accept=".pdf,.jpg,.jpeg,.png"
+          accept=".pdf,application/pdf"
           onChange={handleFileUpload}
           disabled={uploading}
           className="hidden"
         />
-        <label 
-          htmlFor="legal-docs-upload" 
+        <label
+          htmlFor="legal-docs-upload"
           className={`cursor-pointer ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <svg className="w-12 h-12 text-(--secondary) mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,10 +138,10 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
                 <p className="text-sm font-medium text-(--primary) truncate">
                   Document {index + 1}
                 </p>
-                <a 
-                  href={doc} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href={doc}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-xs text-accent hover:underline truncate block"
                 >
                   View document
