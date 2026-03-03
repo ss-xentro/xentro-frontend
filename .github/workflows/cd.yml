@@ -48,12 +48,12 @@ jobs:
             echo "→ Stopping existing containers..."
             docker compose down -v
 
-            # ── Build & start frontend ────────────────────
+            # ── Build & start services ────────────────────────────────
             echo "→ Building frontend..."
-            docker compose build nextjs-frontend
+            docker compose build nextjs-app
 
-            echo "→ Starting frontend..."
-            docker compose up -d nextjs-frontend
+            echo "→ Starting services..."
+            docker compose up -d
 
             # ── Cleanup ───────────────────────────────────
             echo "→ Pruning unused Docker resources..."
@@ -67,7 +67,7 @@ jobs:
               echo "✓ Frontend is healthy"
             else
               echo "✗ Frontend health check failed!"
-              docker compose logs --tail=50 nextjs-frontend
+              docker compose logs --tail=50 nextjs-app
               exit 1
             fi
 
