@@ -1,9 +1,10 @@
-import { OnboardingFormData } from '@/lib/types';
+import { OnboardingFormData, LegalDocument } from '@/lib/types';
 import { useToast } from '@/components/ui/Toast';
 import { useState } from 'react';
 
 const MAX_FILE_SIZE_MB = 10;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const MAX_DOCUMENTS = 10;
 
 interface LegalDocumentsSlideProps {
   formData: OnboardingFormData;
@@ -18,15 +19,28 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    // Check max document count
+    const currentCount = (formData.legalDocuments || []).length;
+    const remaining = MAX_DOCUMENTS - currentCount;
+    if (remaining <= 0) {
+      toastError(`Maximum ${MAX_DOCUMENTS} documents allowed. Remove some to upload more.`);
+      e.target.value = '';
+      return;
+    }
+    if (files.length > remaining) {
+      toastWarning(`Only ${remaining} more document${remaining > 1 ? 's' : ''} can be added. First ${remaining} will be uploaded.`);
+    }
+    const filesToUpload = Array.from(files).slice(0, remaining);
+
     // Validate all files are PDFs
     const invalidFiles: string[] = [];
     const oversizedFiles: string[] = [];
-    for (let i = 0; i < files.length; i++) {
-      if (files[i].type !== 'application/pdf' && !files[i].name.toLowerCase().endsWith('.pdf')) {
-        invalidFiles.push(files[i].name);
+    for (const file of filesToUpload) {
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        invalidFiles.push(file.name);
       }
-      if (files[i].size > MAX_FILE_SIZE_BYTES) {
-        oversizedFiles.push(`${files[i].name} (${(files[i].size / (1024 * 1024)).toFixed(1)}MB)`);
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        oversizedFiles.push(`${file.name} (${(file.size / (1024 * 1024)).toFixed(1)}MB)`);
       }
     }
     if (invalidFiles.length > 0) {
@@ -42,10 +56,9 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
 
     setUploading(true);
     try {
-      const uploadedUrls: string[] = [];
+      const uploaded: LegalDocument[] = [];
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      for (const file of filesToUpload) {
         const uploadFormData = new FormData();
         uploadFormData.append('file', file);
         uploadFormData.append('folder', 'legal-documents');
@@ -60,11 +73,11 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
           throw new Error(errPayload.message || 'Failed to upload document');
         }
         const payload = await res.json();
-        uploadedUrls.push(payload.url);
+        uploaded.push({ url: payload.url, name: file.name });
       }
 
-      onChange({ legalDocuments: [...(formData.legalDocuments || []), ...uploadedUrls] });
-      toastSuccess(`${uploadedUrls.length} document${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully!`);
+      onChange({ legalDocuments: [...(formData.legalDocuments || []), ...uploaded] });
+      toastSuccess(`${uploaded.length} document${uploaded.length > 1 ? 's' : ''} uploaded successfully!`);
     } catch (error) {
       console.error('Upload error:', error);
       toastError((error as Error).message || 'Failed to upload document. Please try again.');
@@ -110,7 +123,7 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
               <li>GST Registration Certificate</li>
             </ul>
             <p className="text-blue-800 text-sm mt-2">
-              <strong>Format:</strong> PDF only (Max 10MB per file)
+              <strong>Format:</strong> PDF only (Max 10MB per file, up to {MAX_DOCUMENTS} documents)
             </p>
           </div>
         </div>
@@ -146,36 +159,41 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
       {/* Uploaded Documents List */}
       {formData.legalDocuments && formData.legalDocuments.length > 0 && (
         <div className="space-y-3">
-          <h3 className="font-semibold text-(--primary)">Uploaded Documents ({formData.legalDocuments.length})</h3>
-          {formData.legalDocuments.map((doc, index) => (
-            <div key={index} className="flex items-center gap-3 p-4 bg-(--surface-hover) rounded-lg">
-              <svg className="w-8 h-8 text-accent shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-(--primary) truncate">
-                  Document {index + 1}
-                </p>
-                <a
-                  href={doc}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-accent hover:underline truncate block"
-                >
-                  View document
-                </a>
-              </div>
-              <button
-                onClick={() => handleRemoveDocument(index)}
-                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                aria-label="Remove document"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          <h3 className="font-semibold text-(--primary)">Uploaded Documents ({formData.legalDocuments.length}/{MAX_DOCUMENTS})</h3>
+          {formData.legalDocuments.map((doc, index) => {
+            // Backward compat: old data may be plain URL strings
+            const url = typeof doc === 'string' ? doc : doc.url;
+            const name = typeof doc === 'string' ? `Document ${index + 1}` : doc.name;
+            return (
+              <div key={index} className="flex items-center gap-3 p-4 bg-(--surface-hover) rounded-lg">
+                <svg className="w-8 h-8 text-accent shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-              </button>
-            </div>
-          ))}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-(--primary) truncate" title={name}>
+                    {name}
+                  </p>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-accent hover:underline truncate block"
+                  >
+                    View document
+                  </a>
+                </div>
+                <button
+                  onClick={() => handleRemoveDocument(index)}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  aria-label="Remove document"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
 

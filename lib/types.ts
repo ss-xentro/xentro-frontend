@@ -114,7 +114,7 @@ export interface Institution {
   email?: string | null;
   phone?: string | null;
   description?: string | null;
-  legalDocuments?: string[] | null;
+  legalDocuments?: LegalDocument[] | string[] | null;
   status: InstitutionStatus;
   verified: boolean;
   profileViews?: number;
@@ -162,7 +162,7 @@ export interface InstitutionApplication {
   phone?: string | null;
   description?: string | null;
   logo?: string | null;
-  legalDocuments?: string[] | null;
+  legalDocuments?: LegalDocument[] | string[] | null;
   status: InstitutionApplicationStatus;
   remark?: string | null;
   verified: boolean;
@@ -392,7 +392,12 @@ export interface OnboardingFormData {
   email: string;
   phone: string;
   description: string;
-  legalDocuments: string[];
+  legalDocuments: LegalDocument[];
+}
+
+export interface LegalDocument {
+  url: string;
+  name: string;
 }
 
 // UI Label Maps

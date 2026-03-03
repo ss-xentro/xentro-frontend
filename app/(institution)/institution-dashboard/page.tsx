@@ -2,11 +2,27 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus, Institution, operatingModeLabels, sdgLabels, sectorLabels } from '@/lib/types';
+import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus, Institution, LegalDocument, operatingModeLabels, sdgLabels, sectorLabels } from '@/lib/types';
 import { getSessionToken } from '@/lib/auth-utils';
 import OnboardingWizard from './_components/OnboardingWizard';
 import ApprovedDashboard from './_components/ApprovedDashboard';
 import PendingApplicationView from './_components/PendingApplicationView';
+
+/** Normalize legal_documents from DB – may be string[] (old) or {url,name}[] (new) */
+function normalizeLegalDocs(raw: unknown): LegalDocument[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item, i) => {
+    if (typeof item === 'string') {
+      // Old format: plain URL string – extract filename from URL or fall back
+      const segments = item.split('/');
+      return { url: item, name: segments[segments.length - 1] || `Document ${i + 1}` };
+    }
+    if (item && typeof item === 'object' && 'url' in item) {
+      return { url: item.url as string, name: (item.name as string) || `Document ${i + 1}` };
+    }
+    return { url: String(item), name: `Document ${i + 1}` };
+  });
+}
 
 const initialFormData: OnboardingFormData = {
   type: null,
@@ -161,7 +177,7 @@ export default function InstitutionDashboardPage() {
             email: latest.email ?? '',
             phone: latest.phone ?? '',
             description: latest.description ?? '',
-            legalDocuments: (latest.legalDocuments as string[]) ?? [],
+            legalDocuments: normalizeLegalDocs(latest.legalDocuments),
           });
 
           if (latest.status === 'approved') {
