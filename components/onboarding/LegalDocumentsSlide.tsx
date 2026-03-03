@@ -1,5 +1,9 @@
 import { OnboardingFormData } from '@/lib/types';
+import { useToast } from '@/components/ui/Toast';
 import { useState } from 'react';
+
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 interface LegalDocumentsSlideProps {
   formData: OnboardingFormData;
@@ -8,6 +12,7 @@ interface LegalDocumentsSlideProps {
 
 export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumentsSlideProps) {
   const [uploading, setUploading] = useState(false);
+  const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -15,13 +20,22 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
 
     // Validate all files are PDFs
     const invalidFiles: string[] = [];
+    const oversizedFiles: string[] = [];
     for (let i = 0; i < files.length; i++) {
       if (files[i].type !== 'application/pdf' && !files[i].name.toLowerCase().endsWith('.pdf')) {
         invalidFiles.push(files[i].name);
       }
+      if (files[i].size > MAX_FILE_SIZE_BYTES) {
+        oversizedFiles.push(`${files[i].name} (${(files[i].size / (1024 * 1024)).toFixed(1)}MB)`);
+      }
     }
     if (invalidFiles.length > 0) {
-      alert(`Only PDF files are accepted. The following files are not PDFs:\n${invalidFiles.join('\n')}`);
+      toastError(`Only PDF files are accepted: ${invalidFiles.join(', ')}`);
+      e.target.value = '';
+      return;
+    }
+    if (oversizedFiles.length > 0) {
+      toastError(`Files exceed ${MAX_FILE_SIZE_MB}MB limit: ${oversizedFiles.join(', ')}`);
       e.target.value = '';
       return;
     }
@@ -41,15 +55,19 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
           body: uploadFormData,
         });
 
-        if (!res.ok) throw new Error('Failed to upload document');
+        if (!res.ok) {
+          const errPayload = await res.json().catch(() => ({}));
+          throw new Error(errPayload.message || 'Failed to upload document');
+        }
         const payload = await res.json();
         uploadedUrls.push(payload.url);
       }
 
       onChange({ legalDocuments: [...(formData.legalDocuments || []), ...uploadedUrls] });
+      toastSuccess(`${uploadedUrls.length} document${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully!`);
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload document. Please try again.');
+      toastError((error as Error).message || 'Failed to upload document. Please try again.');
     } finally {
       setUploading(false);
     }

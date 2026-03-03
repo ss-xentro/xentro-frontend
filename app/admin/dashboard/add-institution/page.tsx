@@ -95,7 +95,7 @@ export default function AddInstitutionPage() {
     const handleSaveDraft = () => {
         // Save to localStorage or API
         console.log('Saving draft:', formData);
-        alert('Draft saved successfully!');
+        // TODO: persist to API when admin draft endpoint is available
     };
 
     const handlePublish = async () => {

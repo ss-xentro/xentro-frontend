@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, Button, ProgressIndicator } from '@/components/ui';
+import { useToast } from '@/components/ui/Toast';
 import { OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus } from '@/lib/types';
 import { InstitutionApplication } from '@/lib/types';
 import { getSessionToken } from '@/lib/auth-utils';
@@ -45,6 +46,17 @@ export default function OnboardingWizard({
 	const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const { success: toastSuccess, error: toastError } = useToast();
+
+	// Warn user before closing tab with unsaved changes
+	useEffect(() => {
+		const handler = (e: BeforeUnloadEvent) => {
+			e.preventDefault();
+			e.returnValue = '';
+		};
+		window.addEventListener('beforeunload', handler);
+		return () => window.removeEventListener('beforeunload', handler);
+	}, []);
 
 	// Keep a ref to the latest formData to avoid stale closures in callbacks
 	const formDataRef = useRef(formData);
@@ -102,7 +114,9 @@ export default function OnboardingWizard({
 				}),
 			});
 			if (!res.ok) throw new Error('Failed to save draft');
+			toastSuccess('Draft saved successfully!');
 		} catch (err) {
+			toastError((err as Error).message || 'Failed to save draft');
 			setError((err as Error).message);
 		}
 	};
