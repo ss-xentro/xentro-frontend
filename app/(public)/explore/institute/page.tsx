@@ -47,8 +47,8 @@ export default function ExploreInstitutionsPage() {
                     className="h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-white/30 transition-colors"
                 >
                     <option value="all" className="bg-[#0B0D10]">All Types</option>
-                    {Object.entries(institutionTypeLabels).map(([key, { label, emoji }]) => (
-                        <option key={key} value={key} className="bg-[#0B0D10]">{emoji} {label}</option>
+                    {Object.entries(institutionTypeLabels).map(([key, { label }]) => (
+                        <option key={key} value={key} className="bg-[#0B0D10]">{label}</option>
                     ))}
                 </select>
             </div>
@@ -90,7 +90,7 @@ export default function ExploreInstitutionsPage() {
                                     </div>
                                     {typeInfo && (
                                         <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-white/10 text-gray-300 border border-white/10">
-                                            {typeInfo.emoji} {typeInfo.label}
+                                            {typeInfo.label}
                                         </span>
                                     )}
                                 </div>
@@ -117,7 +117,7 @@ export default function ExploreInstitutionsPage() {
                                     <div className="flex flex-wrap gap-1.5 mb-4">
                                         {(inst.sectorFocus as SectorFocus[]).slice(0, 3).map((s) => (
                                             <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/10">
-                                                {sectorLabels[s]?.emoji} {sectorLabels[s]?.label}
+                                                {sectorLabels[s]?.label}
                                             </span>
                                         ))}
                                     </div>

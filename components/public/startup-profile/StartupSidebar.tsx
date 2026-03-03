@@ -2,6 +2,7 @@
 
 import { Badge } from '@/components/ui';
 import { sdgLabels, sectorLabels, SDGFocus } from '@/lib/types';
+import { AppIcon } from '@/components/ui/AppIcon';
 import type { StartupWithDetails } from './types';
 
 interface StartupSidebarProps {
@@ -55,7 +56,7 @@ export function StartupSidebar({ startup }: StartupSidebarProps) {
 							const info = sectorLabels[sector];
 							return (
 								<Badge key={sector} variant="outline" className="text-xs">
-									{info ? `${info.emoji} ${info.label}` : sector}
+									{info ? <><AppIcon name={info.icon} className="w-3.5 h-3.5 inline mr-1" />{info.label}</> : sector}
 								</Badge>
 							);
 						})}

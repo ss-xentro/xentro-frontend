@@ -211,7 +211,7 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
                                 {institution.logo ? (
                                     <img src={institution.logo} alt={institution.name} className="w-full h-full object-contain" />
                                 ) : (
-                                    <span className="text-4xl">{typeInfo.emoji}</span>
+                                    <AppIcon name={typeInfo.icon} className="w-10 h-10 text-(--secondary)" />
                                 )}
                             </div>
 
@@ -237,7 +237,7 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
 
                                     {modeInfo && (
                                         <div className="flex items-center gap-2 text-(--secondary)">
-                                            <span className="text-lg">{modeInfo.emoji}</span>
+                                            <AppIcon name={modeInfo.icon} className="w-5 h-5" />
                                             <span>{modeInfo.label}</span>
                                         </div>
                                     )}

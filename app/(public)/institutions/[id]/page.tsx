@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { institutionTypeLabels, operatingModeLabels, sdgLabels, sectorLabels } from '@/lib/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { Card, Button, Badge, VerifiedBadge, SDGBadge } from '@/components/ui';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { InstitutionTabs } from '@/components/institution/InstitutionTabs';
 import { useRouter } from 'next/navigation';
 
@@ -109,7 +110,7 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
 
                                 {modeInfo && (
                                     <div className="flex items-center gap-2 text-(--secondary)">
-                                        <span className="text-lg">{modeInfo.emoji}</span>
+                                        <AppIcon name={modeInfo.icon} className="w-5 h-5" />
                                         <span>{modeInfo.label}</span>
                                     </div>
                                 )}

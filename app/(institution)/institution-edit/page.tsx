@@ -168,9 +168,9 @@ export default function EditInstitutionPage() {
                   className="w-full px-4 py-3 rounded-lg border border-(--border) bg-white focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   <option value="">Select type...</option>
-                  {Object.entries(institutionTypeLabels).map(([key, { label, emoji }]) => (
+                  {Object.entries(institutionTypeLabels).map(([key, { label }]) => (
                     <option key={key} value={key}>
-                      {emoji} {label}
+                      {label}
                     </option>
                   ))}
                 </select>
@@ -186,9 +186,9 @@ export default function EditInstitutionPage() {
                   className="w-full px-4 py-3 rounded-lg border border-(--border) bg-white focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   <option value="">Select mode...</option>
-                  {Object.entries(operatingModeLabels).map(([key, { label, emoji }]) => (
+                  {Object.entries(operatingModeLabels).map(([key, { label }]) => (
                     <option key={key} value={key}>
-                      {emoji} {label}
+                      {label}
                     </option>
                   ))}
                 </select>
