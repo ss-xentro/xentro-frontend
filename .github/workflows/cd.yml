@@ -1,0 +1,212 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Service to deploy (all, backend, frontend)"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - all
+          - backend
+          - frontend
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  DEPLOY_DIR: /opt/xentro
+
+jobs:
+  # ── Run tests before deploying ────────────────────────────────────────
+  test-backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: ci-test-secret-key-not-for-production
+      DJANGO_DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "*"
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/xentro_test
+      JWT_SECRET: ci-test-jwt-secret
+      REDIS_URL: redis://localhost:6379
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: xentro_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run migrations
+        working-directory: backend
+        run: python manage.py migrate --noinput
+
+      - name: Run tests
+        working-directory: backend
+        run: python manage.py test --verbosity=2
+
+  test-frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Run tests
+        working-directory: frontend
+        run: npm run test
+
+  # ── Deploy to EC2 ─────────────────────────────────────────────────────
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+    environment: production
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            DEPLOY_DIR="${{ env.DEPLOY_DIR }}"
+            SERVICE="${{ github.event.inputs.service || 'all' }}"
+
+            echo "══════════════════════════════════════════════"
+            echo "  Deploying Xentro ($SERVICE) — $(date)"
+            echo "══════════════════════════════════════════════"
+
+            cd "$DEPLOY_DIR"
+
+            # ── Pull latest code ──────────────────────────
+            echo "→ Pulling latest code from main..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            # ── Build & deploy services ───────────────────
+            if [ "$SERVICE" = "backend" ]; then
+              echo "→ Building backend only..."
+              docker compose build django-api
+              docker compose up -d django-api
+            elif [ "$SERVICE" = "frontend" ]; then
+              echo "→ Building frontend only..."
+              docker compose build nextjs-frontend
+              docker compose up -d nextjs-frontend
+            else
+              echo "→ Building all services..."
+              docker compose build
+              docker compose up -d
+            fi
+
+            # ── Run migrations ────────────────────────────
+            if [ "$SERVICE" = "frontend" ]; then
+              echo "→ Skipping migrations (frontend-only deploy)"
+            else
+              echo "→ Running database migrations..."
+              docker compose exec -T django-api python manage.py migrate --noinput
+            fi
+
+            # ── Collect static files ──────────────────────
+            if [ "$SERVICE" = "frontend" ]; then
+              echo "→ Skipping collectstatic (frontend-only deploy)"
+            else
+              echo "→ Collecting static files..."
+              docker compose exec -T django-api python manage.py collectstatic --noinput || true
+            fi
+
+            # ── Cleanup ───────────────────────────────────
+            echo "→ Pruning unused Docker images..."
+            docker image prune -f
+
+            # ── Health check ──────────────────────────────
+            echo "→ Running health checks..."
+            sleep 10
+
+            if curl -sf http://localhost:8000/api/health/ > /dev/null 2>&1; then
+              echo "✓ Backend is healthy"
+            else
+              echo "✗ Backend health check failed!"
+              docker compose logs --tail=50 django-api
+              exit 1
+            fi
+
+            if curl -sf http://localhost:80 > /dev/null 2>&1; then
+              echo "✓ Frontend is healthy"
+            else
+              echo "⚠ Frontend health check failed (may still be starting)"
+              docker compose logs --tail=20 nextjs-frontend
+            fi
+
+            echo ""
+            echo "══════════════════════════════════════════════"
+            echo "  Deploy complete — $(date)"
+            echo "══════════════════════════════════════════════"
+
+      - name: Notify on failure
+        if: failure()
+        uses: appleboy/telegram-action@master
+        continue-on-error: true
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            ❌ Xentro deploy FAILED
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
