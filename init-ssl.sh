@@ -21,7 +21,7 @@ if [ -f .env ]; then
 fi
 
 DOMAIN="${DOMAIN:?'DOMAIN is required. Set it in .env or pass as env var.'}"
-EMAIL="${EMAIL:-}"
+EMAIL="${EMAIL:-"xentro.in@gmail.com"}"
 STAGING="${1:-}"
 
 echo "============================================"
