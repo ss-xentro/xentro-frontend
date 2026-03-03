@@ -28,7 +28,7 @@ jobs:
           script: |
             set -euo pipefail
 
-            DEPLOY_DIR="~/xentro-frontend"
+            DEPLOY_DIR="/home/admin/xentro-frontend"
 
             echo "══════════════════════════════════════════════"
             echo "  Deploying Xentro Frontend — $(date)"
