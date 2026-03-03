@@ -1,30 +1,20 @@
-name: Deploy to EC2
+name: Deploy Frontend to EC2
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      service:
-        description: "Service to deploy (all, backend, frontend)"
-        required: false
-        default: "all"
-        type: choice
-        options:
-          - all
-          - backend
-          - frontend
 
 concurrency:
-  group: deploy-production
+  group: deploy-frontend
   cancel-in-progress: false
 
 env:
-  DEPLOY_DIR: /opt/xentro
+  DEPLOY_DIR: /opt/xentro/frontend
 
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy Frontend
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -39,11 +29,10 @@ jobs:
           script: |
             set -euo pipefail
 
-            DEPLOY_DIR="/opt/xentro"
-            SERVICE="${{ github.event.inputs.service || 'all' }}"
+            DEPLOY_DIR="/opt/xentro/frontend"
 
             echo "══════════════════════════════════════════════"
-            echo "  Deploying Xentro ($SERVICE) — $(date)"
+            echo "  Deploying Xentro Frontend — $(date)"
             echo "══════════════════════════════════════════════"
 
             cd "$DEPLOY_DIR"
@@ -53,75 +42,51 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # ── Build & deploy services ───────────────────
-            if [ "$SERVICE" = "backend" ]; then
-              echo "→ Building backend only..."
-              docker compose build django-api
-              docker compose up -d django-api
-            elif [ "$SERVICE" = "frontend" ]; then
-              echo "→ Building frontend only..."
-              docker compose build nextjs-frontend
-              docker compose up -d nextjs-frontend
-            else
-              echo "→ Building all services..."
-              docker compose build
-              docker compose up -d
-            fi
+            # ── Copy env file ─────────────────────────────
+            cp ../.env .
 
-            # ── Run migrations ────────────────────────────
-            if [ "$SERVICE" = "frontend" ]; then
-              echo "→ Skipping migrations (frontend-only deploy)"
-            else
-              echo "→ Running database migrations..."
-              docker compose exec -T django-api python manage.py migrate --noinput
-            fi
+            # ── Stop & remove existing containers ─────────
+            echo "→ Stopping existing containers..."
+            docker compose down -v
 
-            # ── Collect static files ──────────────────────
-            if [ "$SERVICE" = "frontend" ]; then
-              echo "→ Skipping collectstatic (frontend-only deploy)"
-            else
-              echo "→ Collecting static files..."
-              docker compose exec -T django-api python manage.py collectstatic --noinput || true
-            fi
+            # ── Build & start frontend ────────────────────
+            echo "→ Building frontend..."
+            docker compose build nextjs-frontend
+
+            echo "→ Starting frontend..."
+            docker compose up -d nextjs-frontend
 
             # ── Cleanup ───────────────────────────────────
-            echo "→ Pruning unused Docker images..."
-            docker image prune -f
+            echo "→ Pruning unused Docker resources..."
+            docker system prune -af
 
             # ── Health check ──────────────────────────────
-            echo "→ Running health checks..."
+            echo "→ Waiting for frontend to start..."
             sleep 10
 
-            if curl -sf http://localhost:8000/api/health/ > /dev/null 2>&1; then
-              echo "✓ Backend is healthy"
-            else
-              echo "✗ Backend health check failed!"
-              docker compose logs --tail=50 django-api
-              exit 1
-            fi
-
-            if curl -sf http://localhost:80 > /dev/null 2>&1; then
+            if curl -sf http://localhost:3000 > /dev/null 2>&1; then
               echo "✓ Frontend is healthy"
             else
-              echo "⚠ Frontend health check failed (may still be starting)"
-              docker compose logs --tail=20 nextjs-frontend
+              echo "✗ Frontend health check failed!"
+              docker compose logs --tail=50 nextjs-frontend
+              exit 1
             fi
 
             echo ""
             echo "══════════════════════════════════════════════"
-            echo "  Deploy complete — $(date)"
+            echo "  Frontend deploy complete — $(date)"
             echo "══════════════════════════════════════════════"
 
-      - name: Notify on failure
-        if: failure()
-        uses: appleboy/telegram-action@master
-        continue-on-error: true
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          message: |
-            ❌ Xentro deploy FAILED
-            Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
-            Author: ${{ github.actor }}
-            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      # - name: Notify on failure
+      #   if: failure()
+      #   uses: appleboy/telegram-action@master
+      #   continue-on-error: true
+      #   with:
+      #     to: ${{ secrets.TELEGRAM_CHAT_ID }}
+      #     token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      #     message: |
+      #       ❌ Xentro frontend deploy FAILED
+      #       Branch: ${{ github.ref_name }}
+      #       Commit: ${{ github.sha }}
+      #       Author: ${{ github.actor }}
+      #       Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
