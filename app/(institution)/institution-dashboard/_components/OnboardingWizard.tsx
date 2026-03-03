@@ -48,6 +48,7 @@ export default function OnboardingWizard({
 	const [submitting, setSubmitting] = useState(false);
 	const [savingDraft, setSavingDraft] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [showPreview, setShowPreview] = useState(false);
 	const { success: toastSuccess, error: toastError } = useToast();
 
 	// Warn user before closing tab with unsaved changes
@@ -367,7 +368,15 @@ export default function OnboardingWizard({
 							}}
 							isStepComplete={canProceed}
 						/>
-						<OnboardingPreviewSidebar formData={formData} />
+						<Button
+							variant="secondary"
+							onClick={() => setShowPreview((p) => !p)}
+							className="w-full min-h-11 flex items-center justify-center gap-2"
+							aria-label={showPreview ? 'Hide preview' : 'Show preview'}
+						>
+							{showPreview ? '▲ Hide Preview' : '▼ Show Preview'}
+						</Button>
+						{showPreview && <OnboardingPreviewSidebar formData={formData} />}
 					</div>
 				</div>
 			</div>
