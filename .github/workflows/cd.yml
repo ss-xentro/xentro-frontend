@@ -3,7 +3,6 @@ name: Deploy Frontend to EC2
 on:
   push:
     branches: [main]
-  # workflow_dispatch:
 
 concurrency:
   group: deploy-frontend
@@ -44,9 +43,9 @@ jobs:
             echo "→ Applying environment configuration..."
             cp ../.env .
 
-            # ── Free disk space before build ───────────────
-            echo "→ Pruning unused Docker resources..."
-            docker system prune -af || true
+            # ── Light Docker cleanup (keep layer cache) ───
+            echo "→ Cleaning dangling Docker images..."
+            docker image prune -f || true
 
             # ── Rebuild & restart services ─────────────────
             echo "→ Rebuilding and starting containers..."
