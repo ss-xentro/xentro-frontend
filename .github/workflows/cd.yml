@@ -39,7 +39,7 @@ jobs:
             # ── Pull latest code ──────────────────────────
             echo "→ Pulling latest code from main..."
             git fetch origin main
-            git reset --hard origin/main
+            git pull origin main
 
             # ── Copy env file ─────────────────────────────
             cp ../.env .
