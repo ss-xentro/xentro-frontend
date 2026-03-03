@@ -24,6 +24,7 @@ import LegalDocumentsSlide from '@/components/onboarding/LegalDocumentsSlide';
 import DescriptionSlide from '@/components/onboarding/DescriptionSlide';
 import ReviewPublishSlide from '@/components/onboarding/ReviewPublishSlide';
 import OnboardingPreviewSidebar from './OnboardingPreviewSidebar';
+import StepNavigationSidebar from './StepNavigationSidebar';
 
 const TOTAL_STEPS = 15;
 
@@ -355,8 +356,17 @@ export default function OnboardingWizard({
 						</Card>
 					</div>
 
-					{/* Live Preview Sidebar */}
+					{/* Step Navigation + Live Preview Sidebar */}
 					<div className="lg:col-span-1 space-y-6 animate-fadeIn stagger-1">
+						<StepNavigationSidebar
+							currentStep={currentStep}
+							totalSteps={TOTAL_STEPS}
+							onStepClick={(step) => {
+								setDirection(step > currentStep ? 'forward' : 'backward');
+								setCurrentStep(step);
+							}}
+							isStepComplete={canProceed}
+						/>
 						<OnboardingPreviewSidebar formData={formData} />
 					</div>
 				</div>
