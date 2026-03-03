@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Button, Input } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -156,8 +157,8 @@ export default function AccountSettings() {
 			{/* Status Message */}
 			{message && (
 				<div className={`px-4 py-3 rounded-lg text-sm font-medium ${message.type === 'success'
-						? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-						: 'bg-red-50 text-red-700 border border-red-200'
+					? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+					: 'bg-red-50 text-red-700 border border-red-200'
 					}`}>
 					{message.text}
 				</div>
@@ -179,7 +180,7 @@ export default function AccountSettings() {
 						<label className="block text-sm font-medium text-(--secondary) mb-1">Email</label>
 						<Input value={settings?.email || ''} disabled />
 						{settings?.emailVerified && (
-							<span className="text-xs text-emerald-600 mt-1 inline-block">✓ Verified</span>
+							<span className="text-xs text-emerald-600 mt-1 inline-flex items-center gap-1"><AppIcon name="check" className="w-3 h-3" /> Verified</span>
 						)}
 					</div>
 					<div>

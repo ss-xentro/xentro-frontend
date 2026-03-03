@@ -70,10 +70,13 @@ export default function LegalDocumentsSlide({ formData, onChange }: LegalDocumen
 
         if (!res.ok) {
           const errPayload = await res.json().catch(() => ({}));
-          throw new Error(errPayload.message || 'Failed to upload document');
+          const errMsg = errPayload.message || errPayload.detail || errPayload.error || `Upload failed (${res.status})`;
+          throw new Error(errMsg);
         }
         const payload = await res.json();
-        uploaded.push({ url: payload.url, name: file.name });
+        const url = payload.url || payload.data?.url;
+        if (!url) throw new Error('Upload succeeded but no URL was returned');
+        uploaded.push({ url, name: file.name });
       }
 
       onChange({ legalDocuments: [...(formData.legalDocuments || []), ...uploaded] });

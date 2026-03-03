@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 export default function PublicError({
 	error,
@@ -16,7 +17,7 @@ export default function PublicError({
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-(--background) px-4">
 			<div className="max-w-md w-full text-center space-y-6">
-				<div className="text-5xl">😕</div>
+				<AppIcon name="frown" className="w-12 h-12 text-gray-400 mx-auto" />
 				<h2 className="text-xl font-bold text-(--primary)">Something went wrong</h2>
 				<p className="text-(--secondary) text-sm">
 					{error.message || 'An error occurred while loading this page.'}

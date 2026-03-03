@@ -70,7 +70,7 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
         </div>;
     }
-    const typeInfo = institutionTypeLabels[institution.type] ?? { label: institution.type, emoji: '🏢', description: '' };
+    const typeInfo = institutionTypeLabels[institution.type] ?? { label: institution.type, icon: 'building', description: '' };
     const modeInfo = institution.operatingMode ? operatingModeLabels[institution.operatingMode as keyof typeof operatingModeLabels] : undefined;
 
     return (

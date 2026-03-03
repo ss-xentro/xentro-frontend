@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { getSessionToken } from '@/lib/auth-utils';
 import { cn } from '@/lib/utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 const SECTOR_OPTIONS = [
     'Manufacturing', 'Pharmacy', 'Electric', 'Mining', 'IT',
@@ -19,11 +20,11 @@ const SECTOR_OPTIONS = [
 ];
 
 const STAGE_OPTIONS = [
-    { value: 'idea', label: 'Ideation', description: 'Validating the concept', emoji: '💡' },
-    { value: 'mvp', label: 'Pre-Seed / MVP', description: 'Building the first version', emoji: '🛠️' },
-    { value: 'early_traction', label: 'Early Traction', description: 'First users / revenue', emoji: '📈' },
-    { value: 'growth', label: 'Growth', description: 'Scaling product & team', emoji: '🚀' },
-    { value: 'scale', label: 'Scaling', description: 'Expanding markets', emoji: '🌍' },
+    { value: 'idea', label: 'Ideation', description: 'Validating the concept', icon: 'lightbulb' },
+    { value: 'mvp', label: 'Pre-Seed / MVP', description: 'Building the first version', icon: 'wrench' },
+    { value: 'early_traction', label: 'Early Traction', description: 'First users / revenue', icon: 'trending-up' },
+    { value: 'growth', label: 'Growth', description: 'Scaling product & team', icon: 'rocket' },
+    { value: 'scale', label: 'Scaling', description: 'Expanding markets', icon: 'globe' },
 ] as const;
 
 const WHY_XENTRO_OPTIONS = [
@@ -462,7 +463,7 @@ export default function StartupOnboardingPage() {
                                                     )}
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <span className="text-2xl">{opt.emoji}</span>
+                                                        <AppIcon name={opt.icon} className="w-6 h-6" />
                                                         <div>
                                                             <p className={cn(
                                                                 'font-semibold text-sm',

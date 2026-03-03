@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, Input, Button, Badge } from '@/components/ui';
 import AppShell from '@/components/ui/AppShell';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface SearchResult {
 	id: string;
@@ -55,11 +56,11 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 const TYPE_ICONS: Record<string, string> = {
-	startup: '🚀',
-	institution: '🏛️',
-	mentor: '👨‍🏫',
-	investor: '💰',
-	event: '📅',
+	startup: 'rocket',
+	institution: 'landmark',
+	mentor: 'graduation-cap',
+	investor: 'coins',
+	event: 'calendar',
 };
 
 export default function SearchPage() {
@@ -176,7 +177,7 @@ export default function SearchPage() {
 										: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
 										}`}
 								>
-									{TYPE_ICONS[typeKey]} {TYPE_LABELS[typeKey]} ({items.length})
+									<AppIcon name={TYPE_ICONS[typeKey]} className="w-3.5 h-3.5 inline" /> {TYPE_LABELS[typeKey]} ({items.length})
 								</button>
 							);
 						})}
@@ -194,7 +195,7 @@ export default function SearchPage() {
 
 				{!loading && query.length >= 2 && total === 0 && (
 					<Card className="p-8 text-center">
-						<p className="text-4xl mb-3">🔍</p>
+						<AppIcon name="search" className="w-10 h-10 text-gray-400 mx-auto mb-3" />
 						<p className="text-(--primary) font-medium">No results found for &ldquo;{query}&rdquo;</p>
 						<p className="text-(--secondary) text-sm mt-1">Try a different search term or check for typos.</p>
 					</Card>
@@ -277,7 +278,7 @@ export default function SearchPage() {
 
 				{!loading && query.length < 2 && (
 					<div className="text-center py-12">
-						<p className="text-4xl mb-3">🔍</p>
+						<AppIcon name="search" className="w-10 h-10 text-gray-400 mx-auto mb-3" />
 						<p className="text-(--secondary)">Type at least 2 characters to search</p>
 					</div>
 				)}

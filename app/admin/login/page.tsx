@@ -116,7 +116,7 @@ export default function AdminLoginPage() {
                 {/* Helper Text */}
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-600">
-                        🔒 Restricted access for authorized administrators only.
+                        Restricted access for authorized administrators only.
                     </p>
                 </div>
 

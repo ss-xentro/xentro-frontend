@@ -2,6 +2,7 @@
 
 import { useState, useRef, KeyboardEvent } from 'react';
 import { cn } from '@/lib/utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface TagInputProps {
     label?: string;
@@ -111,7 +112,7 @@ export default function TagInput({
                                                     : 'bg-(--surface-hover) text-(--secondary) hover:bg-accent/10 hover:text-accent cursor-pointer'
                                             )}
                                         >
-                                            {isAdded ? '✓ ' : '+ '}{item}
+                                            {isAdded ? <><AppIcon name="check" className="w-3 h-3 inline mr-0.5" /> </> : '+ '}{item}
                                         </button>
                                     );
                                 })}

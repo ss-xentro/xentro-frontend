@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface ConnectionRequest {
 	id: string;
@@ -103,8 +104,8 @@ export default function MentorRequestsPage() {
 							key={f}
 							onClick={() => setFilter(f)}
 							className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${filter === f
-									? 'bg-accent/10 text-accent border border-accent/30'
-									: 'bg-(--surface) text-(--secondary) border border-(--border) hover:bg-(--surface-hover)'
+								? 'bg-accent/10 text-accent border border-accent/30'
+								: 'bg-(--surface) text-(--secondary) border border-(--border) hover:bg-(--surface-hover)'
 								}`}
 						>
 							{f.charAt(0).toUpperCase() + f.slice(1)}
@@ -125,7 +126,7 @@ export default function MentorRequestsPage() {
 				</div>
 			) : filtered.length === 0 ? (
 				<Card className="p-8 text-center bg-(--surface)">
-					<div className="text-4xl mb-3">🤝</div>
+					<AppIcon name="handshake" className="w-10 h-10 text-gray-400 mx-auto mb-3" />
 					<h3 className="text-lg font-semibold text-(--primary)">
 						{filter === 'all' ? 'No connection requests yet' : `No ${filter} requests`}
 					</h3>
@@ -209,8 +210,8 @@ export default function MentorRequestsPage() {
 										) : (
 											<span
 												className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full ${req.status === 'accepted'
-														? 'bg-green-500/10 text-green-400 border border-green-500/20'
-														: 'bg-red-500/10 text-red-400 border border-red-500/20'
+													? 'bg-green-500/10 text-green-400 border border-green-500/20'
+													: 'bg-red-500/10 text-red-400 border border-red-500/20'
 													}`}
 											>
 												{req.status === 'accepted' ? (

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 type Booking = {
     id: string;
@@ -66,7 +67,7 @@ export default function MenteesPage() {
                 </div>
             ) : mentees.length === 0 ? (
                 <Card className="p-8 text-center bg-(--surface)">
-                    <div className="text-4xl mb-3">👥</div>
+                    <AppIcon name="users" className="w-10 h-10 text-gray-400 mx-auto mb-3" />
                     <h3 className="text-lg font-semibold text-(--primary)">No mentees yet</h3>
                     <p className="text-sm text-(--secondary) mt-1">When someone books a session with you, they&apos;ll appear here.</p>
                 </Card>

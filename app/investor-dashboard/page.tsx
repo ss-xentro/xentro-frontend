@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface PortfolioCompany {
     id: string;
@@ -118,7 +119,7 @@ export default function InvestorDashboardPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-(--primary)">
-                        Welcome back, {displayName} 👋
+                        Welcome back, {displayName}
                     </h1>
                     <p className="text-(--secondary)">
                         {profile?.status === 'approved'
@@ -322,7 +323,7 @@ export default function InvestorDashboardPage() {
                     <div className="space-y-3">
                         <Link href="/explore/institute" className="block">
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors text-left">
-                                <span className="text-lg">🏛️</span>
+                                <AppIcon name="landmark" className="w-5 h-5" />
                                 <div>
                                     <p className="text-sm font-medium text-(--primary)">Explore Institutions</p>
                                     <p className="text-xs text-(--secondary)">Discover incubators & accelerators</p>
@@ -331,7 +332,7 @@ export default function InvestorDashboardPage() {
                         </Link>
                         <Link href="/events" className="block">
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors text-left">
-                                <span className="text-lg">📅</span>
+                                <AppIcon name="calendar" className="w-5 h-5" />
                                 <div>
                                     <p className="text-sm font-medium text-(--primary)">Events</p>
                                     <p className="text-xs text-(--secondary)">Browse upcoming events</p>
@@ -340,7 +341,7 @@ export default function InvestorDashboardPage() {
                         </Link>
                         <Link href="/feed" className="block">
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors text-left">
-                                <span className="text-lg">📰</span>
+                                <AppIcon name="newspaper" className="w-5 h-5" />
                                 <div>
                                     <p className="text-sm font-medium text-(--primary)">Browse Feed</p>
                                     <p className="text-xs text-(--secondary)">Latest updates and news</p>
@@ -349,7 +350,7 @@ export default function InvestorDashboardPage() {
                         </Link>
                         <Link href="/notifications" className="block">
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors text-left">
-                                <span className="text-lg">🔔</span>
+                                <AppIcon name="bell" className="w-5 h-5" />
                                 <div>
                                     <p className="text-sm font-medium text-(--primary)">Notifications</p>
                                     <p className="text-xs text-(--secondary)">Check your latest alerts</p>

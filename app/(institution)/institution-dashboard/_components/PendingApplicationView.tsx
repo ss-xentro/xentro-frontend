@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, Button } from '@/components/ui';
 import { InstitutionApplication } from '@/lib/types';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface PendingApplicationViewProps {
 	application: InstitutionApplication | null;
@@ -24,7 +25,7 @@ export default function PendingApplicationView({
 		<main className="min-h-screen bg-background py-16 px-4" role="main">
 			<div className="max-w-5xl mx-auto space-y-6 animate-fadeIn">
 				<div>
-					<p className="text-accent font-semibold text-sm uppercase tracking-wide">Phase 1 Complete ✓</p>
+					<p className="text-accent font-semibold text-sm uppercase tracking-wide flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Phase 1 Complete</p>
 					<h1 className="text-3xl font-bold text-(--primary)">Institution Dashboard</h1>
 					<p className="text-(--secondary)">Your email is verified. Complete Phase 2 by filling in all institution details and submitting for admin approval.</p>
 				</div>
@@ -45,12 +46,12 @@ export default function PendingApplicationView({
 								<p className="text-xs text-(--secondary) mt-1">Email: {application.email}</p>
 							</div>
 							<span className={`text-sm px-3 py-1.5 rounded-full font-medium ${application.status === 'approved'
-									? 'bg-green-100 text-green-800'
-									: application.status === 'rejected'
-										? 'bg-red-100 text-red-800'
-										: 'bg-yellow-100 text-yellow-800'
+								? 'bg-green-100 text-green-800'
+								: application.status === 'rejected'
+									? 'bg-red-100 text-red-800'
+									: 'bg-yellow-100 text-yellow-800'
 								}`}>
-								{application.status === 'approved' ? '✓ Approved' : application.status === 'rejected' ? '✗ Rejected' : '⏳ Pending Review'}
+								{application.status === 'approved' ? <><AppIcon name="check" className="w-3.5 h-3.5 inline" /> Approved</> : application.status === 'rejected' ? <><AppIcon name="x" className="w-3.5 h-3.5 inline" /> Rejected</> : <><AppIcon name="hourglass" className="w-3.5 h-3.5 inline" /> Pending Review</>}
 							</span>
 						</div>
 

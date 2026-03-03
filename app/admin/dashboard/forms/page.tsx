@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card, Badge, Button, Textarea } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface Form {
   id: string;
@@ -26,14 +27,14 @@ interface Form {
 }
 
 const FORM_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
-  startup_create: { label: 'New Startup', icon: '🚀' },
-  startup_update: { label: 'Startup Update', icon: '✏️' },
-  mentor_apply: { label: 'Mentor Application', icon: '🎯' },
-  mentor_update: { label: 'Mentor Update', icon: '✏️' },
-  institute_create: { label: 'New Institution', icon: '🏛️' },
-  institute_update: { label: 'Institution Update', icon: '✏️' },
-  event_create: { label: 'New Event', icon: '📅' },
-  program_create: { label: 'New Program', icon: '📚' },
+  startup_create: { label: 'New Startup', icon: 'rocket' },
+  startup_update: { label: 'Startup Update', icon: 'pencil' },
+  mentor_apply: { label: 'Mentor Application', icon: 'target' },
+  mentor_update: { label: 'Mentor Update', icon: 'pencil' },
+  institute_create: { label: 'New Institution', icon: 'landmark' },
+  institute_update: { label: 'Institution Update', icon: 'pencil' },
+  event_create: { label: 'New Event', icon: 'calendar' },
+  program_create: { label: 'New Program', icon: 'book-open' },
 };
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -207,7 +208,7 @@ export default function AdminFormsPage() {
         </Card>
       ) : forms.length === 0 ? (
         <Card className="p-8 text-center">
-          <div className="text-4xl mb-4">📋</div>
+          <AppIcon name="clipboard-list" className="w-10 h-10 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-(--primary) mb-2">No forms found</h3>
           <p className="text-(--secondary)">
             {statusFilter === 'submitted'
@@ -218,7 +219,7 @@ export default function AdminFormsPage() {
       ) : (
         <div className="space-y-4">
           {forms.map((form) => {
-            const typeInfo = FORM_TYPE_LABELS[form.type] || { label: form.type, icon: '📄' };
+            const typeInfo = FORM_TYPE_LABELS[form.type] || { label: form.type, icon: 'file-text' };
             const statusInfo = STATUS_STYLES[form.status] || STATUS_STYLES.draft;
 
             return (
@@ -231,8 +232,8 @@ export default function AdminFormsPage() {
                 onClick={() => setSelectedForm(selectedForm?.id === form.id ? null : form)}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-(--background) rounded-lg flex items-center justify-center text-2xl">
-                    {typeInfo.icon}
+                  <div className="w-12 h-12 bg-(--background) rounded-lg flex items-center justify-center">
+                    <AppIcon name={typeInfo.icon} className="w-6 h-6" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4">
@@ -297,7 +298,7 @@ export default function AdminFormsPage() {
                             disabled={reviewing}
                             className="bg-success hover:bg-success/90"
                           >
-                            ✓ Approve
+                            <AppIcon name="check" className="w-4 h-4 inline mr-1" /> Approve
                           </Button>
                           <Button
                             variant="secondary"
@@ -312,7 +313,7 @@ export default function AdminFormsPage() {
                             disabled={reviewing || !reviewNotes.trim()}
                             className="text-error border-error hover:bg-error/10"
                           >
-                            ✗ Reject
+                            <AppIcon name="x" className="w-4 h-4 inline mr-1" /> Reject
                           </Button>
                         </div>
                       </div>

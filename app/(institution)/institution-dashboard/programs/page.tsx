@@ -119,7 +119,6 @@ export default function ProgramsPage() {
                         <p className="text-(--secondary) mt-1">Manage your institution&apos;s programs and initiatives</p>
                     </div>
                     <Button onClick={() => router.push('/institution-dashboard/add-program')}>
-                        <span className="mr-2">➕</span>
                         Add Program
                     </Button>
                 </div>

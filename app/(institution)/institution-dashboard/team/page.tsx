@@ -108,7 +108,6 @@ export default function TeamPage() {
             <p className="text-(--secondary) mt-1">Manage your institution team</p>
           </div>
           <Button onClick={() => router.push('/institution-dashboard/add-team')}>
-            <span className="mr-2">➕</span>
             Add Team Member
           </Button>
         </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Card, Button, Badge, Input } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface UserRecord {
 	id: string;
@@ -181,9 +182,9 @@ export default function AdminUsersPage() {
 									<td className="px-4 py-3 text-gray-600">{user.activeContext || '—'}</td>
 									<td className="px-4 py-3">
 										{user.emailVerified ? (
-											<span className="text-green-600">✓</span>
+											<span className="text-green-600"><AppIcon name="check" className="w-4 h-4" /></span>
 										) : (
-											<span className="text-gray-400">✗</span>
+											<span className="text-gray-400"><AppIcon name="x" className="w-4 h-4" /></span>
 										)}
 									</td>
 									<td className="px-4 py-3">
@@ -202,8 +203,8 @@ export default function AdminUsersPage() {
 											onClick={() => toggleActive(user.id, user.isActive)}
 											disabled={toggling === user.id}
 											className={`px-3 py-1 rounded text-xs font-medium transition-colors ${user.isActive
-													? 'bg-red-50 text-red-600 hover:bg-red-100'
-													: 'bg-green-50 text-green-600 hover:bg-green-100'
+												? 'bg-red-50 text-red-600 hover:bg-red-100'
+												: 'bg-green-50 text-green-600 hover:bg-green-100'
 												} disabled:opacity-50`}
 										>
 											{toggling === user.id ? '...' : user.isActive ? 'Disable' : 'Enable'}

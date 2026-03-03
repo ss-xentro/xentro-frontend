@@ -401,19 +401,19 @@ export interface LegalDocument {
 }
 
 // UI Label Maps
-export const institutionTypeLabels: Record<InstitutionType, { label: string; emoji: string; description: string }> = {
-  incubator: { label: 'Incubator', emoji: '🌱', description: 'Nurture early-stage startups' },
-  accelerator: { label: 'Accelerator', emoji: '🚀', description: 'Fast-track growth-stage ventures' },
-  university: { label: 'University', emoji: '🎓', description: 'Academic innovation hub' },
-  vc: { label: 'VC Fund', emoji: '💰', description: 'Venture capital investment' },
-  csr: { label: 'CSR Program', emoji: '🤝', description: 'Corporate social responsibility' },
+export const institutionTypeLabels: Record<InstitutionType, { label: string; icon: string; description: string }> = {
+  incubator: { label: 'Incubator', icon: 'sprout', description: 'Nurture early-stage startups' },
+  accelerator: { label: 'Accelerator', icon: 'rocket', description: 'Fast-track growth-stage ventures' },
+  university: { label: 'University', icon: 'graduation-cap', description: 'Academic innovation hub' },
+  vc: { label: 'VC Fund', icon: 'coins', description: 'Venture capital investment' },
+  csr: { label: 'CSR Program', icon: 'handshake', description: 'Corporate social responsibility' },
 };
 
-export const operatingModeLabels: Record<OperatingMode, { label: string; emoji: string }> = {
-  local: { label: 'Local', emoji: '📍' },
-  national: { label: 'National', emoji: '🏛️' },
-  global: { label: 'Global', emoji: '🌍' },
-  'remote-first': { label: 'Remote-first', emoji: '💻' },
+export const operatingModeLabels: Record<OperatingMode, { label: string; icon: string }> = {
+  local: { label: 'Local', icon: 'map-pin' },
+  national: { label: 'National', icon: 'landmark' },
+  global: { label: 'Global', icon: 'globe' },
+  'remote-first': { label: 'Remote-first', icon: 'monitor' },
 };
 
 export const sdgLabels: Record<SDGFocus, { label: string; fullName: string; color: string }> = {
@@ -439,13 +439,13 @@ export const sdgLabels: Record<SDGFocus, { label: string; fullName: string; colo
 // ── Sector category labels (18 parent sectors) ─────────────
 export interface SectorCategoryInfo {
   label: string;
-  emoji: string;
+  icon: string;
   subSectors: { slug: SubSector; label: string }[];
 }
 
 export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = {
   'technology-software': {
-    label: 'Technology & Software', emoji: '💻',
+    label: 'Technology & Software', icon: 'monitor',
     subSectors: [
       { slug: 'saas', label: 'SaaS' },
       { slug: 'ai-ml', label: 'AI / Machine Learning' },
@@ -461,7 +461,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   fintech: {
-    label: 'FinTech', emoji: '💳',
+    label: 'FinTech', icon: 'credit-card',
     subSectors: [
       { slug: 'digital-payments', label: 'Digital Payments' },
       { slug: 'neobanking', label: 'Neobanking' },
@@ -473,7 +473,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'healthtech-biotech': {
-    label: 'HealthTech & BioTech', emoji: '⚕️',
+    label: 'HealthTech & BioTech', icon: 'heart-pulse',
     subSectors: [
       { slug: 'telemedicine', label: 'Telemedicine' },
       { slug: 'health-saas', label: 'Health SaaS' },
@@ -485,7 +485,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   edtech: {
-    label: 'EdTech', emoji: '📚',
+    label: 'EdTech', icon: 'book-open',
     subSectors: [
       { slug: 'online-learning', label: 'Online Learning Platforms' },
       { slug: 'skill-development', label: 'Skill Development' },
@@ -497,7 +497,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'ecommerce-retail': {
-    label: 'E-commerce & Retail', emoji: '🛒',
+    label: 'E-commerce & Retail', icon: 'shopping-cart',
     subSectors: [
       { slug: 'd2c-brands', label: 'D2C Brands' },
       { slug: 'marketplaces', label: 'Marketplaces (B2B / B2C / C2C)' },
@@ -507,7 +507,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'food-agritech': {
-    label: 'Food & AgriTech', emoji: '🌾',
+    label: 'Food & AgriTech', icon: 'wheat',
     subSectors: [
       { slug: 'cloud-kitchens', label: 'Cloud Kitchens' },
       { slug: 'food-delivery-tech', label: 'Food Delivery Tech' },
@@ -518,7 +518,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'cleantech-climatetech': {
-    label: 'CleanTech & ClimateTech', emoji: '🌿',
+    label: 'CleanTech & ClimateTech', icon: 'leaf',
     subSectors: [
       { slug: 'renewable-energy', label: 'Renewable Energy' },
       { slug: 'ev-mobility-tech', label: 'EV & Mobility Tech' },
@@ -529,7 +529,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'mobility-transportation': {
-    label: 'Mobility & Transportation', emoji: '🚗',
+    label: 'Mobility & Transportation', icon: 'car',
     subSectors: [
       { slug: 'ride-sharing', label: 'Ride-sharing' },
       { slug: 'ev-infrastructure', label: 'EV Infrastructure' },
@@ -539,7 +539,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'real-estate-proptech': {
-    label: 'Real Estate & PropTech', emoji: '🏠',
+    label: 'Real Estate & PropTech', icon: 'home',
     subSectors: [
       { slug: 'real-estate-marketplaces', label: 'Real Estate Marketplaces' },
       { slug: 'smart-homes', label: 'Smart Homes' },
@@ -549,7 +549,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'media-entertainment': {
-    label: 'Media, Entertainment & Creator Economy', emoji: '🎬',
+    label: 'Media, Entertainment & Creator Economy', icon: 'clapperboard',
     subSectors: [
       { slug: 'ott-platforms', label: 'OTT Platforms' },
       { slug: 'gaming', label: 'Gaming' },
@@ -561,7 +561,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'enterprise-b2b': {
-    label: 'Enterprise & B2B Solutions', emoji: '🏢',
+    label: 'Enterprise & B2B Solutions', icon: 'building2',
     subSectors: [
       { slug: 'hrtech', label: 'HRTech' },
       { slug: 'legaltech', label: 'LegalTech' },
@@ -571,7 +571,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'social-impact': {
-    label: 'Social Impact & Non-Profit Tech', emoji: '❤️',
+    label: 'Social Impact & Non-Profit Tech', icon: 'heart',
     subSectors: [
       { slug: 'rural-development', label: 'Rural Development' },
       { slug: 'accessibility-tech', label: 'Accessibility Tech' },
@@ -581,7 +581,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'fashion-lifestyle': {
-    label: 'Fashion & Lifestyle', emoji: '👗',
+    label: 'Fashion & Lifestyle', icon: 'shirt',
     subSectors: [
       { slug: 'sustainable-fashion', label: 'Sustainable Fashion' },
       { slug: 'beautytech', label: 'BeautyTech' },
@@ -591,7 +591,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'travel-hospitality': {
-    label: 'Travel & Hospitality', emoji: '✈️',
+    label: 'Travel & Hospitality', icon: 'plane',
     subSectors: [
       { slug: 'traveltech', label: 'TravelTech' },
       { slug: 'booking-platforms', label: 'Booking Platforms' },
@@ -600,7 +600,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'sports-gaming': {
-    label: 'Sports & Gaming Infrastructure', emoji: '⚽',
+    label: 'Sports & Gaming Infrastructure', icon: 'gamepad',
     subSectors: [
       { slug: 'sports-analytics', label: 'Sports Analytics' },
       { slug: 'fantasy-sports', label: 'Fantasy Sports' },
@@ -610,7 +610,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'spacetech-deeptech': {
-    label: 'SpaceTech & DeepTech', emoji: '🚀',
+    label: 'SpaceTech & DeepTech', icon: 'atom',
     subSectors: [
       { slug: 'satellite-tech', label: 'Satellite Tech' },
       { slug: 'aerospace', label: 'Aerospace' },
@@ -620,7 +620,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'consumer-services': {
-    label: 'Consumer Services', emoji: '🏡',
+    label: 'Consumer Services', icon: 'sofa',
     subSectors: [
       { slug: 'home-services', label: 'Home Services' },
       { slug: 'on-demand-services', label: 'On-demand Services' },
@@ -630,7 +630,7 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
     ],
   },
   'manufacturing-industry4': {
-    label: 'Manufacturing & Industry 4.0', emoji: '🏭',
+    label: 'Manufacturing & Industry 4.0', icon: 'factory',
     subSectors: [
       { slug: 'smart-manufacturing', label: 'Smart Manufacturing' },
       { slug: 'industrial-automation', label: 'Industrial Automation' },
@@ -640,13 +640,13 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
   },
 };
 
-// ── Flat lookup: slug → { label, emoji } for any sector/sub-sector ──
-export const sectorLabels: Record<string, { label: string; emoji: string }> = (() => {
-  const map: Record<string, { label: string; emoji: string }> = {};
+// ── Flat lookup: slug → { label, icon } for any sector/sub-sector ──
+export const sectorLabels: Record<string, { label: string; icon: string }> = (() => {
+  const map: Record<string, { label: string; icon: string }> = {};
   for (const [catSlug, cat] of Object.entries(sectorCategoryLabels)) {
-    map[catSlug] = { label: cat.label, emoji: cat.emoji };
+    map[catSlug] = { label: cat.label, icon: cat.icon };
     for (const sub of cat.subSectors) {
-      map[sub.slug] = { label: sub.label, emoji: cat.emoji };
+      map[sub.slug] = { label: sub.label, icon: cat.icon };
     }
   }
   return map;

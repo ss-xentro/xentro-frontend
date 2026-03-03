@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
@@ -182,7 +183,7 @@ export default function SessionsPage() {
                 <div className="space-y-3">
                     {upcoming.length === 0 ? (
                         <Card className="p-8 text-center bg-(--surface)">
-                            <div className="text-4xl mb-3">📅</div>
+                            <AppIcon name="calendar" className="w-10 h-10 text-gray-400 mx-auto mb-3" />
                             <h3 className="text-lg font-semibold text-(--primary)">No upcoming sessions</h3>
                             <p className="text-sm text-(--secondary) mt-1">Set your availability in the Availability tab to start getting bookings.</p>
                         </Card>
@@ -196,8 +197,8 @@ export default function SessionsPage() {
                                         </p>
                                         <p className="text-xs text-(--secondary)">{b.menteeEmail}</p>
                                         <div className="flex items-center gap-3 text-sm text-(--secondary)">
-                                            <span>📅 {new Date(b.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
-                                            {b.slotStart && <span>🕐 {b.slotStart} — {b.slotEnd}</span>}
+                                            <span className="flex items-center gap-1"><AppIcon name="calendar" className="w-3.5 h-3.5" /> {new Date(b.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                                            {b.slotStart && <span className="flex items-center gap-1"><AppIcon name="clock" className="w-3.5 h-3.5" /> {b.slotStart} — {b.slotEnd}</span>}
                                         </div>
                                         {b.notes && <p className="text-xs text-(--secondary) italic mt-1">&ldquo;{b.notes}&rdquo;</p>}
                                     </div>
@@ -255,7 +256,7 @@ export default function SessionsPage() {
                                                             : 'bg-(--surface) border-(--border) text-(--secondary) hover:bg-(--surface-hover) hover:border-(--secondary)'
                                                             }`}
                                                     >
-                                                        {selected ? '✓' : ''}
+                                                        {selected ? <AppIcon name="check" className="w-4 h-4 mx-auto" /> : ''}
                                                     </button>
                                                 </td>
                                             );

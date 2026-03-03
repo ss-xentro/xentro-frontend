@@ -6,6 +6,7 @@ import AppShell from '@/components/ui/AppShell';
 import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner';
 import { cn } from '@/lib/utils';
 import { getSessionToken, getRoleFromSession } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 /* ─── Types ─── */
 type DetectedRole = 'admin' | 'founder' | 'mentor' | 'investor' | 'institution' | 'guest';
@@ -65,10 +66,10 @@ const ROLE_META: Record<DetectedRole, {
     dashboardHref: '/admin/dashboard',
     loginHref: '/admin/login',
     quickActions: [
-      { label: 'Review Approvals', href: '/admin/dashboard/institution-approvals', icon: '📋' },
-      { label: 'Manage Institutions', href: '/admin/dashboard', icon: '🏛️' },
-      { label: 'Browse Feed', href: '/feed', icon: '📰' },
-      { label: 'Explore', href: '/explore/institute', icon: '🔍' },
+      { label: 'Review Approvals', href: '/admin/dashboard/institution-approvals', icon: 'clipboard-list' },
+      { label: 'Manage Institutions', href: '/admin/dashboard', icon: 'landmark' },
+      { label: 'Browse Feed', href: '/feed', icon: 'newspaper' },
+      { label: 'Explore', href: '/explore/institute', icon: 'search' },
     ],
   },
   founder: {
@@ -77,10 +78,10 @@ const ROLE_META: Record<DetectedRole, {
     dashboardHref: '/dashboard',
     loginHref: '/login',
     quickActions: [
-      { label: 'Edit Startup', href: '/dashboard', icon: '✏️' },
-      { label: 'Find Mentors', href: '/explore/mentors', icon: '🧑‍🏫' },
-      { label: 'Browse Programs', href: '/explore/institute', icon: '🏛️' },
-      { label: 'View Feed', href: '/feed', icon: '📰' },
+      { label: 'Edit Startup', href: '/dashboard', icon: 'pencil' },
+      { label: 'Find Mentors', href: '/explore/mentors', icon: 'graduation-cap' },
+      { label: 'Browse Programs', href: '/explore/institute', icon: 'landmark' },
+      { label: 'View Feed', href: '/feed', icon: 'newspaper' },
     ],
   },
   mentor: {
@@ -89,10 +90,10 @@ const ROLE_META: Record<DetectedRole, {
     dashboardHref: '/mentor-dashboard',
     loginHref: '/mentor-login',
     quickActions: [
-      { label: 'Manage Slots', href: '/mentor-dashboard', icon: '📅' },
-      { label: 'View Sessions', href: '/mentor-dashboard/sessions', icon: '📋' },
-      { label: 'Explore Startups', href: '/explore/startups', icon: '🚀' },
-      { label: 'View Feed', href: '/feed', icon: '📰' },
+      { label: 'Manage Slots', href: '/mentor-dashboard', icon: 'calendar' },
+      { label: 'View Sessions', href: '/mentor-dashboard/sessions', icon: 'clipboard-list' },
+      { label: 'Explore Startups', href: '/explore/startups', icon: 'rocket' },
+      { label: 'View Feed', href: '/feed', icon: 'newspaper' },
     ],
   },
   investor: {
@@ -101,10 +102,10 @@ const ROLE_META: Record<DetectedRole, {
     dashboardHref: '/investor-dashboard',
     loginHref: '/investor-login',
     quickActions: [
-      { label: 'Browse Startups', href: '/explore/startups', icon: '🚀' },
-      { label: 'Deal Flow', href: '/investor-dashboard', icon: '📈' },
-      { label: 'Explore Institutions', href: '/explore/institute', icon: '🏛️' },
-      { label: 'View Feed', href: '/feed', icon: '📰' },
+      { label: 'Browse Startups', href: '/explore/startups', icon: 'rocket' },
+      { label: 'Deal Flow', href: '/investor-dashboard', icon: 'trending-up' },
+      { label: 'Explore Institutions', href: '/explore/institute', icon: 'landmark' },
+      { label: 'View Feed', href: '/feed', icon: 'newspaper' },
     ],
   },
   institution: {
@@ -113,10 +114,10 @@ const ROLE_META: Record<DetectedRole, {
     dashboardHref: '/institution-dashboard',
     loginHref: '/institution-login',
     quickActions: [
-      { label: 'Manage Programs', href: '/institution-dashboard', icon: '📋' },
-      { label: 'View Team', href: '/institution-dashboard/team', icon: '👥' },
-      { label: 'Edit Profile', href: '/institution-edit', icon: '✏️' },
-      { label: 'View Feed', href: '/feed', icon: '📰' },
+      { label: 'Manage Programs', href: '/institution-dashboard', icon: 'clipboard-list' },
+      { label: 'View Team', href: '/institution-dashboard/team', icon: 'users' },
+      { label: 'Edit Profile', href: '/institution-edit', icon: 'pencil' },
+      { label: 'View Feed', href: '/feed', icon: 'newspaper' },
     ],
   },
   guest: {
@@ -125,10 +126,10 @@ const ROLE_META: Record<DetectedRole, {
     dashboardHref: '/feed',
     loginHref: '/join',
     quickActions: [
-      { label: 'Sign Up', href: '/join', icon: '🚀' },
-      { label: 'Explore Institutions', href: '/explore/institute', icon: '🏛️' },
-      { label: 'Browse Startups', href: '/explore/startups', icon: '💡' },
-      { label: 'View Feed', href: '/feed', icon: '📰' },
+      { label: 'Sign Up', href: '/join', icon: 'rocket' },
+      { label: 'Explore Institutions', href: '/explore/institute', icon: 'landmark' },
+      { label: 'Browse Startups', href: '/explore/startups', icon: 'lightbulb' },
+      { label: 'View Feed', href: '/feed', icon: 'newspaper' },
     ],
   },
 };
@@ -146,10 +147,10 @@ async function fetchAdminData(token: string): Promise<{ cards: StatCard[]; activ
     const funding = institutions.reduce((s: number, i: { fundingFacilitated?: number }) => s + (i.fundingFacilitated || 0), 0);
     return {
       cards: [
-        { label: 'Total Institutions', value: count, icon: '🏛️', href: '/admin/dashboard' },
-        { label: 'Startups Supported', value: startups, icon: '🚀' },
-        { label: 'Students Mentored', value: students, icon: '🎓' },
-        { label: 'Funding Facilitated', value: funding > 0 ? `$${(funding / 1e6).toFixed(1)}M` : '$0', icon: '💰' },
+        { label: 'Total Institutions', value: count, icon: 'landmark', href: '/admin/dashboard' },
+        { label: 'Startups Supported', value: startups, icon: 'rocket' },
+        { label: 'Students Mentored', value: students, icon: 'graduation-cap' },
+        { label: 'Funding Facilitated', value: funding > 0 ? `$${(funding / 1e6).toFixed(1)}M` : '$0', icon: 'coins' },
       ],
       activity: [],
     };
@@ -170,14 +171,14 @@ async function fetchFounderData(token: string): Promise<{ cards: StatCard[]; act
       id: a.id ?? String(i),
       text: a.action ?? 'Activity',
       time: a.createdAt ? timeAgo(a.createdAt) : '',
-      icon: '📝',
+      icon: 'pen-square',
     }));
     return {
       cards: [
-        { label: 'Status', value: startup?.status ?? '—', icon: '🚀', href: '/dashboard' },
-        { label: 'Stage', value: startup?.stage ?? '—', icon: '📈' },
-        { label: 'Team Size', value: startup?.teamMembers?.length ?? 0, icon: '👥' },
-        { label: 'Funds Raised', value: startup?.fundsRaised ? `$${Number(startup.fundsRaised).toLocaleString()}` : '$0', icon: '💰' },
+        { label: 'Status', value: startup?.status ?? '—', icon: 'rocket', href: '/dashboard' },
+        { label: 'Stage', value: startup?.stage ?? '—', icon: 'trending-up' },
+        { label: 'Team Size', value: startup?.teamMembers?.length ?? 0, icon: 'users' },
+        { label: 'Funds Raised', value: startup?.fundsRaised ? `$${Number(startup.fundsRaised).toLocaleString()}` : '$0', icon: 'coins' },
       ],
       activity,
       name: startup?.name,
@@ -207,10 +208,10 @@ async function fetchInstitutionData(token: string): Promise<{ cards: StatCard[];
 
     return {
       cards: [
-        { label: 'Active Programs', value: programsCount, icon: '📋', href: '/institution-dashboard' },
-        { label: 'Team Members', value: teamCount, icon: '👥', href: '/institution-dashboard/team' },
-        { label: 'Portfolio Startups', value: startupsCount, icon: '🚀', href: '/institution-dashboard/startups' },
-        { label: 'Profile Views', value: profile?.profileViews ?? 0, icon: '👁️' },
+        { label: 'Active Programs', value: programsCount, icon: 'clipboard-list', href: '/institution-dashboard' },
+        { label: 'Team Members', value: teamCount, icon: 'users', href: '/institution-dashboard/team' },
+        { label: 'Portfolio Startups', value: startupsCount, icon: 'rocket', href: '/institution-dashboard/startups' },
+        { label: 'Profile Views', value: profile?.profileViews ?? 0, icon: 'eye' },
       ],
       activity: [],
       name: profile?.name ?? profile?.institution?.name,
@@ -223,34 +224,34 @@ async function fetchInstitutionData(token: string): Promise<{ cards: StatCard[];
 function defaultCards(role: DetectedRole): StatCard[] {
   const configs: Record<string, StatCard[]> = {
     admin: [
-      { label: 'Institutions', value: 0, icon: '🏛️' },
-      { label: 'Startups', value: 0, icon: '🚀' },
-      { label: 'Mentors', value: 0, icon: '🧑‍🏫' },
-      { label: 'Investors', value: 0, icon: '💼' },
+      { label: 'Institutions', value: 0, icon: 'landmark' },
+      { label: 'Startups', value: 0, icon: 'rocket' },
+      { label: 'Mentors', value: 0, icon: 'graduation-cap' },
+      { label: 'Investors', value: 0, icon: 'briefcase' },
     ],
     founder: [
-      { label: 'Status', value: '—', icon: '🚀', href: '/dashboard' },
-      { label: 'Stage', value: '—', icon: '📈' },
-      { label: 'Team', value: 0, icon: '👥' },
-      { label: 'Funds Raised', value: '$0', icon: '💰' },
+      { label: 'Status', value: '—', icon: 'rocket', href: '/dashboard' },
+      { label: 'Stage', value: '—', icon: 'trending-up' },
+      { label: 'Team', value: 0, icon: 'users' },
+      { label: 'Funds Raised', value: '$0', icon: 'coins' },
     ],
     mentor: [
-      { label: 'Active Mentees', value: 0, icon: '🧑‍🎓' },
-      { label: 'Sessions This Month', value: 0, icon: '📅' },
-      { label: 'Rating', value: '—', icon: '⭐' },
-      { label: 'Earnings', value: '$0', icon: '💰' },
+      { label: 'Active Mentees', value: 0, icon: 'graduation-cap' },
+      { label: 'Sessions This Month', value: 0, icon: 'calendar' },
+      { label: 'Rating', value: '—', icon: 'star' },
+      { label: 'Earnings', value: '$0', icon: 'coins' },
     ],
     investor: [
-      { label: 'Active Deals', value: 0, icon: '📈' },
-      { label: 'Portfolio Companies', value: 0, icon: '💼' },
-      { label: 'Total Invested', value: '$0', icon: '💰' },
-      { label: 'Pipeline', value: 0, icon: '📊' },
+      { label: 'Active Deals', value: 0, icon: 'trending-up' },
+      { label: 'Portfolio Companies', value: 0, icon: 'briefcase' },
+      { label: 'Total Invested', value: '$0', icon: 'coins' },
+      { label: 'Pipeline', value: 0, icon: 'bar-chart' },
     ],
     institution: [
-      { label: 'Programs', value: 0, icon: '📋', href: '/institution-dashboard' },
-      { label: 'Team', value: 0, icon: '👥' },
-      { label: 'Startups', value: 0, icon: '🚀' },
-      { label: 'Views', value: 0, icon: '👁️' },
+      { label: 'Programs', value: 0, icon: 'clipboard-list', href: '/institution-dashboard' },
+      { label: 'Team', value: 0, icon: 'users' },
+      { label: 'Startups', value: 0, icon: 'rocket' },
+      { label: 'Views', value: 0, icon: 'eye' },
     ],
     guest: [],
   };
@@ -382,7 +383,7 @@ export default function HomePage() {
                     )}
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-2xl">{card.icon}</span>
+                      <AppIcon name={card.icon} className="w-6 h-6 text-gray-300" />
                       {card.href && (
                         <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -412,7 +413,7 @@ export default function HomePage() {
                 href={action.href}
                 className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-200 group"
               >
-                <span className="text-xl">{action.icon}</span>
+                <AppIcon name={action.icon} className="w-5 h-5 text-gray-400" />
                 <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
                   {action.label}
                 </span>
@@ -428,7 +429,7 @@ export default function HomePage() {
             <div className="bg-white/5 border border-white/10 rounded-2xl divide-y divide-white/5">
               {activity.map((item) => (
                 <div key={item.id} className="flex items-center gap-4 px-5 py-4">
-                  <span className="text-lg">{item.icon}</span>
+                  <AppIcon name={item.icon} className="w-5 h-5 text-gray-400" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-200 truncate">{item.text}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{item.time}</p>
@@ -438,7 +439,7 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
-              <div className="text-4xl mb-3">📊</div>
+              <AppIcon name="bar-chart" className="w-10 h-10 text-gray-500 mx-auto mb-3" />
               <p className="text-gray-400 text-sm">
                 {role === 'guest'
                   ? 'Sign in to see your personalized dashboard.'

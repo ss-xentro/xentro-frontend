@@ -45,6 +45,7 @@ export default function OnboardingWizard({
 	const [currentStep, setCurrentStep] = useState(1);
 	const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
 	const [submitting, setSubmitting] = useState(false);
+	const [savingDraft, setSavingDraft] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const { success: toastSuccess, error: toastError } = useToast();
 
@@ -81,7 +82,8 @@ export default function OnboardingWizard({
 	};
 
 	const handleSaveDraft = async () => {
-		if (!application) return;
+		if (!application || savingDraft) return;
+		setSavingDraft(true);
 		try {
 			const token = getSessionToken('institution');
 			const res = await fetch(`/api/institution-applications/${application.id}/`, {
@@ -113,11 +115,17 @@ export default function OnboardingWizard({
 					legalDocuments: formData.legalDocuments,
 				}),
 			});
-			if (!res.ok) throw new Error('Failed to save draft');
+			if (!res.ok) {
+				const payload = await res.json().catch(() => ({}));
+				throw new Error(payload.message || payload.detail || payload.error || 'Failed to save draft');
+			}
 			toastSuccess('Draft saved successfully!');
 		} catch (err) {
-			toastError((err as Error).message || 'Failed to save draft');
-			setError((err as Error).message);
+			const msg = (err as Error).message || 'Failed to save draft';
+			toastError(msg);
+			setError(msg);
+		} finally {
+			setSavingDraft(false);
 		}
 	};
 
@@ -334,10 +342,10 @@ export default function OnboardingWizard({
 								<div className="flex gap-2">
 									{currentStep < TOTAL_STEPS && (
 										<>
-											<Button variant="secondary" onClick={handleSaveDraft} disabled={submitting} aria-label="Save draft" className="min-h-11">
-												💾 Save Draft
+											<Button variant="secondary" onClick={handleSaveDraft} disabled={savingDraft || submitting} aria-label="Save draft" className="min-h-11">
+												{savingDraft ? 'Saving...' : 'Save Draft'}
 											</Button>
-											<Button onClick={handleNext} disabled={!canProceed() || submitting} aria-label="Go to next step" className="min-h-11">
+											<Button onClick={handleNext} disabled={!canProceed() || submitting || savingDraft} aria-label="Go to next step" className="min-h-11">
 												Next →
 											</Button>
 										</>

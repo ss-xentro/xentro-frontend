@@ -315,7 +315,7 @@ export default function AddInstitutionPage() {
                             variant="secondary"
                             onClick={handleSaveDraft}
                         >
-                            💾 Save Draft
+                            Save Draft
                         </Button>
                         <Button
                             onClick={handleNext}

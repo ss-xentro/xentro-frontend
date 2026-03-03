@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface Notification {
   id: string;
@@ -105,21 +106,21 @@ export function NotificationsDropdown({ token }: NotificationsDropdownProps) {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'form_submitted':
-        return '📝';
+        return 'pen-square';
       case 'form_approved':
-        return '✅';
+        return 'check-circle';
       case 'form_rejected':
-        return '❌';
+        return 'x-circle';
       case 'context_unlocked':
-        return '🔓';
+        return 'unlock';
       case 'team_invite':
-        return '👋';
+        return 'hand';
       case 'appreciation_received':
-        return '❤️';
+        return 'heart';
       case 'mentor_tip_received':
-        return '💡';
+        return 'lightbulb';
       default:
-        return '🔔';
+        return 'bell';
     }
   };
 
@@ -190,7 +191,7 @@ export function NotificationsDropdown({ token }: NotificationsDropdownProps) {
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <div className="text-3xl mb-2">🔔</div>
+                <AppIcon name="bell" className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                 <p className="text-sm text-(--secondary)">No notifications yet</p>
               </div>
             ) : (
@@ -220,7 +221,7 @@ export function NotificationsDropdown({ token }: NotificationsDropdownProps) {
                     )}
                   >
                     <span className="text-xl shrink-0">
-                      {getNotificationIcon(notification.type)}
+                      <AppIcon name={getNotificationIcon(notification.type)} className="w-5 h-5" />
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className={cn(

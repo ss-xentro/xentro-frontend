@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface ConnectionRequest {
 	id: string;
@@ -146,8 +147,8 @@ export default function MyMentorsPage() {
 						key={t}
 						onClick={() => setTab(t)}
 						className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${tab === t
-								? 'bg-(--background) text-(--primary) shadow-sm'
-								: 'text-(--secondary) hover:text-(--primary)'
+							? 'bg-(--background) text-(--primary) shadow-sm'
+							: 'text-(--secondary) hover:text-(--primary)'
 							}`}
 					>
 						{t === 'connections' ? 'Connections' : 'Bookings'}
@@ -184,8 +185,8 @@ export default function MyMentorsPage() {
 								key={f}
 								onClick={() => setFilter(f)}
 								className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${filter === f
-										? 'bg-accent/10 text-accent border border-accent/30'
-										: 'bg-(--surface) text-(--secondary) border border-(--border) hover:bg-(--surface-hover)'
+									? 'bg-accent/10 text-accent border border-accent/30'
+									: 'bg-(--surface) text-(--secondary) border border-(--border) hover:bg-(--surface-hover)'
 									}`}
 							>
 								{f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
@@ -195,8 +196,8 @@ export default function MyMentorsPage() {
 
 					{filteredConns.length === 0 ? (
 						<div className="flex flex-col items-center justify-center py-16 text-center">
-							<div className="w-14 h-14 rounded-full bg-(--surface) flex items-center justify-center text-2xl mb-3">
-								🧠
+							<div className="w-14 h-14 rounded-full bg-(--surface) flex items-center justify-center mb-3">
+								<AppIcon name="brain" className="w-7 h-7 text-(--secondary)" />
 							</div>
 							<h3 className="text-base font-semibold text-(--primary) mb-1">No connections yet</h3>
 							<p className="text-sm text-(--secondary) mb-4">
@@ -290,8 +291,8 @@ export default function MyMentorsPage() {
 				<>
 					{bookings.length === 0 ? (
 						<div className="flex flex-col items-center justify-center py-16 text-center">
-							<div className="w-14 h-14 rounded-full bg-(--surface) flex items-center justify-center text-2xl mb-3">
-								📅
+							<div className="w-14 h-14 rounded-full bg-(--surface) flex items-center justify-center mb-3">
+								<AppIcon name="calendar" className="w-7 h-7 text-(--secondary)" />
 							</div>
 							<h3 className="text-base font-semibold text-(--primary) mb-1">No sessions booked</h3>
 							<p className="text-sm text-(--secondary) mb-4">

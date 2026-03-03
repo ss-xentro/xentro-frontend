@@ -5,6 +5,7 @@ import { Card, Button, Input, Badge } from '@/components/ui';
 import { Startup, startupStageLabels, startupStatusLabels, fundingRoundLabels } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import Link from 'next/link';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 export default function StartupsAdminPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -135,7 +136,7 @@ export default function StartupsAdminPage() {
             {/* Error State */}
             {error && !loading && (
                 <Card padding="lg" className="text-center">
-                    <div className="text-red-500 mb-2">⚠️</div>
+                    <AppIcon name="alert-triangle" className="w-5 h-5 text-red-500 mx-auto mb-2" />
                     <p className="text-(--primary) font-medium">{error}</p>
                 </Card>
             )}
@@ -143,7 +144,7 @@ export default function StartupsAdminPage() {
             {/* Empty State */}
             {!loading && !error && filteredStartups.length === 0 && (
                 <Card padding="lg" className="text-center">
-                    <div className="text-4xl mb-4">🚀</div>
+                    <AppIcon name="rocket" className="w-10 h-10 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-(--primary) mb-2">No startups found</h3>
                     <p className="text-(--secondary)">
                         {searchQuery || stageFilter !== 'all' || statusFilter !== 'all'
@@ -205,7 +206,7 @@ export default function StartupsAdminPage() {
                                             )}
                                             {startup.city && (
                                                 <Badge variant="outline" size="sm">
-                                                    📍 {startup.city}
+                                                    <AppIcon name="map-pin" className="w-3 h-3 inline mr-0.5" /> {startup.city}
                                                 </Badge>
                                             )}
                                         </div>

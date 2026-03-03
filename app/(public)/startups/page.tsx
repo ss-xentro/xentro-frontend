@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 // Reusing options (should be shared)
 const stages = [
@@ -174,7 +175,7 @@ function StartupsContent() {
                     </div>
                 ) : startups.length === 0 ? (
                     <div className="text-center py-20 bg-(--surface) rounded-xl border border-(--border) border-dashed">
-                        <div className="text-4xl mb-4">🔍</div>
+                        <div className="flex justify-center mb-4"><AppIcon name="search" className="w-10 h-10 text-(--secondary)" /></div>
                         <h3 className="text-xl font-medium text-(--primary)">No startups found</h3>
                         <p className="text-(--secondary)">Try adjusting your search terms or filters.</p>
                         <Button

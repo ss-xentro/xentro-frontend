@@ -5,6 +5,7 @@ import AppShell from '@/components/ui/AppShell';
 import { cn } from '@/lib/utils';
 import { getSessionToken } from '@/lib/auth-utils';
 import { useNotifications, WsNotification } from '@/lib/useNotifications';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface Notification {
   id: string;
@@ -112,17 +113,17 @@ export default function NotificationsPage() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'form_submitted': return '📝';
-      case 'form_approved': return '✅';
-      case 'form_rejected': return '❌';
-      case 'form_changes_requested': return '🔄';
-      case 'context_unlocked': return '🔓';
-      case 'team_invite': return '👋';
-      case 'team_invite_accepted': return '🤝';
-      case 'appreciation_received': return '❤️';
-      case 'mentor_tip_received': return '💡';
-      case 'mention': return '💬';
-      default: return '🔔';
+      case 'form_submitted': return 'pen-square';
+      case 'form_approved': return 'check-circle';
+      case 'form_rejected': return 'x-circle';
+      case 'form_changes_requested': return 'refresh-cw';
+      case 'context_unlocked': return 'unlock';
+      case 'team_invite': return 'hand';
+      case 'team_invite_accepted': return 'handshake';
+      case 'appreciation_received': return 'heart';
+      case 'mentor_tip_received': return 'lightbulb';
+      case 'mention': return 'message-circle';
+      default: return 'bell';
     }
   };
 
@@ -233,7 +234,7 @@ export default function NotificationsPage() {
             </div>
           ) : notifications.length === 0 ? (
             <div className="bg-white/5 border border-white/10 rounded-2xl p-10 text-center">
-              <div className="text-5xl mb-4">🔔</div>
+              <AppIcon name="bell" className="w-12 h-12 text-gray-500 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-white mb-2">
                 {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
               </h3>
@@ -261,7 +262,7 @@ export default function NotificationsPage() {
                 >
                   <div className="flex gap-4">
                     <span className="text-2xl shrink-0">
-                      {getNotificationIcon(notification.type)}
+                      <AppIcon name={getNotificationIcon(notification.type)} className="w-6 h-6" />
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-4">

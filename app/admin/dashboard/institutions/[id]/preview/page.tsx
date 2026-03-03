@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { institutionTypeLabels, operatingModeLabels, sdgLabels, sectorLabels, SDGFocus, SectorFocus } from '@/lib/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { Card, Button, Badge, VerifiedBadge, SDGBadge, StatusBadge } from '@/components/ui';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { InstitutionTabs } from '@/components/institution/InstitutionTabs';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -152,7 +153,7 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
         );
     }
 
-    const typeInfo = institutionTypeLabels[institution.type] ?? { label: institution.type, emoji: '🏢', description: '' };
+    const typeInfo = institutionTypeLabels[institution.type] ?? { label: institution.type, icon: 'building', description: '' };
     const modeInfo = institution.operatingMode ? operatingModeLabels[institution.operatingMode as keyof typeof operatingModeLabels] : undefined;
 
     return (

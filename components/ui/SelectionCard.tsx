@@ -1,11 +1,12 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { AppIcon } from './AppIcon';
 
 interface SelectionCardProps {
     selected: boolean;
     onClick: () => void;
-    emoji?: string;
+    icon?: string;
     label: string;
     description?: string;
     className?: string;
@@ -15,7 +16,7 @@ interface SelectionCardProps {
 export function SelectionCard({
     selected,
     onClick,
-    emoji,
+    icon,
     label,
     description,
     className,
@@ -38,10 +39,8 @@ export function SelectionCard({
             )}
         >
             <div className="flex items-start gap-4">
-                {emoji && (
-                    <span className="text-2xl" role="img" aria-hidden>
-                        {emoji}
-                    </span>
+                {icon && (
+                    <AppIcon name={icon} className={cn('w-6 h-6 shrink-0 mt-0.5', selected ? 'text-accent' : 'text-(--secondary)')} />
                 )}
                 <div className="flex-1 min-w-0">
                     <h4 className={cn(
@@ -81,7 +80,7 @@ interface MultiSelectCardProps extends Omit<SelectionCardProps, 'onClick'> {
 export function MultiSelectCard({
     selected,
     onToggle,
-    emoji,
+    icon,
     label,
     className,
     disabled = false,
@@ -103,10 +102,8 @@ export function MultiSelectCard({
             )}
         >
             <div className="flex items-center gap-3">
-                {emoji && (
-                    <span className="text-xl" role="img" aria-hidden>
-                        {emoji}
-                    </span>
+                {icon && (
+                    <AppIcon name={icon} className={cn('w-5 h-5 shrink-0', selected ? 'text-accent' : 'text-(--secondary)')} />
                 )}
                 <span className={cn(
                     'font-medium text-sm flex-1',

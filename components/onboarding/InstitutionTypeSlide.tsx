@@ -25,11 +25,11 @@ export default function InstitutionTypeSlide({ value, onChange, className }: Ins
             </div>
 
             <div className="grid grid-cols-1 gap-4">
-                {options.map(([type, { label, emoji, description }]) => (
+                {options.map(([type, { label, icon, description }]) => (
                     <SelectionCard
                         key={type}
                         label={label}
-                        emoji={emoji}
+                        icon={icon}
                         description={description}
                         selected={value === type}
                         onClick={() => onChange(type)}

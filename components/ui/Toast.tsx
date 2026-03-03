@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 // ── Types ──────────────────────────────────────────
 
@@ -37,25 +38,25 @@ export function useToast(): ToastContextValue {
 
 const TOAST_CONFIG: Record<ToastType, { icon: string; bg: string; border: string; text: string }> = {
 	success: {
-		icon: '✓',
+		icon: 'check-circle',
 		bg: 'bg-green-500/10',
 		border: 'border-green-500/30',
 		text: 'text-green-400',
 	},
 	error: {
-		icon: '✕',
+		icon: 'x-circle',
 		bg: 'bg-red-500/10',
 		border: 'border-red-500/30',
 		text: 'text-red-400',
 	},
 	info: {
-		icon: 'ℹ',
+		icon: 'info',
 		bg: 'bg-blue-500/10',
 		border: 'border-blue-500/30',
 		text: 'text-blue-400',
 	},
 	warning: {
-		icon: '⚠',
+		icon: 'alert-triangle',
 		bg: 'bg-amber-500/10',
 		border: 'border-amber-500/30',
 		text: 'text-amber-400',
@@ -112,16 +113,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 								config.border,
 							)}
 						>
-							<span className={cn('text-lg font-bold shrink-0 mt-0.5', config.text)}>
-								{config.icon}
-							</span>
+							<AppIcon name={config.icon} className={cn('w-5 h-5 shrink-0 mt-0.5', config.text)} />
 							<p className="text-sm text-(--primary) flex-1">{t.message}</p>
 							<button
 								onClick={() => dismiss(t.id)}
-								className="text-(--secondary) hover:text-(--primary) shrink-0 text-sm"
+								className="text-(--secondary) hover:text-(--primary) shrink-0"
 								aria-label="Dismiss notification"
 							>
-								✕
+								<AppIcon name="x" className="w-4 h-4" />
 							</button>
 						</div>
 					);

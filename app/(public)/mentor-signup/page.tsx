@@ -15,27 +15,27 @@ const TOTAL_STEPS = 5;
 
 const FOCUS_SUGGESTIONS = [
   {
-    category: '🚀 Growth & GTM',
+    category: 'Growth & GTM',
     items: ['Product-led Growth (PLG)', 'Go-to-Market Strategy', 'Enterprise Sales'],
   },
   {
-    category: '💰 Fundraising & Finance',
+    category: 'Fundraising & Finance',
     items: ['Seed Fundraising', 'Pitch Deck Review', 'Financial Modeling'],
   },
   {
-    category: '🧠 Product & Tech',
+    category: 'Product & Tech',
     items: ['MVP Strategy', 'Product Roadmapping', 'AI Productization'],
   },
   {
-    category: '🏢 Operations & Scale',
+    category: 'Operations & Scale',
     items: ['Hiring Strategy', 'OKR Implementation', 'ESOP Planning'],
   },
   {
-    category: '🌍 Sector Expertise',
+    category: 'Sector Expertise',
     items: ['SaaS', 'FinTech', 'AI / ML'],
   },
   {
-    category: '🧩 Special Situations',
+    category: 'Special Situations',
     items: ['Pivot Strategy', 'Crisis Management', 'Exit Planning'],
   },
 ];

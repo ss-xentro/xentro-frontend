@@ -84,7 +84,6 @@ export default function ProjectsPage() {
             <p className="text-(--secondary) mt-1">Manage your institution&apos;s research projects and collaborations</p>
           </div>
           <Button onClick={() => router.push('/institution-dashboard/add-project')}>
-            <span className="mr-2">➕</span>
             Add Project
           </Button>
         </div>

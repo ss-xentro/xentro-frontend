@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner';
 import { getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface ConnectionRequest {
     id: string;
@@ -108,7 +109,7 @@ export default function MentorDashboardPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-(--primary)">
-                        Welcome back, Mentor 👋
+                        Welcome back, Mentor
                     </h1>
                     <p className="text-(--secondary)">
                         Here&apos;s your mentoring overview and upcoming sessions.
@@ -173,7 +174,7 @@ export default function MentorDashboardPage() {
                         </div>
                         <div>
                             <p className="text-sm text-(--secondary)">Rating</p>
-                            <p className="text-2xl font-bold text-(--primary)">{stats.rating ? `${stats.rating.toFixed(1)} ★` : '—'}</p>
+                            <p className="text-2xl font-bold text-(--primary)">{stats.rating ? stats.rating.toFixed(1) : '—'}</p>
                         </div>
                     </div>
                 </Card>
@@ -273,7 +274,7 @@ export default function MentorDashboardPage() {
                     <div className="space-y-3">
                         <Link href="/mentor-dashboard/profile" className="block">
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-accent/30 bg-accent/5 hover:bg-accent/10 transition-colors text-left">
-                                <span className="text-lg">✏️</span>
+                                <AppIcon name="pencil" className="w-5 h-5 text-accent" />
                                 <div>
                                     <p className="text-sm font-medium text-accent">Complete Profile</p>
                                     <p className="text-xs text-(--secondary)">Add achievements, slots & pricing</p>
@@ -282,7 +283,7 @@ export default function MentorDashboardPage() {
                         </Link>
                         <Link href="/explore/institute" className="block">
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors text-left">
-                                <span className="text-lg">🏛️</span>
+                                <AppIcon name="landmark" className="w-5 h-5" />
                                 <div>
                                     <p className="text-sm font-medium text-(--primary)">Explore Institutions</p>
                                     <p className="text-xs text-(--secondary)">Find programs to mentor at</p>
@@ -291,7 +292,7 @@ export default function MentorDashboardPage() {
                         </Link>
                         <Link href="/feed" className="block">
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors text-left">
-                                <span className="text-lg">📰</span>
+                                <AppIcon name="newspaper" className="w-5 h-5" />
                                 <div>
                                     <p className="text-sm font-medium text-(--primary)">Browse Feed</p>
                                     <p className="text-xs text-(--secondary)">Discover ecosystem updates</p>
@@ -300,7 +301,7 @@ export default function MentorDashboardPage() {
                         </Link>
                         <Link href="/notifications" className="block">
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors text-left">
-                                <span className="text-lg">🔔</span>
+                                <AppIcon name="bell" className="w-5 h-5" />
                                 <div>
                                     <p className="text-sm font-medium text-(--primary)">Notifications</p>
                                     <p className="text-xs text-(--secondary)">Check your latest alerts</p>

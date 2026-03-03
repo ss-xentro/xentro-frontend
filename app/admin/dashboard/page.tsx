@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card } from '@/components/ui';
 import { Institution } from '@/lib/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -61,7 +62,7 @@ export default function DashboardPage() {
             label: 'Total Institutions',
             value: stats.totalInstitutions,
             format: 'number' as const,
-            icon: '🏛️',
+            icon: 'landmark',
             color: 'var(--accent)',
             bgColor: 'var(--accent-light)',
         },
@@ -69,7 +70,7 @@ export default function DashboardPage() {
             label: 'Startups Supported',
             value: stats.startupsSupported,
             format: 'number' as const,
-            icon: '🚀',
+            icon: 'rocket',
             color: 'var(--success)',
             bgColor: 'var(--success-light)',
         },
@@ -77,7 +78,7 @@ export default function DashboardPage() {
             label: 'Students Mentored',
             value: stats.studentsMentored,
             format: 'number' as const,
-            icon: '🎓',
+            icon: 'graduation-cap',
             color: 'var(--warning)',
             bgColor: 'var(--warning-light)',
         },
@@ -85,7 +86,7 @@ export default function DashboardPage() {
             label: 'Funding Facilitated',
             value: stats.fundingFacilitated,
             format: 'currency' as const,
-            icon: '💰',
+            icon: 'coins',
             color: '#8B5CF6',
             bgColor: '#EDE9FE',
         },
@@ -123,7 +124,7 @@ export default function DashboardPage() {
     return (
         <div className="space-y-8 animate-fadeIn">
             <div>
-                <h2 className="text-2xl font-bold text-gray-900">Welcome back 👋</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
                 <p className="text-gray-600 mt-1">Here&apos;s what&apos;s happening with your institutions today.</p>
             </div>
 
@@ -150,10 +151,10 @@ export default function DashboardPage() {
                                 </p>
                             </div>
                             <div
-                                className="w-12 h-12 rounded-lg flex items-center justify-center text-xl"
+                                className="w-12 h-12 rounded-lg flex items-center justify-center"
                                 style={{ backgroundColor: stat.bgColor }}
                             >
-                                {stat.icon}
+                                <AppIcon name={stat.icon} className="w-6 h-6" style={{ color: stat.color }} />
                             </div>
                         </div>
                         <div className="mt-4 flex items-center gap-2">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getRoleFromSession, getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface MissingField {
     label: string;
@@ -11,23 +12,23 @@ interface MissingField {
 }
 
 const PROFILE_FIELDS: { key: string; label: string; icon: string; check: (p: Record<string, unknown>) => boolean }[] = [
-    { key: 'expertise', label: 'Expertise', icon: '🎯', check: (p) => !!(p.expertise && String(p.expertise).trim()) },
-    { key: 'occupation', label: 'Role', icon: '💼', check: (p) => !!(p.occupation && String(p.occupation).trim()) },
+    { key: 'expertise', label: 'Expertise', icon: 'target', check: (p) => !!(p.expertise && String(p.expertise).trim()) },
+    { key: 'occupation', label: 'Role', icon: 'briefcase', check: (p) => !!(p.occupation && String(p.occupation).trim()) },
     {
-        key: 'pricing_per_hour', label: 'Pricing', icon: '💰',
+        key: 'pricing_per_hour', label: 'Pricing', icon: 'coins',
         check: (p) => {
             const rate = String(p.pricing_per_hour || p.rate || '').trim();
             return !!(rate && rate !== '0' && rate !== '0.00');
         },
     },
     {
-        key: 'achievements', label: 'Achievements', icon: '🏆',
+        key: 'achievements', label: 'Achievements', icon: 'trophy',
         check: (p) => {
             if (Array.isArray(p.achievements)) return p.achievements.length > 0;
             return !!(p.achievements && String(p.achievements).trim());
         },
     },
-    { key: 'availability', label: 'Availability', icon: '📅', check: (p) => !!(p.availability && String(p.availability).trim()) },
+    { key: 'availability', label: 'Availability', icon: 'calendar', check: (p) => !!(p.availability && String(p.availability).trim()) },
 ];
 
 export default function ProfileCompletionBanner() {
@@ -99,7 +100,7 @@ export default function ProfileCompletionBanner() {
                 <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
-                            <span className="text-lg">⚡</span>
+                            <AppIcon name="zap" className="w-5 h-5 text-amber-600" />
                         </div>
                         <div className="min-w-0">
                             <h3 className="text-[13px] sm:text-sm font-semibold text-gray-900 leading-tight">
@@ -172,7 +173,7 @@ export default function ProfileCompletionBanner() {
                                     }
                                 `}
                             >
-                                {isDone ? '✓' : '○'} {f.label}
+                                {isDone ? <AppIcon name="check" className="w-3 h-3 inline" /> : '○'} {f.label}
                             </span>
                         );
                     })}

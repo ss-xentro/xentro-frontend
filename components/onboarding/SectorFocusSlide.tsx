@@ -1,6 +1,7 @@
 'use client';
 
 import { sectorCategoryLabels, SectorCategory, SectorFocus } from '@/lib/types';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
@@ -44,7 +45,7 @@ export default function SectorFocusSlide({ value, onChange, className }: SectorF
             </div>
 
             <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-                {categories.map(([catSlug, { label, emoji, subSectors }]) => {
+                {categories.map(([catSlug, { label, icon, subSectors }]) => {
                     const isExpanded = expandedCategory === catSlug;
                     const selectedCount = getSelectedCount(catSlug);
 
@@ -59,7 +60,7 @@ export default function SectorFocusSlide({ value, onChange, className }: SectorF
                                     isExpanded ? 'bg-(--accent-subtle)' : 'bg-(--surface) hover:bg-(--surface-hover)',
                                 )}
                             >
-                                <span className="text-xl" role="img" aria-hidden>{emoji}</span>
+                                <AppIcon name={icon} className={cn('w-5 h-5 shrink-0', isExpanded ? 'text-accent' : 'text-(--secondary)')} />
                                 <span className="font-medium text-sm flex-1 text-(--primary)">{label}</span>
                                 {selectedCount > 0 && (
                                     <span className="text-xs font-semibold bg-accent text-white rounded-full px-2 py-0.5">

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { institutionTypeLabels, sectorLabels, sdgLabels, Institution, SectorFocus } from '@/lib/types';
 import { formatNumber } from '@/lib/utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 export default function ExploreInstitutionsPage() {
     const [selectedType, setSelectedType] = useState<string>('all');
@@ -144,7 +145,7 @@ export default function ExploreInstitutionsPage() {
             {/* Empty */}
             {!loading && filtered.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-24 text-center">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-3xl mb-4">🔍</div>
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4"><AppIcon name="search" className="w-8 h-8 text-gray-500" /></div>
                     <h3 className="text-lg font-semibold text-white mb-1">No institutions found</h3>
                     <p className="text-sm text-gray-500">Try adjusting your search or filters.</p>
                 </div>

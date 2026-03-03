@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getSessionToken } from '@/lib/auth-utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { VerifiedBadge, InstitutionalBadge, StatCard, Section } from './_components/MentorProfileHelpers';
 import AvailabilityBookingSection from './_components/AvailabilityBookingSection';
 import ConnectModal from './_components/ConnectModal';
@@ -203,7 +204,7 @@ export default function MentorDetailPage() {
 	if (!mentor) {
 		return (
 			<div className="p-6 flex flex-col items-center justify-center py-24 text-center">
-				<div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-3xl mb-4">🧠</div>
+				<div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4"><AppIcon name="brain" className="w-8 h-8 text-gray-500" /></div>
 				<h3 className="text-lg font-semibold text-white mb-1">Mentor not found</h3>
 				<p className="text-sm text-gray-500 mb-4">This mentor profile doesn&apos;t exist or has been removed.</p>
 				<button onClick={() => router.back()} className="text-sm text-violet-400 hover:text-violet-300">&larr; Go back</button>

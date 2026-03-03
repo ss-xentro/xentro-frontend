@@ -32,7 +32,7 @@ const mockPosts: Post[] = [
       username: 'sarahchen',
       avatar: '/api/placeholder/48/48',
     },
-    content: 'Just closed our Series A! Excited to scale our climate tech solution to 50+ cities by 2027. Building the future we want to see 🌍',
+    content: 'Just closed our Series A! Excited to scale our climate tech solution to 50+ cities by 2027. Building the future we want to see.',
     image: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=800',
     timestamp: '2h',
     replies: 24,

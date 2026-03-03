@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from '@/components/ui';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { OnboardingFormData, sectorLabels } from '@/lib/types';
 
 interface OnboardingPreviewSidebarProps {
@@ -29,7 +30,7 @@ export default function OnboardingPreviewSidebar({ formData }: OnboardingPreview
 						{formData.logo ? (
 							<img src={formData.logo} alt="Logo preview" className="w-full h-full object-contain" />
 						) : (
-							<span className="text-2xl" aria-hidden="true">🏛️</span>
+							<AppIcon name="landmark" className="w-8 h-8 text-(--secondary)" />
 						)}
 					</div>
 					<div className="flex-1 min-w-0">
@@ -104,8 +105,8 @@ export default function OnboardingPreviewSidebar({ formData }: OnboardingPreview
 						<p className="text-xs font-medium text-(--secondary) mb-2">Sectors</p>
 						<div className="flex flex-wrap gap-1">
 							{formData.sectorFocus.map((sector) => (
-								<span key={sector} className="text-xs px-2 py-1 rounded-full bg-(--accent-light) text-accent">
-									{sectorLabels[sector]?.emoji} {sectorLabels[sector]?.label ?? sector}
+								<span key={sector} className="text-xs px-2 py-1 rounded-full bg-(--accent-light) text-accent inline-flex items-center gap-1">
+									<AppIcon name={sectorLabels[sector]?.icon || 'folder'} className="w-3 h-3" /> {sectorLabels[sector]?.label ?? sector}
 								</span>
 							))}
 						</div>

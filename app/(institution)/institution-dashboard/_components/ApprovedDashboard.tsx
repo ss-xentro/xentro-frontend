@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { InstitutionApplication, Institution } from '@/lib/types';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface DashboardStats {
 	programsCount: number;
@@ -19,12 +20,12 @@ interface ApprovedDashboardProps {
 	onEditProfile: () => void;
 }
 
-function StatCard({ emoji, bg, label, value }: { emoji: string; bg: string; label: string; value: number | string }) {
+function StatCard({ icon, bg, label, value }: { icon: string; bg: string; label: string; value: number | string }) {
 	return (
 		<Card className="p-6">
 			<div className="flex items-center gap-4">
 				<div className={`w-12 h-12 rounded-full ${bg} flex items-center justify-center`}>
-					<span className="text-2xl">{emoji}</span>
+					<AppIcon name={icon} className="w-6 h-6" />
 				</div>
 				<div>
 					<p className="text-sm text-(--secondary)">{label}</p>
@@ -36,10 +37,10 @@ function StatCard({ emoji, bg, label, value }: { emoji: string; bg: string; labe
 }
 
 const QUICK_ACTIONS = [
-	{ href: '/institution-dashboard/startups', emoji: '🚀', title: 'Add Startup', desc: "Register startups you're supporting" },
-	{ href: '/institution-dashboard/projects', emoji: '📁', title: 'Add Project', desc: 'Showcase your initiatives' },
-	{ href: '/institution-dashboard/team', emoji: '👥', title: 'Add Team Member', desc: 'Build your team directory' },
-	{ href: '/institution-dashboard/analytics', emoji: '📈', title: 'View Analytics', desc: 'Track your impact' },
+	{ href: '/institution-dashboard/startups', icon: 'rocket', title: 'Add Startup', desc: "Register startups you're supporting" },
+	{ href: '/institution-dashboard/projects', icon: 'folder', title: 'Add Project', desc: 'Showcase your initiatives' },
+	{ href: '/institution-dashboard/team', icon: 'users', title: 'Add Team Member', desc: 'Build your team directory' },
+	{ href: '/institution-dashboard/analytics', icon: 'trending-up', title: 'View Analytics', desc: 'Track your impact' },
 ];
 
 export default function ApprovedDashboard({ application, institution, stats, onEditProfile }: ApprovedDashboardProps) {
@@ -48,16 +49,16 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 			<div className="p-8 space-y-6 animate-fadeIn">
 				{/* Header */}
 				<div>
-					<h1 className="text-3xl font-bold text-(--primary) mb-2">Welcome back! 👋</h1>
+					<h1 className="text-3xl font-bold text-(--primary) mb-2">Welcome back!</h1>
 					<p className="text-(--secondary)">Manage your institution profile, programs, and team members</p>
 				</div>
 
 				{/* Quick Stats */}
 				<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-					<StatCard emoji="🚀" bg="bg-purple-100" label="Active Programs" value={stats.programsCount} />
-					<StatCard emoji="👥" bg="bg-blue-100" label="Team Members" value={stats.teamCount} />
-					<StatCard emoji="💼" bg="bg-amber-100" label="Portfolio Startups" value={stats.startupsCount} />
-					<StatCard emoji="📊" bg="bg-green-100" label="Profile Views" value={stats.profileViews} />
+					<StatCard icon="rocket" bg="bg-purple-100" label="Active Programs" value={stats.programsCount} />
+					<StatCard icon="users" bg="bg-blue-100" label="Team Members" value={stats.teamCount} />
+					<StatCard icon="briefcase" bg="bg-amber-100" label="Portfolio Startups" value={stats.startupsCount} />
+					<StatCard icon="bar-chart" bg="bg-green-100" label="Profile Views" value={stats.profileViews} />
 				</div>
 
 				{/* Institution Profile Card */}
@@ -67,7 +68,7 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 							<h2 className="text-xl font-bold text-(--primary) mb-1">Institution Profile</h2>
 							<p className="text-sm text-(--secondary)">Your institution is live on the platform</p>
 						</div>
-						<span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">✓ Published</span>
+						<span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Published</span>
 					</div>
 
 					<div className="grid md:grid-cols-2 gap-6">
@@ -81,7 +82,7 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 								<h3 className="font-semibold text-(--primary) text-lg">{application.name}</h3>
 								{application.tagline && <p className="text-sm text-(--secondary) mb-2">{application.tagline}</p>}
 								{application.city && application.country && (
-									<p className="text-sm text-(--secondary)">📍 {application.city}, {application.country}</p>
+									<p className="text-sm text-(--secondary) flex items-center gap-1"><AppIcon name="map-pin" className="w-3.5 h-3.5" /> {application.city}, {application.country}</p>
 								)}
 							</div>
 						</div>
@@ -141,7 +142,7 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 						{QUICK_ACTIONS.map((action) => (
 							<Link key={action.href} href={action.href} className="p-4 rounded-lg border border-(--border) hover:border-accent hover:bg-(--surface-hover) transition-all group">
 								<div className="flex items-center gap-3">
-									<span className="text-2xl">{action.emoji}</span>
+									<AppIcon name={action.icon} className="w-6 h-6 text-(--secondary)" />
 									<div>
 										<p className="font-semibold text-(--primary) group-hover:text-accent">{action.title}</p>
 										<p className="text-sm text-(--secondary)">{action.desc}</p>

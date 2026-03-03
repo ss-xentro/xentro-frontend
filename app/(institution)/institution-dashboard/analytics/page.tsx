@@ -172,24 +172,24 @@ export default function AnalyticsPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm">Basic Info</span>
-                <span className="text-green-600">✓ Complete</span>
+                <span className="text-green-600 flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Complete</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Programs</span>
                 <span className={data.programsCount > 0 ? 'text-green-600' : 'text-amber-600'}>
-                  {data.programsCount > 0 ? '✓ Added' : 'Add programs'}
+                  {data.programsCount > 0 ? <span className="flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Added</span> : 'Add programs'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Startups</span>
                 <span className={data.startupsCount > 0 ? 'text-green-600' : 'text-amber-600'}>
-                  {data.startupsCount > 0 ? '✓ Added' : 'Add startups'}
+                  {data.startupsCount > 0 ? <span className="flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Added</span> : 'Add startups'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Team Members</span>
                 <span className={data.teamMembersCount > 0 ? 'text-green-600' : 'text-amber-600'}>
-                  {data.teamMembersCount > 0 ? '✓ Added' : 'Invite team'}
+                  {data.teamMembersCount > 0 ? <span className="flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Added</span> : 'Invite team'}
                 </span>
               </div>
             </div>

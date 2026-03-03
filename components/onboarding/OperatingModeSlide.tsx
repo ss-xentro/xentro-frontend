@@ -25,11 +25,11 @@ export default function OperatingModeSlide({ value, onChange, className }: Opera
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {options.map(([mode, { label, emoji }]) => (
+                {options.map(([mode, { label, icon }]) => (
                     <SelectionCard
                         key={mode}
                         label={label}
-                        emoji={emoji}
+                        icon={icon}
                         selected={value === mode}
                         onClick={() => onChange(mode)}
                         className="h-full"

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, Button, Input, Badge, VerifiedBadge, StatusBadge } from '@/components/ui';
 import { institutionTypeLabels, Institution } from '@/lib/types';
 import { formatNumber } from '@/lib/utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -298,7 +299,7 @@ export default function InstitutionsPage() {
                                                     {institution.logo ? (
                                                         <img src={institution.logo} alt={institution.name} className="w-full h-full object-contain" />
                                                     ) : (
-                                                        <span className="text-lg">{(institutionTypeLabels[institution.type]?.emoji) ?? '🏢'}</span>
+                                                        <AppIcon name={(institutionTypeLabels[institution.type]?.icon) ?? 'building'} className="w-5 h-5 text-(--secondary)" />
                                                     )}
                                                 </div>
                                                 <div>
@@ -357,7 +358,7 @@ export default function InstitutionsPage() {
 
 function InstitutionCard({ institution, index, onDelete }: { institution: Institution; index: number; onDelete: (id: string, name: string) => void }) {
     const router = useRouter();
-    const typeInfo = institutionTypeLabels[institution.type] ?? { label: institution.type, emoji: '🏢', description: '' };
+    const typeInfo = institutionTypeLabels[institution.type] ?? { label: institution.type, icon: 'building', description: '' };
 
     return (
         <Card
@@ -370,7 +371,7 @@ function InstitutionCard({ institution, index, onDelete }: { institution: Instit
                     {institution.logo ? (
                         <img src={institution.logo} alt={institution.name} className="w-full h-full object-contain" />
                     ) : (
-                        <span className="text-2xl">{typeInfo.emoji}</span>
+                        <AppIcon name={typeInfo.icon} className="w-6 h-6 text-(--secondary)" />
                     )}
                 </div>
                 <StatusBadge status={institution.status} />

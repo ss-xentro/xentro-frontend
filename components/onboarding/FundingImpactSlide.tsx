@@ -1,6 +1,7 @@
 'use client';
 
 import { Input, Select } from '@/components/ui';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { currencies } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -57,8 +58,9 @@ export default function FundingImpactSlide({
                     </div>
                 </div>
 
-                <p className="text-sm text-(--secondary) bg-(--surface-hover) p-4 rounded-lg">
-                    💡 Including funding metrics increases trust and attracts high-quality startups to the program.
+                <p className="text-sm text-(--secondary) bg-(--surface-hover) p-4 rounded-lg flex items-start gap-2">
+                    <AppIcon name="lightbulb" className="w-4 h-4 shrink-0 mt-0.5" />
+                    Including funding metrics increases trust and attracts high-quality startups to the program.
                 </p>
             </div>
         </div>

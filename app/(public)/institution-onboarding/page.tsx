@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Card, Input, Button, ProgressIndicator } from '@/components/ui';
 import { OnboardingFormData } from '@/lib/types';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 const steps = ['Name', 'Admin', 'Email', 'Verify'];
 
@@ -302,7 +303,7 @@ export default function InstitutionOnboardingPage() {
                 </div>
                 {verified && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center animate-fadeIn" role="status" aria-live="polite">
-                    <p className="text-green-900 font-medium">✓ Email verified successfully</p>
+                    <p className="text-green-900 font-medium"><AppIcon name="check" className="w-4 h-4 inline mr-1" />Email verified successfully</p>
                     <p className="text-green-800 text-sm mt-1">Redirecting to your dashboard...</p>
                   </div>
                 )}

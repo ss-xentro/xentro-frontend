@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
 import { InstitutionApplication } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -130,7 +131,7 @@ export default function InstitutionApprovalsPage() {
             {app.description && <p className="text-sm text-(--secondary) line-clamp-3">{app.description}</p>}
 
             <div className="flex items-center gap-3 text-sm text-(--secondary)">
-              {app.city && <span>📍 {app.city}{app.country ? `, ${app.country}` : ''}</span>}
+              {app.city && <span className="flex items-center gap-1"><AppIcon name="map-pin" className="w-3.5 h-3.5" />{app.city}{app.country ? `, ${app.country}` : ''}</span>}
               {app.website && (
                 <a className="text-accent hover:underline" href={app.website} target="_blank" rel="noreferrer">
                   Visit site

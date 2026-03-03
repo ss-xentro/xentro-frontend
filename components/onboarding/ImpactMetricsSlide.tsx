@@ -1,6 +1,7 @@
 'use client';
 
 import { Input } from '@/components/ui';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { cn } from '@/lib/utils';
 
 interface ImpactMetricsSlideProps {
@@ -36,11 +37,7 @@ export default function ImpactMetricsSlide({
                     placeholder="0"
                     value={startupsSupported === 0 ? '' : startupsSupported}
                     onChange={(e) => onStartupsChange(parseInt(e.target.value) || 0)}
-                    icon={
-                        <span role="img" aria-label="rocket">
-                            🚀
-                        </span>
-                    }
+                    icon={<AppIcon name="rocket" className="w-5 h-5 text-(--secondary)" />}
                     autoFocus
                 />
 
@@ -50,11 +47,7 @@ export default function ImpactMetricsSlide({
                     placeholder="0"
                     value={studentsMentored === 0 ? '' : studentsMentored}
                     onChange={(e) => onStudentsChange(parseInt(e.target.value) || 0)}
-                    icon={
-                        <span role="img" aria-label="student">
-                            🎓
-                        </span>
-                    }
+                    icon={<AppIcon name="graduation-cap" className="w-5 h-5 text-(--secondary)" />}
                 />
             </div>
         </div>

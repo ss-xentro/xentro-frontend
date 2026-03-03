@@ -7,6 +7,7 @@ import {
     VerifiedBadge,
     SDGBadge
 } from '@/components/ui';
+import { AppIcon } from '@/components/ui/AppIcon';
 import {
     OnboardingFormData,
     institutionTypeLabels,
@@ -60,7 +61,7 @@ export default function ReviewPublishSlide({
                             {formData.logo ? (
                                 <img src={formData.logo} alt="Logo" className="w-full h-full object-contain p-2" />
                             ) : (
-                                <span className="text-2xl">🏛️</span>
+                                <AppIcon name="landmark" className="w-8 h-8 text-(--secondary)" />
                             )}
                         </div>
                         <div>
@@ -72,7 +73,7 @@ export default function ReviewPublishSlide({
                             <div className="flex flex-wrap gap-2">
                                 {typeInfo && <Badge>{typeInfo.label}</Badge>}
                                 <span className="text-sm text-(--secondary) flex items-center gap-1">
-                                    📍 {formData.city}, {formData.country}
+                                    <AppIcon name="map-pin" className="w-4 h-4" /> {formData.city}, {formData.country}
                                 </span>
                             </div>
                         </div>
@@ -109,7 +110,7 @@ export default function ReviewPublishSlide({
                             <p className="text-xs text-(--secondary)">Funding</p>
                         </div>
                         <div className="p-3 bg-(--surface-hover) rounded-lg text-center">
-                            <p className="text-2xl font-bold text-(--primary)">{modeInfo?.emoji}</p>
+                            <AppIcon name={modeInfo?.icon || 'globe'} className="w-6 h-6 text-(--primary) mx-auto mb-1" />
                             <p className="text-xs text-(--secondary)">{modeInfo?.label}</p>
                         </div>
                     </div>
@@ -139,7 +140,7 @@ export default function ReviewPublishSlide({
                             <div className="flex flex-wrap gap-2">
                                 {formData.sectorFocus.map((sector) => (
                                     <Badge key={sector} variant="outline" className="gap-1">
-                                        {sectorLabels[sector]?.emoji} {sectorLabels[sector]?.label ?? sector}
+                                        <AppIcon name={sectorLabels[sector]?.icon || 'folder'} className="w-3.5 h-3.5" /> {sectorLabels[sector]?.label ?? sector}
                                     </Badge>
                                 ))}
                             </div>
@@ -154,7 +155,7 @@ export default function ReviewPublishSlide({
                     Save as Draft
                 </Button>
                 <Button size="lg" onClick={onPublish} className="bg-success hover:bg-[#059669] shadow-(--shadow-lg)">
-                    <span className="mr-2">✓</span> Get Approval (Cmd+Enter)
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Get Approval (Cmd+Enter)
                 </Button>
             </div>
         </div>

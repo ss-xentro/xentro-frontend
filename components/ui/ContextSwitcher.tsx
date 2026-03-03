@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 interface UserContext {
   context: string;
@@ -19,11 +20,11 @@ interface ContextSwitcherProps {
 }
 
 const CONTEXT_META: Record<string, { label: string; icon: string; href: string }> = {
-  explorer: { label: 'Explorer', icon: '🔍', href: '/feed' },
-  startup: { label: 'Startup', icon: '🚀', href: '/dashboard' },
-  mentor: { label: 'Mentor', icon: '🎯', href: '/mentor-dashboard' },
-  institute: { label: 'Institution', icon: '🏛️', href: '/institution-dashboard' },
-  admin: { label: 'Admin', icon: '⚙️', href: '/admin/dashboard' },
+  explorer: { label: 'Explorer', icon: 'search', href: '/feed' },
+  startup: { label: 'Startup', icon: 'rocket', href: '/dashboard' },
+  mentor: { label: 'Mentor', icon: 'target', href: '/mentor-dashboard' },
+  institute: { label: 'Institution', icon: 'landmark', href: '/institution-dashboard' },
+  admin: { label: 'Admin', icon: 'settings', href: '/admin/dashboard' },
 };
 
 export function ContextSwitcher({ token, currentContext = 'explorer', contexts = [], onContextSwitch }: ContextSwitcherProps) {
@@ -99,7 +100,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
   if (contexts.length <= 1 && contexts[0]?.context === 'explorer') {
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-(--background)">
-        <span>{currentMeta.icon}</span>
+        <AppIcon name={currentMeta.icon} className="w-4 h-4" />
         <span className="text-sm font-medium">{currentMeta.label}</span>
       </div>
     );
@@ -119,7 +120,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
           switching && 'opacity-50 cursor-not-allowed'
         )}
       >
-        <span>{currentMeta.icon}</span>
+        <AppIcon name={currentMeta.icon} className="w-4 h-4" />
         <span className="text-sm font-medium">{currentMeta.label}</span>
         <svg
           className={cn('w-4 h-4 transition-transform', isOpen && 'rotate-180')}
@@ -139,7 +140,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
           </div>
           <div className="py-1">
             {contexts.map((ctx, index) => {
-              const meta = CONTEXT_META[ctx.context] || { label: ctx.context, icon: '📁', href: '#' };
+              const meta = CONTEXT_META[ctx.context] || { label: ctx.context, icon: 'folder', href: '#' };
               const isActive = ctx.context === currentContext && ctx.entityId === contexts.find(c => c.context === currentContext)?.entityId;
 
               return (
@@ -155,7 +156,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
                     isActive && 'bg-accent/10'
                   )}
                 >
-                  <span className="text-lg">{meta.icon}</span>
+                  <AppIcon name={meta.icon} className="w-5 h-5" />
                   <div className="flex-1 min-w-0">
                     <p className={cn(
                       'text-sm font-medium',
