@@ -120,11 +120,17 @@ export default function StartupOnboardingPage() {
                     // Store the authentication token if provided
                     if (resData.token) {
                         localStorage.setItem('founder_token', resData.token);
-                        localStorage.setItem('xentro_session', JSON.stringify({
+                        const sessionData = {
                             token: resData.token,
                             user: resData.user,
                             expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
-                        }));
+                        };
+                        localStorage.setItem('xentro_session', JSON.stringify(sessionData));
+                        // Sync cookie for middleware
+                        if (resData.user) {
+                            const { syncAuthCookie } = await import('@/lib/auth-utils');
+                            syncAuthCookie(resData.user);
+                        }
                     }
 
                     clearInterval(pollInterval);

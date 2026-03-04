@@ -178,7 +178,8 @@ export interface User {
   email: string;
   name: string;
   avatar: string;
-  role: 'admin' | 'startup' | 'mentor' | 'institution' | 'investor';
+  role: 'admin' | 'startup' | 'founder' | 'mentor' | 'institution' | 'investor';
+  unlockedContexts?: string[];
 }
 
 export interface Program {

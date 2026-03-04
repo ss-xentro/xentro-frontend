@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/contexts/AuthContext';
-import { clearAllRoleTokens } from '@/lib/auth-utils';
+import { clearAllRoleTokens, syncAuthCookie } from '@/lib/auth-utils';
 
 // All logins redirect to /feed — users navigate to their dashboard from there
 const DASHBOARD_MAP: Record<string, string> = {
@@ -38,12 +38,14 @@ function storeSession(data: { user: Record<string, unknown>; token: string; star
     }
 
     // Also store in xentro_session for AuthContext
+    const sessionUser = { ...data.user, role };
     const session = {
-        user: { ...data.user, role },
+        user: sessionUser,
         token: data.token,
         expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
     };
     localStorage.setItem('xentro_session', JSON.stringify(session));
+    syncAuthCookie(sessionUser);
 
     return role;
 }

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { User } from '@/lib/types';
-import { clearAllRoleTokens } from '@/lib/auth-utils';
+import { clearAllRoleTokens, syncAuthCookie, clearAuthCookie } from '@/lib/auth-utils';
 
 interface AuthContextType {
     user: User | null;
@@ -33,8 +33,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (parsed?.expiresAt && parsed.expiresAt > Date.now()) {
                 setUser(parsed.user);
                 setToken(parsed.token || null);
+                // Sync cookie on hydrate so middleware stays in sync
+                syncAuthCookie(parsed.user);
             } else {
                 localStorage.removeItem(SESSION_KEY);
+                clearAuthCookie();
             }
         } catch (err) {
             console.warn('Failed to restore session', err);
@@ -69,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             const session = { user: loggedInUser, token: jwt, expiresAt: Date.now() + FIVE_DAYS_MS };
             localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+            syncAuthCookie(loggedInUser);
 
             setIsLoading(false);
             return { success: true };
@@ -84,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(newToken);
         const session = { user: newUser, token: newToken, expiresAt: Date.now() + FIVE_DAYS_MS };
         localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        syncAuthCookie(newUser);
     }, []);
 
     const logout = useCallback(() => {
@@ -92,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (typeof window !== 'undefined') {
             localStorage.removeItem(SESSION_KEY);
             clearAllRoleTokens();
+            clearAuthCookie();
         }
     }, []);
 

@@ -4,6 +4,31 @@
 const ROLE_TOKEN_KEYS = ['founder_token', 'mentor_token', 'investor_token', 'institution_token'];
 const EXTRA_SESSION_KEYS = ['startup_id', 'startup-onboarding-storage'];
 
+const AUTH_COOKIE = 'xentro_auth';
+const FIVE_DAYS_SECONDS = 5 * 24 * 60 * 60;
+
+/**
+ * syncAuthCookie — sets a lightweight cookie with role + contexts so Next.js middleware
+ * can read auth state on the server/edge.
+ */
+export function syncAuthCookie(user: { role?: string; unlockedContexts?: string[]; unlocked_contexts?: string[] }) {
+    if (typeof document === 'undefined') return;
+    const u = user as Record<string, unknown>;
+    const payload = JSON.stringify({
+        role: user.role || u.account_type || u.accountType || '',
+        contexts: user.unlockedContexts ?? user.unlocked_contexts ?? [],
+    });
+    document.cookie = `${AUTH_COOKIE}=${encodeURIComponent(payload)}; path=/; max-age=${FIVE_DAYS_SECONDS}; SameSite=Lax`;
+}
+
+/**
+ * clearAuthCookie — removes the auth cookie (called on logout).
+ */
+export function clearAuthCookie() {
+    if (typeof document === 'undefined') return;
+    document.cookie = `${AUTH_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+}
+
 /**
  * clearAllRoleTokens — removes every role-specific token and session artifact
  * from localStorage. Call this on login (before setting the new token) and on logout.
