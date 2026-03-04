@@ -16,11 +16,13 @@ interface UserRecord {
 	unlockedContexts: string[];
 	emailVerified: boolean;
 	isActive: boolean;
+	isDeleted: boolean;
+	deletedAt: string | null;
 	lastLoginAt: string | null;
 	createdAt: string | null;
 }
 
-const ACCOUNT_TYPES = ['explorer', 'startup', 'mentor', 'investor', 'institution', 'admin'];
+const ACCOUNT_TYPES = ['explorer', 'startup', 'mentor', 'investor', 'institution', 'admin', 'approver'];
 
 const TYPE_COLORS: Record<string, string> = {
 	explorer: 'bg-gray-100 text-gray-700',
@@ -29,6 +31,7 @@ const TYPE_COLORS: Record<string, string> = {
 	investor: 'bg-amber-100 text-amber-700',
 	institution: 'bg-purple-100 text-purple-700',
 	admin: 'bg-red-100 text-red-700',
+	approver: 'bg-teal-100 text-teal-700',
 };
 
 export default function AdminUsersPage() {
@@ -36,6 +39,7 @@ export default function AdminUsersPage() {
 	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState('');
 	const [filterType, setFilterType] = useState('');
+	const [filterStatus, setFilterStatus] = useState('');
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [total, setTotal] = useState(0);
@@ -61,6 +65,7 @@ export default function AdminUsersPage() {
 		const params = new URLSearchParams({ page: String(page), per_page: '25' });
 		if (search) params.set('search', search);
 		if (filterType) params.set('account_type', filterType);
+		if (filterStatus) params.set('status', filterStatus);
 
 		try {
 			const res = await fetch(`/api/admin/users/?${params}`, {
@@ -76,7 +81,7 @@ export default function AdminUsersPage() {
 		} finally {
 			setLoading(false);
 		}
-	}, [page, search, filterType]);
+	}, [page, search, filterType, filterStatus]);
 
 	useEffect(() => {
 		fetchUsers();
@@ -153,6 +158,16 @@ export default function AdminUsersPage() {
 							<option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
 						))}
 					</select>
+					<select
+						value={filterStatus}
+						onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
+						className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none bg-white"
+					>
+						<option value="">All Statuses</option>
+						<option value="active">Active</option>
+						<option value="disabled">Disabled</option>
+						<option value="deleted">Deleted</option>
+					</select>
 				</div>
 			</Card>
 
@@ -222,8 +237,13 @@ export default function AdminUsersPage() {
 										)}
 									</td>
 									<td className="px-4 py-3">
-										<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-											{user.isActive ? 'Active' : 'Disabled'}
+										<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${user.isDeleted
+												? 'bg-gray-100 text-gray-500'
+												: user.isActive
+													? 'bg-green-100 text-green-700'
+													: 'bg-red-100 text-red-700'
+											}`}>
+											{user.isDeleted ? 'Deleted' : user.isActive ? 'Active' : 'Disabled'}
 										</span>
 									</td>
 									<td className="px-4 py-3 text-xs text-gray-500">
@@ -250,8 +270,8 @@ export default function AdminUsersPage() {
 														onClick={() => toggleActive(user.id, user.isActive)}
 														disabled={toggling === user.id}
 														className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors disabled:opacity-50 ${user.isActive
-																? 'text-amber-600 hover:bg-amber-50'
-																: 'text-green-600 hover:bg-green-50'
+															? 'text-amber-600 hover:bg-amber-50'
+															: 'text-green-600 hover:bg-green-50'
 															}`}
 													>
 														{user.isActive ? (

@@ -29,13 +29,8 @@ export default function CookieConsent() {
 
 	if (!visible) return null;
 
-	const handleAcceptAll = () => {
+	const handleOkay = () => {
 		setConsent('all');
-		setVisible(false);
-	};
-
-	const handleAcceptNecessary = () => {
-		setConsent('necessary');
 		setVisible(false);
 	};
 
@@ -67,16 +62,10 @@ export default function CookieConsent() {
 				{/* Actions */}
 				<div className="flex items-center gap-2">
 					<button
-						onClick={handleAcceptAll}
-						className="flex-1 px-4 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
+						onClick={handleOkay}
+						className="w-full px-4 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
 					>
-						Accept All
-					</button>
-					<button
-						onClick={handleAcceptNecessary}
-						className="flex-1 px-4 py-2 text-xs font-medium text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-colors"
-					>
-						Accept Necessary
+						Okay
 					</button>
 				</div>
 			</div>
