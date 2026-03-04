@@ -115,7 +115,7 @@ export default function AppShell({ children, rightSidebar }: AppShellProps) {
   const handleLogout = () => {
     logout();
     setProfileOpen(false);
-    router.push('/feed');
+    router.push('/guest');
   };
 
   /* active-state helper */
