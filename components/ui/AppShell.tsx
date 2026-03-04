@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
   startup: 'Startup Founder',
+  founder: 'Startup Founder',
   mentor: 'Mentor',
   institution: 'Institution',
   investor: 'Investor',
@@ -21,11 +22,12 @@ function getDashboardUrl(role?: string): string {
   const roleMap: Record<string, string> = {
     admin: '/admin/dashboard',
     startup: '/dashboard',
+    founder: '/dashboard',
     mentor: '/mentor-dashboard',
     institution: '/institution-dashboard',
     investor: '/investor-dashboard',
   };
-  return role && roleMap[role] ? roleMap[role] : '/feed';
+  return role && roleMap[role] ? roleMap[role] : '/home';
 }
 
 /* ─── Nav items (shared across all app-shell pages) ─── */

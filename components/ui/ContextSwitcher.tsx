@@ -71,11 +71,13 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
 
       const data = await res.json();
 
-      // Store the new context token
-      localStorage.setItem('xentro_context_token', data.token);
-      localStorage.setItem('xentro_current_context', targetContext.context);
+      // Store the new context token in cookies
+      const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+      const maxAge = 5 * 24 * 60 * 60;
+      document.cookie = `xentro_context_token=${encodeURIComponent(data.token)}; path=/; max-age=${maxAge}; SameSite=Lax${secure}`;
+      document.cookie = `xentro_current_context=${encodeURIComponent(targetContext.context)}; path=/; max-age=${maxAge}; SameSite=Lax${secure}`;
       if (targetContext.entityId) {
-        localStorage.setItem('xentro_context_entity_id', targetContext.entityId);
+        document.cookie = `xentro_context_entity_id=${encodeURIComponent(targetContext.entityId)}; path=/; max-age=${maxAge}; SameSite=Lax${secure}`;
       }
 
       onContextSwitch?.(targetContext);

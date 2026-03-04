@@ -2,7 +2,10 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { User } from '@/lib/types';
-import { clearAllRoleTokens, syncAuthCookie, clearAuthCookie } from '@/lib/auth-utils';
+import {
+    clearAllRoleTokens, syncAuthCookie, clearAuthCookie, getAuthCookie,
+    setTokenCookie, clearTokenCookie, normalizeUser, cleanupLegacyStorage,
+} from '@/lib/auth-utils';
 
 interface AuthContextType {
     user: User | null;
@@ -16,32 +19,35 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const SESSION_KEY = 'xentro_session';
-const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
-
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Hydrate session from localStorage with 6h expiry
+    // Hydrate session from cookie (with legacy localStorage migration)
     useEffect(() => {
         try {
-            const raw = typeof window !== 'undefined' ? localStorage.getItem(SESSION_KEY) : null;
-            if (!raw) return;
-            const parsed = JSON.parse(raw) as { user: User; token: string; expiresAt: number };
-            if (parsed?.expiresAt && parsed.expiresAt > Date.now()) {
-                setUser(parsed.user);
-                setToken(parsed.token || null);
-                // Sync cookie on hydrate so middleware stays in sync
-                syncAuthCookie(parsed.user);
-            } else {
-                localStorage.removeItem(SESSION_KEY);
-                clearAuthCookie();
+            // Migrate any leftover localStorage data to cookies first
+            cleanupLegacyStorage();
+
+            const session = getAuthCookie();
+            if (session && session.role) {
+                const hydratedUser: User = {
+                    id: session.id || '',
+                    email: session.email || '',
+                    name: session.name || '',
+                    avatar: session.avatar || '',
+                    role: session.role as User['role'],
+                    unlockedContexts: session.contexts,
+                };
+                setUser(hydratedUser);
+                // Token is in HttpOnly cookie — we don't have access client-side
+                // but we keep a flag so components know we're authenticated
+                setToken('httponly');
             }
         } catch (err) {
             console.warn('Failed to restore session', err);
-            localStorage.removeItem(SESSION_KEY);
+            clearAuthCookie();
         } finally {
             setIsLoading(false);
         }
@@ -64,15 +70,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 return { success: false, error: data.message || 'Invalid email or password' };
             }
 
-            const loggedInUser: User = data.user;
+            const normalized = normalizeUser(data.user);
+            const loggedInUser: User = {
+                id: normalized.id || '',
+                email: normalized.email || '',
+                name: normalized.name || '',
+                avatar: normalized.avatar || '',
+                role: (normalized.role || 'admin') as User['role'],
+                unlockedContexts: normalized.contexts,
+            };
             const jwt: string = data.token;
 
             setUser(loggedInUser);
             setToken(jwt);
 
-            const session = { user: loggedInUser, token: jwt, expiresAt: Date.now() + FIVE_DAYS_MS };
-            localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-            syncAuthCookie(loggedInUser);
+            // Store token in HttpOnly cookie
+            await setTokenCookie(jwt);
+            // Store user metadata in readable cookie
+            syncAuthCookie(data.user);
+            // Clean up any old localStorage data
+            clearAllRoleTokens();
 
             setIsLoading(false);
             return { success: true };
@@ -86,19 +103,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const setSession = useCallback((newUser: User, newToken: string) => {
         setUser(newUser);
         setToken(newToken);
-        const session = { user: newUser, token: newToken, expiresAt: Date.now() + FIVE_DAYS_MS };
-        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-        syncAuthCookie(newUser);
+        // Store user metadata cookie
+        syncAuthCookie(newUser as unknown as Record<string, unknown>);
+        // Store token in HttpOnly cookie (fire and forget)
+        setTokenCookie(newToken);
     }, []);
 
-    const logout = useCallback(() => {
+    const logout = useCallback(async () => {
         setUser(null);
         setToken(null);
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem(SESSION_KEY);
-            clearAllRoleTokens();
-            clearAuthCookie();
-        }
+        clearAuthCookie();
+        clearAllRoleTokens();
+        await clearTokenCookie();
     }, []);
 
     return (

@@ -11,16 +11,9 @@ import { useAuth } from '@/contexts/AuthContext';
 
 function getAuthToken(token: string | null): string | null {
     if (token) return token;
-    if (typeof window === 'undefined') return null;
-    try {
-        const raw = localStorage.getItem('xentro_session');
-        if (!raw) return null;
-        const parsed = JSON.parse(raw) as { token?: string; expiresAt?: number };
-        if (parsed?.expiresAt && parsed.expiresAt <= Date.now()) return null;
-        return parsed?.token || null;
-    } catch {
-        return null;
-    }
+    // Fallback: read from cookie-based session
+    const { getSessionToken } = require('@/lib/auth-utils');
+    return getSessionToken('admin');
 }
 
 export default function InstitutionsPage() {

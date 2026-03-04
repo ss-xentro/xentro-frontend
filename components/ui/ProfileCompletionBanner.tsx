@@ -41,19 +41,12 @@ export default function ProfileCompletionBanner() {
         const role = getRoleFromSession();
         if (role !== 'mentor') { setLoading(false); return; }
 
-        const token = getSessionToken('mentor') || localStorage.getItem('mentor_token');
+        const token = getSessionToken('mentor');
         if (!token) { setLoading(false); return; }
 
         async function checkProfile() {
             try {
-                let authToken = token;
-                try {
-                    const raw = localStorage.getItem('xentro_session');
-                    if (raw) {
-                        const session = JSON.parse(raw);
-                        if (session?.token) authToken = session.token;
-                    }
-                } catch { /* */ }
+                const authToken = token;
 
                 const res = await fetch('/api/auth/mentor-profile/', {
                     headers: { Authorization: `Bearer ${authToken}` },

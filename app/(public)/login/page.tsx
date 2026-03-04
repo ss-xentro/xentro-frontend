@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/contexts/AuthContext';
-import { clearAllRoleTokens, syncAuthCookie } from '@/lib/auth-utils';
+import { clearAllRoleTokens, syncAuthCookie, setRoleToken, setTokenCookie, normalizeUser } from '@/lib/auth-utils';
 
 // All logins redirect to /feed — users navigate to their dashboard from there
 const DASHBOARD_MAP: Record<string, string> = {
@@ -25,27 +25,17 @@ function storeSession(data: { user: Record<string, unknown>; token: string; star
     // Clear ALL previous role tokens to prevent stale cross-role access
     clearAllRoleTokens();
 
-    const role = (data.user?.account_type || data.user?.role || data.user?.accountType || 'explorer') as string;
-    const tokenKey = role === 'mentor' ? 'mentor_token'
-        : role === 'institution' ? 'institution_token'
-            : role === 'investor' ? 'investor_token'
-                : 'founder_token';
+    const normalized = normalizeUser(data.user);
+    const role = normalized.role || 'explorer';
 
-    localStorage.setItem(tokenKey, data.token);
+    // Store role-specific token in cookie
+    setRoleToken(role, data.token);
 
-    if (data.startupId) {
-        localStorage.setItem('startup_id', data.startupId);
-    }
+    // Store JWT in HttpOnly cookie (fire and forget)
+    setTokenCookie(data.token);
 
-    // Also store in xentro_session for AuthContext
-    const sessionUser = { ...data.user, role };
-    const session = {
-        user: sessionUser,
-        token: data.token,
-        expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
-    };
-    localStorage.setItem('xentro_session', JSON.stringify(session));
-    syncAuthCookie(sessionUser);
+    // Store user metadata in readable cookie
+    syncAuthCookie(data.user);
 
     return role;
 }
@@ -119,8 +109,9 @@ export default function UnifiedLoginPage() {
             }
 
             const role = storeSession(data);
-            // Update AuthContext so AuthGuard sees the user as authenticated
-            setSession(data.user as any, data.token);
+            // Build a proper User object for AuthContext
+            const norm = normalizeUser(data.user);
+            setSession({ id: norm.id || '', email: norm.email || '', name: norm.name || '', avatar: norm.avatar || '', role: (norm.role || role) as any, unlockedContexts: norm.contexts }, data.token);
             const destination = DASHBOARD_MAP[role] || '/feed';
             router.push(destination);
         } catch (err) {
@@ -156,7 +147,8 @@ export default function UnifiedLoginPage() {
             }
 
             const role = storeSession(data);
-            setSession(data.user as any, data.token);
+            const norm2 = normalizeUser(data.user);
+            setSession({ id: norm2.id || '', email: norm2.email || '', name: norm2.name || '', avatar: norm2.avatar || '', role: (norm2.role || role) as any, unlockedContexts: norm2.contexts }, data.token);
             const destination = DASHBOARD_MAP[role] || '/feed';
             router.push(destination);
         } catch (err) {

@@ -76,11 +76,12 @@ function getDashboardUrl(role?: string): string {
   const roleMap: Record<string, string> = {
     admin: '/admin/dashboard',
     startup: '/dashboard',
+    founder: '/dashboard',
     mentor: '/mentor-dashboard',
     institution: '/institution-dashboard',
     investor: '/investor-dashboard',
   };
-  return role && roleMap[role] ? roleMap[role] : '/feed';
+  return role && roleMap[role] ? roleMap[role] : '/home';
 
 }
 
@@ -218,6 +219,7 @@ function PostCard({ post, isLast, onRequireAuth }: { post: Post; isLast?: boolea
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
   startup: 'Startup Founder',
+  founder: 'Startup Founder',
   mentor: 'Mentor',
   institution: 'Institution',
   investor: 'Investor',

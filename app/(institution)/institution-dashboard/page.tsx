@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus, Institution, LegalDocument, operatingModeLabels, sdgLabels, sectorLabels } from '@/lib/types';
-import { getSessionToken, syncAuthCookie } from '@/lib/auth-utils';
+import { getSessionToken, syncAuthCookie, setRoleToken, setTokenCookie } from '@/lib/auth-utils';
 import OnboardingWizard from './_components/OnboardingWizard';
 import ApprovedDashboard from './_components/ApprovedDashboard';
 import PendingApplicationView from './_components/PendingApplicationView';
@@ -70,7 +70,8 @@ export default function InstitutionDashboardPage() {
   useEffect(() => {
     const urlToken = searchParams.get('token');
     if (urlToken) {
-      localStorage.setItem('institution_token', urlToken);
+      setRoleToken('institution', urlToken);
+      setTokenCookie(urlToken);
 
       (async () => {
         try {
@@ -79,33 +80,12 @@ export default function InstitutionDashboardPage() {
           });
           if (res.ok) {
             const data = await res.json();
-            const sessionUser = { ...data.user, role: 'institution' };
-            const session = {
-              user: sessionUser,
-              token: urlToken,
-              expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
-            };
-            localStorage.setItem('xentro_session', JSON.stringify(session));
-            syncAuthCookie(sessionUser);
+            syncAuthCookie({ ...data.user, role: 'institution' });
           } else {
-            const sessionUser = { role: 'institution' };
-            const session = {
-              user: sessionUser,
-              token: urlToken,
-              expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
-            };
-            localStorage.setItem('xentro_session', JSON.stringify(session));
-            syncAuthCookie(sessionUser);
+            syncAuthCookie({ role: 'institution' });
           }
         } catch {
-          const sessionUser = { role: 'institution' };
-          const session = {
-            user: sessionUser,
-            token: urlToken,
-            expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
-          };
-          localStorage.setItem('xentro_session', JSON.stringify(session));
-          syncAuthCookie(sessionUser);
+          syncAuthCookie({ role: 'institution' });
         }
         router.replace('/institution-dashboard');
       })();

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button, Card, Badge } from '@/components/ui';
+import { getAuthCookie } from '@/lib/auth-utils';
 
 interface UserShape {
   id: string;
@@ -27,15 +28,24 @@ export default function ProfilePage() {
 
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem('xentro_user');
-      if (storedUser) setUser(JSON.parse(storedUser));
+      const session = getAuthCookie();
+      if (session) {
+        setUser({
+          id: session.id || '',
+          name: session.name,
+          email: session.email,
+          avatar: session.avatar,
+          unlockedContexts: session.contexts,
+        });
+      }
     } catch (_err) {
       setUser(null);
     }
 
     try {
-      const storedJoin = localStorage.getItem('xentro_join_state_v2');
-      if (storedJoin) setJoinState(JSON.parse(storedJoin));
+      // Join state stored in a cookie during onboarding
+      const match = document.cookie.match(/(?:^|; )xentro_join_state=([^;]*)/);
+      if (match) setJoinState(JSON.parse(decodeURIComponent(match[1])));
     } catch (_err) {
       setJoinState(null);
     }

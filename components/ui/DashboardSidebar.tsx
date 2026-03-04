@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useState } from 'react';
-import { getRoleFromSession, getSessionToken, getUnlockedContexts } from '@/lib/auth-utils';
+import { getRoleFromSession, getSessionToken, getUnlockedContexts, clearAllRoleTokens, clearAuthCookie, clearTokenCookie } from '@/lib/auth-utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -239,8 +239,9 @@ export function DashboardSidebar({ children, userType }: DashboardSidebarProps) 
 			} catch (error) {
 				console.error('Logout error:', error);
 			} finally {
-				localStorage.removeItem('xentro_session');
-				localStorage.removeItem('institution_token');
+				clearAllRoleTokens();
+				clearAuthCookie();
+				clearTokenCookie();
 				window.location.href = logoutRedirects[resolvedRole];
 			}
 			return;
