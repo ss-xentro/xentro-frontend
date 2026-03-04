@@ -178,7 +178,7 @@ export interface User {
   email: string;
   name: string;
   avatar: string;
-  role: 'admin';
+  role: 'admin' | 'startup' | 'mentor' | 'institution' | 'investor';
 }
 
 export interface Program {

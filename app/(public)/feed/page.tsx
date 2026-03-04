@@ -80,7 +80,9 @@ function getDashboardUrl(role?: string): string {
     institution: '/institution-dashboard',
     investor: '/investor-dashboard',
   };
+  console.log(role, roleMap, roleMap[role]);
   return role && roleMap[role] ? roleMap[role] : '/feed';
+
 }
 
 const trending = [
