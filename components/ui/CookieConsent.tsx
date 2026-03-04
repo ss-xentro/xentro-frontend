@@ -6,14 +6,14 @@ const CONSENT_COOKIE = 'xentro_cookie_consent';
 
 function hasConsent(): boolean {
 	if (typeof document === 'undefined') return true;
-	return document.cookie.includes(`${CONSENT_COOKIE}=accepted`);
+	return /xentro_cookie_consent=(all|necessary)/.test(document.cookie);
 }
 
-function acceptCookies() {
+function setConsent(level: 'all' | 'necessary') {
 	if (typeof document === 'undefined') return;
 	const maxAge = 365 * 24 * 60 * 60; // 1 year
 	const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-	document.cookie = `${CONSENT_COOKIE}=accepted; path=/; max-age=${maxAge}; SameSite=Lax${secure}`;
+	document.cookie = `${CONSENT_COOKIE}=${level}; path=/; max-age=${maxAge}; SameSite=Lax${secure}`;
 }
 
 export default function CookieConsent() {
@@ -29,16 +29,13 @@ export default function CookieConsent() {
 
 	if (!visible) return null;
 
-	const handleAccept = () => {
-		acceptCookies();
+	const handleAcceptAll = () => {
+		setConsent('all');
 		setVisible(false);
 	};
 
-	const handleDecline = () => {
-		// Even on decline we set a cookie so the banner doesn't reappear this session
-		if (typeof document !== 'undefined') {
-			document.cookie = `${CONSENT_COOKIE}=declined; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
-		}
+	const handleAcceptNecessary = () => {
+		setConsent('necessary');
 		setVisible(false);
 	};
 
@@ -65,22 +62,21 @@ export default function CookieConsent() {
 				{/* Body */}
 				<p className="text-gray-400 text-xs leading-relaxed mb-4">
 					We use cookies to keep you signed in, remember your preferences, and improve your experience.
-					By clicking &quot;Accept&quot;, you consent to our use of cookies.
 				</p>
 
 				{/* Actions */}
 				<div className="flex items-center gap-2">
 					<button
-						onClick={handleAccept}
+						onClick={handleAcceptAll}
 						className="flex-1 px-4 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
 					>
-						Accept
+						Accept All
 					</button>
 					<button
-						onClick={handleDecline}
+						onClick={handleAcceptNecessary}
 						className="flex-1 px-4 py-2 text-xs font-medium text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-colors"
 					>
-						Decline
+						Accept Necessary
 					</button>
 				</div>
 			</div>
