@@ -82,7 +82,17 @@ export default function ExploreLayout({ children }: { children: React.ReactNode 
     const router = useRouter();
     const { user, isAuthenticated, logout } = useAuth();
 
-    const navItems = baseNavItems;
+    const navItems = isAuthenticated
+        ? [
+            ...baseNavItems,
+            {
+                icon: 'dashboard',
+                label: 'Dashboard',
+                href: getDashboardUrl(user?.role),
+                path: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z',
+            },
+        ]
+        : baseNavItems;
 
     // Derive username from email
     const username = user?.email ? user.email.split('@')[0] : 'guest';

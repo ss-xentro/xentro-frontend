@@ -16,6 +16,18 @@ const ROLE_LABELS: Record<string, string> = {
   investor: 'Investor',
 };
 
+/* ─── Dashboard URL helper ─── */
+function getDashboardUrl(role?: string): string {
+  const roleMap: Record<string, string> = {
+    admin: '/admin/dashboard',
+    startup: '/dashboard',
+    mentor: '/mentor-dashboard',
+    institution: '/institution-dashboard',
+    investor: '/investor-dashboard',
+  };
+  return role && roleMap[role] ? roleMap[role] : '/feed';
+}
+
 /* ─── Nav items (shared across all app-shell pages) ─── */
 const NAV_ITEMS = [
   {
@@ -75,6 +87,18 @@ export default function AppShell({ children, rightSidebar }: AppShellProps) {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
 
+  const navItems = isAuthenticated
+    ? [
+      ...NAV_ITEMS,
+      {
+        icon: 'dashboard',
+        label: 'Dashboard',
+        href: getDashboardUrl(user?.role),
+        path: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z',
+      },
+    ]
+    : NAV_ITEMS;
+
   const username = user?.email ? user.email.split('@')[0] : 'guest';
 
   // Close popup on outside click
@@ -95,9 +119,10 @@ export default function AppShell({ children, rightSidebar }: AppShellProps) {
   };
 
   /* active-state helper */
-  function isActive(item: (typeof NAV_ITEMS)[number]) {
+  function isActive(item: { icon: string; label: string; href: string; path: string }) {
     if (item.href === '/explore/institute') return pathname.startsWith('/explore');
     if (item.label === 'Home') return pathname === '/home';
+    if (item.label === 'Dashboard') return pathname === item.href;
     return pathname === item.href;
   }
 
@@ -188,7 +213,7 @@ export default function AppShell({ children, rightSidebar }: AppShellProps) {
 
             {/* Navigation */}
             <nav className="space-y-1 w-full">
-              {NAV_ITEMS.map((item) => {
+              {navItems.map((item) => {
                 const active = isActive(item);
                 return (
                   <Link
@@ -329,7 +354,7 @@ export default function AppShell({ children, rightSidebar }: AppShellProps) {
       {/* ── Mobile Bottom Nav ── */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#0B0D10]/95 backdrop-blur-xl border-t border-white/10 z-50">
         <div className="flex items-center justify-around px-2 py-3">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const active = isActive(item);
             return (
               <Link
