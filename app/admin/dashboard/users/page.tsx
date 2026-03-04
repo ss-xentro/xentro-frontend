@@ -68,9 +68,9 @@ export default function AdminUsersPage() {
 		if (filterStatus) params.set('status', filterStatus);
 
 		try {
-			const res = await fetch(`/api/admin/users/?${params}`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
+			const headers: Record<string, string> = {};
+			if (token) headers.Authorization = `Bearer ${token}`;
+			const res = await fetch(`/api/admin/users/?${params}`, { headers });
 			if (!res.ok) throw new Error('Failed to load users');
 			const json = await res.json();
 			setUsers(json.data || []);
@@ -91,13 +91,12 @@ export default function AdminUsersPage() {
 		setToggling(userId);
 		setOpenMenu(null);
 		const token = getSessionToken('admin');
+		const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+		if (token) headers.Authorization = `Bearer ${token}`;
 		try {
 			await fetch(`/api/admin/users/${userId}/`, {
 				method: 'PATCH',
-				headers: {
-					Authorization: `Bearer ${token}`,
-					'Content-Type': 'application/json',
-				},
+				headers,
 				body: JSON.stringify({ isActive: !current }),
 			});
 			setUsers((prev) =>
@@ -113,10 +112,12 @@ export default function AdminUsersPage() {
 		setConfirmDelete(null);
 		setOpenMenu(null);
 		const token = getSessionToken('admin');
+		const headers: Record<string, string> = {};
+		if (token) headers.Authorization = `Bearer ${token}`;
 		try {
 			const res = await fetch(`/api/admin/users/${userId}/`, {
 				method: 'DELETE',
-				headers: { Authorization: `Bearer ${token}` },
+				headers,
 			});
 			if (res.ok) {
 				setUsers((prev) => prev.filter((u) => u.id !== userId));
@@ -238,10 +239,10 @@ export default function AdminUsersPage() {
 									</td>
 									<td className="px-4 py-3">
 										<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${user.isDeleted
-												? 'bg-gray-100 text-gray-500'
-												: user.isActive
-													? 'bg-green-100 text-green-700'
-													: 'bg-red-100 text-red-700'
+											? 'bg-gray-100 text-gray-500'
+											: user.isActive
+												? 'bg-green-100 text-green-700'
+												: 'bg-red-100 text-red-700'
 											}`}>
 											{user.isDeleted ? 'Deleted' : user.isActive ? 'Active' : 'Disabled'}
 										</span>
