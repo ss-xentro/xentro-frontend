@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// ── Auth cookie name (set by AuthContext on login) ──
+const AUTH_COOKIE = 'xentro_auth';
+
 // Security headers for all responses
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -42,27 +45,117 @@ function isRateLimited(key: string, maxRequests: number, windowMs: number): bool
   return false;
 }
 
-// Protected routes that require authentication
-const protectedPatterns = [
-  /^\/institution-dashboard/,
-  /^\/institution-edit/,
-  /^\/api\/startups$/,
-  /^\/api\/startups\/.+/,
-  /^\/api\/programs$/,
-  /^\/api\/institution-team/,
-];
-
 // Rate limits by route pattern
 const rateLimits: Record<string, { max: number; window: number }> = {
-  '/api/auth/otp/send/': { max: 5, window: 60000 }, // 5 per minute
-  '/api/auth/otp/verify/': { max: 10, window: 60000 }, // 10 per minute
-  '/api/media': { max: 20, window: 60000 }, // 20 uploads per minute
-  'default': { max: 100, window: 60000 }, // 100 requests per minute default
+  '/api/auth/otp/send/': { max: 5, window: 60000 },
+  '/api/auth/otp/verify/': { max: 10, window: 60000 },
+  '/api/media': { max: 20, window: 60000 },
+  'default': { max: 100, window: 60000 },
 };
+
+// ── Auth route definitions ──
+
+/** Routes that require ANY authenticated user */
+const AUTH_REQUIRED_PREFIXES = ['/home', '/feed', '/notifications', '/profile'];
+
+/** Role → allowed dashboard prefixes */
+const ROLE_ROUTE_MAP: Record<string, string[]> = {
+  admin: ['/admin/dashboard'],
+  startup: ['/dashboard'],
+  founder: ['/dashboard'],
+  mentor: ['/mentor-dashboard'],
+  institution: ['/institution-dashboard', '/institution-edit'],
+  investor: ['/investor-dashboard'],
+};
+
+/** Routes that guests should access; logged-in users get redirected away */
+const GUEST_ONLY_ROUTES = ['/guest', '/join', '/login', '/admin/login'];
+
+/** Prefixes that skip auth checks entirely */
+const PUBLIC_PREFIXES = [
+  '/api', '/assets', '/_next', '/favicon', '/xentro-logo',
+  '/onboarding', '/mentor-signup', '/mentor-login',
+  '/investor-login', '/investor-onboarding',
+  '/institution-login', '/institution-onboarding',
+  '/explore', '/startups', '/institutions', '/events', '/search',
+];
+
+function parseCookie(cookieValue: string): { role: string; contexts: string[] } | null {
+  try {
+    return JSON.parse(decodeURIComponent(cookieValue));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Check auth rules and return a redirect response if access is denied,
+ * or null if the request should proceed normally.
+ */
+function checkAuth(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl;
+
+  // Skip public/static routes
+  if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) return null;
+
+  // Read auth cookie
+  const authCookie = request.cookies.get(AUTH_COOKIE)?.value;
+  const auth = authCookie ? parseCookie(authCookie) : null;
+  const isLoggedIn = !!auth?.role;
+
+  // Guest-only routes: redirect logged-in users to /home
+  if (isLoggedIn && GUEST_ONLY_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))) {
+    if (pathname.startsWith('/admin/login') && auth?.role === 'admin') return null;
+    return NextResponse.redirect(new URL('/home', request.url));
+  }
+
+  // Auth-required routes
+  if (AUTH_REQUIRED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
+    if (!isLoggedIn) return NextResponse.redirect(new URL('/guest', request.url));
+    return null;
+  }
+
+  // Role-specific dashboard routes
+  for (const [role, prefixes] of Object.entries(ROLE_ROUTE_MAP)) {
+    for (const prefix of prefixes) {
+      if (pathname === prefix || pathname.startsWith(prefix + '/')) {
+        if (!isLoggedIn) return NextResponse.redirect(new URL('/login', request.url));
+
+        const userRole = auth!.role;
+        const contexts = auth!.contexts || [];
+
+        // Admin can access everything
+        if (userRole === 'admin') return null;
+
+        // Direct role match
+        if (userRole === role) return null;
+
+        // founder/startup interchangeable
+        if (
+          (role === 'startup' || role === 'founder') &&
+          (userRole === 'startup' || userRole === 'founder')
+        ) return null;
+
+        // Unlocked contexts
+        const contextName = role === 'founder' ? 'startup' : role;
+        if (contexts.includes(contextName)) return null;
+
+        // No access
+        return NextResponse.redirect(new URL('/feed', request.url));
+      }
+    }
+  }
+
+  return null; // pass through
+}
 
 export function proxy(request: NextRequest) {
   const start = performance.now();
   const pathname = request.nextUrl.pathname;
+
+  // ── Auth check (redirects if access denied) ──
+  const authResponse = checkAuth(request);
+  if (authResponse) return authResponse;
 
   // Apply rate limiting for API routes
   if (pathname.startsWith('/api/')) {
@@ -81,15 +174,6 @@ export function proxy(request: NextRequest) {
         }
       );
     }
-  }
-
-  // Check for protected routes - client-side auth check
-  // Note: Actual token verification happens in API routes
-  const isProtected = protectedPatterns.some(pattern => pattern.test(pathname));
-
-  if (isProtected && pathname.startsWith('/institution-')) {
-    // For page routes, we let them through and handle auth client-side
-    // The page will redirect to login if no token
   }
 
   const response = NextResponse.next();
