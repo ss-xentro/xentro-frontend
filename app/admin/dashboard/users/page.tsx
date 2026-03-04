@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Card, Button, Badge, Input } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
@@ -40,6 +40,20 @@ export default function AdminUsersPage() {
 	const [totalPages, setTotalPages] = useState(1);
 	const [total, setTotal] = useState(0);
 	const [toggling, setToggling] = useState<string | null>(null);
+	const [openMenu, setOpenMenu] = useState<string | null>(null);
+	const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+	const menuRef = useRef<HTMLDivElement>(null);
+
+	// Close dropdown on outside click
+	useEffect(() => {
+		const handleClick = (e: MouseEvent) => {
+			if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+				setOpenMenu(null);
+			}
+		};
+		if (openMenu) document.addEventListener('mousedown', handleClick);
+		return () => document.removeEventListener('mousedown', handleClick);
+	}, [openMenu]);
 
 	const fetchUsers = useCallback(async () => {
 		setLoading(true);
@@ -70,6 +84,7 @@ export default function AdminUsersPage() {
 
 	const toggleActive = async (userId: string, current: boolean) => {
 		setToggling(userId);
+		setOpenMenu(null);
 		const token = getSessionToken('admin');
 		try {
 			await fetch(`/api/admin/users/${userId}/`, {
@@ -83,6 +98,25 @@ export default function AdminUsersPage() {
 			setUsers((prev) =>
 				prev.map((u) => (u.id === userId ? { ...u, isActive: !current } : u))
 			);
+		} finally {
+			setToggling(null);
+		}
+	};
+
+	const deleteUser = async (userId: string) => {
+		setToggling(userId);
+		setConfirmDelete(null);
+		setOpenMenu(null);
+		const token = getSessionToken('admin');
+		try {
+			const res = await fetch(`/api/admin/users/${userId}/`, {
+				method: 'DELETE',
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			if (res.ok) {
+				setUsers((prev) => prev.filter((u) => u.id !== userId));
+				setTotal((prev) => prev - 1);
+			}
 		} finally {
 			setToggling(null);
 		}
@@ -199,16 +233,72 @@ export default function AdminUsersPage() {
 										{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
 									</td>
 									<td className="px-4 py-3 text-right">
-										<button
-											onClick={() => toggleActive(user.id, user.isActive)}
-											disabled={toggling === user.id}
-											className={`px-3 py-1 rounded text-xs font-medium transition-colors ${user.isActive
-												? 'bg-red-50 text-red-600 hover:bg-red-100'
-												: 'bg-green-50 text-green-600 hover:bg-green-100'
-												} disabled:opacity-50`}
-										>
-											{toggling === user.id ? '...' : user.isActive ? 'Disable' : 'Enable'}
-										</button>
+										<div className="relative inline-block" ref={openMenu === user.id ? menuRef : undefined}>
+											<button
+												onClick={() => setOpenMenu(openMenu === user.id ? null : user.id)}
+												className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
+												aria-label="Actions"
+											>
+												<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+													<path d="M10 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4z" />
+												</svg>
+											</button>
+
+											{openMenu === user.id && (
+												<div className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+													<button
+														onClick={() => toggleActive(user.id, user.isActive)}
+														disabled={toggling === user.id}
+														className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors disabled:opacity-50 ${user.isActive
+																? 'text-amber-600 hover:bg-amber-50'
+																: 'text-green-600 hover:bg-green-50'
+															}`}
+													>
+														{user.isActive ? (
+															<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+															</svg>
+														) : (
+															<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+															</svg>
+														)}
+														{toggling === user.id ? '...' : user.isActive ? 'Disable' : 'Enable'}
+													</button>
+
+													{confirmDelete === user.id ? (
+														<div className="px-4 py-2 border-t border-gray-100">
+															<p className="text-xs text-gray-500 mb-2">Are you sure?</p>
+															<div className="flex gap-2">
+																<button
+																	onClick={() => deleteUser(user.id)}
+																	disabled={toggling === user.id}
+																	className="flex-1 px-2 py-1 rounded text-xs font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+																>
+																	Yes
+																</button>
+																<button
+																	onClick={() => setConfirmDelete(null)}
+																	className="flex-1 px-2 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 hover:bg-gray-50"
+																>
+																	No
+																</button>
+															</div>
+														</div>
+													) : (
+														<button
+															onClick={() => setConfirmDelete(user.id)}
+															className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+														>
+															<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+																<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+															</svg>
+															Delete
+														</button>
+													)}
+												</div>
+											)}
+										</div>
 									</td>
 								</tr>
 							))}
