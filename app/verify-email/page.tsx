@@ -57,7 +57,7 @@ function VerifyEmailContent() {
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
 			<div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-12 max-w-md w-full text-center">
 				{/* Logo */}
-				<p className="text-xs font-semibold tracking-[0.2em] text-gray-400 mb-8">XENTRO</p>
+				<img src="/xentro-logo.png" alt="XENTRO" className="h-7 w-auto mx-auto mb-8" />
 
 				{state === 'loading' && <LoadingView />}
 				{state === 'success' && <SuccessView />}
@@ -222,7 +222,7 @@ export default function VerifyEmailPage() {
 			fallback={
 				<div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
 					<div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-12 max-w-md w-full text-center">
-						<p className="text-xs font-semibold tracking-[0.2em] text-gray-400 mb-8">XENTRO</p>
+						<img src="/xentro-logo.png" alt="XENTRO" className="h-7 w-auto mx-auto mb-8" />
 						<div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-5">
 							<svg className="animate-spin h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24">
 								<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
