@@ -365,7 +365,7 @@ export default function MentorSignupPage() {
   const stepTitles = ['Your name', 'Current role', 'Focus areas', 'Email', 'Verify email'];
   const isLastStep = step === TOTAL_STEPS;
   const primaryLabel = isLastStep
-    ? (verified ? (loading ? 'Submitting…' : 'Submit for approval') : '')
+    ? (verified ? (loading ? 'Submitting…' : 'Submit') : '')
     : 'Continue';
 
   return (
