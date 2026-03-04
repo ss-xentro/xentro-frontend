@@ -6,6 +6,10 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { getSessionToken } from '@/lib/auth-utils';
+import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
+import { BackButton } from '@/components/ui/BackButton';
+import { Spinner } from '@/components/ui/Spinner';
+import { FormSkeleton } from '@/components/ui/PageSkeleton';
 
 interface SlotEntry {
     day: string;
@@ -262,29 +266,14 @@ export default function MentorProfilePage() {
     };
 
     if (loading) {
-        return (
-            <div className="space-y-6 animate-pulse">
-                <div className="h-12 bg-(--surface) rounded-xl border border-(--border) w-1/3"></div>
-                <div className="h-64 bg-(--surface) rounded-xl border border-(--border)"></div>
-                <div className="h-48 bg-(--surface) rounded-xl border border-(--border)"></div>
-                <div className="h-32 bg-(--surface) rounded-xl border border-(--border)"></div>
-            </div>
-        );
+        return <FormSkeleton />;
     }
 
     return (
         <div className="space-y-8 animate-fadeIn max-w-3xl">
             {/* Header */}
             <div>
-                <button
-                    onClick={() => router.push('/mentor-dashboard')}
-                    className="flex items-center gap-2 text-sm text-(--secondary) hover:text-(--primary) transition-colors mb-4"
-                >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Back to Dashboard
-                </button>
+                <BackButton href="/mentor-dashboard" label="Back to Dashboard" />
                 <h1 className="text-2xl font-bold text-(--primary)">Complete Your Profile</h1>
                 <p className="text-(--secondary) mt-1">
                     Fill in your details to make your mentor profile live and discoverable.
@@ -293,35 +282,20 @@ export default function MentorProfilePage() {
 
             {/* Success Banner */}
             {success && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3 animate-fadeIn">
-                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
-                        <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-semibold text-green-800">Profile Updated Successfully!</h3>
-                        <p className="text-sm text-green-700 mt-0.5">
-                            Your mentor profile is now live. A confirmation email has been sent to{' '}
-                            <strong>{profileData?.user_email}</strong>.
-                        </p>
-                    </div>
-                </div>
+                <FeedbackBanner
+                    type="success"
+                    title="Profile Updated Successfully!"
+                    message={`Your mentor profile is now live. A confirmation email has been sent to ${profileData?.user_email || 'you'}.`}
+                />
             )}
 
             {/* Error Banner */}
             {error && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
-                        <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-semibold text-red-800">Error</h3>
-                        <p className="text-sm text-red-700 mt-0.5">{error}</p>
-                    </div>
-                </div>
+                <FeedbackBanner
+                    type="error"
+                    title="Error"
+                    message={error}
+                />
             )}
 
             {/* Profile Overview */}
@@ -575,10 +549,7 @@ export default function MentorProfilePage() {
                     <div className="flex flex-col items-center">
                         {uploading ? (
                             <>
-                                <svg className="animate-spin w-8 h-8 text-accent mb-3" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                </svg>
+                                <Spinner size="lg" className="text-accent mb-3" />
                                 <p className="text-sm font-medium text-(--primary)">Uploading...</p>
                             </>
                         ) : (

@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
+import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { clearAllRoleTokens, syncAuthCookie, setRoleToken, setTokenCookie, normalizeUser } from '@/lib/auth-utils';
@@ -161,23 +162,7 @@ export default function UnifiedLoginPage() {
     return (
         <div className="min-h-screen bg-(--background) flex flex-col">
             {/* Minimal Navbar */}
-            <nav className="h-16 border-b border-(--border) bg-(--surface)/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="container mx-auto px-4 h-full flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2">
-                        <Image src="/xentro-logo.png" alt="Xentro" width={32} height={32} className="rounded-lg" />
-                        <span className="text-lg font-bold text-(--primary)">Xentro</span>
-                    </Link>
-                    <Link
-                        href="/"
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-lg transition-colors"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Exit
-                    </Link>
-                </div>
-            </nav>
+            <OnboardingNavbar exitHref="/" />
 
             {/* Main */}
             <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12 md:py-16">
@@ -217,11 +202,7 @@ export default function UnifiedLoginPage() {
                                         autoFocus
                                     />
 
-                                    {error && (
-                                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900 text-sm">
-                                            {error}
-                                        </div>
-                                    )}
+                                    {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
                                     <Button
                                         type="submit"
@@ -260,11 +241,7 @@ export default function UnifiedLoginPage() {
                                     maxLength={6}
                                 />
 
-                                {error && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900 text-sm">
-                                        {error}
-                                    </div>
-                                )}
+                                {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
                                 <div className="flex gap-3">
                                     <Button

@@ -1,10 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, Select, Button } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
+import { LocationAutocomplete } from '@/components/ui/LocationAutocomplete';
+import { BackButton } from '@/components/ui/BackButton';
+import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
+import { PageSkeleton } from '@/components/ui/PageSkeleton';
 
 const stageOptions = [
   { value: 'idea', label: 'Idea Stage' },
@@ -28,20 +32,6 @@ const fundingRoundOptions = [
   { value: 'unicorn', label: 'Unicorn' },
 ];
 
-interface LocationSuggestion {
-  place_id: number;
-  display_name: string;
-  lat: string;
-  lon: string;
-  address: {
-    city?: string;
-    town?: string;
-    village?: string;
-    country?: string;
-    country_code?: string;
-  };
-}
-
 export default function EditStartupPage() {
   const router = useRouter();
   const params = useParams();
@@ -55,11 +45,6 @@ export default function EditStartupPage() {
 
   // Location autocomplete
   const [locationSearch, setLocationSearch] = useState('');
-  const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
-  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
-  const [locationLoading, setLocationLoading] = useState(false);
-  const locationInputRef = useRef<HTMLInputElement>(null);
-  const locationSuggestionsRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -140,42 +125,9 @@ export default function EditStartupPage() {
     }
   };
 
-  // Location autocomplete
-  useEffect(() => {
-    if (locationSearch.length < 3) { setLocationSuggestions([]); return; }
-    const timer = setTimeout(async () => {
-      setLocationLoading(true);
-      try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationSearch)}&addressdetails=1&limit=5`,
-          { headers: { 'Accept': 'application/json', 'User-Agent': 'XentroApp/1.0' } }
-        );
-        const data = await res.json();
-        setLocationSuggestions(data);
-        setShowLocationSuggestions(true);
-      } catch { /* ignore */ } finally { setLocationLoading(false); }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [locationSearch]);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        locationSuggestionsRef.current && !locationSuggestionsRef.current.contains(e.target as Node) &&
-        locationInputRef.current && !locationInputRef.current.contains(e.target as Node)
-      ) { setShowLocationSuggestions(false); }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleLocationSelect = (suggestion: LocationSuggestion) => {
-    const city = suggestion.address.city || suggestion.address.town || suggestion.address.village || '';
-    const country = suggestion.address.country || '';
-    const location = city && country ? `${city}, ${country}` : city || country;
-    setFormData({ ...formData, location, city, country });
-    setLocationSearch(location);
-    setShowLocationSuggestions(false);
+  const handleLocationSelect = (location: { city: string; country: string; countryCode: string; displayName: string }) => {
+    setFormData({ ...formData, location: location.displayName, city: location.city, country: location.country });
+    setLocationSearch(location.displayName);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -218,12 +170,7 @@ export default function EditStartupPage() {
   if (loading) {
     return (
       <DashboardSidebar>
-        <div className="max-w-3xl mx-auto px-6 py-12">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/4" />
-            <div className="h-64 bg-gray-200 rounded" />
-          </div>
-        </div>
+        <PageSkeleton />
       </DashboardSidebar>
     );
   }
@@ -234,10 +181,7 @@ export default function EditStartupPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <button onClick={() => router.push(`/institution-dashboard/startups/${startupId}`)} className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1 mb-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-              Back to Details
-            </button>
+            <BackButton href={`/institution-dashboard/startups/${startupId}`} label="Back to Details" />
             <h1 className="text-2xl font-bold text-gray-900">Edit Startup</h1>
             <p className="text-sm text-gray-600 mt-1">Update all startup details — same fields as the startup owner sees</p>
           </div>
@@ -247,15 +191,11 @@ export default function EditStartupPage() {
         </div>
 
         {success && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-800">
-            Changes saved successfully!
-          </div>
+          <FeedbackBanner type="success" message="Changes saved successfully!" />
         )}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-800">
-            {error}
-          </div>
+          <FeedbackBanner type="error" message={error} />
         )}
 
         {/* Tabs */}
@@ -265,8 +205,8 @@ export default function EditStartupPage() {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`pb-3 text-sm font-medium border-b-2 transition-colors capitalize ${activeTab === tab
-                  ? 'border-gray-900 text-gray-900'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'border-gray-900 text-gray-900'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
             >
               {tab === 'details' ? 'Company Details' : tab === 'funding' ? 'Funding & Financials' : 'Links & Social'}
@@ -409,37 +349,13 @@ export default function EditStartupPage() {
                       className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none"
                     />
                   </div>
-                  <div className="relative">
-                    <label className="block text-xs font-medium text-gray-500 mb-2">Location</label>
-                    <input
-                      ref={locationInputRef}
-                      type="text"
-                      value={locationSearch}
-                      onChange={(e) => { setLocationSearch(e.target.value); setShowLocationSuggestions(true); }}
-                      onFocus={() => locationSuggestions.length > 0 && setShowLocationSuggestions(true)}
-                      className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none"
-                      placeholder="Start typing city..."
-                      autoComplete="off"
-                    />
-                    {locationLoading && (
-                      <div className="absolute right-3 top-10 pointer-events-none">
-                        <svg className="animate-spin h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
-                      </div>
-                    )}
-                    {showLocationSuggestions && locationSuggestions.length > 0 && (
-                      <div ref={locationSuggestionsRef} className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                        {locationSuggestions.map((s) => (
-                          <button key={s.place_id} type="button" onClick={() => handleLocationSelect(s)} className="w-full px-4 py-3 text-left hover:bg-gray-100 border-b border-gray-200 last:border-b-0">
-                            <div className="font-medium text-gray-900 text-sm">{s.address.city || s.address.town || s.address.village}</div>
-                            <div className="text-xs text-gray-500 truncate">{s.display_name}</div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <LocationAutocomplete
+                    value={locationSearch}
+                    onInputChange={setLocationSearch}
+                    onSelect={handleLocationSelect}
+                    label="Location"
+                    placeholder="Start typing city..."
+                  />
                 </div>
 
                 <div>

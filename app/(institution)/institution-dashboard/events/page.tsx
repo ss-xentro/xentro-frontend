@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Button, Card, Input, Textarea } from '@/components/ui';
+import { Button, Card, Input, Textarea, FeedbackBanner, EmptyState } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 import { cn } from '@/lib/utils';
 
@@ -189,12 +189,7 @@ export default function InstitutionEventsPage() {
 			</div>
 
 			{error && (
-				<div className="rounded-lg px-4 py-3 text-sm border border-red-200 bg-red-50 text-red-700">
-					{error}
-					<button onClick={() => setError(null)} className="ml-2 underline">
-						Dismiss
-					</button>
-				</div>
+				<FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />
 			)}
 
 			{loading ? (
@@ -204,15 +199,12 @@ export default function InstitutionEventsPage() {
 					))}
 				</div>
 			) : events.length === 0 ? (
-				<Card className="p-12 text-center">
-					<p className="text-lg font-medium text-(--primary)">No events yet</p>
-					<p className="text-sm text-(--secondary) mt-1">
-						Create your first event to engage your community.
-					</p>
-					<Button className="mt-4" onClick={openCreate}>
-						Create Event
-					</Button>
-				</Card>
+				<EmptyState
+					title="No events yet"
+					description="Create your first event to engage your community."
+					ctaLabel="Create Event"
+					onCtaClick={openCreate}
+				/>
 			) : (
 				<div className="grid gap-4 md:grid-cols-2">
 					{events.map((event) => (

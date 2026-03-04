@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, FeedbackBanner, PageSkeleton, EmptyState, Spinner } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 
 interface Startup {
@@ -160,10 +160,7 @@ export default function StartupsPage() {
     return (
       <DashboardSidebar>
         <div className="p-8">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-          </div>
+          <PageSkeleton />
         </div>
       </DashboardSidebar>
     );
@@ -268,30 +265,20 @@ export default function StartupsPage() {
           </Card>
         )}
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-900">
-            {error}
-          </div>
-        )}
+        {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
         {startups.length === 0 ? (
-          <Card className="p-12 text-center bg-white border border-gray-200">
-            <div className="w-16 h-16 rounded-full bg-gray-100 mx-auto mb-4 flex items-center justify-center">
+          <EmptyState
+            icon={
               <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No startups yet</h3>
-            <p className="text-gray-600 mb-6">
-              Start adding startups to your portfolio to showcase your impact
-            </p>
-            <button
-              onClick={() => router.push('/institution-dashboard/add-startup')}
-              className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Add Your First Startup
-            </button>
-          </Card>
+            }
+            title="No startups yet"
+            description="Start adding startups to your portfolio to showcase your impact"
+            ctaLabel="Add Your First Startup"
+            onCtaClick={() => router.push('/institution-dashboard/add-startup')}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {startups.map((startup) => (
@@ -320,10 +307,7 @@ export default function StartupsPage() {
                       title="Delete"
                     >
                       {deletingId === startup.id ? (
-                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
+                        <Spinner size="sm" />
                       ) : (
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

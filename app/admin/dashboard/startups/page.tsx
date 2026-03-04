@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, Button, Input, Badge } from '@/components/ui';
+import { Card, Button, Input, Badge, FeedbackBanner, Spinner, EmptyState, ViewModeToggle } from '@/components/ui';
 import { Startup, startupStageLabels, startupStatusLabels, fundingRoundLabels } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import Link from 'next/link';
@@ -105,53 +105,33 @@ export default function StartupsAdminPage() {
                         <option value="public">Public</option>
                         <option value="private">Private</option>
                     </select>
-                    <div className="flex items-center gap-1 p-1 bg-(--surface-hover) rounded-md">
-                        <button
-                            onClick={() => setViewMode('cards')}
-                            className={`p-2 rounded-md transition-colors ${viewMode === 'cards' ? 'bg-white shadow-sm' : 'text-(--secondary)'}`}
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                        </button>
-                        <button
-                            onClick={() => setViewMode('table')}
-                            className={`p-2 rounded-md transition-colors ${viewMode === 'table' ? 'bg-white shadow-sm' : 'text-(--secondary)'}`}
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                            </svg>
-                        </button>
-                    </div>
+                    <ViewModeToggle mode={viewMode} onChange={setViewMode} />
                 </div>
             </Card>
 
             {/* Loading State */}
             {loading && (
                 <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+                    <Spinner size="lg" />
                 </div>
             )}
 
             {/* Error State */}
             {error && !loading && (
-                <Card padding="lg" className="text-center">
-                    <AppIcon name="alert-triangle" className="w-5 h-5 text-red-500 mx-auto mb-2" />
-                    <p className="text-(--primary) font-medium">{error}</p>
-                </Card>
+                <FeedbackBanner type="error" message={error} />
             )}
 
             {/* Empty State */}
             {!loading && !error && filteredStartups.length === 0 && (
-                <Card padding="lg" className="text-center">
-                    <AppIcon name="rocket" className="w-10 h-10 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-(--primary) mb-2">No startups found</h3>
-                    <p className="text-(--secondary)">
-                        {searchQuery || stageFilter !== 'all' || statusFilter !== 'all'
+                <EmptyState
+                    icon={<AppIcon name="rocket" className="w-10 h-10 text-gray-400" />}
+                    title="No startups found"
+                    description={
+                        searchQuery || stageFilter !== 'all' || statusFilter !== 'all'
                             ? 'Try adjusting your filters'
-                            : 'No startups have been created yet'}
-                    </p>
-                </Card>
+                            : 'No startups have been created yet'
+                    }
+                />
             )}
 
             {/* Cards View */}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, Button, Input, Badge, VerifiedBadge, StatusBadge } from '@/components/ui';
+import { Card, Button, Input, Badge, VerifiedBadge, StatusBadge, FeedbackBanner, CardListSkeleton, EmptyState, ViewModeToggle } from '@/components/ui';
 import { institutionTypeLabels, Institution } from '@/lib/types';
 import { formatNumber } from '@/lib/utils';
 import { AppIcon } from '@/components/ui/AppIcon';
@@ -141,58 +141,15 @@ export default function InstitutionsPage() {
                         <option value="draft">Draft</option>
                         <option value="archived">Archived</option>
                     </select>
-                    <div className="flex items-center gap-1 p-1 bg-(--surface-hover) rounded-md">
-                        <button
-                            onClick={() => setViewMode('cards')}
-                            className={`p-2 rounded-md transition-colors ${viewMode === 'cards' ? 'bg-white shadow-sm' : 'text-(--secondary)'}`}
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                        </button>
-                        <button
-                            onClick={() => setViewMode('table')}
-                            className={`p-2 rounded-md transition-colors ${viewMode === 'table' ? 'bg-white shadow-sm' : 'text-(--secondary)'}`}
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                            </svg>
-                        </button>
-                    </div>
+                    <ViewModeToggle mode={viewMode} onChange={setViewMode} />
                 </div>
             </Card>
 
             {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-fadeIn" role="alert" aria-live="assertive">
-                    <div className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                        </svg>
-                        <div>
-                            <p className="font-medium text-red-900">Unable to load institutions</p>
-                            <p className="text-sm text-red-800 mt-0.5">{error}</p>
-                            <button
-                                onClick={() => window.location.reload()}
-                                className="mt-2 text-sm font-medium text-red-700 hover:text-red-800 underline"
-                            >
-                                Try again
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <FeedbackBanner type="error" title="Unable to load institutions" message={error} />
             )}
 
-            {loading && (
-                <div className="space-y-4" role="status" aria-live="polite" aria-label="Loading institutions">
-                    {[1, 2, 3].map((i) => (
-                        <Card key={i} className="animate-pulse">
-                            <div className="h-6 bg-(--surface-hover) rounded w-1/3 mb-3"></div>
-                            <div className="h-4 bg-(--surface-hover) rounded w-2/3 mb-2"></div>
-                            <div className="h-4 bg-(--surface-hover) rounded w-1/2"></div>
-                        </Card>
-                    ))}
-                </div>
-            )}
+            {loading && <CardListSkeleton count={3} />}
 
             {/* Results count */}
             {!loading && (
@@ -203,50 +160,36 @@ export default function InstitutionsPage() {
 
             {/* Empty State */}
             {!loading && filteredInstitutions.length === 0 && institutions.length === 0 && (
-                <Card className="text-center py-16">
-                    <div className="max-w-md mx-auto">
-                        <div className="w-16 h-16 rounded-full bg-(--surface-hover) flex items-center justify-center mx-auto mb-4">
-                            <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold text-(--primary) mb-2">No institutions yet</h3>
-                        <p className="text-(--secondary) mb-6">Get started by adding your first institution to the platform.</p>
-                        <Link href="/admin/dashboard/add-institution">
-                            <Button>
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                                Add First Institution
-                            </Button>
-                        </Link>
-                    </div>
-                </Card>
+                <EmptyState
+                    icon={
+                        <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    }
+                    title="No institutions yet"
+                    description="Get started by adding your first institution to the platform."
+                    ctaLabel="Add First Institution"
+                    ctaHref="/admin/dashboard/add-institution"
+                />
             )}
 
             {/* No Results from Filters */}
             {!loading && filteredInstitutions.length === 0 && institutions.length > 0 && (
-                <Card className="text-center py-12">
-                    <div className="max-w-md mx-auto">
-                        <div className="w-12 h-12 rounded-full bg-(--surface-hover) flex items-center justify-center mx-auto mb-4">
-                            <svg className="w-6 h-6 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold text-(--primary) mb-2">No matching institutions</h3>
-                        <p className="text-(--secondary) mb-4">Try adjusting your filters or search query.</p>
-                        <Button
-                            variant="ghost"
-                            onClick={() => {
-                                setSearchQuery('');
-                                setTypeFilter('all');
-                                setStatusFilter('all');
-                            }}
-                        >
-                            Clear all filters
-                        </Button>
-                    </div>
-                </Card>
+                <EmptyState
+                    icon={
+                        <svg className="w-6 h-6 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    }
+                    title="No matching institutions"
+                    description="Try adjusting your filters or search query."
+                    ctaLabel="Clear all filters"
+                    onCtaClick={() => {
+                        setSearchQuery('');
+                        setTypeFilter('all');
+                        setStatusFilter('all');
+                    }}
+                />
             )}
 
             {/* Delete Confirmation Dialog */}

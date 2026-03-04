@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, BackButton, FeedbackBanner, PageSkeleton } from '@/components/ui';
+import TagInput from '@/components/ui/TagInput';
 import { getSessionToken } from '@/lib/auth-utils';
 
 interface SlotEntry {
@@ -48,7 +49,6 @@ export default function EditMentorPage() {
 
 	// Editable fields
 	const [expertise, setExpertise] = useState<string[]>([]);
-	const [expertiseInput, setExpertiseInput] = useState('');
 	const [achievements, setAchievements] = useState<string[]>([]);
 	const [achievementInput, setAchievementInput] = useState('');
 	const [pricingPerHour, setPricingPerHour] = useState('');
@@ -118,15 +118,6 @@ export default function EditMentorPage() {
 		}
 	};
 
-	// Expertise management
-	const addExpertise = () => {
-		const text = expertiseInput.trim();
-		if (!text) return;
-		setExpertise((prev) => [...prev, text]);
-		setExpertiseInput('');
-	};
-	const removeExpertise = (i: number) => setExpertise((prev) => prev.filter((_, idx) => idx !== i));
-
 	// Achievement management
 	const addAchievement = () => {
 		const text = achievementInput.trim();
@@ -195,10 +186,7 @@ export default function EditMentorPage() {
 		return (
 			<DashboardSidebar>
 				<div className="max-w-3xl mx-auto px-6 py-12">
-					<div className="animate-pulse space-y-4">
-						<div className="h-8 bg-gray-200 rounded w-1/4" />
-						<div className="h-64 bg-gray-200 rounded" />
-					</div>
+					<PageSkeleton />
 				</div>
 			</DashboardSidebar>
 		);
@@ -218,10 +206,7 @@ export default function EditMentorPage() {
 				{/* Header */}
 				<div className="flex items-center justify-between">
 					<div>
-						<button onClick={() => router.push(`/institution-dashboard/mentors/${mentorId}`)} className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1 mb-2">
-							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-							Back to Details
-						</button>
+						<BackButton href={`/institution-dashboard/mentors/${mentorId}`} label="Back to Details" />
 						<h1 className="text-2xl font-bold text-gray-900">Edit Mentor</h1>
 						<p className="text-sm text-gray-600 mt-1">Update mentor profile — same fields as the mentor sees</p>
 					</div>
@@ -230,17 +215,8 @@ export default function EditMentorPage() {
 					</Button>
 				</div>
 
-				{success && (
-					<div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-800">
-						Changes saved successfully!
-					</div>
-				)}
-
-				{error && (
-					<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-800">
-						{error}
-					</div>
-				)}
+				{success && <FeedbackBanner type="success" message="Changes saved successfully!" onDismiss={() => setSuccess(false)} />}
+				{error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
 				{/* Profile Overview (read-only) */}
 				<Card className="p-6">
@@ -283,29 +259,11 @@ export default function EditMentorPage() {
 				<Card className="p-6 space-y-4">
 					<h3 className="text-lg font-semibold text-gray-900">Expertise Areas</h3>
 					<p className="text-sm text-gray-500">Add your areas of expertise one at a time</p>
-					<div className="flex gap-2">
-						<input
-							type="text"
-							value={expertiseInput}
-							onChange={(e) => setExpertiseInput(e.target.value)}
-							onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addExpertise(); } }}
-							placeholder="e.g., Product Strategy, Fundraising"
-							className="flex-1 px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none"
-						/>
-						<Button variant="secondary" size="sm" onClick={addExpertise} disabled={!expertiseInput.trim()}>Add</Button>
-					</div>
-					{expertise.length > 0 && (
-						<div className="flex flex-wrap gap-2">
-							{expertise.map((item, i) => (
-								<span key={i} className="inline-flex items-center gap-1 px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded-full">
-									{item}
-									<button onClick={() => removeExpertise(i)} className="ml-1 text-blue-400 hover:text-red-500">
-										<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-									</button>
-								</span>
-							))}
-						</div>
-					)}
+					<TagInput
+						tags={expertise}
+						onChange={setExpertise}
+						placeholder="e.g., Product Strategy, Fundraising"
+					/>
 				</Card>
 
 				{/* Achievements */}

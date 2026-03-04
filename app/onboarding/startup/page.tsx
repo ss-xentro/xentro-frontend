@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
 import { useStartupOnboardingStore } from '@/stores/useStartupOnboardingStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FileUpload } from '@/components/ui/FileUpload';
+import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
+import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { getSessionToken } from '@/lib/auth-utils';
 import { cn } from '@/lib/utils';
 import { AppIcon } from '@/components/ui/AppIcon';
@@ -300,20 +300,7 @@ export default function StartupOnboardingPage() {
     return (
         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-purple-50/30 flex flex-col">
             {/* Minimal Navbar */}
-            <nav className="h-16 border-b border-(--border) bg-white/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="container mx-auto px-4 h-full flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2">
-                        <Image src="/xentro-logo.png" alt="Xentro" width={32} height={32} className="rounded-lg" />
-                        <span className="text-lg font-bold text-(--primary)">Xentro</span>
-                    </Link>
-                    <Link href="/join" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-lg transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Exit
-                    </Link>
-                </div>
-            </nav>
+            <OnboardingNavbar />
 
             <div className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-2xl mx-auto">
@@ -661,20 +648,9 @@ export default function StartupOnboardingPage() {
                         {/* Error / Feedback */}
                         {(error || feedback) && (
                             <div className="px-6 md:px-8 pb-4">
-                                {error && (
-                                    <div className="p-3 bg-error/10 border border-error/20 text-error rounded-lg text-sm">
-                                        {error}
-                                    </div>
-                                )}
+                                {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
                                 {feedback && !error && (
-                                    <div className={cn(
-                                        'p-3 rounded-lg text-sm border',
-                                        feedback.type === 'success'
-                                            ? 'border-green-200 bg-green-50 text-green-700'
-                                            : 'border-red-200 bg-red-50 text-red-700'
-                                    )}>
-                                        {feedback.message}
-                                    </div>
+                                    <FeedbackBanner type={feedback.type} message={feedback.message} onDismiss={() => setFeedback(null)} />
                                 )}
                             </div>
                         )}
