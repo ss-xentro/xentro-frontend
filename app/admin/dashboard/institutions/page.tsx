@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, Button, Input, Badge, VerifiedBadge, StatusBadge, FeedbackBanner, CardListSkeleton, EmptyState, ViewModeToggle } from '@/components/ui';
-import { institutionTypeLabels, Institution } from '@/lib/types';
-import { formatNumber } from '@/lib/utils';
-import { AppIcon } from '@/components/ui/AppIcon';
+import { Card, Button, Input, FeedbackBanner, CardListSkeleton, EmptyState, ViewModeToggle } from '@/components/ui';
+import { Institution } from '@/lib/types';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { InstitutionCard } from './_components/InstitutionCard';
+import { DeleteConfirmDialog } from './_components/DeleteConfirmDialog';
+import { InstitutionTable } from './_components/InstitutionTable';
 
 function getAuthToken(token: string | null): string | null {
     if (token) return token;
@@ -213,204 +213,11 @@ export default function InstitutionsPage() {
 
             {/* Table View */}
             {!loading && filteredInstitutions.length > 0 && viewMode === 'table' && (
-                <Card padding="none" className="overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-(--surface-hover) border-b border-(--border)">
-                                    <th className="text-left px-6 py-4 text-sm font-medium text-(--secondary)">Institution</th>
-                                    <th className="text-left px-6 py-4 text-sm font-medium text-(--secondary)">Type</th>
-                                    <th className="text-left px-6 py-4 text-sm font-medium text-(--secondary)">Location</th>
-                                    <th className="text-left px-6 py-4 text-sm font-medium text-(--secondary)">Status</th>
-                                    <th className="text-left px-6 py-4 text-sm font-medium text-(--secondary)">Startups</th>
-                                    <th className="text-right px-6 py-4 text-sm font-medium text-(--secondary)">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredInstitutions.map((institution) => (
-                                    <tr key={institution.id} className="border-b border-(--border) hover:bg-(--surface-hover) transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-md bg-(--surface) border border-(--border) flex items-center justify-center overflow-hidden">
-                                                    {institution.logo ? (
-                                                        <img src={institution.logo} alt={institution.name} className="w-full h-full object-contain" />
-                                                    ) : (
-                                                        <AppIcon name={(institutionTypeLabels[institution.type]?.icon) ?? 'building'} className="w-5 h-5 text-(--secondary)" />
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-medium text-(--primary)">{institution.name}</span>
-                                                        {institution.verified && <VerifiedBadge />}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <Badge variant="outline">{institutionTypeLabels[institution.type]?.label ?? institution.type}</Badge>
-                                        </td>
-                                        <td className="px-6 py-4 text-(--secondary)">
-                                            {institution.city ?? 'Unknown'}, {institution.country ?? ''}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <StatusBadge status={institution.status} />
-                                        </td>
-                                        <td className="px-6 py-4 text-(--primary) font-medium">
-                                            {formatNumber(institution.startupsSupported ?? 0)}
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <Link href={`/institutions/${institution.id}`} className="p-2 text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-md transition-colors">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    </svg>
-                                                </Link>
-                                                <Link href={`/admin/dashboard/institutions/${institution.id}/edit`} className="p-2 text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) rounded-md transition-colors">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                    </svg>
-                                                </Link>
-                                                <button
-                                                    onClick={() => setDeleteConfirm({ id: institution.id, name: institution.name })}
-                                                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
-                                                >
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </Card>
+                <InstitutionTable
+                    institutions={filteredInstitutions}
+                    onDelete={(id, name) => setDeleteConfirm({ id, name })}
+                />
             )}
-        </div>
-    );
-}
-
-function InstitutionCard({ institution, index, onDelete }: { institution: Institution; index: number; onDelete: (id: string, name: string) => void }) {
-    const router = useRouter();
-    const typeInfo = institutionTypeLabels[institution.type] ?? { label: institution.type, icon: 'building', description: '' };
-
-    return (
-        <Card
-            hoverable
-            className={`animate-fadeInUp`}
-            style={{ animationDelay: `${index * 50}ms` }}
-        >
-            <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-(--surface) border border-(--border) flex items-center justify-center overflow-hidden">
-                    {institution.logo ? (
-                        <img src={institution.logo} alt={institution.name} className="w-full h-full object-contain" />
-                    ) : (
-                        <AppIcon name={typeInfo.icon} className="w-6 h-6 text-(--secondary)" />
-                    )}
-                </div>
-                <StatusBadge status={institution.status} />
-            </div>
-
-            <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-semibold text-(--primary)">{institution.name}</h3>
-                {institution.verified && <VerifiedBadge />}
-            </div>
-
-            <p className="text-sm text-(--secondary) mb-4 line-clamp-2">{institution.tagline ?? 'No tagline yet.'}</p>
-
-            <div className="flex items-center gap-4 text-sm text-(--secondary) mb-4">
-                <span className="flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    {institution.city ?? 'Unknown'}
-                </span>
-                <Badge variant="outline" size="sm">{typeInfo.label}</Badge>
-            </div>
-
-            <div className="flex items-center gap-4 py-4 border-t border-(--border)">
-                <div className="text-center flex-1">
-                    <p className="text-lg font-semibold text-(--primary)">{formatNumber(institution.startupsSupported ?? 0)}</p>
-                    <p className="text-xs text-(--secondary)">Startups</p>
-                </div>
-                <div className="w-px h-8 bg-(--border)" />
-                <div className="text-center flex-1">
-                    <p className="text-lg font-semibold text-(--primary)">{formatNumber(institution.studentsMentored ?? 0)}</p>
-                    <p className="text-xs text-(--secondary)">Mentored</p>
-                </div>
-            </div>
-
-            <div className="flex gap-2 pt-4 border-t border-(--border)">
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => router.push(`/admin/dashboard/institutions/${institution.id}/preview`)}
-                >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    Preview
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => router.push(`/admin/dashboard/institutions/${institution.id}/edit`)}
-                >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Edit
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDelete(institution.id, institution.name)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Delete
-                </Button>
-            </div>
-        </Card>
-    );
-}
-
-function DeleteConfirmDialog({ institution, onConfirm, onCancel, deleting }: { institution: { id: string; name: string }, onConfirm: () => void, onCancel: () => void, deleting: boolean }) {
-    return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn">
-            <Card className="max-w-md w-full mx-4">
-                <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                        <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                    </div>
-                    <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-(--primary) mb-2">Delete Institution</h3>
-                        <p className="text-(--secondary) mb-4">
-                            Are you sure you want to delete <strong>{institution.name}</strong>? This action cannot be undone.
-                        </p>
-                        <div className="flex gap-3 justify-end">
-                            <Button variant="ghost" onClick={onCancel} disabled={deleting}>
-                                Cancel
-                            </Button>
-                            <Button
-                                onClick={onConfirm}
-                                disabled={deleting}
-                                className="bg-red-600 hover:bg-red-700 text-white"
-                            >
-                                {deleting ? 'Deleting...' : 'Delete'}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </Card>
         </div>
     );
 }

@@ -12,142 +12,17 @@ import { FoundersSection } from '@/components/onboarding/startup/FoundersSection
 import { getSessionToken } from '@/lib/auth-utils';
 import { getStartupCompletionStep } from '@/lib/startup-onboarding';
 import { cn } from '@/lib/utils';
-import { AppIcon } from '@/components/ui/AppIcon';
-import { sectorCategoryLabels, SectorCategory } from '@/lib/types';
+import { SectorCategory } from '@/lib/types';
+import {
+    COMPLETION_STEPS, WHY_XENTRO_OPTIONS,
+    getWhyXentroValues, hasPartialMember, hasIncompleteMember, isValidEmail,
+} from './_lib/constants';
+import { SectorPicker } from './_components/SectorPicker';
+import { StagePicker } from './_components/StagePicker';
+import { WhyXentroStep } from './_components/WhyXentroStep';
+import { SignupForm } from './_components/SignupForm';
 
 
-
-const STAGE_OPTIONS = [
-    { value: 'ideation', label: 'Ideation', description: 'Validating the concept', icon: 'lightbulb' },
-    { value: 'pre_seed_prototype', label: 'Pre seed / Prototype', description: 'Building the first version', icon: 'wrench' },
-    { value: 'seed_mvp', label: 'Seed / MVP', description: 'Building the MVP', icon: 'code' },
-    { value: 'early_traction', label: 'Early Traction', description: 'First users / revenue', icon: 'trending-up' },
-    { value: 'growth', label: 'Growth', description: 'Scaling product & team', icon: 'rocket' },
-    { value: 'scaling', label: 'Scaling', description: 'Expanding markets', icon: 'globe' },
-] as const;
-
-const WHY_XENTRO_OPTIONS = [
-    {
-        value: 'connect_verified_mentors',
-        label: 'To connect with verified mentors who can guide our startup journey',
-        title: 'Mentor access',
-        description: 'Connect with verified mentors for focused startup guidance.',
-        icon: 'handshake',
-    },
-    {
-        value: 'access_investors',
-        label: 'To gain access to investors actively looking for early-stage startups',
-        title: 'Investor access',
-        description: 'Reach investors actively looking at early-stage startups.',
-        icon: 'coins',
-    },
-    {
-        value: 'increase_visibility',
-        label: 'To increase visibility for our startup within a trusted ecosystem',
-        title: 'Startup visibility',
-        description: 'Show up inside a more trusted startup ecosystem.',
-        icon: 'eye',
-    },
-    {
-        value: 'participate_programs',
-        label: 'To participate in incubator and accelerator programs',
-        title: 'Programs',
-        description: 'Join incubator and accelerator opportunities.',
-        icon: 'graduation-cap',
-    },
-    {
-        value: 'validate_idea',
-        label: 'To validate our idea through expert feedback',
-        title: 'Idea validation',
-        description: 'Pressure-test the idea with expert feedback.',
-        icon: 'search',
-    },
-    {
-        value: 'build_partnerships',
-        label: 'To build strategic partnerships with institutions and industry leaders',
-        title: 'Partnerships',
-        description: 'Build strategic relationships with institutions and industry.',
-        icon: 'briefcase',
-    },
-    {
-        value: 'find_cofounders_team',
-        label: 'To find co-founders or key team members',
-        title: 'Team building',
-        description: 'Find co-founders or key early hires.',
-        icon: 'users',
-    },
-    {
-        value: 'prepare_fundraising',
-        label: 'To prepare for fundraising (pitch refinement, investor readiness)',
-        title: 'Fundraising prep',
-        description: 'Refine the pitch and get investor-ready.',
-        icon: 'target',
-    },
-    {
-        value: 'access_resources',
-        label: 'To access curated resources, tools, and startup support',
-        title: 'Resources',
-        description: 'Access curated tools, playbooks, and support.',
-        icon: 'folder',
-    },
-    {
-        value: 'expand_network',
-        label: 'To expand our professional network within the startup ecosystem',
-        title: 'Network growth',
-        description: 'Expand your network across the startup ecosystem.',
-        icon: 'globe',
-    },
-    {
-        value: 'stay_updated',
-        label: 'To stay updated on startup opportunities, grants, and competitions',
-        title: 'Opportunities',
-        description: 'Track grants, competitions, and new opportunities.',
-        icon: 'bell',
-    },
-    {
-        value: 'build_credibility',
-        label: 'To build credibility through association with Xentro',
-        title: 'Credibility',
-        description: 'Strengthen trust through the Xentro network.',
-        icon: 'star',
-    },
-    {
-        value: 'Other',
-        label: 'Other',
-        title: 'Other',
-        description: 'Tell us what else you want from Xentro.',
-        icon: 'pen-square',
-    },
-];
-
-const COMPLETION_STEPS = [
-    { id: 1, title: 'Identity', subtitle: 'Name · Tagline · Logo' },
-    { id: 2, title: 'Team', subtitle: 'Founder · Co-founders · Team' },
-    { id: 3, title: 'Industry', subtitle: 'Sector · Stage' },
-    { id: 4, title: 'Purpose', subtitle: 'Why Xentro?' },
-];
-
-const WHY_XENTRO_LABEL_TO_VALUE = WHY_XENTRO_OPTIONS.reduce<Record<string, string>>((acc, option) => {
-    acc[option.value] = option.value;
-    acc[option.label] = option.value;
-    return acc;
-}, {});
-
-function getWhyXentroValues(reasons: string[] = []) {
-    return reasons.map((reason) => WHY_XENTRO_LABEL_TO_VALUE[reason] ?? reason);
-}
-
-function hasPartialMember(entry: { name?: string; email?: string; title?: string; avatar?: string | null }) {
-    return Boolean(entry.name?.trim() || entry.email?.trim() || entry.title?.trim() || entry.avatar);
-}
-
-function hasIncompleteMember(entry: { name?: string; email?: string; title?: string; avatar?: string | null }) {
-    return hasPartialMember(entry) && (!entry.name?.trim() || !entry.email?.trim());
-}
-
-function isValidEmail(value: string) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
 
 export default function StartupOnboardingPage() {
     const router = useRouter();
@@ -162,7 +37,6 @@ export default function StartupOnboardingPage() {
     const [emailExists, setEmailExists] = useState<{ exists: boolean; message: string } | null>(null);
     const [emailChecking, setEmailChecking] = useState(false);
     const [expandedCategory, setExpandedCategory] = useState<SectorCategory | null>(null);
-    const categories = Object.entries(sectorCategoryLabels) as [SectorCategory, typeof sectorCategoryLabels[SectorCategory]][];
     const [flowMode, setFlowMode] = useState<'signup' | 'complete'>('signup');
     const [existingStartupId, setExistingStartupId] = useState<string | null>(null);
     const [isInitializingFlow, setIsInitializingFlow] = useState(true);
@@ -724,132 +598,27 @@ export default function StartupOnboardingPage() {
                        ══════════════════════════════════════════ */}
                     <div className="bg-white border border-(--border) rounded-2xl shadow-sm overflow-hidden">
                         {!isCompletionFlow && (
-                            <div className="p-6 md:p-8 space-y-6 animate-fadeIn">
-                                <div>
-                                    <h2 className="text-xl font-semibold text-(--primary)">Start with your startup name and email</h2>
-                                    <p className="text-sm text-(--secondary) mt-1">Verify your email first. The remaining onboarding steps will open after your first login.</p>
-                                </div>
-
-                                <Input
-                                    label="Startup Name"
-                                    placeholder="e.g. Acme Technologies"
-                                    value={data.name}
-                                    onChange={e => updateData({ name: e.target.value })}
-                                    autoFocus
-                                    required
-                                />
-
-                                <Input
-                                    label="Company Email"
-                                    type="email"
-                                    placeholder="you@company.com"
-                                    value={data.primaryContactEmail}
-                                    onChange={e => {
-                                        updateData({ primaryContactEmail: e.target.value });
-                                        if (emailVerified || magicLinkSent) {
-                                            setEmailVerified(false);
-                                            setMagicLinkSent(false);
-                                            setFeedback(null);
-                                        }
-                                        setEmailExists(null);
-                                    }}
-                                    disabled={emailVerified}
-                                    required
-                                />
-
-                                {emailExists?.exists && (
-                                    <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                                        <svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                        </svg>
-                                        <div>
-                                            <p className="text-sm font-medium text-amber-800">{emailExists.message}</p>
-                                            <a href="/login" className="text-sm text-accent hover:underline font-medium mt-1 inline-block">
-                                                Go to Login &rarr;
-                                            </a>
-                                        </div>
-                                    </div>
-                                )}
-                                {emailChecking && (
-                                    <p className="text-xs text-(--secondary) animate-pulse">Checking email...</p>
-                                )}
-
-                                <div className="text-center py-4">
-                                    <div className={cn(
-                                        'inline-flex items-center justify-center w-16 h-16 rounded-full mb-4',
-                                        emailVerified ? 'bg-green-100' : 'bg-accent/10'
-                                    )}>
-                                        {emailVerified ? (
-                                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        ) : (
-                                            <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                            </svg>
-                                        )}
-                                    </div>
-
-                                    {emailVerified ? (
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-green-700 mb-1">Email verified!</h3>
-                                            <p className="text-sm text-(--secondary)">Continue to create your account, then log in to finish onboarding.</p>
-                                        </div>
-                                    ) : magicLinkSent ? (
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-(--primary) mb-1">Check your inbox</h3>
-                                            <p className="text-sm text-(--secondary)">
-                                                We sent a verification link to <strong>{data.primaryContactEmail}</strong>.<br />
-                                                Click the link in the email, then come back here.
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-(--primary) mb-1">Verify your email</h3>
-                                            <p className="text-sm text-(--secondary)">
-                                                We&apos;ll send a link to <strong>{data.primaryContactEmail || 'your email'}</strong>
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {emailVerified ? (
-                                    <div className="flex items-center justify-center gap-2 text-green-600 font-medium py-2">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        Verified
-                                    </div>
-                                ) : !magicLinkSent ? (
-                                    <Button
-                                        onClick={handleSendMagicLink}
-                                        disabled={emailLoading || !data.name.trim() || !data.primaryContactEmail.trim() || !!emailExists?.exists || emailChecking}
-                                        isLoading={emailLoading}
-                                        className="w-full"
-                                    >
-                                        {emailLoading ? 'Sending...' : 'Send verification link'}
-                                    </Button>
-                                ) : (
-                                    <div className="space-y-3">
-                                        <Button
-                                            onClick={handleCheckVerification}
-                                            disabled={emailLoading}
-                                            isLoading={emailLoading}
-                                            className="w-full"
-                                        >
-                                            {emailLoading ? 'Checking...' : "I've clicked the link"}
-                                        </Button>
-                                        <button
-                                            type="button"
-                                            onClick={handleSendMagicLink}
-                                            disabled={emailLoading}
-                                            className="w-full text-sm text-accent hover:underline disabled:opacity-50"
-                                        >
-                                            Resend verification link
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                            <SignupForm
+                                name={data.name}
+                                email={data.primaryContactEmail}
+                                onNameChange={value => updateData({ name: value })}
+                                onEmailChange={value => {
+                                    updateData({ primaryContactEmail: value });
+                                    if (emailVerified || magicLinkSent) {
+                                        setEmailVerified(false);
+                                        setMagicLinkSent(false);
+                                        setFeedback(null);
+                                    }
+                                    setEmailExists(null);
+                                }}
+                                emailExists={emailExists}
+                                emailChecking={emailChecking}
+                                magicLinkSent={magicLinkSent}
+                                emailVerified={emailVerified}
+                                emailLoading={emailLoading}
+                                onSendMagicLink={handleSendMagicLink}
+                                onCheckVerification={handleCheckVerification}
+                            />
                         )}
 
                         {/* ── Card 1: Name · Tagline · Logo ── */}
@@ -906,196 +675,36 @@ export default function StartupOnboardingPage() {
                         {/* ── Card 3: Sectors + Stage ── */}
                         {isCompletionFlow && currentStep === 3 && (
                             <div className="p-6 md:p-8 space-y-8 animate-fadeIn">
-                                {/* Sectors */}
                                 <div>
                                     <h2 className="text-xl font-semibold text-(--primary)">What sector are you in?</h2>
                                     <p className="text-sm text-(--secondary) mt-1">Select one sub-sector that best describes your startup.</p>
-                                    <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1 mt-4">
-                                        {categories.map(([catSlug, { label, icon, subSectors }]) => {
-                                            const isExpanded = expandedCategory === catSlug;
-                                            const selectedCount = subSectors.filter(s => data.sectors.includes(s.slug)).length;
-
-                                            return (
-                                                <div key={catSlug} className="rounded-lg border border-(--border) overflow-hidden flex-shrink-0">
-                                                    {/* Category Header */}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setExpandedCategory(expandedCategory === catSlug ? null : catSlug)}
-                                                        className={cn(
-                                                            'w-full flex items-center gap-3 p-3 text-left transition-colors',
-                                                            isExpanded ? 'bg-(--accent-subtle)' : 'bg-(--surface) hover:bg-(--surface-hover)',
-                                                        )}
-                                                    >
-                                                        <AppIcon name={icon} className={cn('w-5 h-5 shrink-0', isExpanded ? 'text-accent' : 'text-(--secondary)')} />
-                                                        <span className="font-medium text-sm flex-1 text-(--primary)">{label}</span>
-                                                        {selectedCount > 0 && (
-                                                            <span className="w-2 h-2 rounded-full bg-accent"></span>
-                                                        )}
-                                                        <svg
-                                                            className={cn('w-4 h-4 text-(--secondary) transition-transform', isExpanded && 'rotate-180')}
-                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                                        >
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                        </svg>
-                                                    </button>
-
-                                                    {/* Sub-sectors */}
-                                                    {isExpanded && (
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-3 bg-(--surface-secondary) border-t border-(--border)">
-                                                            {subSectors.map(({ slug, label: subLabel }) => {
-                                                                const isSelected = data.sectors.includes(slug);
-                                                                return (
-                                                                    <button
-                                                                        key={slug}
-                                                                        type="button"
-                                                                        onClick={() => updateData({ sectors: [slug] })}
-                                                                        className={cn(
-                                                                            'flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-all text-left',
-                                                                            isSelected
-                                                                                ? 'border-accent bg-(--accent-subtle) text-accent font-medium'
-                                                                                : 'border-(--border) bg-(--surface) text-(--primary) hover:border-(--secondary-light)',
-                                                                        )}
-                                                                    >
-                                                                        <div className={cn(
-                                                                            'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
-                                                                            isSelected ? 'border-accent bg-accent' : 'border-(--secondary-light)',
-                                                                        )}>
-                                                                            {isSelected && (
-                                                                                <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                                                            )}
-                                                                        </div>
-                                                                        <span className="flex-1 text-left line-clamp-2">{subLabel}</span>
-                                                                    </button>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                    <SectorPicker
+                                        selectedSectors={data.sectors}
+                                        onSelect={sectors => updateData({ sectors })}
+                                        expandedCategory={expandedCategory}
+                                        onToggleCategory={setExpandedCategory}
+                                    />
                                 </div>
 
-                                {/* Stage */}
                                 <div>
                                     <h2 className="text-lg font-semibold text-(--primary)">Current Stage</h2>
                                     <p className="text-sm text-(--secondary) mt-1">Where is your startup right now?</p>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                                        {STAGE_OPTIONS.map(opt => {
-                                            const isSelected = data.stage === opt.value;
-                                            return (
-                                                <button
-                                                    key={opt.value}
-                                                    type="button"
-                                                    onClick={() => updateData({ stage: opt.value })}
-                                                    className={cn(
-                                                        'p-4 rounded-xl border text-left transition-all duration-200 group',
-                                                        isSelected
-                                                            ? 'border-accent bg-accent/5 ring-2 ring-accent/20'
-                                                            : 'border-(--border) hover:border-accent/30 hover:bg-(--surface-hover)'
-                                                    )}
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <AppIcon name={opt.icon} className="w-6 h-6" />
-                                                        <div>
-                                                            <p className={cn(
-                                                                'font-semibold text-sm',
-                                                                isSelected ? 'text-accent' : 'text-(--primary)'
-                                                            )}>{opt.label}</p>
-                                                            <p className="text-xs text-(--secondary)">{opt.description}</p>
-                                                        </div>
-                                                    </div>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
+                                    <StagePicker
+                                        selectedStage={data.stage}
+                                        onSelect={stage => updateData({ stage })}
+                                    />
                                 </div>
                             </div>
                         )}
 
                         {/* ── Card 4: Why Xentro? ── */}
                         {isCompletionFlow && currentStep === 4 && (
-                            <div className="p-6 md:p-8 space-y-6 animate-fadeIn">
-                                <div>
-                                    <h2 className="text-xl font-semibold text-(--primary)">Why are you joining Xentro?</h2>
-                                    <p className="text-sm text-(--secondary) mt-1">Select all that apply. This helps us tailor your experience.</p>
-                                </div>
-
-                                <div className="rounded-2xl border border-(--border) bg-(--surface-secondary) px-4 py-3">
-                                    <p className="text-sm font-medium text-(--primary)">Choose what you want help with</p>
-                                    <p className="text-xs text-(--secondary) mt-1">Pick one or more goals. We&apos;ll use these selections to personalize your experience.</p>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    {WHY_XENTRO_OPTIONS.map(opt => {
-                                        const isSelected = data.whyXentro.includes(opt.value);
-                                        const isOther = opt.value === 'Other';
-                                        return (
-                                            <div key={opt.value} className={cn('flex h-full flex-col', isOther && 'md:col-span-2')}>
-                                                <label className={cn(
-                                                    'group flex h-full cursor-pointer rounded-xl border p-3 transition-all duration-200',
-                                                    isSelected
-                                                        ? 'border-accent bg-accent/5 shadow-[0_8px_24px_rgba(16,24,40,0.08)] ring-1 ring-accent/15'
-                                                        : 'border-(--border) bg-(--surface) hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-[0_8px_24px_rgba(16,24,40,0.06)]'
-                                                )}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={isSelected}
-                                                        onChange={() => toggleWhyXentro(opt.value)}
-                                                        className="sr-only"
-                                                    />
-
-                                                    <div className="flex w-full items-start gap-3">
-                                                        <div className={cn(
-                                                            'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors',
-                                                            isSelected
-                                                                ? 'border-accent/20 bg-accent/10 text-accent'
-                                                                : 'border-(--border) bg-(--surface-secondary) text-(--secondary) group-hover:text-accent'
-                                                        )}>
-                                                            <AppIcon name={opt.icon} className="h-4 w-4" />
-                                                        </div>
-
-                                                        <div className="min-w-0 flex-1">
-                                                            <div className="flex items-start justify-between gap-2">
-                                                                <div>
-                                                                    <p className={cn(
-                                                                        'text-xs font-semibold',
-                                                                        isSelected ? 'text-accent' : 'text-(--primary)'
-                                                                    )}>
-                                                                        {opt.title}
-                                                                    </p>
-                                                                    <p className="mt-0.5 text-xs leading-5 text-(--secondary)">{opt.description}</p>
-                                                                </div>
-
-                                                                <div className={cn(
-                                                                    'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors',
-                                                                    isSelected
-                                                                        ? 'border-accent bg-accent text-white'
-                                                                        : 'border-(--secondary-light) bg-white text-transparent'
-                                                                )}>
-                                                                    <AppIcon name="check" className="h-3 w-3" />
-                                                                </div>
-                                                            </div>
-
-                                                            {isOther && isSelected && (
-                                                                <div className="mt-3 border-t border-(--border) pt-3" onClick={e => e.stopPropagation()}>
-                                                                    <Input
-                                                                        placeholder="Please specify your reason"
-                                                                        value={data.whyXentroOther}
-                                                                        onChange={e => updateData({ whyXentroOther: e.target.value })}
-                                                                        autoFocus
-                                                                    />
-                                                                </div>
-                                                            )}
-
-                                                        </div>
-                                                    </div>
-                                                </label>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
+                            <WhyXentroStep
+                                selectedValues={data.whyXentro}
+                                otherText={data.whyXentroOther}
+                                onToggle={toggleWhyXentro}
+                                onOtherChange={value => updateData({ whyXentroOther: value })}
+                            />
                         )}
 
                         {/* Error / Feedback */}
