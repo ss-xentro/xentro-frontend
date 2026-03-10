@@ -65,11 +65,12 @@ function StartupsContent() {
     }, [fetchStartups]);
 
     const stageColor: Record<string, string> = {
-        idea: 'bg-purple-500/20 text-purple-300 border-purple-500/20',
-        mvp: 'bg-blue-500/20 text-blue-300 border-blue-500/20',
+        ideation: 'bg-purple-500/20 text-purple-300 border-purple-500/20',
+        pre_seed_prototype: 'bg-blue-500/20 text-blue-300 border-blue-500/20',
+        seed_mvp: 'bg-teal-500/20 text-teal-300 border-teal-500/20',
         early_traction: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/20',
         growth: 'bg-green-500/20 text-green-300 border-green-500/20',
-        scale: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/20',
+        scaling: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/20',
     };
 
     return (
