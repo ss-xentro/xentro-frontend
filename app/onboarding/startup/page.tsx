@@ -11,13 +11,9 @@ import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { getSessionToken } from '@/lib/auth-utils';
 import { cn } from '@/lib/utils';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { sectorCategoryLabels, SectorCategory } from '@/lib/types';
 
-const SECTOR_OPTIONS = [
-    'Manufacturing', 'Pharmacy', 'Electric', 'Mining', 'IT',
-    'Communication', 'Healthcare', 'EdTech', 'FinTech', 'AgriTech',
-    'CleanTech', 'AI / ML', 'SaaS', 'E-Commerce', 'Logistics',
-    'Social Impact', 'Media', 'Gaming', 'Food & Beverage', 'Real Estate',
-];
+
 
 const STAGE_OPTIONS = [
     { value: 'idea', label: 'Ideation', description: 'Validating the concept', icon: 'lightbulb' },
@@ -62,6 +58,8 @@ export default function StartupOnboardingPage() {
     const [emailLoading, setEmailLoading] = useState(false);
     const [emailExists, setEmailExists] = useState<{ exists: boolean; message: string } | null>(null);
     const [emailChecking, setEmailChecking] = useState(false);
+    const [expandedCategory, setExpandedCategory] = useState<SectorCategory | null>(null);
+    const categories = Object.entries(sectorCategoryLabels) as [SectorCategory, typeof sectorCategoryLabels[SectorCategory]][];
 
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => { setIsMounted(true); }, []);
@@ -407,24 +405,68 @@ export default function StartupOnboardingPage() {
                                 {/* Sectors */}
                                 <div>
                                     <h2 className="text-xl font-semibold text-(--primary)">What sector are you in?</h2>
-                                    <p className="text-sm text-(--secondary) mt-1">Select one.</p>
-                                    <div className="flex flex-wrap gap-2 mt-4">
-                                        {SECTOR_OPTIONS.map(sector => {
-                                            const isSelected = data.sectors.includes(sector);
+                                    <p className="text-sm text-(--secondary) mt-1">Select one sub-sector that best describes your startup.</p>
+                                    <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1 mt-4">
+                                        {categories.map(([catSlug, { label, icon, subSectors }]) => {
+                                            const isExpanded = expandedCategory === catSlug;
+                                            const selectedCount = subSectors.filter(s => data.sectors.includes(s.slug)).length;
+
                                             return (
-                                                <button
-                                                    key={sector}
-                                                    type="button"
-                                                    onClick={() => updateData({ sectors: [sector] })}
-                                                    className={cn(
-                                                        'px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200',
-                                                        isSelected
-                                                            ? 'bg-accent text-white border-accent shadow-sm'
-                                                            : 'bg-white text-(--secondary) border-(--border) hover:border-accent/40 hover:text-(--primary)'
+                                                <div key={catSlug} className="rounded-lg border border-(--border) overflow-hidden flex-shrink-0">
+                                                    {/* Category Header */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setExpandedCategory(expandedCategory === catSlug ? null : catSlug)}
+                                                        className={cn(
+                                                            'w-full flex items-center gap-3 p-3 text-left transition-colors',
+                                                            isExpanded ? 'bg-(--accent-subtle)' : 'bg-(--surface) hover:bg-(--surface-hover)',
+                                                        )}
+                                                    >
+                                                        <AppIcon name={icon} className={cn('w-5 h-5 shrink-0', isExpanded ? 'text-accent' : 'text-(--secondary)')} />
+                                                        <span className="font-medium text-sm flex-1 text-(--primary)">{label}</span>
+                                                        {selectedCount > 0 && (
+                                                            <span className="w-2 h-2 rounded-full bg-accent"></span>
+                                                        )}
+                                                        <svg
+                                                            className={cn('w-4 h-4 text-(--secondary) transition-transform', isExpanded && 'rotate-180')}
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                                        >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                        </svg>
+                                                    </button>
+
+                                                    {/* Sub-sectors */}
+                                                    {isExpanded && (
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-3 bg-(--surface-secondary) border-t border-(--border)">
+                                                            {subSectors.map(({ slug, label: subLabel }) => {
+                                                                const isSelected = data.sectors.includes(slug);
+                                                                return (
+                                                                    <button
+                                                                        key={slug}
+                                                                        type="button"
+                                                                        onClick={() => updateData({ sectors: [slug] })}
+                                                                        className={cn(
+                                                                            'flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-all text-left',
+                                                                            isSelected
+                                                                                ? 'border-accent bg-(--accent-subtle) text-accent font-medium'
+                                                                                : 'border-(--border) bg-(--surface) text-(--primary) hover:border-(--secondary-light)',
+                                                                        )}
+                                                                    >
+                                                                        <div className={cn(
+                                                                            'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
+                                                                            isSelected ? 'border-accent bg-accent' : 'border-(--secondary-light)',
+                                                                        )}>
+                                                                            {isSelected && (
+                                                                                <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                                                            )}
+                                                                        </div>
+                                                                        <span className="flex-1 text-left line-clamp-2">{subLabel}</span>
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
                                                     )}
-                                                >
-                                                    {sector}
-                                                </button>
+                                                </div>
                                             );
                                         })}
                                     </div>
