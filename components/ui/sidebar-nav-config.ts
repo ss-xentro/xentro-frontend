@@ -1,0 +1,81 @@
+import { ReactNode } from 'react';
+import { icons } from './sidebar-icons';
+
+export type UserRole = 'institution' | 'startup' | 'founder' | 'mentor' | 'investor';
+
+export interface NavItem {
+	name: string;
+	href: string;
+	icon: ReactNode;
+}
+
+export function getNavItems(role: UserRole): NavItem[] {
+	switch (role) {
+		case 'institution':
+			return [
+				{ name: 'Home', href: '/feed', icon: icons.home },
+				{ name: 'Overview', href: '/institution-dashboard', icon: icons.overview },
+				{ name: 'Edit Profile', href: '/institution-edit', icon: icons.edit },
+				{ name: 'Startups', href: '/institution-dashboard/startups', icon: icons.bolt },
+				{ name: 'Mentors', href: '/institution-dashboard/mentors', icon: icons.mentors },
+				{ name: 'Programs', href: '/institution-dashboard/programs', icon: icons.bolt },
+				{ name: 'Projects', href: '/institution-dashboard/projects', icon: icons.document },
+				{ name: 'Team Members', href: '/institution-dashboard/team', icon: icons.team },
+				{ name: 'Analytics', href: '/institution-dashboard/analytics', icon: icons.analytics },
+				{ name: 'Recycle Bin', href: '/institution-dashboard/recycle-bin', icon: icons.trash },
+			];
+		case 'startup':
+		case 'founder':
+			return [
+				{ name: 'Overview', href: '/dashboard', icon: icons.overview },
+				{ name: 'Edit Profile', href: '/dashboard/startup', icon: icons.edit },
+				{ name: 'Pitch Deck', href: '/dashboard/startup/pitch', icon: icons.document },
+				{ name: 'Team', href: '/dashboard/team', icon: icons.team },
+				{ name: 'Activity', href: '/dashboard/activity', icon: icons.clock },
+				{ name: 'My Mentors', href: '/dashboard/mentors', icon: icons.groupPeople },
+				{ name: 'Endorsements', href: '/dashboard/endorsements', icon: icons.endorsement },
+				{ name: 'Settings', href: '/dashboard/settings', icon: icons.settings },
+				{ name: 'Feed', href: '/feed', icon: icons.home },
+			];
+		case 'mentor':
+			return [
+				{ name: 'Home', href: '/feed', icon: icons.home },
+				{ name: 'Overview', href: '/mentor-dashboard', icon: icons.overview },
+				{ name: 'Mentees', href: '/mentor-dashboard/mentees', icon: icons.team },
+				{ name: 'Requests', href: '/mentor-dashboard/requests', icon: icons.addPerson },
+				{ name: 'Profile', href: '/mentor-dashboard/profile', icon: icons.profile },
+				{ name: 'Sessions', href: '/mentor-dashboard/sessions', icon: icons.calendar },
+				{ name: 'Calendar', href: '/mentor-dashboard/calendar', icon: icons.calendar },
+				{ name: 'Endorsements', href: '/mentor-dashboard/endorsements', icon: icons.endorsement },
+				{ name: 'Explore', href: '/explore/institute', icon: icons.search },
+				{ name: 'Settings', href: '/mentor-dashboard/settings', icon: icons.settings },
+			];
+		case 'investor':
+			return [
+				{ name: 'Home', href: '/feed', icon: icons.home },
+				{ name: 'Overview', href: '/investor-dashboard', icon: icons.overview },
+				{ name: 'Deal Flow', href: '/investor-dashboard/deals', icon: icons.trendUp },
+				{ name: 'Portfolio', href: '/investor-dashboard/portfolio', icon: icons.building },
+				{ name: 'Explore', href: '/explore/institute', icon: icons.search },
+				{ name: 'Settings', href: '/investor-dashboard/settings', icon: icons.settings },
+			];
+		default:
+			return [{ name: 'Home', href: '/feed', icon: icons.home }];
+	}
+}
+
+export const roleLabels: Record<UserRole, string> = {
+	institution: 'Institution',
+	startup: 'Founder',
+	founder: 'Founder',
+	mentor: 'Mentor',
+	investor: 'Investor',
+};
+
+export const logoutRedirects: Record<UserRole, string> = {
+	institution: '/institution-login',
+	startup: '/login',
+	founder: '/login',
+	mentor: '/login',
+	investor: '/login',
+};

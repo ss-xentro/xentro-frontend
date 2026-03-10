@@ -5,271 +5,10 @@ import Link from 'next/link';
 import AppShell from '@/components/ui/AppShell';
 import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner';
 import { cn } from '@/lib/utils';
-import { getSessionToken, getRoleFromSession } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { type DetectedRole, type StatCard, type ActivityItem, detectRole, ROLE_META, defaultCards } from './_lib/constants';
+import { fetchAdminData, fetchFounderData, fetchInstitutionData } from './_lib/fetchers';
 
-/* ─── Types ─── */
-type DetectedRole = 'admin' | 'founder' | 'mentor' | 'investor' | 'institution' | 'guest';
-
-interface StatCard {
-  label: string;
-  value: string | number;
-  icon: string;
-  href?: string;
-}
-
-interface QuickAction {
-  label: string;
-  href: string;
-  icon: string;
-}
-
-interface ActivityItem {
-  id: string;
-  text: string;
-  time: string;
-  icon: string;
-}
-
-/* ─── Token / role detection ─── */
-function detectRole(): { role: DetectedRole; token: string | null } {
-  if (typeof window === 'undefined') return { role: 'guest', token: null };
-
-  const token = getSessionToken();
-  if (!token) return { role: 'guest', token: null };
-
-  const sessionRole = getRoleFromSession();
-  const roleMap: Record<string, DetectedRole> = {
-    admin: 'admin',
-    mentor: 'mentor',
-    institution: 'institution',
-    investor: 'investor',
-    startup: 'founder',
-    founder: 'founder',
-    explorer: 'guest',
-  };
-  const role = roleMap[sessionRole ?? ''] || 'guest';
-  return { role, token };
-}
-
-/* ─── Role configs ─── */
-const ROLE_META: Record<DetectedRole, {
-  greeting: string;
-  subtitle: string;
-  dashboardHref: string;
-  loginHref: string;
-  quickActions: QuickAction[];
-}> = {
-  admin: {
-    greeting: 'Welcome back, Admin',
-    subtitle: 'Platform Overview',
-    dashboardHref: '/admin/dashboard',
-    loginHref: '/admin/login',
-    quickActions: [
-      { label: 'Review Approvals', href: '/admin/dashboard/institution-approvals', icon: 'clipboard-list' },
-      { label: 'Manage Institutions', href: '/admin/dashboard', icon: 'landmark' },
-      { label: 'Browse Feed', href: '/feed', icon: 'newspaper' },
-      { label: 'Explore', href: '/explore/institute', icon: 'search' },
-    ],
-  },
-  founder: {
-    greeting: 'Welcome back, Founder',
-    subtitle: 'Startup Dashboard',
-    dashboardHref: '/dashboard',
-    loginHref: '/login',
-    quickActions: [
-      { label: 'Edit Startup', href: '/dashboard', icon: 'pencil' },
-      { label: 'Find Mentors', href: '/explore/mentors', icon: 'graduation-cap' },
-      { label: 'Browse Programs', href: '/explore/institute', icon: 'landmark' },
-      { label: 'View Feed', href: '/feed', icon: 'newspaper' },
-    ],
-  },
-  mentor: {
-    greeting: 'Welcome back, Mentor',
-    subtitle: 'Mentorship Dashboard',
-    dashboardHref: '/mentor-dashboard',
-    loginHref: '/mentor-login',
-    quickActions: [
-      { label: 'Manage Slots', href: '/mentor-dashboard', icon: 'calendar' },
-      { label: 'View Sessions', href: '/mentor-dashboard/sessions', icon: 'clipboard-list' },
-      { label: 'Explore Startups', href: '/explore/startups', icon: 'rocket' },
-      { label: 'View Feed', href: '/feed', icon: 'newspaper' },
-    ],
-  },
-  investor: {
-    greeting: 'Welcome back, Investor',
-    subtitle: 'Investment Dashboard',
-    dashboardHref: '/investor-dashboard',
-    loginHref: '/investor-login',
-    quickActions: [
-      { label: 'Browse Startups', href: '/explore/startups', icon: 'rocket' },
-      { label: 'Deal Flow', href: '/investor-dashboard', icon: 'trending-up' },
-      { label: 'Explore Institutions', href: '/explore/institute', icon: 'landmark' },
-      { label: 'View Feed', href: '/feed', icon: 'newspaper' },
-    ],
-  },
-  institution: {
-    greeting: 'Welcome back',
-    subtitle: 'Institution Dashboard',
-    dashboardHref: '/institution-dashboard',
-    loginHref: '/institution-login',
-    quickActions: [
-      { label: 'Manage Programs', href: '/institution-dashboard', icon: 'clipboard-list' },
-      { label: 'View Team', href: '/institution-dashboard/team', icon: 'users' },
-      { label: 'Edit Profile', href: '/institution-edit', icon: 'pencil' },
-      { label: 'View Feed', href: '/feed', icon: 'newspaper' },
-    ],
-  },
-  guest: {
-    greeting: 'Welcome to Xentro',
-    subtitle: 'Get started by joining the ecosystem',
-    dashboardHref: '/feed',
-    loginHref: '/join',
-    quickActions: [
-      { label: 'Sign Up', href: '/join', icon: 'rocket' },
-      { label: 'Explore Institutions', href: '/explore/institute', icon: 'landmark' },
-      { label: 'Browse Startups', href: '/explore/startups', icon: 'lightbulb' },
-      { label: 'View Feed', href: '/feed', icon: 'newspaper' },
-    ],
-  },
-};
-
-/* ── Fetchers per role ── */
-async function fetchAdminData(token: string): Promise<{ cards: StatCard[]; activity: ActivityItem[] }> {
-  try {
-    const res = await fetch('/api/institutions');
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    const institutions = data.institutions ?? data ?? [];
-    const count = institutions.length;
-    const startups = institutions.reduce((s: number, i: { startupsSupported?: number }) => s + (i.startupsSupported || 0), 0);
-    const students = institutions.reduce((s: number, i: { studentsMentored?: number }) => s + (i.studentsMentored || 0), 0);
-    const funding = institutions.reduce((s: number, i: { fundingFacilitated?: number }) => s + (i.fundingFacilitated || 0), 0);
-    return {
-      cards: [
-        { label: 'Total Institutions', value: count, icon: 'landmark', href: '/admin/dashboard' },
-        { label: 'Startups Supported', value: startups, icon: 'rocket' },
-        { label: 'Students Mentored', value: students, icon: 'graduation-cap' },
-        { label: 'Funding Facilitated', value: funding > 0 ? `$${(funding / 1e6).toFixed(1)}M` : '$0', icon: 'coins' },
-      ],
-      activity: [],
-    };
-  } catch {
-    return { cards: defaultCards('admin'), activity: [] };
-  }
-}
-
-async function fetchFounderData(token: string): Promise<{ cards: StatCard[]; activity: ActivityItem[]; name?: string }> {
-  try {
-    const res = await fetch('/api/founder/my-startup', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    const startup = data.startup;
-    const activity = (data.recentActivity ?? []).slice(0, 5).map((a: { id?: string; action?: string; createdAt?: string }, i: number) => ({
-      id: a.id ?? String(i),
-      text: a.action ?? 'Activity',
-      time: a.createdAt ? timeAgo(a.createdAt) : '',
-      icon: 'pen-square',
-    }));
-    return {
-      cards: [
-        { label: 'Status', value: startup?.status ?? '—', icon: 'rocket', href: '/dashboard' },
-        { label: 'Stage', value: startup?.stage ?? '—', icon: 'trending-up' },
-        { label: 'Team Size', value: startup?.teamMembers?.length ?? 0, icon: 'users' },
-        { label: 'Funds Raised', value: startup?.fundsRaised ? `$${Number(startup.fundsRaised).toLocaleString()}` : '$0', icon: 'coins' },
-      ],
-      activity,
-      name: startup?.name,
-    };
-  } catch {
-    return { cards: defaultCards('founder'), activity: [] };
-  }
-}
-
-async function fetchInstitutionData(token: string): Promise<{ cards: StatCard[]; activity: ActivityItem[]; name?: string }> {
-  try {
-    const [profileRes, startupsRes, teamRes, programsRes] = await Promise.all([
-      fetch('/api/auth/me/', { headers: { Authorization: `Bearer ${token}` } }),
-      fetch('/api/startups', { headers: { Authorization: `Bearer ${token}` } }).catch(() => null),
-      fetch('/api/institution-team', { headers: { Authorization: `Bearer ${token}` } }).catch(() => null),
-      fetch('/api/programs', { headers: { Authorization: `Bearer ${token}` } }).catch(() => null),
-    ]);
-
-    const profile = profileRes.ok ? await profileRes.json() : null;
-    const startups = startupsRes?.ok ? await startupsRes.json() : null;
-    const team = teamRes?.ok ? await teamRes.json() : null;
-    const programs = programsRes?.ok ? await programsRes.json() : null;
-
-    const startupsCount = Array.isArray(startups) ? startups.length : (startups?.startups?.length ?? 0);
-    const teamCount = Array.isArray(team) ? team.length : (team?.members?.length ?? 0);
-    const programsCount = Array.isArray(programs) ? programs.length : (programs?.programs?.length ?? 0);
-
-    return {
-      cards: [
-        { label: 'Active Programs', value: programsCount, icon: 'clipboard-list', href: '/institution-dashboard' },
-        { label: 'Team Members', value: teamCount, icon: 'users', href: '/institution-dashboard/team' },
-        { label: 'Portfolio Startups', value: startupsCount, icon: 'rocket', href: '/institution-dashboard/startups' },
-        { label: 'Profile Views', value: profile?.profileViews ?? 0, icon: 'eye' },
-      ],
-      activity: [],
-      name: profile?.name ?? profile?.institution?.name,
-    };
-  } catch {
-    return { cards: defaultCards('institution'), activity: [] };
-  }
-}
-
-function defaultCards(role: DetectedRole): StatCard[] {
-  const configs: Record<string, StatCard[]> = {
-    admin: [
-      { label: 'Institutions', value: 0, icon: 'landmark' },
-      { label: 'Startups', value: 0, icon: 'rocket' },
-      { label: 'Mentors', value: 0, icon: 'graduation-cap' },
-      { label: 'Investors', value: 0, icon: 'briefcase' },
-    ],
-    founder: [
-      { label: 'Status', value: '—', icon: 'rocket', href: '/dashboard' },
-      { label: 'Stage', value: '—', icon: 'trending-up' },
-      { label: 'Team', value: 0, icon: 'users' },
-      { label: 'Funds Raised', value: '$0', icon: 'coins' },
-    ],
-    mentor: [
-      { label: 'Active Mentees', value: 0, icon: 'graduation-cap' },
-      { label: 'Sessions This Month', value: 0, icon: 'calendar' },
-      { label: 'Rating', value: '—', icon: 'star' },
-      { label: 'Earnings', value: '$0', icon: 'coins' },
-    ],
-    investor: [
-      { label: 'Active Deals', value: 0, icon: 'trending-up' },
-      { label: 'Portfolio Companies', value: 0, icon: 'briefcase' },
-      { label: 'Total Invested', value: '$0', icon: 'coins' },
-      { label: 'Pipeline', value: 0, icon: 'bar-chart' },
-    ],
-    institution: [
-      { label: 'Programs', value: 0, icon: 'clipboard-list', href: '/institution-dashboard' },
-      { label: 'Team', value: 0, icon: 'users' },
-      { label: 'Startups', value: 0, icon: 'rocket' },
-      { label: 'Views', value: 0, icon: 'eye' },
-    ],
-    guest: [],
-  };
-  return configs[role] ?? [];
-}
-
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
-/* ─── Component ─── */
 export default function HomePage() {
   const [role, setRole] = useState<DetectedRole>('guest');
   const [token, setToken] = useState<string | null>(null);
@@ -278,14 +17,12 @@ export default function HomePage() {
   const [userName, setUserName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Detect role from tokens
   useEffect(() => {
     const { role: r, token: t } = detectRole();
     setRole(r);
     setToken(t);
   }, []);
 
-  // Fetch data once role is detected
   const fetchData = useCallback(async () => {
     if (role === 'guest') {
       setCards([]);
@@ -308,11 +45,9 @@ export default function HomePage() {
           result = await fetchInstitutionData(token!);
           break;
         case 'mentor':
-          // Mentor APIs are not yet implemented — show defaults
           result = { cards: defaultCards('mentor'), activity: [] };
           break;
         case 'investor':
-          // Investor APIs are not yet implemented — show defaults
           result = { cards: defaultCards('investor'), activity: [] };
           break;
         default:
@@ -342,7 +77,7 @@ export default function HomePage() {
   return (
     <AppShell>
       <div className="max-w-4xl mx-auto px-6 py-8">
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-white tracking-tight">
@@ -360,10 +95,9 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Profile Completion Banner (for mentors) */}
         <ProfileCompletionBanner />
 
-        {/* ── Stat Cards ── */}
+        {/* Stat Cards */}
         {(cards.length > 0 || loading) && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {loading
@@ -403,7 +137,7 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* ── Quick Actions ── */}
+        {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -422,7 +156,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ── Recent Activity ── */}
+        {/* Recent Activity */}
         <div>
           <h2 className="text-lg font-semibold text-white mb-4">Recent Activity</h2>
           {activity.length > 0 ? (
