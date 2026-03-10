@@ -41,6 +41,54 @@ function storeSession(data: { user: Record<string, unknown>; token: string; star
     return role;
 }
 
+function getStartupCompletionStep(payload: {
+    name?: string | null;
+    tagline?: string | null;
+    logo?: string | null;
+    sectors?: string[] | null;
+    stage?: string | null;
+    whyXentro?: string[] | null;
+}) {
+    if (!payload.name?.trim() || !payload.tagline?.trim() || !payload.logo) return 1;
+    if (!payload.sectors?.length || !payload.stage) return 2;
+    if (!payload.whyXentro?.length) return 3;
+    return 4;
+}
+
+async function getPostLoginDestination(role: string, token: string) {
+    const defaultDestination = DASHBOARD_MAP[role] || '/feed';
+
+    if (role !== 'startup' && role !== 'founder') {
+        return defaultDestination;
+    }
+
+    try {
+        const res = await fetch('/api/founder/my-startup', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+            return '/onboarding/startup';
+        }
+
+        const payload = await res.json();
+        const startup = payload.data?.startup;
+        const whyXentro = payload.data?.whyXentro ?? [];
+        const nextStep = getStartupCompletionStep({
+            name: startup?.name,
+            tagline: startup?.tagline,
+            logo: startup?.logo,
+            sectors: startup?.sectors,
+            stage: startup?.stage,
+            whyXentro,
+        });
+
+        return nextStep <= 3 ? '/onboarding/startup' : defaultDestination;
+    } catch {
+        return '/onboarding/startup';
+    }
+}
+
 export default function UnifiedLoginPage() {
     const router = useRouter();
     const { setSession } = useAuth();
@@ -113,7 +161,7 @@ export default function UnifiedLoginPage() {
             // Build a proper User object for AuthContext
             const norm = normalizeUser(data.user);
             setSession({ id: norm.id || '', email: norm.email || '', name: norm.name || '', avatar: norm.avatar || '', role: (norm.role || role) as any, unlockedContexts: norm.contexts }, data.token);
-            const destination = DASHBOARD_MAP[role] || '/feed';
+            const destination = await getPostLoginDestination(role, data.token);
             router.push(destination);
         } catch (err) {
             setError((err as Error).message);
@@ -150,7 +198,7 @@ export default function UnifiedLoginPage() {
             const role = storeSession(data);
             const norm2 = normalizeUser(data.user);
             setSession({ id: norm2.id || '', email: norm2.email || '', name: norm2.name || '', avatar: norm2.avatar || '', role: (norm2.role || role) as any, unlockedContexts: norm2.contexts }, data.token);
-            const destination = DASHBOARD_MAP[role] || '/feed';
+            const destination = await getPostLoginDestination(role, data.token);
             router.push(destination);
         } catch (err) {
             setError((err as Error).message);

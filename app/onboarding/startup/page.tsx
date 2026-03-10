@@ -25,27 +25,128 @@ const STAGE_OPTIONS = [
 ] as const;
 
 const WHY_XENTRO_OPTIONS = [
-    { value: 'connect_verified_mentors', label: 'To connect with verified mentors who can guide our startup journey' },
-    { value: 'access_investors', label: 'To gain access to investors actively looking for early-stage startups' },
-    { value: 'increase_visibility', label: 'To increase visibility for our startup within a trusted ecosystem' },
-    { value: 'participate_programs', label: 'To participate in incubator and accelerator programs' },
-    { value: 'validate_idea', label: 'To validate our idea through expert feedback' },
-    { value: 'build_partnerships', label: 'To build strategic partnerships with institutions and industry leaders' },
-    { value: 'find_cofounders_team', label: 'To find co-founders or key team members' },
-    { value: 'prepare_fundraising', label: 'To prepare for fundraising (pitch refinement, investor readiness)' },
-    { value: 'access_resources', label: 'To access curated resources, tools, and startup support' },
-    { value: 'expand_network', label: 'To expand our professional network within the startup ecosystem' },
-    { value: 'stay_updated', label: 'To stay updated on startup opportunities, grants, and competitions' },
-    { value: 'build_credibility', label: 'To build credibility through association with Xentro' },
-    { value: 'Other', label: 'Other:' },
+    {
+        value: 'connect_verified_mentors',
+        label: 'To connect with verified mentors who can guide our startup journey',
+        title: 'Mentor access',
+        description: 'Connect with verified mentors for focused startup guidance.',
+        icon: 'handshake',
+    },
+    {
+        value: 'access_investors',
+        label: 'To gain access to investors actively looking for early-stage startups',
+        title: 'Investor access',
+        description: 'Reach investors actively looking at early-stage startups.',
+        icon: 'coins',
+    },
+    {
+        value: 'increase_visibility',
+        label: 'To increase visibility for our startup within a trusted ecosystem',
+        title: 'Startup visibility',
+        description: 'Show up inside a more trusted startup ecosystem.',
+        icon: 'eye',
+    },
+    {
+        value: 'participate_programs',
+        label: 'To participate in incubator and accelerator programs',
+        title: 'Programs',
+        description: 'Join incubator and accelerator opportunities.',
+        icon: 'graduation-cap',
+    },
+    {
+        value: 'validate_idea',
+        label: 'To validate our idea through expert feedback',
+        title: 'Idea validation',
+        description: 'Pressure-test the idea with expert feedback.',
+        icon: 'search',
+    },
+    {
+        value: 'build_partnerships',
+        label: 'To build strategic partnerships with institutions and industry leaders',
+        title: 'Partnerships',
+        description: 'Build strategic relationships with institutions and industry.',
+        icon: 'briefcase',
+    },
+    {
+        value: 'find_cofounders_team',
+        label: 'To find co-founders or key team members',
+        title: 'Team building',
+        description: 'Find co-founders or key early hires.',
+        icon: 'users',
+    },
+    {
+        value: 'prepare_fundraising',
+        label: 'To prepare for fundraising (pitch refinement, investor readiness)',
+        title: 'Fundraising prep',
+        description: 'Refine the pitch and get investor-ready.',
+        icon: 'target',
+    },
+    {
+        value: 'access_resources',
+        label: 'To access curated resources, tools, and startup support',
+        title: 'Resources',
+        description: 'Access curated tools, playbooks, and support.',
+        icon: 'folder',
+    },
+    {
+        value: 'expand_network',
+        label: 'To expand our professional network within the startup ecosystem',
+        title: 'Network growth',
+        description: 'Expand your network across the startup ecosystem.',
+        icon: 'globe',
+    },
+    {
+        value: 'stay_updated',
+        label: 'To stay updated on startup opportunities, grants, and competitions',
+        title: 'Opportunities',
+        description: 'Track grants, competitions, and new opportunities.',
+        icon: 'bell',
+    },
+    {
+        value: 'build_credibility',
+        label: 'To build credibility through association with Xentro',
+        title: 'Credibility',
+        description: 'Strengthen trust through the Xentro network.',
+        icon: 'star',
+    },
+    {
+        value: 'Other',
+        label: 'Other',
+        title: 'Other',
+        description: 'Tell us what else you want from Xentro.',
+        icon: 'pen-square',
+    },
 ];
 
-const STEPS = [
+const COMPLETION_STEPS = [
     { id: 1, title: 'Identity', subtitle: 'Name · Tagline · Logo' },
     { id: 2, title: 'Industry', subtitle: 'Sector · Stage' },
     { id: 3, title: 'Purpose', subtitle: 'Why Xentro?' },
-    { id: 4, title: 'Verify', subtitle: 'Email' },
 ];
+
+const WHY_XENTRO_LABEL_TO_VALUE = WHY_XENTRO_OPTIONS.reduce<Record<string, string>>((acc, option) => {
+    acc[option.value] = option.value;
+    acc[option.label] = option.value;
+    return acc;
+}, {});
+
+function getWhyXentroValues(reasons: string[] = []) {
+    return reasons.map((reason) => WHY_XENTRO_LABEL_TO_VALUE[reason] ?? reason);
+}
+
+function getNextCompletionStep(payload: {
+    name?: string | null;
+    tagline?: string | null;
+    logo?: string | null;
+    sectors?: string[] | null;
+    stage?: string | null;
+    whyXentro?: string[] | null;
+}) {
+    if (!payload.name?.trim() || !payload.tagline?.trim() || !payload.logo) return 1;
+    if (!payload.sectors?.length || !payload.stage) return 2;
+    if (!payload.whyXentro?.length) return 3;
+    return 4;
+}
 
 export default function StartupOnboardingPage() {
     const router = useRouter();
@@ -61,18 +162,113 @@ export default function StartupOnboardingPage() {
     const [emailChecking, setEmailChecking] = useState(false);
     const [expandedCategory, setExpandedCategory] = useState<SectorCategory | null>(null);
     const categories = Object.entries(sectorCategoryLabels) as [SectorCategory, typeof sectorCategoryLabels[SectorCategory]][];
+    const [flowMode, setFlowMode] = useState<'signup' | 'complete'>('signup');
+    const [existingStartupId, setExistingStartupId] = useState<string | null>(null);
+    const [isInitializingFlow, setIsInitializingFlow] = useState(true);
 
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => { setIsMounted(true); }, []);
+
+    const isCompletionFlow = flowMode === 'complete';
+
+    useEffect(() => {
+        if (!isMounted) return;
+
+        const token = getSessionToken('founder');
+        if (!token) {
+            setFlowMode('signup');
+            setExistingStartupId(null);
+            setStep(1);
+            setIsInitializingFlow(false);
+            return;
+        }
+
+        let cancelled = false;
+
+        const loadStartup = async () => {
+            try {
+                const res = await fetch('/api/founder/my-startup', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                if (!res.ok) {
+                    if (!cancelled) {
+                        setFlowMode('signup');
+                        setExistingStartupId(null);
+                    }
+                    return;
+                }
+
+                const payload = await res.json();
+                const startup = payload.data?.startup;
+                const whyXentro = getWhyXentroValues(payload.data?.whyXentro ?? []);
+
+                if (!cancelled && startup) {
+                    updateData({
+                        name: startup.name ?? '',
+                        tagline: startup.tagline ?? '',
+                        logo: startup.logo ?? null,
+                        sectors: startup.sectors ?? [],
+                        stage: startup.stage ?? '',
+                        whyXentro,
+                        whyXentroOther: payload.data?.whyXentroOther ?? '',
+                        primaryContactEmail: startup.primaryContactEmail ?? '',
+                        status: startup.status ?? 'private',
+                        location: startup.location ?? '',
+                        fundingRound: startup.fundingRound ?? 'bootstrapped',
+                        fundsRaised: startup.fundsRaised ? String(startup.fundsRaised) : '',
+                        fundingCurrency: startup.fundingCurrency ?? 'USD',
+                        foundedDate: startup.foundedDate ?? '',
+                        pitch: startup.pitch ?? '',
+                        founders: [{ name: startup.name ?? '', email: startup.primaryContactEmail ?? '', role: 'founder' }],
+                    });
+
+                    setFlowMode('complete');
+                    setExistingStartupId(startup.id ?? null);
+
+                    const nextStep = getNextCompletionStep({
+                        name: startup.name,
+                        tagline: startup.tagline,
+                        logo: startup.logo,
+                        sectors: startup.sectors,
+                        stage: startup.stage,
+                        whyXentro,
+                    });
+
+                    if (nextStep > COMPLETION_STEPS.length) {
+                        router.replace('/feed');
+                        return;
+                    }
+
+                    setStep(nextStep);
+                }
+            } catch {
+                if (!cancelled) {
+                    setFlowMode('signup');
+                    setExistingStartupId(null);
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsInitializingFlow(false);
+                }
+            }
+        };
+
+        loadStartup();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [isMounted, router, setStep, updateData]);
 
     // ── Debounced email existence check ──
     useEffect(() => {
         const email = data.primaryContactEmail.trim();
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             setEmailExists(null);
+            setEmailChecking(false);
             return;
         }
-
         setEmailChecking(true);
         const timeout = setTimeout(async () => {
             try {
@@ -92,15 +288,11 @@ export default function StartupOnboardingPage() {
             } finally {
                 setEmailChecking(false);
             }
-        }, 600);
+        }, 500);
 
-        return () => {
-            clearTimeout(timeout);
-            setEmailChecking(false);
-        };
+        return () => clearTimeout(timeout);
     }, [data.primaryContactEmail]);
 
-    // ── Auto-poll verification status after magic link is sent ──
     useEffect(() => {
         if (!magicLinkSent || emailVerified) return;
 
@@ -112,37 +304,20 @@ export default function StartupOnboardingPage() {
                     body: JSON.stringify({ email: data.primaryContactEmail }),
                 });
                 const resData = await res.json();
+
                 if (res.ok && resData.verified) {
                     setEmailVerified(true);
                     setFeedback({ type: 'success', message: 'Email verified!' });
-
-                    // Store the authentication token if provided
-                    if (resData.token) {
-                        const { setRoleToken, setTokenCookie, syncAuthCookie } = await import('@/lib/auth-utils');
-                        setRoleToken('founder', resData.token);
-                        setTokenCookie(resData.token);
-                        if (resData.user) {
-                            syncAuthCookie({ ...resData.user, role: 'startup' });
-                        }
-                    }
 
                     clearInterval(pollInterval);
                 }
             } catch {
                 // Silently retry on next interval
             }
-        }, 3000); // Poll every 3 seconds
+        }, 3000);
 
         return () => clearInterval(pollInterval);
     }, [magicLinkSent, emailVerified, data.primaryContactEmail]);
-
-    // ── Auto-submit startup once email is verified ──
-    useEffect(() => {
-        if (emailVerified && !isSubmitting && currentStep === 4) {
-            handleSubmit();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [emailVerified]);
 
     // ── Email verification ──
     const handleSendMagicLink = async () => {
@@ -195,16 +370,35 @@ export default function StartupOnboardingPage() {
 
     // ── Navigation ──
     const canContinue = () => {
+        if (!isCompletionFlow) {
+            return data.name.trim().length > 0 && data.primaryContactEmail.trim().length > 0 && emailVerified;
+        }
         if (currentStep === 1) return data.name.trim().length > 0;
         if (currentStep === 2) return data.sectors.length > 0 && data.stage !== '';
         if (currentStep === 3) return data.whyXentro.length > 0;
-        if (currentStep === 4) return emailVerified;
         return true;
     };
 
     const handleNext = () => {
         setError(null);
         setFeedback(null);
+
+        if (!isCompletionFlow) {
+            if (!data.name.trim()) {
+                setError('Please enter your startup name.');
+                return;
+            }
+            if (!data.primaryContactEmail.trim()) {
+                setError('Please enter your email.');
+                return;
+            }
+            if (!emailVerified) {
+                setError('Please verify your email before continuing.');
+                return;
+            }
+            handleSubmit();
+            return;
+        }
 
         if (currentStep === 1 && !data.name.trim()) {
             setError('Please enter your startup name.');
@@ -223,16 +417,11 @@ export default function StartupOnboardingPage() {
                 setError('Please specify your other reason for joining Xentro.');
                 return;
             }
-        }
-        if (currentStep === 4) {
-            if (!data.primaryContactEmail.trim()) { setError('Please enter your email.'); return; }
-            if (!emailVerified) { setError('Please verify your email before continuing.'); return; }
-            // Final step — submit
             handleSubmit();
             return;
         }
 
-        if (currentStep < 4) {
+        if (currentStep < COMPLETION_STEPS.length) {
             setStep(currentStep + 1);
             window.scrollTo(0, 0);
         }
@@ -241,6 +430,11 @@ export default function StartupOnboardingPage() {
     const handleBack = () => {
         setError(null);
         setFeedback(null);
+
+        if (!isCompletionFlow) {
+            return;
+        }
+
         if (currentStep > 1) {
             setStep(currentStep - 1);
             window.scrollTo(0, 0);
@@ -251,11 +445,6 @@ export default function StartupOnboardingPage() {
         setIsSubmitting(true);
         setError(null);
         try {
-            const token = getSessionToken('founder');
-            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            // Build clean submission data — convert empty strings to null for optional fields
             const submitData = {
                 name: data.name,
                 tagline: data.tagline || '',
@@ -277,15 +466,45 @@ export default function StartupOnboardingPage() {
                 founders: [{ name: data.name, email: data.primaryContactEmail, role: 'founder' as const }],
             };
 
-            const response = await fetch('/api/founder/startups/', {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(submitData),
-            });
+            let response: Response;
+
+            if (isCompletionFlow) {
+                const token = getSessionToken('founder');
+                if (!token || !existingStartupId) {
+                    throw new Error('Please log in again to complete your startup profile.');
+                }
+
+                response = await fetch(`/api/founder/startups/${existingStartupId}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(submitData),
+                });
+            } else {
+                response = await fetch('/api/founder/startups/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: data.name,
+                        primaryContactEmail: data.primaryContactEmail,
+                        status: 'private',
+                        founders: [{ name: data.name, email: data.primaryContactEmail, role: 'founder' as const }],
+                    }),
+                });
+            }
+
             const result = await response.json();
-            if (!response.ok) throw new Error(result.message || 'Failed to create startup');
+            if (!response.ok) throw new Error(result.message || 'Failed to save startup');
 
             reset();
+
+            if (isCompletionFlow) {
+                router.push('/feed');
+                return;
+            }
+
             router.push('/login');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Something went wrong.');
@@ -295,6 +514,13 @@ export default function StartupOnboardingPage() {
     };
 
     if (!isMounted) return null;
+    if (isInitializingFlow) {
+        return (
+            <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-purple-50/30 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-purple-50/30 flex flex-col">
@@ -306,63 +532,195 @@ export default function StartupOnboardingPage() {
                     {/* Header */}
                     <div className="text-center mb-6 sm:mb-8">
                         <h1 className="text-2xl sm:text-3xl font-bold text-(--primary) tracking-tight">
-                            Create your Startup Profile
+                            {isCompletionFlow ? 'Complete your Startup Profile' : 'Create your Startup Account'}
                         </h1>
                         <p className="mt-1.5 sm:mt-2 text-sm sm:text-base text-(--secondary)">
-                            Launch your presence on XENTRO in minutes.
+                            {isCompletionFlow
+                                ? 'Finish the remaining onboarding steps after login.'
+                                : 'Start with your startup name and email verification. You can finish the rest after login.'}
                         </p>
                     </div>
 
-                    {/* Step Indicators — 4 dots */}
-                    <div className="flex items-center justify-center gap-1.5 sm:gap-3 mb-6 sm:mb-8">
-                        {STEPS.map((step) => {
-                            const isActive = step.id === currentStep;
-                            const isCompleted = step.id < currentStep;
-                            return (
-                                <div key={step.id} className="flex items-center gap-1.5 sm:gap-3">
-                                    <div className="flex flex-col items-center">
-                                        <div
-                                            className={cn(
-                                                'w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm transition-all duration-300',
-                                                isActive
-                                                    ? 'bg-accent text-white ring-2 sm:ring-4 ring-accent/20 scale-110'
-                                                    : isCompleted
-                                                        ? 'bg-accent text-white'
-                                                        : 'bg-(--surface-hover) text-(--secondary)'
-                                            )}
-                                        >
-                                            {isCompleted ? (
-                                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            ) : (
-                                                step.id
-                                            )}
+                    {isCompletionFlow && (
+                        <div className="flex items-center justify-center gap-1.5 sm:gap-3 mb-6 sm:mb-8">
+                            {COMPLETION_STEPS.map((step) => {
+                                const isActive = step.id === currentStep;
+                                const isCompleted = step.id < currentStep;
+                                return (
+                                    <div key={step.id} className="flex items-center gap-1.5 sm:gap-3">
+                                        <div className="flex flex-col items-center">
+                                            <div
+                                                className={cn(
+                                                    'w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm transition-all duration-300',
+                                                    isActive
+                                                        ? 'bg-accent text-white ring-2 sm:ring-4 ring-accent/20 scale-110'
+                                                        : isCompleted
+                                                            ? 'bg-accent text-white'
+                                                            : 'bg-(--surface-hover) text-(--secondary)'
+                                                )}
+                                            >
+                                                {isCompleted ? (
+                                                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                ) : (
+                                                    step.id
+                                                )}
+                                            </div>
+                                            <span className={cn(
+                                                'mt-1 sm:mt-1.5 text-[10px] sm:text-xs font-medium',
+                                                isActive ? 'text-(--primary)' : 'text-(--secondary)'
+                                            )}>
+                                                {step.title}
+                                            </span>
                                         </div>
-                                        <span className={cn(
-                                            'mt-1 sm:mt-1.5 text-[10px] sm:text-xs font-medium',
-                                            isActive ? 'text-(--primary)' : 'text-(--secondary)'
-                                        )}>
-                                            {step.title}
-                                        </span>
+                                        {step.id < COMPLETION_STEPS.length && (
+                                            <div className={cn(
+                                                'w-6 sm:w-12 h-0.5 mt-[-18px] rounded-full transition-colors',
+                                                step.id < currentStep ? 'bg-accent' : 'bg-(--border)'
+                                            )} />
+                                        )}
                                     </div>
-                                    {step.id < 4 && (
-                                        <div className={cn(
-                                            'w-6 sm:w-12 h-0.5 mt-[-18px] rounded-full transition-colors',
-                                            step.id < currentStep ? 'bg-accent' : 'bg-(--border)'
-                                        )} />
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
 
                     {/* ══════════════════════════════════════════
                         Card Content — one card per step
                        ══════════════════════════════════════════ */}
                     <div className="bg-white border border-(--border) rounded-2xl shadow-sm overflow-hidden">
+                        {!isCompletionFlow && (
+                            <div className="p-6 md:p-8 space-y-6 animate-fadeIn">
+                                <div>
+                                    <h2 className="text-xl font-semibold text-(--primary)">Start with your startup name and email</h2>
+                                    <p className="text-sm text-(--secondary) mt-1">Verify your email first. The remaining onboarding steps will open after your first login.</p>
+                                </div>
+
+                                <Input
+                                    label="Startup Name"
+                                    placeholder="e.g. Acme Technologies"
+                                    value={data.name}
+                                    onChange={e => updateData({ name: e.target.value })}
+                                    autoFocus
+                                    required
+                                />
+
+                                <Input
+                                    label="Company Email"
+                                    type="email"
+                                    placeholder="you@company.com"
+                                    value={data.primaryContactEmail}
+                                    onChange={e => {
+                                        updateData({ primaryContactEmail: e.target.value });
+                                        if (emailVerified || magicLinkSent) {
+                                            setEmailVerified(false);
+                                            setMagicLinkSent(false);
+                                            setFeedback(null);
+                                        }
+                                        setEmailExists(null);
+                                    }}
+                                    disabled={emailVerified}
+                                    required
+                                />
+
+                                {emailExists?.exists && (
+                                    <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                                        <svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                        </svg>
+                                        <div>
+                                            <p className="text-sm font-medium text-amber-800">{emailExists.message}</p>
+                                            <a href="/login" className="text-sm text-accent hover:underline font-medium mt-1 inline-block">
+                                                Go to Login &rarr;
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
+                                {emailChecking && (
+                                    <p className="text-xs text-(--secondary) animate-pulse">Checking email...</p>
+                                )}
+
+                                <div className="text-center py-4">
+                                    <div className={cn(
+                                        'inline-flex items-center justify-center w-16 h-16 rounded-full mb-4',
+                                        emailVerified ? 'bg-green-100' : 'bg-accent/10'
+                                    )}>
+                                        {emailVerified ? (
+                                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        )}
+                                    </div>
+
+                                    {emailVerified ? (
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-green-700 mb-1">Email verified!</h3>
+                                            <p className="text-sm text-(--secondary)">Continue to create your account, then log in to finish onboarding.</p>
+                                        </div>
+                                    ) : magicLinkSent ? (
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-(--primary) mb-1">Check your inbox</h3>
+                                            <p className="text-sm text-(--secondary)">
+                                                We sent a verification link to <strong>{data.primaryContactEmail}</strong>.<br />
+                                                Click the link in the email, then come back here.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-(--primary) mb-1">Verify your email</h3>
+                                            <p className="text-sm text-(--secondary)">
+                                                We&apos;ll send a link to <strong>{data.primaryContactEmail || 'your email'}</strong>
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {emailVerified ? (
+                                    <div className="flex items-center justify-center gap-2 text-green-600 font-medium py-2">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Verified
+                                    </div>
+                                ) : !magicLinkSent ? (
+                                    <Button
+                                        onClick={handleSendMagicLink}
+                                        disabled={emailLoading || !data.name.trim() || !data.primaryContactEmail.trim() || !!emailExists?.exists || emailChecking}
+                                        isLoading={emailLoading}
+                                        className="w-full"
+                                    >
+                                        {emailLoading ? 'Sending...' : 'Send verification link'}
+                                    </Button>
+                                ) : (
+                                    <div className="space-y-3">
+                                        <Button
+                                            onClick={handleCheckVerification}
+                                            disabled={emailLoading}
+                                            isLoading={emailLoading}
+                                            className="w-full"
+                                        >
+                                            {emailLoading ? 'Checking...' : "I've clicked the link"}
+                                        </Button>
+                                        <button
+                                            type="button"
+                                            onClick={handleSendMagicLink}
+                                            disabled={emailLoading}
+                                            className="w-full text-sm text-accent hover:underline disabled:opacity-50"
+                                        >
+                                            Resend verification link
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {/* ── Card 1: Name · Tagline · Logo ── */}
-                        {currentStep === 1 && (
+                        {isCompletionFlow && currentStep === 1 && (
                             <div className="p-6 md:p-8 space-y-6 animate-fadeIn">
                                 <div>
                                     <h2 className="text-xl font-semibold text-(--primary)">Tell us about your startup</h2>
@@ -401,7 +759,7 @@ export default function StartupOnboardingPage() {
                         )}
 
                         {/* ── Card 2: Sectors + Stage ── */}
-                        {currentStep === 2 && (
+                        {isCompletionFlow && currentStep === 2 && (
                             <div className="p-6 md:p-8 space-y-8 animate-fadeIn">
                                 {/* Sectors */}
                                 <div>
@@ -511,180 +869,87 @@ export default function StartupOnboardingPage() {
                         )}
 
                         {/* ── Card 3: Why Xentro? ── */}
-                        {currentStep === 3 && (
+                        {isCompletionFlow && currentStep === 3 && (
                             <div className="p-6 md:p-8 space-y-6 animate-fadeIn">
                                 <div>
                                     <h2 className="text-xl font-semibold text-(--primary)">Why are you joining Xentro?</h2>
                                     <p className="text-sm text-(--secondary) mt-1">Select all that apply. This helps us tailor your experience.</p>
                                 </div>
 
-                                <div className="space-y-3">
+                                <div className="rounded-2xl border border-(--border) bg-(--surface-secondary) px-4 py-3">
+                                    <p className="text-sm font-medium text-(--primary)">Choose what you want help with</p>
+                                    <p className="text-xs text-(--secondary) mt-1">Pick one or more goals. We&apos;ll use these selections to personalize your experience.</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     {WHY_XENTRO_OPTIONS.map(opt => {
                                         const isSelected = data.whyXentro.includes(opt.value);
                                         const isOther = opt.value === 'Other';
                                         return (
-                                            <div key={opt.value} className="flex flex-col gap-2">
+                                            <div key={opt.value} className={cn('flex h-full flex-col', isOther && 'md:col-span-2')}>
                                                 <label className={cn(
-                                                    'flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200',
+                                                    'group flex h-full cursor-pointer rounded-xl border p-3 transition-all duration-200',
                                                     isSelected
-                                                        ? 'border-accent bg-accent/5 ring-1 ring-accent/20'
-                                                        : 'border-(--border) hover:border-accent/30 hover:bg-(--surface-hover)'
+                                                        ? 'border-accent bg-accent/5 shadow-[0_8px_24px_rgba(16,24,40,0.08)] ring-1 ring-accent/15'
+                                                        : 'border-(--border) bg-(--surface) hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-[0_8px_24px_rgba(16,24,40,0.06)]'
                                                 )}>
-                                                    <div className="flex items-center h-5 mt-0.5">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isSelected}
-                                                            onChange={() => toggleWhyXentro(opt.value)}
-                                                            className="w-4 h-4 rounded text-accent focus:ring-accent border-gray-300 transition-colors"
-                                                        />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <span className={cn(
-                                                            'font-medium text-sm',
-                                                            isSelected ? 'text-accent' : 'text-(--primary)'
-                                                        )}>{opt.label}</span>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSelected}
+                                                        onChange={() => toggleWhyXentro(opt.value)}
+                                                        className="sr-only"
+                                                    />
+
+                                                    <div className="flex w-full items-start gap-3">
+                                                        <div className={cn(
+                                                            'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors',
+                                                            isSelected
+                                                                ? 'border-accent/20 bg-accent/10 text-accent'
+                                                                : 'border-(--border) bg-(--surface-secondary) text-(--secondary) group-hover:text-accent'
+                                                        )}>
+                                                            <AppIcon name={opt.icon} className="h-4 w-4" />
+                                                        </div>
+
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex items-start justify-between gap-2">
+                                                                <div>
+                                                                    <p className={cn(
+                                                                        'text-xs font-semibold',
+                                                                        isSelected ? 'text-accent' : 'text-(--primary)'
+                                                                    )}>
+                                                                        {opt.title}
+                                                                    </p>
+                                                                    <p className="mt-0.5 text-xs leading-5 text-(--secondary)">{opt.description}</p>
+                                                                </div>
+
+                                                                <div className={cn(
+                                                                    'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors',
+                                                                    isSelected
+                                                                        ? 'border-accent bg-accent text-white'
+                                                                        : 'border-(--secondary-light) bg-white text-transparent'
+                                                                )}>
+                                                                    <AppIcon name="check" className="h-3 w-3" />
+                                                                </div>
+                                                            </div>
+
+                                                            {isOther && isSelected && (
+                                                                <div className="mt-3 border-t border-(--border) pt-3" onClick={e => e.stopPropagation()}>
+                                                                    <Input
+                                                                        placeholder="Please specify your reason"
+                                                                        value={data.whyXentroOther}
+                                                                        onChange={e => updateData({ whyXentroOther: e.target.value })}
+                                                                        autoFocus
+                                                                    />
+                                                                </div>
+                                                            )}
+
+                                                        </div>
                                                     </div>
                                                 </label>
-
-                                                {/* If 'Other' is selected, show an inline input below it */}
-                                                {isOther && isSelected && (
-                                                    <div className="pl-9 pr-4 pb-2 animate-fadeIn">
-                                                        <Input
-                                                            placeholder="Please specify your reason"
-                                                            value={data.whyXentroOther}
-                                                            onChange={e => updateData({ whyXentroOther: e.target.value })}
-                                                            autoFocus
-                                                        />
-                                                    </div>
-                                                )}
                                             </div>
                                         );
                                     })}
                                 </div>
-                            </div>
-                        )}
-
-                        {/* ── Card 4: Email Verification ── */}
-                        {currentStep === 4 && (
-                            <div className="p-6 md:p-8 space-y-6 animate-fadeIn">
-                                <div>
-                                    <h2 className="text-xl font-semibold text-(--primary)">Verify your company email</h2>
-                                    <p className="text-sm text-(--secondary) mt-1">We&apos;ll send a verification link to confirm your identity.</p>
-                                </div>
-
-                                <Input
-                                    label="Company Email"
-                                    type="email"
-                                    placeholder="you@company.com"
-                                    value={data.primaryContactEmail}
-                                    onChange={e => {
-                                        updateData({ primaryContactEmail: e.target.value });
-                                        if (emailVerified || magicLinkSent) {
-                                            setEmailVerified(false);
-                                            setMagicLinkSent(false);
-                                            setFeedback(null);
-                                        }
-                                        setEmailExists(null);
-                                    }}
-                                    disabled={emailVerified}
-                                    required
-                                />
-
-                                {/* Email already registered warning */}
-                                {emailExists?.exists && (
-                                    <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                                        <svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                        </svg>
-                                        <div>
-                                            <p className="text-sm font-medium text-amber-800">{emailExists.message}</p>
-                                            <a href="/login" className="text-sm text-accent hover:underline font-medium mt-1 inline-block">
-                                                Go to Login &rarr;
-                                            </a>
-                                        </div>
-                                    </div>
-                                )}
-                                {emailChecking && (
-                                    <p className="text-xs text-(--secondary) animate-pulse">Checking email...</p>
-                                )}
-
-                                {/* Status display */}
-                                <div className="text-center py-4">
-                                    <div className={cn(
-                                        'inline-flex items-center justify-center w-16 h-16 rounded-full mb-4',
-                                        emailVerified ? 'bg-green-100' : 'bg-accent/10'
-                                    )}>
-                                        {emailVerified ? (
-                                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        ) : (
-                                            <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                            </svg>
-                                        )}
-                                    </div>
-
-                                    {emailVerified ? (
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-green-700 mb-1">Email verified!</h3>
-                                            <p className="text-sm text-(--secondary)">Click &quot;Create Startup&quot; to finish.</p>
-                                        </div>
-                                    ) : magicLinkSent ? (
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-(--primary) mb-1">Check your inbox</h3>
-                                            <p className="text-sm text-(--secondary)">
-                                                We sent a verification link to <strong>{data.primaryContactEmail}</strong>.<br />
-                                                Click the link in the email, then come back here.
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-(--primary) mb-1">Verify your email</h3>
-                                            <p className="text-sm text-(--secondary)">
-                                                We&apos;ll send a link to <strong>{data.primaryContactEmail || 'your email'}</strong>
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Action buttons */}
-                                {emailVerified ? (
-                                    <div className="flex items-center justify-center gap-2 text-green-600 font-medium py-2">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        Verified
-                                    </div>
-                                ) : !magicLinkSent ? (
-                                    <Button
-                                        onClick={handleSendMagicLink}
-                                        disabled={emailLoading || !data.primaryContactEmail.trim() || !!emailExists?.exists || emailChecking}
-                                        isLoading={emailLoading}
-                                        className="w-full"
-                                    >
-                                        {emailLoading ? 'Sending...' : 'Send verification link'}
-                                    </Button>
-                                ) : (
-                                    <div className="space-y-3">
-                                        <Button
-                                            onClick={handleCheckVerification}
-                                            disabled={emailLoading}
-                                            isLoading={emailLoading}
-                                            className="w-full"
-                                        >
-                                            {emailLoading ? 'Checking...' : "I've clicked the link"}
-                                        </Button>
-                                        <button
-                                            type="button"
-                                            onClick={handleSendMagicLink}
-                                            disabled={emailLoading}
-                                            className="w-full text-sm text-accent hover:underline disabled:opacity-50"
-                                        >
-                                            Resend verification link
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         )}
 
@@ -704,19 +969,19 @@ export default function StartupOnboardingPage() {
                                 type="button"
                                 variant="secondary"
                                 onClick={handleBack}
-                                disabled={currentStep === 1 || isSubmitting}
+                                disabled={!isCompletionFlow || currentStep === 1 || isSubmitting}
                             >
                                 Back
                             </Button>
 
-                            {(currentStep !== 4 || emailVerified) && (
+                            {(!isCompletionFlow || currentStep !== COMPLETION_STEPS.length || canContinue()) && (
                                 <Button
                                     type="button"
                                     onClick={handleNext}
                                     disabled={isSubmitting || !canContinue()}
                                     isLoading={isSubmitting}
                                 >
-                                    {currentStep === 4 ? 'Create Startup' : 'Continue'}
+                                    {!isCompletionFlow ? 'Continue to Login' : currentStep === COMPLETION_STEPS.length ? 'Finish Setup' : 'Continue'}
                                 </Button>
                             )}
                         </div>
