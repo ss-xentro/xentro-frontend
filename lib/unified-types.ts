@@ -1,7 +1,11 @@
 /**
- * XENTRO Unified Types
+ * XENTRO Unified Types — PLANNED / NOT YET IN USE
  *
- * Type definitions for the context-based architecture
+ * Comprehensive type definitions for the context-based architecture.
+ * These will replace the types in `@/lib/types/` once the backend
+ * fully migrates to the unified context model.
+ *
+ * Currently unused — no file imports from this module.
  */
 
 // ============================================
