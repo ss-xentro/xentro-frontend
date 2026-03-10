@@ -7,6 +7,7 @@ export { Badge, VerifiedBadge, StatusBadge, SDGBadge } from './Badge';
 export { SelectionCard, MultiSelectCard } from './SelectionCard';
 export { ProgressIndicator, StepDots } from './ProgressIndicator';
 export { FileUpload } from './FileUpload';
+export { ImageCropper } from './ImageCropper';
 export { Select } from './Select';
 export { NotificationsDropdown } from './NotificationsDropdown';
 export { ContextSwitcher } from './ContextSwitcher';

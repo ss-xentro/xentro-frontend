@@ -1,7 +1,8 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { ImageCropper } from './ImageCropper';
 
 interface FileUploadProps {
     value?: string | null;
@@ -35,13 +36,6 @@ export function FileUpload({
     const [showCropModal, setShowCropModal] = useState(false);
     const [imageToCrop, setImageToCrop] = useState<string | null>(null);
     const [originalFile, setOriginalFile] = useState<File | null>(null);
-    
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const imgRef = useRef<HTMLImageElement>(null);
-    const [crop, setCrop] = useState({ x: 0, y: 0, width: 200, height: 200 });
-    const [isDraggingCrop, setIsDraggingCrop] = useState(false);
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-    const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
     useEffect(() => {
         setPreview(value ?? null);
@@ -62,7 +56,7 @@ export function FileUpload({
 
         setOriginalFile(file);
         const localPreview = URL.createObjectURL(file);
-        
+
         if (enableCrop) {
             setImageToCrop(localPreview);
             setShowCropModal(true);
@@ -104,89 +98,17 @@ export function FileUpload({
         }
     };
 
-    const handleCropComplete = async () => {
-        if (!canvasRef.current || !imgRef.current) return;
+    const handleCropComplete = async (cachedBlob: Blob) => {
+        if (!cachedBlob || !originalFile) return;
 
-        const canvas = canvasRef.current;
-        const img = imgRef.current;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        const croppedFile = new File([cachedBlob], originalFile.name, {
+            type: originalFile.type,
+            lastModified: Date.now(),
+        });
 
-        // Set canvas size to crop size
-        canvas.width = crop.width;
-        canvas.height = crop.height;
-
-        // Calculate scale
-        const scaleX = img.naturalWidth / img.width;
-        const scaleY = img.naturalHeight / img.height;
-
-        // Draw cropped image
-        ctx.drawImage(
-            img,
-            crop.x * scaleX,
-            crop.y * scaleY,
-            crop.width * scaleX,
-            crop.height * scaleY,
-            0,
-            0,
-            crop.width,
-            crop.height
-        );
-
-        // Convert to blob
-        canvas.toBlob(async (blob) => {
-            if (!blob || !originalFile) return;
-            
-            const croppedFile = new File([blob], originalFile.name, {
-                type: originalFile.type,
-                lastModified: Date.now(),
-            });
-
-            setShowCropModal(false);
-            setImageToCrop(null);
-            await uploadFile(croppedFile);
-        }, originalFile?.type || 'image/png');
-    };
-
-    const handleImageLoad = () => {
-        if (imgRef.current) {
-            const img = imgRef.current;
-            setImageSize({ width: img.width, height: img.height });
-            
-            // Initialize crop in the center
-            // Use as large a crop as possible so oversized logos fit comfortably
-            const maxWidth = img.width;
-            const maxHeight = img.height;
-            const cropWidth = aspectRatio
-                ? Math.min(maxWidth, maxHeight * aspectRatio)
-                : maxWidth;
-            const cropHeight = aspectRatio ? cropWidth / aspectRatio : maxHeight;
-            setCrop({
-                x: (img.width - cropWidth) / 2,
-                y: (img.height - cropHeight) / 2,
-                width: cropWidth,
-                height: cropHeight,
-            });
-        }
-    };
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-        e.preventDefault();
-        setIsDraggingCrop(true);
-        setDragStart({ x: e.clientX - crop.x, y: e.clientY - crop.y });
-    };
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isDraggingCrop || !imgRef.current) return;
-        
-        const newX = Math.max(0, Math.min(imageSize.width - crop.width, e.clientX - dragStart.x));
-        const newY = Math.max(0, Math.min(imageSize.height - crop.height, e.clientY - dragStart.y));
-        
-        setCrop({ ...crop, x: newX, y: newY });
-    };
-
-    const handleMouseUp = () => {
-        setIsDraggingCrop(false);
+        setShowCropModal(false);
+        setImageToCrop(null);
+        await uploadFile(croppedFile);
     };
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -301,99 +223,17 @@ export function FileUpload({
 
             {/* Crop Modal */}
             {showCropModal && imageToCrop && (
-                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setShowCropModal(false)}>
-                    <div className="bg-(--surface) rounded-xl p-6 max-w-3xl w-full max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xl font-bold text-(--primary)">Crop Your Image</h3>
-                            <button
-                                type="button"
-                                onClick={() => setShowCropModal(false)}
-                                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-(--surface-hover) text-(--secondary)"
-                                aria-label="Close"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        
-                        <p className="text-sm text-(--secondary) mb-4">
-                            Drag the box to adjust your crop area. Make sure your logo is clearly visible.
-                        </p>
-
-                        <div 
-                            className="relative inline-block max-w-full mx-auto"
-                            onMouseMove={handleMouseMove}
-                            onMouseUp={handleMouseUp}
-                            onMouseLeave={handleMouseUp}
-                        >
-                            <img
-                                ref={imgRef}
-                                src={imageToCrop}
-                                alt="Crop preview"
-                                className="max-w-full max-h-[60vh] select-none"
-                                onLoad={handleImageLoad}
-                                draggable={false}
-                            />
-                            
-                            {/* Crop overlay */}
-                            <div
-                                className="absolute border-2 border-accent cursor-move"
-                                style={{
-                                    left: crop.x,
-                                    top: crop.y,
-                                    width: crop.width,
-                                    height: crop.height,
-                                    boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
-                                }}
-                                onMouseDown={handleMouseDown}
-                            >
-                                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
-                                    {[...Array(9)].map((_, i) => (
-                                        <div key={i} className="border border-accent/30" />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-3 mt-6 flex-wrap">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    if (!imgRef.current) return;
-                                    const img = imgRef.current;
-                                    const w = img.width;
-                                    const h = img.height;
-                                    setCrop({ x: 0, y: 0, width: w, height: h });
-                                }}
-                                className="h-11 px-4 bg-(--surface-hover) text-(--primary) rounded-lg hover:bg-(--border) transition-colors font-medium"
-                            >
-                                Use Full Image
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowCropModal(false);
-                                    setImageToCrop(null);
-                                }}
-                                className="flex-1 h-11 px-4 bg-(--surface-hover) text-(--primary) rounded-lg hover:bg-(--border) transition-colors font-medium"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleCropComplete}
-                                className="flex-1 h-11 px-4 bg-accent text-white rounded-lg hover:bg-(--primary) transition-colors font-medium"
-                            >
-                                Crop & Upload
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <ImageCropper
+                    imageSrc={imageToCrop}
+                    aspectRatio={aspectRatio}
+                    cropShape={aspectRatio === 1 ? 'circle' : 'rect'}
+                    onCropComplete={handleCropComplete}
+                    onCancel={() => {
+                        setShowCropModal(false);
+                        setImageToCrop(null);
+                    }}
+                />
             )}
-
-            {/* Hidden canvas for cropping */}
-            <canvas ref={canvasRef} className="hidden" />
         </>
     );
 }
