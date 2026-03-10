@@ -55,6 +55,37 @@ export interface StartupData {
     investors: string[];
 }
 
+export function createInitialStartupData(): StartupData {
+    return {
+        name: '',
+        tagline: '',
+        logo: null,
+        sectors: [],
+        stage: '',
+        whyXentro: [],
+        whyXentroOther: '',
+        primaryContactEmail: '',
+        pitch: '',
+        foundedDate: '',
+        status: 'private',
+        location: '',
+        founders: [{ name: '', email: '', role: 'founder', title: 'Founder', avatar: null }],
+        teamMembers: [],
+        fundingRound: 'bootstrapped',
+        fundsRaised: '',
+        fundingCurrency: 'USD',
+        investors: [],
+    };
+}
+
+export function createSignupDraftData(data: Pick<StartupData, 'name' | 'primaryContactEmail'>): StartupData {
+    return {
+        ...createInitialStartupData(),
+        name: data.name,
+        primaryContactEmail: data.primaryContactEmail,
+    };
+}
+
 interface StartupOnboardingStore {
     currentStep: number;
     data: StartupData;
@@ -68,29 +99,11 @@ interface StartupOnboardingStore {
     removeTeamMember: (index: number) => void;
     toggleSector: (sector: string) => void;
     toggleWhyXentro: (option: string) => void;
+    resetToSignupDraft: () => void;
     reset: () => void;
 }
 
-const initialData: StartupData = {
-    name: '',
-    tagline: '',
-    logo: null,
-    sectors: [],
-    stage: '',
-    whyXentro: [],
-    whyXentroOther: '',
-    primaryContactEmail: '',
-    pitch: '',
-    foundedDate: '',
-    status: 'private',
-    location: '',
-    founders: [{ name: '', email: '', role: 'founder', title: 'Founder', avatar: null }],
-    teamMembers: [],
-    fundingRound: 'bootstrapped',
-    fundsRaised: '',
-    fundingCurrency: 'USD',
-    investors: [],
-};
+const initialData = createInitialStartupData();
 
 export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
     persist(
@@ -165,14 +178,22 @@ export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
                         : [...current, option];
                     return { data: { ...state.data, whyXentro: next } };
                 }),
-            reset: () => set({ currentStep: 1, data: initialData }),
+            resetToSignupDraft: () =>
+                set((state) => ({
+                    currentStep: 1,
+                    data: createSignupDraftData({
+                        name: state.data.name,
+                        primaryContactEmail: state.data.primaryContactEmail,
+                    }),
+                })),
+            reset: () => set({ currentStep: 1, data: createInitialStartupData() }),
         }),
         {
             name: 'startup-onboarding-storage',
             version: 4,
             migrate: () => ({
                 currentStep: 1,
-                data: initialData,
+                data: createInitialStartupData(),
             }),
         }
     )

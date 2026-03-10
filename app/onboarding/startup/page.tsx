@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStartupOnboardingStore } from '@/stores/useStartupOnboardingStore';
 import { Button } from '@/components/ui/Button';
@@ -151,7 +151,7 @@ function isValidEmail(value: string) {
 
 export default function StartupOnboardingPage() {
     const router = useRouter();
-    const { currentStep, setStep, data, updateData, toggleSector, toggleWhyXentro, reset } = useStartupOnboardingStore();
+    const { currentStep, setStep, data, updateData, toggleWhyXentro, resetToSignupDraft, reset } = useStartupOnboardingStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -168,9 +168,18 @@ export default function StartupOnboardingPage() {
     const [isInitializingFlow, setIsInitializingFlow] = useState(true);
 
     const [isMounted, setIsMounted] = useState(false);
+    const initialDraftRef = useRef(data);
     useEffect(() => { setIsMounted(true); }, []);
 
     const isCompletionFlow = flowMode === 'complete';
+
+    const resetSignupVerificationState = () => {
+        setMagicLinkSent(false);
+        setEmailVerified(false);
+        setEmailExists(null);
+        setEmailChecking(false);
+        setFeedback(null);
+    };
 
     useEffect(() => {
         if (!isMounted) return;
@@ -179,12 +188,14 @@ export default function StartupOnboardingPage() {
         if (!token) {
             setFlowMode('signup');
             setExistingStartupId(null);
-            setStep(1);
+            resetToSignupDraft();
+            resetSignupVerificationState();
             setIsInitializingFlow(false);
             return;
         }
 
         let cancelled = false;
+        const draft = initialDraftRef.current;
 
         const loadStartup = async () => {
             try {
@@ -196,6 +207,8 @@ export default function StartupOnboardingPage() {
                     if (!cancelled) {
                         setFlowMode('signup');
                         setExistingStartupId(null);
+                        resetToSignupDraft();
+                        resetSignupVerificationState();
                     }
                     return;
                 }
@@ -206,7 +219,7 @@ export default function StartupOnboardingPage() {
 
                 if (!cancelled && startup) {
                     const startupEmail = (startup.primaryContactEmail ?? '').trim().toLowerCase();
-                    const localEmail = data.primaryContactEmail.trim().toLowerCase();
+                    const localEmail = draft.primaryContactEmail.trim().toLowerCase();
                     const shouldReuseLocalDraft = !localEmail || localEmail === startupEmail;
                     const fallbackFounders = startup.founders?.length
                         ? startup.founders.map((founder: { name?: string; email?: string; role?: 'founder' | 'co_founder'; title?: string; avatar?: string | null }, index: number) => ({
@@ -230,26 +243,26 @@ export default function StartupOnboardingPage() {
                         title: member.title ?? '',
                         avatar: member.avatar ?? null,
                     }));
-                    const hasLocalFounders = data.founders.some(hasPartialMember);
-                    const hasLocalTeamMembers = data.teamMembers.some(hasPartialMember);
+                    const hasLocalFounders = draft.founders.some(hasPartialMember);
+                    const hasLocalTeamMembers = draft.teamMembers.some(hasPartialMember);
                     const mergedData = {
-                        name: shouldReuseLocalDraft && data.name.trim() ? data.name : startup.name ?? '',
-                        tagline: shouldReuseLocalDraft && data.tagline.trim() ? data.tagline : startup.tagline ?? '',
-                        logo: shouldReuseLocalDraft && data.logo ? data.logo : startup.logo ?? null,
-                        founders: shouldReuseLocalDraft && hasLocalFounders ? data.founders : fallbackFounders,
-                        teamMembers: shouldReuseLocalDraft && hasLocalTeamMembers ? data.teamMembers : fallbackTeamMembers,
-                        sectors: shouldReuseLocalDraft && data.sectors.length ? data.sectors : startup.sectors ?? [],
-                        stage: shouldReuseLocalDraft && data.stage ? data.stage : (startup.stage ?? ''),
-                        whyXentro: shouldReuseLocalDraft && data.whyXentro.length ? data.whyXentro : whyXentro,
-                        whyXentroOther: shouldReuseLocalDraft && data.whyXentroOther.trim() ? data.whyXentroOther : (payload.data?.whyXentroOther ?? ''),
-                        primaryContactEmail: shouldReuseLocalDraft && data.primaryContactEmail.trim() ? data.primaryContactEmail : startup.primaryContactEmail ?? '',
-                        status: shouldReuseLocalDraft && data.status ? data.status : (startup.status ?? 'private'),
-                        location: shouldReuseLocalDraft && data.location.trim() ? data.location : startup.location ?? '',
-                        fundingRound: shouldReuseLocalDraft && data.fundingRound ? data.fundingRound : (startup.fundingRound ?? 'bootstrapped'),
-                        fundsRaised: shouldReuseLocalDraft && data.fundsRaised ? data.fundsRaised : (startup.fundsRaised ? String(startup.fundsRaised) : ''),
-                        fundingCurrency: shouldReuseLocalDraft && data.fundingCurrency ? data.fundingCurrency : (startup.fundingCurrency ?? 'USD'),
-                        foundedDate: shouldReuseLocalDraft && data.foundedDate ? data.foundedDate : (startup.foundedDate ?? ''),
-                        pitch: shouldReuseLocalDraft && data.pitch.trim() ? data.pitch : startup.pitch ?? '',
+                        name: shouldReuseLocalDraft && draft.name.trim() ? draft.name : startup.name ?? '',
+                        tagline: shouldReuseLocalDraft && draft.tagline.trim() ? draft.tagline : startup.tagline ?? '',
+                        logo: shouldReuseLocalDraft && draft.logo ? draft.logo : startup.logo ?? null,
+                        founders: shouldReuseLocalDraft && hasLocalFounders ? draft.founders : fallbackFounders,
+                        teamMembers: shouldReuseLocalDraft && hasLocalTeamMembers ? draft.teamMembers : fallbackTeamMembers,
+                        sectors: shouldReuseLocalDraft && draft.sectors.length ? draft.sectors : startup.sectors ?? [],
+                        stage: shouldReuseLocalDraft && draft.stage ? draft.stage : (startup.stage ?? ''),
+                        whyXentro: shouldReuseLocalDraft && draft.whyXentro.length ? draft.whyXentro : whyXentro,
+                        whyXentroOther: shouldReuseLocalDraft && draft.whyXentroOther.trim() ? draft.whyXentroOther : (payload.data?.whyXentroOther ?? ''),
+                        primaryContactEmail: shouldReuseLocalDraft && draft.primaryContactEmail.trim() ? draft.primaryContactEmail : startup.primaryContactEmail ?? '',
+                        status: shouldReuseLocalDraft && draft.status ? draft.status : (startup.status ?? 'private'),
+                        location: shouldReuseLocalDraft && draft.location.trim() ? draft.location : startup.location ?? '',
+                        fundingRound: shouldReuseLocalDraft && draft.fundingRound ? draft.fundingRound : (startup.fundingRound ?? 'bootstrapped'),
+                        fundsRaised: shouldReuseLocalDraft && draft.fundsRaised ? draft.fundsRaised : (startup.fundsRaised ? String(startup.fundsRaised) : ''),
+                        fundingCurrency: shouldReuseLocalDraft && draft.fundingCurrency ? draft.fundingCurrency : (startup.fundingCurrency ?? 'USD'),
+                        foundedDate: shouldReuseLocalDraft && draft.foundedDate ? draft.foundedDate : (startup.foundedDate ?? ''),
+                        pitch: shouldReuseLocalDraft && draft.pitch.trim() ? draft.pitch : startup.pitch ?? '',
                     };
 
                     updateData(mergedData);
@@ -270,6 +283,8 @@ export default function StartupOnboardingPage() {
                 if (!cancelled) {
                     setFlowMode('signup');
                     setExistingStartupId(null);
+                    resetToSignupDraft();
+                    resetSignupVerificationState();
                 }
             } finally {
                 if (!cancelled) {
@@ -283,39 +298,63 @@ export default function StartupOnboardingPage() {
         return () => {
             cancelled = true;
         };
-    }, [isMounted, router, setStep, updateData]);
+    }, [isMounted, resetToSignupDraft, router, setStep, updateData]);
 
     // ── Debounced email existence check ──
     useEffect(() => {
-        const email = data.primaryContactEmail.trim();
+        if (isCompletionFlow) {
+            setEmailExists(null);
+            setEmailChecking(false);
+            return;
+        }
+
+        const email = data.primaryContactEmail.trim().toLowerCase();
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             setEmailExists(null);
             setEmailChecking(false);
             return;
         }
+
+        let isActive = true;
+        let abortController: AbortController | null = null;
+
         setEmailChecking(true);
         const timeout = setTimeout(async () => {
             try {
+                abortController = new AbortController();
                 const res = await fetch('/api/auth/check-email/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    signal: abortController.signal,
                     body: JSON.stringify({ email }),
                 });
                 const resData = await res.json();
+                if (!isActive) {
+                    return;
+                }
                 if (resData.exists && !resData.canProceed) {
                     setEmailExists({ exists: true, message: resData.message });
                 } else {
                     setEmailExists(null);
                 }
-            } catch {
+            } catch (error) {
+                if ((error as Error).name === 'AbortError' || !isActive) {
+                    return;
+                }
                 setEmailExists(null);
             } finally {
-                setEmailChecking(false);
+                if (isActive) {
+                    setEmailChecking(false);
+                }
             }
         }, 500);
 
-        return () => clearTimeout(timeout);
-    }, [data.primaryContactEmail]);
+        return () => {
+            isActive = false;
+            clearTimeout(timeout);
+            abortController?.abort();
+        };
+    }, [data.primaryContactEmail, isCompletionFlow]);
 
     useEffect(() => {
         if (!magicLinkSent || emailVerified) return;
@@ -345,6 +384,16 @@ export default function StartupOnboardingPage() {
 
     // ── Email verification ──
     const handleSendMagicLink = async () => {
+        const email = data.primaryContactEmail.trim().toLowerCase();
+        if (!data.name.trim()) {
+            setFeedback({ type: 'error', message: 'Please enter your startup name first.' });
+            return;
+        }
+        if (!isValidEmail(email)) {
+            setFeedback({ type: 'error', message: 'Please enter a valid company email address.' });
+            return;
+        }
+
         setEmailLoading(true);
         setFeedback(null);
         try {
@@ -352,15 +401,16 @@ export default function StartupOnboardingPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email: data.primaryContactEmail,
-                    name: data.name,
+                    email,
+                    name: data.name.trim(),
                     purpose: 'signup',
                 }),
             });
             const resData = await res.json();
             if (!res.ok) throw new Error(resData.error || resData.message || 'Failed to send verification link');
+            updateData({ primaryContactEmail: email });
             setMagicLinkSent(true);
-            setFeedback({ type: 'success', message: `Verification link sent to ${data.primaryContactEmail}` });
+            setFeedback({ type: 'success', message: `Verification link sent to ${email}` });
         } catch (err) {
             setFeedback({ type: 'error', message: (err as Error).message });
         } finally {
@@ -369,17 +419,24 @@ export default function StartupOnboardingPage() {
     };
 
     const handleCheckVerification = async () => {
+        const email = data.primaryContactEmail.trim().toLowerCase();
+        if (!isValidEmail(email)) {
+            setFeedback({ type: 'error', message: 'Please enter a valid company email address.' });
+            return;
+        }
+
         setEmailLoading(true);
         setFeedback(null);
         try {
             const res = await fetch('/api/auth/magic-link/status/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: data.primaryContactEmail }),
+                body: JSON.stringify({ email }),
             });
             const resData = await res.json();
             if (!res.ok) throw new Error(resData.message || 'Verification check failed');
             if (resData.verified) {
+                updateData({ primaryContactEmail: email });
                 setEmailVerified(true);
                 setFeedback({ type: 'success', message: 'Email verified!' });
             } else {
@@ -395,12 +452,18 @@ export default function StartupOnboardingPage() {
     // ── Navigation ──
     const canContinue = () => {
         if (!isCompletionFlow) {
-            return data.name.trim().length > 0 && data.primaryContactEmail.trim().length > 0 && emailVerified;
+            return data.name.trim().length > 0 && isValidEmail(data.primaryContactEmail) && emailVerified;
         }
         if (currentStep === 1) return data.name.trim().length > 0 && data.tagline.trim().length > 0 && Boolean(data.logo);
-        if (currentStep === 2) return Boolean(data.founders[0]?.name.trim() && data.founders[0]?.email.trim()) && !data.founders.some(hasIncompleteMember) && !data.teamMembers.some(hasIncompleteMember);
+        if (currentStep === 2) {
+            return Boolean(data.founders[0]?.name.trim() && data.founders[0]?.email.trim())
+                && !data.founders.some(hasIncompleteMember)
+                && !data.teamMembers.some(hasIncompleteMember)
+                && !data.founders.some(founder => founder.email.trim() && !isValidEmail(founder.email))
+                && !data.teamMembers.some(member => member.email.trim() && !isValidEmail(member.email));
+        }
         if (currentStep === 3) return data.sectors.length > 0 && data.stage !== '';
-        if (currentStep === 4) return data.whyXentro.length > 0;
+        if (currentStep === 4) return data.whyXentro.length > 0 && (!data.whyXentro.includes('Other') || Boolean(data.whyXentroOther.trim()));
         return true;
     };
 
@@ -415,6 +478,10 @@ export default function StartupOnboardingPage() {
             }
             if (!data.primaryContactEmail.trim()) {
                 setError('Please enter your email.');
+                return;
+            }
+            if (!isValidEmail(data.primaryContactEmail)) {
+                setError('Please enter a valid company email address.');
                 return;
             }
             if (!emailVerified) {
@@ -493,40 +560,41 @@ export default function StartupOnboardingPage() {
         setIsSubmitting(true);
         setError(null);
         try {
+            const trimmedEmail = data.primaryContactEmail.trim().toLowerCase();
             const submitData = {
-                name: data.name,
-                tagline: data.tagline || '',
+                name: data.name.trim(),
+                tagline: data.tagline.trim(),
                 logo: data.logo || null,
                 sectors: data.sectors,
                 whyXentro: data.whyXentro.map(opt =>
                     opt === 'Other' ? 'Other' : WHY_XENTRO_OPTIONS.find(o => o.value === opt)?.label || opt
                 ),
-                whyXentroOther: data.whyXentroOther,
+                whyXentroOther: data.whyXentroOther.trim(),
                 stage: data.stage,
-                primaryContactEmail: data.primaryContactEmail,
+                primaryContactEmail: trimmedEmail,
                 status: data.status || 'private',
-                location: data.location || null,
+                location: data.location.trim() || null,
                 fundingRound: data.fundingRound || null,
-                fundsRaised: data.fundsRaised ? data.fundsRaised : null,
+                fundsRaised: data.fundsRaised.trim() ? data.fundsRaised.trim() : null,
                 fundingCurrency: data.fundingCurrency || 'USD',
                 foundedDate: data.foundedDate || null,
-                pitch: data.pitch || '',
+                pitch: data.pitch.trim(),
                 founders: data.founders
                     .filter(founder => founder.name.trim() && founder.email.trim())
                     .map((founder, index) => ({
-                        name: founder.name,
-                        email: founder.email,
+                        name: founder.name.trim(),
+                        email: founder.email.trim().toLowerCase(),
                         role: index === 0 ? 'founder' as const : 'co_founder' as const,
-                        title: founder.title || (index === 0 ? 'Founder' : 'Co-Founder'),
+                        title: founder.title?.trim() || (index === 0 ? 'Founder' : 'Co-Founder'),
                         avatar: founder.avatar || null,
                     })),
                 teamMembers: data.teamMembers
                     .filter(member => member.name.trim() && member.email.trim())
                     .map(member => ({
-                        name: member.name,
-                        email: member.email,
+                        name: member.name.trim(),
+                        email: member.email.trim().toLowerCase(),
                         role: member.role || 'team_member',
-                        title: member.title || '',
+                        title: member.title?.trim() || '',
                         avatar: member.avatar || null,
                     })),
             };
@@ -552,10 +620,10 @@ export default function StartupOnboardingPage() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        name: data.name,
-                        primaryContactEmail: data.primaryContactEmail,
+                        name: data.name.trim(),
+                        primaryContactEmail: trimmedEmail,
                         status: 'private',
-                        founders: [{ name: data.name, email: data.primaryContactEmail, role: 'founder' as const }],
+                        founders: [{ name: data.name.trim(), email: trimmedEmail, role: 'founder' as const }],
                     }),
                 });
             }
