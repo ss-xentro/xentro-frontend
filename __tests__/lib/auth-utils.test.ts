@@ -1,12 +1,12 @@
-/**
- * Unit tests for lib/auth-utils.ts — localStorage-based auth helpers.
- */
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	clearAllRoleTokens,
 	getRoleFromSession,
+	getRoleToken,
 	getUnlockedContexts,
 	getSessionToken,
+	setRoleToken,
+	syncAuthCookie,
 } from "@/lib/auth-utils";
 
 // Mock localStorage for Node/jsdom
@@ -26,30 +26,44 @@ const localStorageMock = (() => {
 		get length() {
 			return Object.keys(store).length;
 		},
-		key: vi.fn((_i: number) => null),
+		key: vi.fn(() => null),
 	};
 })();
 
 Object.defineProperty(globalThis, "localStorage", { value: localStorageMock });
 
+function clearCookies() {
+	document.cookie.split(";").forEach((cookie) => {
+		const name = cookie.split("=")[0]?.trim();
+		if (name) {
+			document.cookie = `${name}=; path=/; max-age=0`;
+		}
+	});
+}
+
 beforeEach(() => {
 	localStorageMock.clear();
+	clearCookies();
 	vi.clearAllMocks();
 });
 
 // ── clearAllRoleTokens ──────────────────────────────────
 
 describe("clearAllRoleTokens", () => {
-	it("removes all role tokens from localStorage", () => {
+	it("removes all role cookies and legacy localStorage tokens", () => {
 		localStorageMock.setItem("founder_token", "tok1");
 		localStorageMock.setItem("mentor_token", "tok2");
 		localStorageMock.setItem("startup_id", "s1");
+		setRoleToken("founder", "cookie-founder");
+		setRoleToken("mentor", "cookie-mentor");
 
 		clearAllRoleTokens();
 
 		expect(localStorageMock.removeItem).toHaveBeenCalledWith("founder_token");
 		expect(localStorageMock.removeItem).toHaveBeenCalledWith("mentor_token");
 		expect(localStorageMock.removeItem).toHaveBeenCalledWith("startup_id");
+		expect(getRoleToken("founder")).toBeNull();
+		expect(getRoleToken("mentor")).toBeNull();
 	});
 });
 
@@ -58,6 +72,12 @@ describe("clearAllRoleTokens", () => {
 describe("getRoleFromSession", () => {
 	it("returns null when no session exists", () => {
 		expect(getRoleFromSession()).toBeNull();
+	});
+
+	it("returns role from auth cookie", () => {
+		syncAuthCookie({ role: "founder", name: "Jane" });
+
+		expect(getRoleFromSession()).toBe("founder");
 	});
 
 	it("returns null when session is expired", () => {
@@ -97,6 +117,12 @@ describe("getUnlockedContexts", () => {
 		expect(getUnlockedContexts()).toEqual([]);
 	});
 
+	it("returns contexts from auth cookie", () => {
+		syncAuthCookie({ role: "founder", unlockedContexts: ["explorer", "startup"] });
+
+		expect(getUnlockedContexts()).toEqual(["explorer", "startup"]);
+	});
+
 	it("returns default explorer context for valid session without contexts", () => {
 		localStorageMock.setItem(
 			"xentro_session",
@@ -127,6 +153,12 @@ describe("getUnlockedContexts", () => {
 describe("getSessionToken", () => {
 	it("returns null when no session exists", () => {
 		expect(getSessionToken()).toBeNull();
+	});
+
+	it("returns token from role cookie for expected role", () => {
+		setRoleToken("mentor", "mentor-cookie-token");
+
+		expect(getSessionToken("mentor")).toBe("mentor-cookie-token");
 	});
 
 	it("returns token from valid session", () => {

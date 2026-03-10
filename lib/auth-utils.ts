@@ -42,6 +42,24 @@ function deleteCookie(name: string) {
     document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
 }
 
+function getLegacySession(): Record<string, unknown> | null {
+    if (typeof window === 'undefined') return null;
+
+    try {
+        const raw = localStorage.getItem('xentro_session');
+        if (!raw) return null;
+
+        const data = JSON.parse(raw) as { expiresAt?: number } & Record<string, unknown>;
+        if (data.expiresAt && data.expiresAt <= Date.now()) {
+            return null;
+        }
+
+        return data;
+    } catch {
+        return null;
+    }
+}
+
 /* ─── Session user shape stored in xentro_auth ─── */
 
 export interface SessionUser {
@@ -168,15 +186,11 @@ export function getRoleFromSession(): string | null {
     const session = getAuthCookie();
     if (session?.role) return session.role;
 
-    // Legacy fallback: try localStorage
-    try {
-        const raw = typeof window !== 'undefined' ? localStorage.getItem('xentro_session') : null;
-        if (!raw) return null;
-        const data = JSON.parse(raw);
-        return data?.user?.role || data?.user?.account_type || null;
-    } catch {
-        return null;
-    }
+    const legacySession = getLegacySession();
+    return (legacySession as { user?: { role?: string; account_type?: string; accountType?: string } } | null)?.user?.role
+        || (legacySession as { user?: { role?: string; account_type?: string; accountType?: string } } | null)?.user?.account_type
+        || (legacySession as { user?: { role?: string; account_type?: string; accountType?: string } } | null)?.user?.accountType
+        || null;
 }
 
 /**
@@ -186,15 +200,9 @@ export function getUnlockedContexts(): string[] {
     const session = getAuthCookie();
     if (session?.contexts?.length) return session.contexts;
 
-    // Legacy fallback
-    try {
-        const raw = typeof window !== 'undefined' ? localStorage.getItem('xentro_session') : null;
-        if (!raw) return [];
-        const data = JSON.parse(raw);
-        return data?.user?.unlockedContexts || data?.user?.unlocked_contexts || ['explorer'];
-    } catch {
-        return [];
-    }
+    const legacySession = getLegacySession() as { user?: { unlockedContexts?: string[]; unlocked_contexts?: string[] } } | null;
+    if (!legacySession?.user) return [];
+    return legacySession.user.unlockedContexts || legacySession.user.unlocked_contexts || ['explorer'];
 }
 
 /**
@@ -205,6 +213,13 @@ export function getSessionToken(expectedRole?: string): string | null {
     if (expectedRole) {
         const t = getRoleToken(expectedRole);
         if (t) return t;
+
+        if (typeof window !== 'undefined') {
+            try {
+                const legacyRoleToken = localStorage.getItem(`${expectedRole}_token`);
+                if (legacyRoleToken) return legacyRoleToken;
+            } catch { /* ignore */ }
+        }
     }
 
     // Try all role cookies as last resort
@@ -217,13 +232,8 @@ export function getSessionToken(expectedRole?: string): string | null {
 
     // Legacy localStorage fallback (will be removed after migration)
     if (typeof window === 'undefined') return null;
-    try {
-        const raw = localStorage.getItem('xentro_session');
-        if (raw) {
-            const data = JSON.parse(raw);
-            if (data?.token && data?.expiresAt > Date.now()) return data.token;
-        }
-    } catch { /* ignore */ }
+    const legacySession = getLegacySession() as { token?: string } | null;
+    if (legacySession?.token) return legacySession.token;
 
     return null;
 }
