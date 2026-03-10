@@ -154,7 +154,6 @@ function getNavItems(role: UserRole): NavItem[] {
 		case 'startup':
 		case 'founder':
 			return [
-				{ name: 'Home', href: '/feed', icon: icons.home },
 				{ name: 'Overview', href: '/dashboard', icon: icons.overview },
 				{ name: 'Edit Profile', href: '/dashboard/startup', icon: icons.edit },
 				{ name: 'Pitch Deck', href: '/dashboard/startup/pitch', icon: icons.document },
@@ -163,6 +162,7 @@ function getNavItems(role: UserRole): NavItem[] {
 				{ name: 'My Mentors', href: '/dashboard/mentors', icon: icons.groupPeople },
 				{ name: 'Endorsements', href: '/dashboard/endorsements', icon: icons.endorsement },
 				{ name: 'Settings', href: '/dashboard/settings', icon: icons.settings },
+				{ name: 'Feed', href: '/feed', icon: icons.home },
 			];
 
 		case 'mentor':

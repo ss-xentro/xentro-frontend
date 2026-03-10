@@ -29,6 +29,7 @@ export interface StartupWithDetails extends Startup {
 	teamMembers?: TeamMemberData[];
 	founders?: Founder[];
 	owner?: { id: string; name: string; email: string } | null;
+	isRestricted?: boolean;
 }
 
 export type {

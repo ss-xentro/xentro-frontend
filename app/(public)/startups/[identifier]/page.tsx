@@ -100,10 +100,38 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
     { key: 'activity', label: 'Activity' },
   ];
 
+  // Restricted View handling
+  if (startup.isRestricted) {
+    return (
+      <>
+        <StartupProfileNavbar />
+        <div className="animate-fadeIn min-h-screen bg-background pb-12">
+          {/* Hero shows basic details like Name, Tagline, Location, Stage */}
+          <StartupProfileHero startup={startup} />
+
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-12">
+            <div className="bg-(--surface) border border-(--border) rounded-xl p-8 text-center flex flex-col items-center shadow-xs">
+              <div className="w-16 h-16 bg-(--surface-hover) rounded-full flex items-center justify-center mb-4 text-(--secondary)">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-(--primary) mb-2">Private Profile</h2>
+              <p className="text-(--secondary) max-w-md mx-auto">
+                This startup has chosen to keep their detailed profile information, pitch deck, and team details private.
+              </p>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <StartupProfileNavbar />
       <div className="animate-fadeIn min-h-screen bg-background">
+        {/* ... existing normal page ... */}
         {/* Hero */}
         <StartupProfileHero startup={startup} />
 
