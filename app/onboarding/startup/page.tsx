@@ -260,7 +260,7 @@ export default function StartupOnboardingPage() {
                     const nextStep = getStartupCompletionStep(mergedData);
 
                     if (nextStep > COMPLETION_STEPS.length) {
-                        router.replace('/feed');
+                        router.replace('/home');
                         return;
                     }
 
@@ -566,7 +566,7 @@ export default function StartupOnboardingPage() {
             reset();
 
             if (isCompletionFlow) {
-                router.push('/feed');
+                router.push('/home');
                 return;
             }
 

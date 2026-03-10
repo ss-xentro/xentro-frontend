@@ -13,9 +13,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { clearAllRoleTokens, syncAuthCookie, setRoleToken, setTokenCookie, normalizeUser } from '@/lib/auth-utils';
 import { getStartupCompletionStep } from '@/lib/startup-onboarding';
 
-// All logins redirect to /feed — users navigate to their dashboard from there
+// Startup/founder users land on /home after login once onboarding is complete.
 const DASHBOARD_MAP: Record<string, string> = {
-    startup: '/feed',
+    startup: '/home',
+    founder: '/home',
     mentor: '/feed',
     institution: '/feed',
     investor: '/feed',
