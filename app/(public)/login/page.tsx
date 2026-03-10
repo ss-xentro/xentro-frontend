@@ -11,6 +11,7 @@ import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { clearAllRoleTokens, syncAuthCookie, setRoleToken, setTokenCookie, normalizeUser } from '@/lib/auth-utils';
+import { getStartupCompletionStep } from '@/lib/startup-onboarding';
 
 // All logins redirect to /feed — users navigate to their dashboard from there
 const DASHBOARD_MAP: Record<string, string> = {
@@ -39,20 +40,6 @@ function storeSession(data: { user: Record<string, unknown>; token: string; star
     syncAuthCookie(data.user);
 
     return role;
-}
-
-function getStartupCompletionStep(payload: {
-    name?: string | null;
-    tagline?: string | null;
-    logo?: string | null;
-    sectors?: string[] | null;
-    stage?: string | null;
-    whyXentro?: string[] | null;
-}) {
-    if (!payload.name?.trim() || !payload.tagline?.trim() || !payload.logo) return 1;
-    if (!payload.sectors?.length || !payload.stage) return 2;
-    if (!payload.whyXentro?.length) return 3;
-    return 4;
 }
 
 async function getPostLoginDestination(role: string, token: string) {
@@ -210,7 +197,7 @@ export default function UnifiedLoginPage() {
     return (
         <div className="min-h-screen bg-(--background) flex flex-col">
             {/* Minimal Navbar */}
-            <OnboardingNavbar exitHref="/" />
+            <OnboardingNavbar showAction={false} />
 
             {/* Main */}
             <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12 md:py-16">

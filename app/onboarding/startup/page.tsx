@@ -9,6 +9,7 @@ import { FileUpload } from '@/components/ui/FileUpload';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
 import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { getSessionToken } from '@/lib/auth-utils';
+import { getStartupCompletionStep } from '@/lib/startup-onboarding';
 import { cn } from '@/lib/utils';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { sectorCategoryLabels, SectorCategory } from '@/lib/types';
@@ -134,20 +135,6 @@ function getWhyXentroValues(reasons: string[] = []) {
     return reasons.map((reason) => WHY_XENTRO_LABEL_TO_VALUE[reason] ?? reason);
 }
 
-function getNextCompletionStep(payload: {
-    name?: string | null;
-    tagline?: string | null;
-    logo?: string | null;
-    sectors?: string[] | null;
-    stage?: string | null;
-    whyXentro?: string[] | null;
-}) {
-    if (!payload.name?.trim() || !payload.tagline?.trim() || !payload.logo) return 1;
-    if (!payload.sectors?.length || !payload.stage) return 2;
-    if (!payload.whyXentro?.length) return 3;
-    return 4;
-}
-
 export default function StartupOnboardingPage() {
     const router = useRouter();
     const { currentStep, setStep, data, updateData, toggleSector, toggleWhyXentro, reset } = useStartupOnboardingStore();
@@ -204,36 +191,38 @@ export default function StartupOnboardingPage() {
                 const whyXentro = getWhyXentroValues(payload.data?.whyXentro ?? []);
 
                 if (!cancelled && startup) {
-                    updateData({
-                        name: startup.name ?? '',
-                        tagline: startup.tagline ?? '',
-                        logo: startup.logo ?? null,
-                        sectors: startup.sectors ?? [],
-                        stage: startup.stage ?? '',
-                        whyXentro,
-                        whyXentroOther: payload.data?.whyXentroOther ?? '',
-                        primaryContactEmail: startup.primaryContactEmail ?? '',
-                        status: startup.status ?? 'private',
-                        location: startup.location ?? '',
-                        fundingRound: startup.fundingRound ?? 'bootstrapped',
-                        fundsRaised: startup.fundsRaised ? String(startup.fundsRaised) : '',
-                        fundingCurrency: startup.fundingCurrency ?? 'USD',
-                        foundedDate: startup.foundedDate ?? '',
-                        pitch: startup.pitch ?? '',
-                        founders: [{ name: startup.name ?? '', email: startup.primaryContactEmail ?? '', role: 'founder' }],
-                    });
+                    const startupEmail = (startup.primaryContactEmail ?? '').trim().toLowerCase();
+                    const localEmail = data.primaryContactEmail.trim().toLowerCase();
+                    const shouldReuseLocalDraft = !localEmail || localEmail === startupEmail;
+                    const mergedData = {
+                        name: shouldReuseLocalDraft && data.name.trim() ? data.name : startup.name ?? '',
+                        tagline: shouldReuseLocalDraft && data.tagline.trim() ? data.tagline : startup.tagline ?? '',
+                        logo: shouldReuseLocalDraft && data.logo ? data.logo : startup.logo ?? null,
+                        sectors: shouldReuseLocalDraft && data.sectors.length ? data.sectors : startup.sectors ?? [],
+                        stage: shouldReuseLocalDraft && data.stage ? data.stage : (startup.stage ?? ''),
+                        whyXentro: shouldReuseLocalDraft && data.whyXentro.length ? data.whyXentro : whyXentro,
+                        whyXentroOther: shouldReuseLocalDraft && data.whyXentroOther.trim() ? data.whyXentroOther : (payload.data?.whyXentroOther ?? ''),
+                        primaryContactEmail: shouldReuseLocalDraft && data.primaryContactEmail.trim() ? data.primaryContactEmail : startup.primaryContactEmail ?? '',
+                        status: shouldReuseLocalDraft && data.status ? data.status : (startup.status ?? 'private'),
+                        location: shouldReuseLocalDraft && data.location.trim() ? data.location : startup.location ?? '',
+                        fundingRound: shouldReuseLocalDraft && data.fundingRound ? data.fundingRound : (startup.fundingRound ?? 'bootstrapped'),
+                        fundsRaised: shouldReuseLocalDraft && data.fundsRaised ? data.fundsRaised : (startup.fundsRaised ? String(startup.fundsRaised) : ''),
+                        fundingCurrency: shouldReuseLocalDraft && data.fundingCurrency ? data.fundingCurrency : (startup.fundingCurrency ?? 'USD'),
+                        foundedDate: shouldReuseLocalDraft && data.foundedDate ? data.foundedDate : (startup.foundedDate ?? ''),
+                        pitch: shouldReuseLocalDraft && data.pitch.trim() ? data.pitch : startup.pitch ?? '',
+                        founders: [{
+                            name: shouldReuseLocalDraft && data.name.trim() ? data.name : startup.name ?? '',
+                            email: shouldReuseLocalDraft && data.primaryContactEmail.trim() ? data.primaryContactEmail : startup.primaryContactEmail ?? '',
+                            role: 'founder' as const,
+                        }],
+                    };
+
+                    updateData(mergedData);
 
                     setFlowMode('complete');
                     setExistingStartupId(startup.id ?? null);
 
-                    const nextStep = getNextCompletionStep({
-                        name: startup.name,
-                        tagline: startup.tagline,
-                        logo: startup.logo,
-                        sectors: startup.sectors,
-                        stage: startup.stage,
-                        whyXentro,
-                    });
+                    const nextStep = getStartupCompletionStep(mergedData);
 
                     if (nextStep > COMPLETION_STEPS.length) {
                         router.replace('/feed');
@@ -525,7 +514,7 @@ export default function StartupOnboardingPage() {
     return (
         <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-purple-50/30 flex flex-col">
             {/* Minimal Navbar */}
-            <OnboardingNavbar />
+            <OnboardingNavbar showLogout={isCompletionFlow} />
 
             <div className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-2xl mx-auto">
@@ -989,12 +978,6 @@ export default function StartupOnboardingPage() {
 
                     <p className="text-center text-xs text-(--secondary) mt-6">
                         Your progress is automatically saved.
-                    </p>
-                    <p className="text-center text-sm text-(--secondary) mt-3">
-                        Already have a founder account?{' '}
-                        <a href="/login" className="text-accent hover:underline font-medium">
-                            Access Dashboard
-                        </a>
                     </p>
                 </div>
             </div>

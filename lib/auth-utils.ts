@@ -20,7 +20,7 @@ const FIVE_DAYS_SECONDS = 5 * 24 * 60 * 60;
 const LEGACY_LS_KEYS = [
     'xentro_session', 'founder_token', 'mentor_token',
     'investor_token', 'institution_token', 'startup_id',
-    'startup-onboarding-storage', 'xentro_user', 'xentro_join_state_v2',
+    'xentro_user', 'xentro_join_state_v2',
 ];
 
 /* ─── Low-level cookie helpers ─── */
