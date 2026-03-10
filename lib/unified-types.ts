@@ -177,7 +177,7 @@ export interface InstitutionCreateFormData {
 // STARTUPS
 // ============================================
 
-export type StartupStage = 'idea' | 'mvp' | 'early_traction' | 'growth' | 'scale';
+export type StartupStage = 'ideation' | 'pre_seed_prototype' | 'seed_mvp' | 'early_traction' | 'growth' | 'scaling';
 export type StartupStatus = 'public' | 'private';
 export type FundingRound = 'bootstrapped' | 'pre_seed' | 'seed' | 'series_a' | 'series_b_plus';
 export type StartupRole = 'founder' | 'co_founder' | 'cto' | 'coo' | 'cfo' | 'team_member';

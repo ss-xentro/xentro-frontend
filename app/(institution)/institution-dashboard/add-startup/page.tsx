@@ -10,11 +10,12 @@ import { LocationAutocomplete } from '@/components/ui/LocationAutocomplete';
 import { Spinner } from '@/components/ui/Spinner';
 
 const stageOptions = [
-  { value: 'idea', label: 'Idea' },
-  { value: 'mvp', label: 'Pre-Seed / MVP' },
+  { value: 'ideation', label: 'Ideation' },
+  { value: 'pre_seed_prototype', label: 'Pre seed / Prototype' },
+  { value: 'seed_mvp', label: 'Seed / MVP' },
   { value: 'early_traction', label: 'Early Traction' },
   { value: 'growth', label: 'Growth' },
-  { value: 'scale', label: 'Scale' },
+  { value: 'scaling', label: 'Scaling' },
 ];
 
 interface Founder {
@@ -74,7 +75,7 @@ export default function AddStartupPage() {
 
   const [formData, setFormData] = useState({
     name: '',
-    stage: 'idea',
+    stage: 'ideation',
     city: '',
     country: '',
     countryCode: '',

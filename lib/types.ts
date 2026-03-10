@@ -27,7 +27,8 @@ export type SectorCategory =
   | 'sports-gaming'
   | 'spacetech-deeptech'
   | 'consumer-services'
-  | 'manufacturing-industry4';
+  | 'manufacturing-industry4'
+  | 'defense';
 
 // ── Sub-sector slugs ────────────────────────────────────────
 export type SubSector =
@@ -83,7 +84,9 @@ export type SubSector =
   | 'pettech' | 'senior-care'
   // Manufacturing & Industry 4.0
   | 'smart-manufacturing' | 'industrial-automation' | '3d-printing'
-  | 'supply-chain-robotics';
+  | 'supply-chain-robotics'
+  // Defense & Military
+  | 'defense-manufacturing' | 'defense-aerospace' | 'military-technology' | 'cyber-defense';
 
 // SectorFocus = parent category OR sub-sector (any valid slug)
 export type SectorFocus = SectorCategory | SubSector;
@@ -208,7 +211,7 @@ export interface Event {
 }
 
 // Startup Types
-export type StartupStage = 'idea' | 'mvp' | 'early_traction' | 'growth' | 'scale';
+export type StartupStage = 'ideation' | 'pre_seed_prototype' | 'seed_mvp' | 'early_traction' | 'growth' | 'scaling';
 export type StartupStatus = 'public' | 'private';
 export type FundingRound = 'bootstrapped' | 'pre_seed' | 'seed' | 'series_a' | 'series_b_plus' | 'unicorn';
 export type FounderRole = 'ceo' | 'cto' | 'coo' | 'cfo' | 'cpo' | 'founder' | 'co_founder';
@@ -639,6 +642,15 @@ export const sectorCategoryLabels: Record<SectorCategory, SectorCategoryInfo> = 
       { slug: 'supply-chain-robotics', label: 'Supply Chain Robotics' },
     ],
   },
+  'defense': {
+    label: 'Defense & Military', icon: 'shield',
+    subSectors: [
+      { slug: 'defense-manufacturing', label: 'Defense Manufacturing' },
+      { slug: 'defense-aerospace', label: 'Defense Aerospace' },
+      { slug: 'military-technology', label: 'Military Technology' },
+      { slug: 'cyber-defense', label: 'Cyber Defense' },
+    ],
+  },
 };
 
 // ── Flat lookup: slug → { label, icon } for any sector/sub-sector ──
@@ -691,11 +703,12 @@ export const currencies = [
 
 // Startup Label Maps
 export const startupStageLabels: Record<StartupStage, { label: string; description: string; color: string }> = {
-  idea: { label: 'Idea', description: 'Conceptual stage', color: 'bg-gray-100 text-gray-800' },
-  mvp: { label: 'MVP', description: 'Minimum viable product', color: 'bg-blue-100 text-blue-800' },
+  ideation: { label: 'Ideation', description: 'Conceptual stage', color: 'bg-gray-100 text-gray-800' },
+  pre_seed_prototype: { label: 'Pre seed / Prototype', description: 'Building the first version', color: 'bg-blue-100 text-blue-800' },
+  seed_mvp: { label: 'Seed / MVP', description: 'Minimum viable product', color: 'bg-teal-100 text-teal-800' },
   early_traction: { label: 'Early Traction', description: 'Initial customers/users', color: 'bg-green-100 text-green-800' },
   growth: { label: 'Growth', description: 'Scaling operations', color: 'bg-purple-100 text-purple-800' },
-  scale: { label: 'Scale', description: 'Rapid expansion', color: 'bg-orange-100 text-orange-800' },
+  scaling: { label: 'Scaling', description: 'Rapid expansion', color: 'bg-orange-100 text-orange-800' },
 };
 
 export const startupStatusLabels: Record<StartupStatus, { label: string; color: string }> = {

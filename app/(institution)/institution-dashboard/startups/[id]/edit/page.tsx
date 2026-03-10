@@ -11,11 +11,12 @@ import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { PageSkeleton } from '@/components/ui/PageSkeleton';
 
 const stageOptions = [
-  { value: 'idea', label: 'Idea Stage' },
-  { value: 'mvp', label: 'MVP (Pre-Revenue)' },
+  { value: 'ideation', label: 'Ideation' },
+  { value: 'pre_seed_prototype', label: 'Pre seed / Prototype' },
+  { value: 'seed_mvp', label: 'Seed / MVP' },
   { value: 'early_traction', label: 'Early Traction' },
   { value: 'growth', label: 'Growth' },
-  { value: 'scale', label: 'Scale' },
+  { value: 'scaling', label: 'Scaling' },
 ];
 
 const statusOptions = [
@@ -53,7 +54,7 @@ export default function EditStartupPage() {
     coverImage: '',
     pitch: '',
     description: '',
-    stage: 'idea',
+    stage: 'ideation',
     status: 'private',
     location: '',
     city: '',
@@ -97,7 +98,7 @@ export default function EditStartupPage() {
         coverImage: s.coverImage || '',
         pitch: s.pitch || '',
         description: s.description || '',
-        stage: s.stage || 'idea',
+        stage: s.stage || 'ideation',
         status: s.status || 'private',
         location: s.location || '',
         city: s.city || '',

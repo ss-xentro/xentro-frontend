@@ -5,11 +5,12 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 
 const stages = [
-    { value: 'idea', label: 'Idea Stage' },
-    { value: 'mvp', label: 'MVP (Pre-Revenue)' },
+    { value: 'ideation', label: 'Ideation' },
+    { value: 'pre_seed_prototype', label: 'Pre seed / Prototype' },
+    { value: 'seed_mvp', label: 'Seed / MVP' },
     { value: 'early_traction', label: 'Early Traction' },
     { value: 'growth', label: 'Growth' },
-    { value: 'scale', label: 'Scale' },
+    { value: 'scaling', label: 'Scaling' },
 ];
 
 const statuses = [

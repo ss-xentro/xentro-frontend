@@ -12,11 +12,12 @@ import { AppIcon } from '@/components/ui/AppIcon';
 // Reusing options (should be shared)
 const stages = [
     { value: 'all', label: 'All Stages' },
-    { value: 'idea', label: 'Idea Stage' },
-    { value: 'mvp', label: 'MVP' },
+    { value: 'ideation', label: 'Ideation' },
+    { value: 'pre_seed_prototype', label: 'Pre seed / Prototype' },
+    { value: 'seed_mvp', label: 'Seed / MVP' },
     { value: 'early_traction', label: 'Early Traction' },
     { value: 'growth', label: 'Growth' },
-    { value: 'scale', label: 'Scale' },
+    { value: 'scaling', label: 'Scaling' },
 ];
 
 const fundingRounds = [
