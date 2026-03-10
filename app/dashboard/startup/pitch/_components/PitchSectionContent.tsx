@@ -160,7 +160,7 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 						</div>
 						<div className="mt-4">
 							<label className="block text-sm font-medium text-(--primary) mb-2">{item.icon !== undefined ? 'Icon image (optional)' : 'Image'}</label>
-							<FileUpload value={(item.imageUrl || item.icon || '') as string} onChange={url => updateItem(setter, idx, (item.icon !== undefined ? { icon: url } : { imageUrl: url }) as Partial<T>)} folder={folder} accept="image/*" />
+							<FileUpload value={(item.imageUrl || item.icon || '') as string} onChange={url => updateItem(setter, idx, (item.icon !== undefined ? { icon: url } : { imageUrl: url }) as Partial<T>)} folder={folder} accept="image/*" enableCrop={true} aspectRatio={16 / 9} />
 						</div>
 					</ItemCard>
 				))}
@@ -208,7 +208,7 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 						</div>
 						<div className="mt-4">
 							<label className="block text-sm font-medium text-(--primary) mb-2">Logo</label>
-							<FileUpload value={comp.logo || ''} onChange={url => updateItem(setCompetitors, idx, { logo: url })} folder="pitch-competitors" accept="image/*" />
+							<FileUpload value={comp.logo || ''} onChange={url => updateItem(setCompetitors, idx, { logo: url })} folder="pitch-competitors" accept="image/*" enableCrop={true} aspectRatio={1} />
 						</div>
 					</ItemCard>
 				))}
@@ -257,7 +257,7 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 						</div>
 						<div className="mt-4">
 							<label className="block text-sm font-medium text-(--primary) mb-2">Avatar</label>
-							<FileUpload value={cust.avatar || ''} onChange={url => updateItem(setCustomers, idx, { avatar: url })} folder="pitch-customers" accept="image/*" />
+							<FileUpload value={cust.avatar || ''} onChange={url => updateItem(setCustomers, idx, { avatar: url })} folder="pitch-customers" accept="image/*" enableCrop={true} aspectRatio={1} />
 						</div>
 					</ItemCard>
 				))}
@@ -363,7 +363,7 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 						</div>
 						<div className="mt-4">
 							<label className="block text-sm font-medium text-(--primary) mb-2">Certificate Image</label>
-							<FileUpload value={item.imageUrl || ''} onChange={url => updateItem(setCertifications, idx, { imageUrl: url })} folder="pitch-certifications" accept="image/*" />
+							<FileUpload value={item.imageUrl || ''} onChange={url => updateItem(setCertifications, idx, { imageUrl: url })} folder="pitch-certifications" accept="image/*" enableCrop={true} aspectRatio={4 / 3} />
 						</div>
 					</ItemCard>
 				))}

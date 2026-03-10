@@ -180,6 +180,8 @@ export default function StartupSettingsPage() {
                                                     folder="startup-logos"
                                                     className="w-full"
                                                     accept="image/*"
+                                                    enableCrop={true}
+                                                    aspectRatio={1}
                                                 />
                                             </div>
                                         </div>
@@ -199,6 +201,8 @@ export default function StartupSettingsPage() {
                                                 folder="startup-covers"
                                                 className="w-full"
                                                 accept="image/*"
+                                                enableCrop={true}
+                                                aspectRatio={3}
                                             />
                                             <p className="text-xs text-(--secondary)">Recommended size: 1200 x 400px (3:1 aspect ratio).</p>
                                         </div>

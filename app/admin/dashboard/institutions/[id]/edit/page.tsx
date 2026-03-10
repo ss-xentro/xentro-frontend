@@ -148,6 +148,8 @@ export default function EditInstitutionPage() {
               folder="institutions"
               entityType="institution"
               entityId={institution.id}
+              enableCrop={true}
+              aspectRatio={1}
             />
           </div>
           <Input label="Name" value={institution.name} onChange={(e) => updateField('name', e.target.value)} required />
