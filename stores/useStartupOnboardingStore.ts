@@ -4,7 +4,8 @@ import { persist } from 'zustand/middleware';
 export type StartupStage = 'ideation' | 'pre_seed_prototype' | 'seed_mvp' | 'early_traction' | 'growth' | 'scaling';
 export type StartupStatus = 'public' | 'private';
 export type FundingRound = 'bootstrapped' | 'pre_seed' | 'seed' | 'series_a' | 'series_b_plus' | 'unicorn';
-export type FounderRole = 'ceo' | 'cto' | 'coo' | 'cfo' | 'cpo' | 'founder' | 'co_founder';
+export type FounderRole = 'founder' | 'co_founder';
+export type TeamMemberRole = 'team_member' | 'employee';
 
 
 
@@ -12,7 +13,16 @@ export interface Founder {
     name: string;
     email: string;
     role: FounderRole;
-    linkedin?: string;
+    title?: string;
+    avatar?: string | null;
+}
+
+export interface TeamMember {
+    name: string;
+    email: string;
+    role: TeamMemberRole;
+    title?: string;
+    avatar?: string | null;
 }
 
 export interface StartupData {
@@ -38,6 +48,7 @@ export interface StartupData {
     status: StartupStatus;
     location: string;
     founders: Founder[];
+    teamMembers: TeamMember[];
     fundingRound: FundingRound;
     fundsRaised: string;
     fundingCurrency: string;
@@ -52,6 +63,9 @@ interface StartupOnboardingStore {
     addFounder: () => void;
     updateFounder: (index: number, founder: Partial<Founder>) => void;
     removeFounder: (index: number) => void;
+    addTeamMember: () => void;
+    updateTeamMember: (index: number, member: Partial<TeamMember>) => void;
+    removeTeamMember: (index: number) => void;
     toggleSector: (sector: string) => void;
     toggleWhyXentro: (option: string) => void;
     reset: () => void;
@@ -70,7 +84,8 @@ const initialData: StartupData = {
     foundedDate: '',
     status: 'private',
     location: '',
-    founders: [{ name: '', email: '', role: 'founder' }],
+    founders: [{ name: '', email: '', role: 'founder', title: 'Founder', avatar: null }],
+    teamMembers: [],
     fundingRound: 'bootstrapped',
     fundsRaised: '',
     fundingCurrency: 'USD',
@@ -89,7 +104,7 @@ export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
                 set((state) => ({
                     data: {
                         ...state.data,
-                        founders: [...state.data.founders, { name: '', email: '', role: 'founder' }],
+                        founders: [...state.data.founders, { name: '', email: '', role: 'co_founder', title: 'Co-Founder', avatar: null }],
                     },
                 })),
             updateFounder: (index, founder) =>
@@ -114,6 +129,26 @@ export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
                     }
                     return { data: newData };
                 }),
+            addTeamMember: () =>
+                set((state) => ({
+                    data: {
+                        ...state.data,
+                        teamMembers: [...state.data.teamMembers, { name: '', email: '', role: 'team_member', title: '', avatar: null }],
+                    },
+                })),
+            updateTeamMember: (index, member) =>
+                set((state) => {
+                    const nextTeamMembers = [...state.data.teamMembers];
+                    nextTeamMembers[index] = { ...nextTeamMembers[index], ...member };
+                    return { data: { ...state.data, teamMembers: nextTeamMembers } };
+                }),
+            removeTeamMember: (index) =>
+                set((state) => ({
+                    data: {
+                        ...state.data,
+                        teamMembers: state.data.teamMembers.filter((_, i) => i !== index),
+                    },
+                })),
             toggleSector: (sector) =>
                 set((state) => {
                     const current = state.data.sectors;
@@ -134,7 +169,7 @@ export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
         }),
         {
             name: 'startup-onboarding-storage',
-            version: 3,
+            version: 4,
             migrate: () => ({
                 currentStep: 1,
                 data: initialData,

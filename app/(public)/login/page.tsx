@@ -65,12 +65,13 @@ async function getPostLoginDestination(role: string, token: string) {
             name: startup?.name,
             tagline: startup?.tagline,
             logo: startup?.logo,
+            founders: startup?.founders,
             sectors: startup?.sectors,
             stage: startup?.stage,
             whyXentro,
         });
 
-        return nextStep <= 3 ? '/onboarding/startup' : defaultDestination;
+        return nextStep <= 4 ? '/onboarding/startup' : defaultDestination;
     } catch {
         return '/onboarding/startup';
     }

@@ -17,6 +17,7 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 		title: string;
 		isPrimary: boolean;
 		initial: string;
+		avatar?: string | null;
 	}
 
 	const combinedTeam: CombinedTeamMember[] = [];
@@ -37,9 +38,10 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 				id: f.id || f.email,
 				name: f.name,
 				role: f.role || '',
-				title: formatTitle(f.role || 'Founder'),
+				title: formatTitle(f.title || f.role || 'Founder'),
 				isPrimary: f.isPrimary,
-				initial: f.name?.charAt(0) || 'F'
+				initial: f.name?.charAt(0) || 'F',
+				avatar: f.avatar,
 			});
 		});
 	} else if (hasOwner) {
@@ -49,7 +51,8 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 			role: 'founder',
 			title: 'Founder',
 			isPrimary: true,
-			initial: startup.owner!.name?.charAt(0) || 'F'
+			initial: startup.owner!.name?.charAt(0) || 'F',
+			avatar: null,
 		});
 	}
 
@@ -59,11 +62,12 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 			if (!combinedTeam.find(t => t.id === m.id || t.id === m.user?.id)) {
 				combinedTeam.push({
 					id: m.id,
-					name: m.user?.name || 'Team Member',
+					name: m.name || m.user?.name || 'Team Member',
 					role: m.role || '',
 					title: formatTitle(m.title || m.role || 'Member'),
 					isPrimary: false,
-					initial: m.user?.name?.charAt(0) || 'T'
+					initial: (m.name || m.user?.name)?.charAt(0) || 'T',
+					avatar: m.avatar,
 				});
 			}
 		});
@@ -110,8 +114,12 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{combinedTeam.map((member) => (
 							<div key={member.id} className="flex items-center gap-3 p-4 rounded-xl border border-(--border) bg-(--surface)">
-								<div className="w-10 h-10 rounded-full bg-(--surface-hover) flex items-center justify-center shrink-0">
-									<span className="text-sm font-semibold text-(--secondary)">{member.initial}</span>
+								<div className="w-10 h-10 rounded-full bg-(--surface-hover) flex items-center justify-center shrink-0 overflow-hidden">
+									{member.avatar ? (
+										<img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+									) : (
+										<span className="text-sm font-semibold text-(--secondary)">{member.initial}</span>
+									)}
 								</div>
 								<div className="flex-1 min-w-0">
 									<h4 className="text-sm font-medium text-(--primary) truncate">{member.name}</h4>

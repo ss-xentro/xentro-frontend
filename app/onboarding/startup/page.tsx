@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
 import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
+import { FoundersSection } from '@/components/onboarding/startup/FoundersSection';
 import { getSessionToken } from '@/lib/auth-utils';
 import { getStartupCompletionStep } from '@/lib/startup-onboarding';
 import { cn } from '@/lib/utils';
@@ -121,8 +122,9 @@ const WHY_XENTRO_OPTIONS = [
 
 const COMPLETION_STEPS = [
     { id: 1, title: 'Identity', subtitle: 'Name · Tagline · Logo' },
-    { id: 2, title: 'Industry', subtitle: 'Sector · Stage' },
-    { id: 3, title: 'Purpose', subtitle: 'Why Xentro?' },
+    { id: 2, title: 'Team', subtitle: 'Founder · Co-founders · Team' },
+    { id: 3, title: 'Industry', subtitle: 'Sector · Stage' },
+    { id: 4, title: 'Purpose', subtitle: 'Why Xentro?' },
 ];
 
 const WHY_XENTRO_LABEL_TO_VALUE = WHY_XENTRO_OPTIONS.reduce<Record<string, string>>((acc, option) => {
@@ -133,6 +135,18 @@ const WHY_XENTRO_LABEL_TO_VALUE = WHY_XENTRO_OPTIONS.reduce<Record<string, strin
 
 function getWhyXentroValues(reasons: string[] = []) {
     return reasons.map((reason) => WHY_XENTRO_LABEL_TO_VALUE[reason] ?? reason);
+}
+
+function hasPartialMember(entry: { name?: string; email?: string; title?: string; avatar?: string | null }) {
+    return Boolean(entry.name?.trim() || entry.email?.trim() || entry.title?.trim() || entry.avatar);
+}
+
+function hasIncompleteMember(entry: { name?: string; email?: string; title?: string; avatar?: string | null }) {
+    return hasPartialMember(entry) && (!entry.name?.trim() || !entry.email?.trim());
+}
+
+function isValidEmail(value: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
 export default function StartupOnboardingPage() {
@@ -194,10 +208,36 @@ export default function StartupOnboardingPage() {
                     const startupEmail = (startup.primaryContactEmail ?? '').trim().toLowerCase();
                     const localEmail = data.primaryContactEmail.trim().toLowerCase();
                     const shouldReuseLocalDraft = !localEmail || localEmail === startupEmail;
+                    const fallbackFounders = startup.founders?.length
+                        ? startup.founders.map((founder: { name?: string; email?: string; role?: 'founder' | 'co_founder'; title?: string; avatar?: string | null }, index: number) => ({
+                            name: founder.name ?? '',
+                            email: founder.email ?? '',
+                            role: index === 0 ? 'founder' as const : 'co_founder' as const,
+                            title: founder.title ?? (index === 0 ? 'Founder' : 'Co-Founder'),
+                            avatar: founder.avatar ?? null,
+                        }))
+                        : [{
+                            name: startup.name ?? '',
+                            email: startup.primaryContactEmail ?? '',
+                            role: 'founder' as const,
+                            title: 'Founder',
+                            avatar: null,
+                        }];
+                    const fallbackTeamMembers = (startup.teamMembers ?? []).map((member: { name?: string; email?: string; title?: string; avatar?: string | null }) => ({
+                        name: member.name ?? '',
+                        email: member.email ?? '',
+                        role: 'team_member' as const,
+                        title: member.title ?? '',
+                        avatar: member.avatar ?? null,
+                    }));
+                    const hasLocalFounders = data.founders.some(hasPartialMember);
+                    const hasLocalTeamMembers = data.teamMembers.some(hasPartialMember);
                     const mergedData = {
                         name: shouldReuseLocalDraft && data.name.trim() ? data.name : startup.name ?? '',
                         tagline: shouldReuseLocalDraft && data.tagline.trim() ? data.tagline : startup.tagline ?? '',
                         logo: shouldReuseLocalDraft && data.logo ? data.logo : startup.logo ?? null,
+                        founders: shouldReuseLocalDraft && hasLocalFounders ? data.founders : fallbackFounders,
+                        teamMembers: shouldReuseLocalDraft && hasLocalTeamMembers ? data.teamMembers : fallbackTeamMembers,
                         sectors: shouldReuseLocalDraft && data.sectors.length ? data.sectors : startup.sectors ?? [],
                         stage: shouldReuseLocalDraft && data.stage ? data.stage : (startup.stage ?? ''),
                         whyXentro: shouldReuseLocalDraft && data.whyXentro.length ? data.whyXentro : whyXentro,
@@ -210,11 +250,6 @@ export default function StartupOnboardingPage() {
                         fundingCurrency: shouldReuseLocalDraft && data.fundingCurrency ? data.fundingCurrency : (startup.fundingCurrency ?? 'USD'),
                         foundedDate: shouldReuseLocalDraft && data.foundedDate ? data.foundedDate : (startup.foundedDate ?? ''),
                         pitch: shouldReuseLocalDraft && data.pitch.trim() ? data.pitch : startup.pitch ?? '',
-                        founders: [{
-                            name: shouldReuseLocalDraft && data.name.trim() ? data.name : startup.name ?? '',
-                            email: shouldReuseLocalDraft && data.primaryContactEmail.trim() ? data.primaryContactEmail : startup.primaryContactEmail ?? '',
-                            role: 'founder' as const,
-                        }],
                     };
 
                     updateData(mergedData);
@@ -362,9 +397,10 @@ export default function StartupOnboardingPage() {
         if (!isCompletionFlow) {
             return data.name.trim().length > 0 && data.primaryContactEmail.trim().length > 0 && emailVerified;
         }
-        if (currentStep === 1) return data.name.trim().length > 0;
-        if (currentStep === 2) return data.sectors.length > 0 && data.stage !== '';
-        if (currentStep === 3) return data.whyXentro.length > 0;
+        if (currentStep === 1) return data.name.trim().length > 0 && data.tagline.trim().length > 0 && Boolean(data.logo);
+        if (currentStep === 2) return Boolean(data.founders[0]?.name.trim() && data.founders[0]?.email.trim()) && !data.founders.some(hasIncompleteMember) && !data.teamMembers.some(hasIncompleteMember);
+        if (currentStep === 3) return data.sectors.length > 0 && data.stage !== '';
+        if (currentStep === 4) return data.whyXentro.length > 0;
         return true;
     };
 
@@ -389,15 +425,38 @@ export default function StartupOnboardingPage() {
             return;
         }
 
-        if (currentStep === 1 && !data.name.trim()) {
-            setError('Please enter your startup name.');
-            return;
+        if (currentStep === 1) {
+            if (!data.name.trim()) { setError('Please enter your startup name.'); return; }
+            if (!data.tagline.trim()) { setError('Please enter your startup tagline.'); return; }
+            if (!data.logo) { setError('Please upload your startup logo.'); return; }
         }
         if (currentStep === 2) {
+            if (!data.founders[0]?.name.trim() || !data.founders[0]?.email.trim()) {
+                setError('Please add one founder with name and email.');
+                return;
+            }
+            if (data.founders.some(hasIncompleteMember)) {
+                setError('Each founder entry needs both a name and an email.');
+                return;
+            }
+            if (data.teamMembers.some(hasIncompleteMember)) {
+                setError('Each team member entry needs both a name and an email.');
+                return;
+            }
+            if (data.founders.some(founder => founder.email.trim() && !isValidEmail(founder.email))) {
+                setError('Please enter a valid email address for each founder.');
+                return;
+            }
+            if (data.teamMembers.some(member => member.email.trim() && !isValidEmail(member.email))) {
+                setError('Please enter a valid email address for each team member.');
+                return;
+            }
+        }
+        if (currentStep === 3) {
             if (data.sectors.length === 0) { setError('Select at least one sector.'); return; }
             if (!data.stage) { setError('Select your current stage.'); return; }
         }
-        if (currentStep === 3) {
+        if (currentStep === 4) {
             if (data.whyXentro.length === 0) {
                 setError('Please select why you want to join Xentro.');
                 return;
@@ -452,7 +511,24 @@ export default function StartupOnboardingPage() {
                 fundingCurrency: data.fundingCurrency || 'USD',
                 foundedDate: data.foundedDate || null,
                 pitch: data.pitch || '',
-                founders: [{ name: data.name, email: data.primaryContactEmail, role: 'founder' as const }],
+                founders: data.founders
+                    .filter(founder => founder.name.trim() && founder.email.trim())
+                    .map((founder, index) => ({
+                        name: founder.name,
+                        email: founder.email,
+                        role: index === 0 ? 'founder' as const : 'co_founder' as const,
+                        title: founder.title || (index === 0 ? 'Founder' : 'Co-Founder'),
+                        avatar: founder.avatar || null,
+                    })),
+                teamMembers: data.teamMembers
+                    .filter(member => member.name.trim() && member.email.trim())
+                    .map(member => ({
+                        name: member.name,
+                        email: member.email,
+                        role: member.role || 'team_member',
+                        title: member.title || '',
+                        avatar: member.avatar || null,
+                    })),
             };
 
             let response: Response;
@@ -747,8 +823,20 @@ export default function StartupOnboardingPage() {
                             </div>
                         )}
 
-                        {/* ── Card 2: Sectors + Stage ── */}
+                        {/* ── Card 2: Founder + Team ── */}
                         {isCompletionFlow && currentStep === 2 && (
+                            <div className="p-6 md:p-8 space-y-6 animate-fadeIn">
+                                <div>
+                                    <h2 className="text-xl font-semibold text-(--primary)">Who is building this startup?</h2>
+                                    <p className="text-sm text-(--secondary) mt-1">Add one founder, then any co-founders or team members you want to show on the public profile.</p>
+                                </div>
+
+                                <FoundersSection />
+                            </div>
+                        )}
+
+                        {/* ── Card 3: Sectors + Stage ── */}
+                        {isCompletionFlow && currentStep === 3 && (
                             <div className="p-6 md:p-8 space-y-8 animate-fadeIn">
                                 {/* Sectors */}
                                 <div>
@@ -857,8 +945,8 @@ export default function StartupOnboardingPage() {
                             </div>
                         )}
 
-                        {/* ── Card 3: Why Xentro? ── */}
-                        {isCompletionFlow && currentStep === 3 && (
+                        {/* ── Card 4: Why Xentro? ── */}
+                        {isCompletionFlow && currentStep === 4 && (
                             <div className="p-6 md:p-8 space-y-6 animate-fadeIn">
                                 <div>
                                     <h2 className="text-xl font-semibold text-(--primary)">Why are you joining Xentro?</h2>

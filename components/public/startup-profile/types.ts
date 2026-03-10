@@ -15,6 +15,8 @@ export interface Founder {
 	name: string;
 	email: string;
 	role: string;
+	title?: string;
+	avatar?: string | null;
 	isPrimary: boolean;
 }
 
@@ -22,6 +24,9 @@ export interface TeamMemberData {
 	id: string;
 	role: string;
 	title: string;
+	name?: string;
+	email?: string;
+	avatar?: string | null;
 	user: { id: string; name: string } | null;
 }
 

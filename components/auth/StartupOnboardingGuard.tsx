@@ -52,12 +52,13 @@ export default function StartupOnboardingGuard({ children }: { children: React.R
 					name: startup?.name,
 					tagline: startup?.tagline,
 					logo: startup?.logo,
+					founders: startup?.founders,
 					sectors: startup?.sectors,
 					stage: startup?.stage,
 					whyXentro,
 				});
 
-				if (nextStep <= 3) {
+				if (nextStep <= 4) {
 					router.replace('/onboarding/startup');
 				}
 			} catch {
