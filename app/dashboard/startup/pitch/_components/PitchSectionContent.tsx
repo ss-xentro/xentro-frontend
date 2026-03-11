@@ -168,99 +168,110 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 		);
 	}
 
-	/* ─── Competitors ─── */
-	if (activeSection === 'competitors') {
-		if (competitors.length === 0) {
+	/* ─── Generic array section renderer (custom item rendering) ─── */
+	function renderArraySection<T>(
+		items: T[],
+		setter: React.Dispatch<React.SetStateAction<T[]>>,
+		template: T,
+		emptyIcon: React.ReactNode,
+		emptyTitle: string,
+		emptyDesc: string,
+		addLabel: string,
+		renderItem: (item: T, idx: number) => React.ReactNode,
+	) {
+		if (items.length === 0) {
 			return (
-				<div className="space-y-4 animate-fadeInUp">
-					<Card>
-						<EmptyState
-							icon={<svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>}
-							title="No competitors yet"
-							description="Map your competitive landscape to show investors you understand the market."
-							action={canEdit ? (
-								<Button variant="secondary" size="sm" onClick={() => addItem(setCompetitors, { name: '', description: '', logo: '', website: '' } as PitchCompetitor)}>
-									<PlusIcon /> <span className="ml-1.5">Add First Competitor</span>
-								</Button>
-							) : undefined}
-						/>
-					</Card>
-				</div>
+				<Card>
+					<EmptyState
+						icon={emptyIcon}
+						title={emptyTitle}
+						description={emptyDesc}
+						action={canEdit ? (
+							<Button variant="secondary" size="sm" onClick={() => addItem(setter, template)}>
+								<PlusIcon /> <span className="ml-1.5">Add First {addLabel.replace('Add ', '')}</span>
+							</Button>
+						) : undefined}
+					/>
+				</Card>
 			);
 		}
 		return (
-			<div className="space-y-4 animate-fadeInUp">
+			<>
 				{canEdit && (
 					<div className="flex justify-end">
-						<Button variant="secondary" size="sm" onClick={() => addItem(setCompetitors, { name: '', description: '', logo: '', website: '' } as PitchCompetitor)}>
-							<PlusIcon /> <span className="ml-1.5">Add Competitor</span>
+						<Button variant="secondary" size="sm" onClick={() => addItem(setter, template)}>
+							<PlusIcon /> <span className="ml-1.5">{addLabel}</span>
 						</Button>
 					</div>
 				)}
-				{competitors.map((comp, idx) => (
-					<ItemCard key={idx} index={idx} onRemove={() => removeItem(setCompetitors, idx)} canEdit={canEdit}>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Input label="Name" value={comp.name} onChange={e => updateItem(setCompetitors, idx, { name: e.target.value })} required placeholder="Competitor name" />
-							<Input label="Website" value={comp.website || ''} onChange={e => updateItem(setCompetitors, idx, { website: e.target.value })} placeholder="https://..." />
-						</div>
-						<div className="mt-4">
-							<RichTextEditor label="Description" value={comp.description || ''} onChange={html => updateItem(setCompetitors, idx, { description: html })} placeholder="What do they do? How are you different?" minimal disabled={!canEdit} />
-						</div>
-						<div className="mt-4">
-							<label className="block text-sm font-medium text-(--primary) mb-2">Logo</label>
-							<FileUpload value={comp.logo || ''} onChange={url => updateItem(setCompetitors, idx, { logo: url })} folder="pitch-competitors" accept="image/*" enableCrop={true} aspectRatio={1} />
-						</div>
+				{items.map((item, idx) => (
+					<ItemCard key={idx} index={idx} onRemove={() => removeItem(setter, idx)} canEdit={canEdit}>
+						{renderItem(item, idx)}
 					</ItemCard>
 				))}
+			</>
+		);
+	}
+
+	/* ─── Competitors ─── */
+	if (activeSection === 'competitors') {
+		return (
+			<div className="space-y-4 animate-fadeInUp">
+				{renderArraySection(
+					competitors, setCompetitors,
+					{ name: '', description: '', logo: '', website: '' } as PitchCompetitor,
+					<svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>,
+					'No competitors yet',
+					'Map your competitive landscape to show investors you understand the market.',
+					'Add Competitor',
+					(comp, idx) => (
+						<>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<Input label="Name" value={comp.name} onChange={e => updateItem(setCompetitors, idx, { name: e.target.value })} required placeholder="Competitor name" />
+								<Input label="Website" value={comp.website || ''} onChange={e => updateItem(setCompetitors, idx, { website: e.target.value })} placeholder="https://..." />
+							</div>
+							<div className="mt-4">
+								<RichTextEditor label="Description" value={comp.description || ''} onChange={html => updateItem(setCompetitors, idx, { description: html })} placeholder="What do they do? How are you different?" minimal disabled={!canEdit} />
+							</div>
+							<div className="mt-4">
+								<label className="block text-sm font-medium text-(--primary) mb-2">Logo</label>
+								<FileUpload value={comp.logo || ''} onChange={url => updateItem(setCompetitors, idx, { logo: url })} folder="pitch-competitors" accept="image/*" enableCrop={true} aspectRatio={1} />
+							</div>
+						</>
+					),
+				)}
 			</div>
 		);
 	}
 
 	/* ─── Customers / Testimonials ─── */
 	if (activeSection === 'customers') {
-		if (customers.length === 0) {
-			return (
-				<div className="space-y-4 animate-fadeInUp">
-					<Card>
-						<EmptyState
-							icon={<svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
-							title="No testimonials yet"
-							description="Social proof builds trust. Add testimonials from happy customers or early users."
-							action={canEdit ? (
-								<Button variant="secondary" size="sm" onClick={() => addItem(setCustomers, { name: '', testimonial: '', role: '', company: '', avatar: '' } as PitchCustomer)}>
-									<PlusIcon /> <span className="ml-1.5">Add First Testimonial</span>
-								</Button>
-							) : undefined}
-						/>
-					</Card>
-				</div>
-			);
-		}
 		return (
 			<div className="space-y-4 animate-fadeInUp">
-				{canEdit && (
-					<div className="flex justify-end">
-						<Button variant="secondary" size="sm" onClick={() => addItem(setCustomers, { name: '', testimonial: '', role: '', company: '', avatar: '' } as PitchCustomer)}>
-							<PlusIcon /> <span className="ml-1.5">Add Testimonial</span>
-						</Button>
-					</div>
+				{renderArraySection(
+					customers, setCustomers,
+					{ name: '', testimonial: '', role: '', company: '', avatar: '' } as PitchCustomer,
+					<svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+					'No testimonials yet',
+					'Social proof builds trust. Add testimonials from happy customers or early users.',
+					'Add Testimonial',
+					(cust, idx) => (
+						<>
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+								<Input label="Name" value={cust.name} onChange={e => updateItem(setCustomers, idx, { name: e.target.value })} required placeholder="John Doe" />
+								<Input label="Role" value={cust.role || ''} onChange={e => updateItem(setCustomers, idx, { role: e.target.value })} placeholder="CEO" />
+								<Input label="Company" value={cust.company || ''} onChange={e => updateItem(setCustomers, idx, { company: e.target.value })} placeholder="Acme Inc." />
+							</div>
+							<div className="mt-4">
+								<RichTextEditor label="Testimonial" value={cust.testimonial} onChange={html => updateItem(setCustomers, idx, { testimonial: html })} placeholder="What they said about your product..." minimal disabled={!canEdit} />
+							</div>
+							<div className="mt-4">
+								<label className="block text-sm font-medium text-(--primary) mb-2">Avatar</label>
+								<FileUpload value={cust.avatar || ''} onChange={url => updateItem(setCustomers, idx, { avatar: url })} folder="pitch-customers" accept="image/*" enableCrop={true} aspectRatio={1} />
+							</div>
+						</>
+					),
 				)}
-				{customers.map((cust, idx) => (
-					<ItemCard key={idx} index={idx} onRemove={() => removeItem(setCustomers, idx)} canEdit={canEdit}>
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-							<Input label="Name" value={cust.name} onChange={e => updateItem(setCustomers, idx, { name: e.target.value })} required placeholder="John Doe" />
-							<Input label="Role" value={cust.role || ''} onChange={e => updateItem(setCustomers, idx, { role: e.target.value })} placeholder="CEO" />
-							<Input label="Company" value={cust.company || ''} onChange={e => updateItem(setCustomers, idx, { company: e.target.value })} placeholder="Acme Inc." />
-						</div>
-						<div className="mt-4">
-							<RichTextEditor label="Testimonial" value={cust.testimonial} onChange={html => updateItem(setCustomers, idx, { testimonial: html })} placeholder="What they said about your product..." minimal disabled={!canEdit} />
-						</div>
-						<div className="mt-4">
-							<label className="block text-sm font-medium text-(--primary) mb-2">Avatar</label>
-							<FileUpload value={cust.avatar || ''} onChange={url => updateItem(setCustomers, idx, { avatar: url })} folder="pitch-customers" accept="image/*" enableCrop={true} aspectRatio={1} />
-						</div>
-					</ItemCard>
-				))}
 			</div>
 		);
 	}
@@ -327,46 +338,29 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 
 	/* ─── Certifications ─── */
 	if (activeSection === 'certifications') {
-		if (certifications.length === 0) {
-			return (
-				<div className="space-y-4 animate-fadeInUp">
-					<Card>
-						<EmptyState
-							icon={<svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>}
-							title="No certifications yet"
-							description="Add awards, certifications, or standards your startup has earned."
-							action={canEdit ? (
-								<Button variant="secondary" size="sm" onClick={() => addItem(setCertifications, { title: '', issuer: '', dateAwarded: '', imageUrl: '' } as PitchCertificationItem)}>
-									<PlusIcon /> <span className="ml-1.5">Add Certification</span>
-								</Button>
-							) : undefined}
-						/>
-					</Card>
-				</div>
-			);
-		}
 		return (
 			<div className="space-y-4 animate-fadeInUp">
-				{canEdit && (
-					<div className="flex justify-end">
-						<Button variant="secondary" size="sm" onClick={() => addItem(setCertifications, { title: '', issuer: '', dateAwarded: '', imageUrl: '' } as PitchCertificationItem)}>
-							<PlusIcon /> <span className="ml-1.5">Add Certification</span>
-						</Button>
-					</div>
+				{renderArraySection(
+					certifications, setCertifications,
+					{ title: '', issuer: '', dateAwarded: '', imageUrl: '' } as PitchCertificationItem,
+					<svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>,
+					'No certifications yet',
+					'Add awards, certifications, or standards your startup has earned.',
+					'Add Certification',
+					(item, idx) => (
+						<>
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+								<Input label="Title" value={item.title} onChange={e => updateItem(setCertifications, idx, { title: e.target.value })} required placeholder="Certification name" />
+								<Input label="Issuer" value={item.issuer || ''} onChange={e => updateItem(setCertifications, idx, { issuer: e.target.value })} placeholder="Issuing organization" />
+								<Input label="Date Awarded" type="date" value={item.dateAwarded || ''} onChange={e => updateItem(setCertifications, idx, { dateAwarded: e.target.value })} />
+							</div>
+							<div className="mt-4">
+								<label className="block text-sm font-medium text-(--primary) mb-2">Certificate Image</label>
+								<FileUpload value={item.imageUrl || ''} onChange={url => updateItem(setCertifications, idx, { imageUrl: url })} folder="pitch-certifications" accept="image/*" enableCrop={true} aspectRatio={4 / 3} />
+							</div>
+						</>
+					),
 				)}
-				{certifications.map((item, idx) => (
-					<ItemCard key={idx} index={idx} onRemove={() => removeItem(setCertifications, idx)} canEdit={canEdit}>
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-							<Input label="Title" value={item.title} onChange={e => updateItem(setCertifications, idx, { title: e.target.value })} required placeholder="Certification name" />
-							<Input label="Issuer" value={item.issuer || ''} onChange={e => updateItem(setCertifications, idx, { issuer: e.target.value })} placeholder="Issuing organization" />
-							<Input label="Date Awarded" type="date" value={item.dateAwarded || ''} onChange={e => updateItem(setCertifications, idx, { dateAwarded: e.target.value })} />
-						</div>
-						<div className="mt-4">
-							<label className="block text-sm font-medium text-(--primary) mb-2">Certificate Image</label>
-							<FileUpload value={item.imageUrl || ''} onChange={url => updateItem(setCertifications, idx, { imageUrl: url })} folder="pitch-certifications" accept="image/*" enableCrop={true} aspectRatio={4 / 3} />
-						</div>
-					</ItemCard>
-				))}
 			</div>
 		);
 	}
