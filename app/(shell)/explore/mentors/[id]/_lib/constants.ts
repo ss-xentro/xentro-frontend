@@ -71,6 +71,6 @@ export function getConnectBtnConfig(status: string | null): ConnectBtnConfig {
 		case 'rejected':
 			return { label: 'Rejected', disabled: true, className: 'bg-red-500/20 text-red-300 border-red-500/30 cursor-default' };
 		default:
-			return { label: 'Connect & Book', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90' }; ", "oldString": "bg - white text - gray - 900 hover: bg - gray - 100
+			return { label: 'Connect & Book', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90' };
 	}
 }
