@@ -11,19 +11,24 @@ import AppShellSidebar, { NavIcon, NAV_ITEMS, DASHBOARD_PATH, getDashboardUrl } 
 interface AppShellProps {
   children: ReactNode;
   rightSidebar?: ReactNode;
+  secondarySidebar?: ReactNode;
 }
 
-export default function AppShell({ children, rightSidebar }: AppShellProps) {
+export default function AppShell({ children, rightSidebar, secondarySidebar }: AppShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
 
   const navItems = isAuthenticated
-    ? [...NAV_ITEMS, { icon: 'dashboard', label: 'Dashboard', href: getDashboardUrl(user?.role), path: DASHBOARD_PATH }]
+    ? [{ icon: 'dashboard', label: 'Dashboard', href: getDashboardUrl(user?.role), path: DASHBOARD_PATH }, ...NAV_ITEMS]
     : NAV_ITEMS;
 
   function isActive(item: typeof navItems[number]) {
     if (item.href === '/explore/institute') return pathname.startsWith('/explore');
+    if (item.label === 'Dashboard') {
+      const dashHref = item.href;
+      return pathname === dashHref || pathname.startsWith(dashHref + '/');
+    }
     return pathname === item.href;
   }
 
@@ -31,6 +36,8 @@ export default function AppShell({ children, rightSidebar }: AppShellProps) {
     <div className="min-h-screen bg-[#0B0D10] text-white font-sans">
       <div className="max-w-360 mx-auto flex">
         <AppShellSidebar isCollapsed={isCollapsed} onToggleCollapse={() => setIsCollapsed(!isCollapsed)} />
+
+        {secondarySidebar}
 
         <main className="flex-1 min-w-0 border-r border-white/10">
           {children}

@@ -19,11 +19,10 @@ export default function FeedPage() {
   const { user, isAuthenticated } = useAuth();
 
   const navItems = isAuthenticated ? [
-    { icon: 'home', label: 'Home', href: '/home' },
+    { icon: 'dashboard', label: 'Dashboard', href: getDashboardUrl(user?.role) },
     { icon: 'feed', label: 'Feed', href: '/feed' },
     { icon: 'explore', label: 'Explore', href: '/explore/institute' },
     { icon: 'bell', label: 'Notifications', href: '/notifications' },
-    { icon: 'dashboard', label: 'Dashboard', href: getDashboardUrl(user?.role) },
   ] : [];
 
   const requireAuth = (callback?: () => void) => {
@@ -86,8 +85,8 @@ export default function FeedPage() {
               let isActive = false;
               if (item.href === '/explore/institute') {
                 isActive = pathname.startsWith('/explore');
-              } else if (item.label === 'Home') {
-                isActive = pathname === item.href && pathname !== '/feed';
+              } else if (item.label === 'Dashboard') {
+                isActive = pathname === item.href || pathname.startsWith(item.href + '/');
               } else {
                 isActive = pathname === item.href;
               }

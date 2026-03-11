@@ -5,7 +5,7 @@ import { PublicNavbar, Footer } from '@/components/public/Layout';
 import AuthGuard from '@/components/auth/AuthGuard';
 
 // Routes that require authentication
-const PROTECTED_PREFIXES = ['/home', '/notifications', '/explore'];
+const PROTECTED_PREFIXES = ['/notifications', '/explore'];
 
 function isProtectedRoute(pathname: string): boolean {
     return PROTECTED_PREFIXES.some(
@@ -20,7 +20,7 @@ export default function PublicLayout({
 }) {
     const pathname = usePathname();
     // Pages that render their own navbar (app shell pages = dark feed layout, standalone = own minimal navbar)
-    const hasOwnNavbar = pathname === '/feed' || pathname === '/home' || pathname === '/notifications' || pathname.startsWith('/explore') || pathname === '/login' || pathname === '/mentor-signup' || pathname === '/institution-onboarding' || pathname === '/investor-onboarding' || pathname.startsWith('/startups/');
+    const hasOwnNavbar = pathname === '/feed' || pathname === '/notifications' || pathname.startsWith('/explore') || pathname === '/login' || pathname === '/mentor-signup' || pathname === '/institution-onboarding' || pathname === '/investor-onboarding' || pathname.startsWith('/startups/');
     const needsAuth = isProtectedRoute(pathname);
 
     return (

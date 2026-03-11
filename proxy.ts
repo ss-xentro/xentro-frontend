@@ -56,7 +56,7 @@ const rateLimits: Record<string, { max: number; window: number }> = {
 // ── Auth route definitions ──
 
 /** Routes that require ANY authenticated user */
-const AUTH_REQUIRED_PREFIXES = ['/home', '/feed', '/notifications', '/profile'];
+const AUTH_REQUIRED_PREFIXES = ['/feed', '/notifications', '/profile'];
 
 /** Role → allowed dashboard prefixes */
 const ROLE_ROUTE_MAP: Record<string, string[]> = {
@@ -106,7 +106,7 @@ function checkAuth(request: NextRequest): NextResponse | null {
   // Guest-only routes: redirect logged-in users to /home
   if (isLoggedIn && GUEST_ONLY_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))) {
     if (pathname.startsWith('/admin/login') && auth?.role === 'admin') return null;
-    return NextResponse.redirect(new URL('/home', request.url));
+    return NextResponse.redirect(new URL('/feed', request.url));
   }
 
   // Auth-required routes

@@ -118,7 +118,7 @@ export function useStepNavigation({
 			if (!response.ok) throw new Error(result.message || 'Failed to save startup');
 
 			reset();
-			router.push(isCompletionFlow ? '/home' : '/login');
+			router.push(isCompletionFlow ? '/dashboard' : '/login');
 		} catch (err: unknown) {
 			setError(err instanceof Error ? err.message : 'Something went wrong.');
 		} finally {

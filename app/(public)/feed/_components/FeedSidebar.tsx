@@ -19,11 +19,10 @@ export default function FeedSidebar() {
 	const { user, isAuthenticated, logout } = useAuth();
 
 	const navItems = [
-		{ icon: 'home', label: 'Home', href: '/home' },
+		{ icon: 'dashboard', label: 'Dashboard', href: getDashboardUrl(user?.role) },
 		{ icon: 'feed', label: 'Feed', href: '/feed' },
 		{ icon: 'explore', label: 'Explore', href: '/explore/institute' },
 		{ icon: 'bell', label: 'Notifications', href: '/notifications' },
-		{ icon: 'dashboard', label: 'Dashboard', href: getDashboardUrl(user?.role) },
 	];
 
 	const username = user?.email ? user.email.split('@')[0] : 'guest';

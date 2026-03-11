@@ -13,10 +13,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { clearAllRoleTokens, syncAuthCookie, setRoleToken, setTokenCookie, normalizeUser } from '@/lib/auth-utils';
 import { getStartupCompletionStep } from '@/lib/startup-onboarding';
 
-// Startup/founder users land on /home after login once onboarding is complete.
+// Startup/founder users land on /dashboard after login once onboarding is complete.
 const DASHBOARD_MAP: Record<string, string> = {
-    startup: '/home',
-    founder: '/home',
+    startup: '/dashboard',
+    founder: '/dashboard',
     mentor: '/feed',
     institution: '/feed',
     investor: '/feed',

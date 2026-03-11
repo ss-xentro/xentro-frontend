@@ -11,7 +11,7 @@ export default function RootRedirect() {
     useEffect(() => {
         if (!isLoading) {
             if (isAuthenticated) {
-                router.replace('/home');
+                router.replace('/feed');
             } else {
                 router.replace('/guest');
             }

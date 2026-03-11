@@ -119,7 +119,7 @@ export function useFlowInitialization() {
 
 					const nextStep = getStartupCompletionStep(mergedData);
 					if (nextStep > COMPLETION_STEPS.length) {
-						router.replace('/home');
+						router.replace('/dashboard');
 						return;
 					}
 					setStep(nextStep);

@@ -128,6 +128,29 @@ button {
   cursor: pointer;
 }
 
+/* Dark theme overrides for dashboard content inside AppShell */
+.theme-dark {
+  --primary: #F9FAFB;
+  --primary-light: #E5E7EB;
+  --secondary: #9CA3AF;
+  --secondary-light: #6B7280;
+  --accent: #F9FAFB;
+  --accent-hover: #E5E7EB;
+  --accent-light: rgba(255, 255, 255, 0.1);
+  --accent-subtle: rgba(255, 255, 255, 0.05);
+  --background: #0B0D10;
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.07);
+  --surface-pressed: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --border-focus: rgba(255, 255, 255, 0.3);
+  --error-light: rgba(239, 68, 68, 0.15);
+  --success-light: rgba(16, 185, 129, 0.15);
+  --warning-light: rgba(245, 158, 11, 0.15);
+  color: #F9FAFB;
+}
+
 /* Input Base */
 input,
 textarea,

@@ -92,7 +92,7 @@ export function getDashboardUrl(role?: string): string {
 		institution: '/institution-dashboard',
 		investor: '/investor-dashboard',
 	};
-	return role && roleMap[role] ? roleMap[role] : '/home';
+	return role && roleMap[role] ? roleMap[role] : '/feed';
 }
 
 export const NAV_ICON_PATHS: Record<string, string> = {

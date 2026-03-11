@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getRoleFromSession, getUnlockedContexts, getSessionToken } from '@/lib/auth-utils';
-import { DashboardSidebar } from '@/components/ui/DashboardSidebar';
+import AppShell from '@/components/ui/AppShell';
+import DashboardSecondarySidebar from '@/components/ui/DashboardSecondarySidebar';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -54,8 +55,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-(--background)">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            <div className="min-h-screen flex items-center justify-center bg-[#0B0D10]">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/30"></div>
             </div>
         );
     }
@@ -63,12 +64,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!isAuthenticated) return null;
 
     return (
-        <DashboardSidebar userType="startup">
-            <div className="p-4 sm:p-6 lg:p-8">
+        <AppShell secondarySidebar={<DashboardSecondarySidebar userType="startup" />}>
+            <div className="theme-dark p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto">
                     {children}
                 </div>
             </div>
-        </DashboardSidebar>
+        </AppShell>
     );
 }
