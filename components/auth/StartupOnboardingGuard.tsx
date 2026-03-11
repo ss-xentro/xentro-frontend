@@ -78,11 +78,7 @@ export default function StartupOnboardingGuard({ children }: { children: React.R
 	}, [isAuthenticated, isLoading, pathname, router, user?.role]);
 
 	if (isChecking && !ALLOWED_PATHS.has(pathname)) {
-		return (
-			<div className="min-h-screen bg-(--background) flex items-center justify-center">
-				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
-			</div>
-		);
+		return <>{children}</>;
 	}
 
 	return <>{children}</>;

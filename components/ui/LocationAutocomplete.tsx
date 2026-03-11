@@ -122,7 +122,7 @@ export function LocationAutocomplete({
 	return (
 		<div className={className}>
 			{label && (
-				<label className="block text-xs font-medium text-gray-500 mb-2">
+				<label className="block text-xs font-medium text-white/50 mb-2">
 					{label} {required && '*'}
 				</label>
 			)}
@@ -136,7 +136,7 @@ export function LocationAutocomplete({
 						setShowSuggestions(true);
 					}}
 					onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-					className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+					className="w-full px-4 py-3 text-sm text-white bg-white/5 border border-white/10 rounded-lg focus:border-white/30 focus:outline-none transition-colors placeholder-white/40"
 					placeholder={placeholder}
 					autoComplete="off"
 					aria-label={label || 'Location'}
@@ -144,14 +144,14 @@ export function LocationAutocomplete({
 
 				{loading && (
 					<div className="absolute right-3 top-3.5 pointer-events-none">
-						<Spinner size="sm" className="text-gray-400" />
+						<Spinner size="sm" className="text-white/40" />
 					</div>
 				)}
 
 				{showSuggestions && suggestions.length > 0 && (
 					<div
 						ref={suggestionsRef}
-						className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+						className="absolute z-50 w-full mt-1 bg-[#15181C] border border-white/10 rounded-lg shadow-2xl max-h-60 overflow-y-auto"
 						role="listbox"
 					>
 						{suggestions.map((suggestion) => (
@@ -159,13 +159,13 @@ export function LocationAutocomplete({
 								key={suggestion.place_id}
 								type="button"
 								onClick={() => handleSelect(suggestion)}
-								className="w-full px-4 py-3 text-left hover:bg-gray-100 transition-colors border-b border-gray-200 last:border-b-0 focus:bg-gray-100 focus:outline-none"
+								className="w-full px-4 py-3 text-left hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0 focus:bg-white/10 focus:outline-none"
 								role="option"
 							>
-								<div className="font-medium text-gray-900 text-sm">
+								<div className="font-medium text-white text-sm">
 									{suggestion.address.city || suggestion.address.town || suggestion.address.village}
 								</div>
-								<div className="text-xs text-gray-500 truncate">{suggestion.display_name}</div>
+								<div className="text-xs text-white/50 truncate">{suggestion.display_name}</div>
 							</button>
 						))}
 					</div>

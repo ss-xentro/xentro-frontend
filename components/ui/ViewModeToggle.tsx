@@ -21,7 +21,7 @@ export function ViewModeToggle({ mode, onChange, className }: ViewModeToggleProp
 				onClick={() => onChange('cards')}
 				className={cn(
 					'p-2 rounded-md transition-colors',
-					mode === 'cards' ? 'bg-white shadow-sm' : 'text-(--secondary)'
+					mode === 'cards' ? 'bg-white/10 text-white' : 'text-(--secondary)'
 				)}
 				aria-label="Card view"
 			>
@@ -38,7 +38,7 @@ export function ViewModeToggle({ mode, onChange, className }: ViewModeToggleProp
 				onClick={() => onChange('table')}
 				className={cn(
 					'p-2 rounded-md transition-colors',
-					mode === 'table' ? 'bg-white shadow-sm' : 'text-(--secondary)'
+					mode === 'table' ? 'bg-white/10 text-white' : 'text-(--secondary)'
 				)}
 				aria-label="Table view"
 			>

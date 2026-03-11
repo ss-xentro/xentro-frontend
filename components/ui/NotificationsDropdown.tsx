@@ -191,7 +191,7 @@ export function NotificationsDropdown({ token }: NotificationsDropdownProps) {
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <AppIcon name="bell" className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                <AppIcon name="bell" className="w-8 h-8 text-white/40 mx-auto mb-2" />
                 <p className="text-sm text-(--secondary)">No notifications yet</p>
               </div>
             ) : (

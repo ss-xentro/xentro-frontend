@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getRoleFromSession, getUnlockedContexts } from '@/lib/auth-utils';
-import AppShell from '@/components/ui/AppShell';
-import DashboardSecondarySidebar from '@/components/ui/DashboardSecondarySidebar';
 
 export default function InvestorDashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -31,8 +29,14 @@ export default function InvestorDashboardLayout({ children }: { children: React.
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0B0D10]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/30"></div>
+            <div className="animate-pulse p-6 space-y-6">
+                <div className="h-7 w-48 bg-white/5 rounded-lg" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="h-24 bg-white/5 rounded-xl" />
+                    ))}
+                </div>
+                <div className="h-64 bg-white/5 rounded-xl" />
             </div>
         );
     }
@@ -40,12 +44,10 @@ export default function InvestorDashboardLayout({ children }: { children: React.
     if (!isAuthenticated) return null;
 
     return (
-        <AppShell secondarySidebar={<DashboardSecondarySidebar userType="investor" />}>
-            <div className="theme-dark p-4 sm:p-6 lg:p-8">
-                <div className="max-w-7xl mx-auto">
-                    {children}
-                </div>
+        <div className="theme-dark p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto">
+                {children}
             </div>
-        </AppShell>
+        </div>
     );
 }

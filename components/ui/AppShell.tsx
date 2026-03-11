@@ -10,11 +10,9 @@ import AppShellSidebar, { NavIcon, NAV_ITEMS, DASHBOARD_PATH, getDashboardUrl } 
 
 interface AppShellProps {
   children: ReactNode;
-  rightSidebar?: ReactNode;
-  secondarySidebar?: ReactNode;
 }
 
-export default function AppShell({ children, rightSidebar, secondarySidebar }: AppShellProps) {
+export default function AppShell({ children }: AppShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
@@ -33,21 +31,13 @@ export default function AppShell({ children, rightSidebar, secondarySidebar }: A
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0D10] text-white font-sans">
-      <div className="max-w-360 mx-auto flex">
+    <div className="h-screen bg-[#0B0D10] text-white font-sans overflow-hidden">
+      <div className="flex h-full">
         <AppShellSidebar isCollapsed={isCollapsed} onToggleCollapse={() => setIsCollapsed(!isCollapsed)} />
 
-        {secondarySidebar}
-
-        <main className="flex-1 min-w-0 border-r border-white/10">
+        <main className="flex-1 min-w-0 border-r border-white/10 overflow-y-auto">
           {children}
         </main>
-
-        {rightSidebar && (
-          <aside className="sticky top-0 h-screen w-80 shrink-0 hidden xl:block p-4 overflow-y-auto">
-            {rightSidebar}
-          </aside>
-        )}
       </div>
 
       {/* Mobile Bottom Nav */}
@@ -65,7 +55,7 @@ export default function AppShell({ children, rightSidebar, secondarySidebar }: A
                 )}
               >
                 <NavIcon svgPath={item.path} active={active} />
-                <span className={cn('text-[10px] font-medium', active ? 'text-white' : 'text-gray-500')}>
+                <span className={cn('text-[10px] font-medium', active ? 'text-white' : 'text-white/40')}>
                   {item.label}
                 </span>
               </Link>

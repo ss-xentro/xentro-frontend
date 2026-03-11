@@ -15,8 +15,8 @@ export function PageSkeleton({ className }: PageSkeletonProps) {
 	return (
 		<div className={cn('p-8', className)}>
 			<div className="animate-pulse space-y-4">
-				<div className="h-8 bg-gray-200 rounded w-1/4" />
-				<div className="h-4 bg-gray-200 rounded w-1/3" />
+				<div className="h-8 bg-white/10 rounded w-1/4" />
+				<div className="h-4 bg-white/10 rounded w-1/3" />
 			</div>
 		</div>
 	);

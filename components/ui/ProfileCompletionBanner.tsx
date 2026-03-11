@@ -84,7 +84,7 @@ export default function ProfileCompletionBanner() {
     const pct = Math.round((completedCount / total) * 100);
 
     return (
-        <div className="mb-6 rounded-2xl border border-amber-200/60 bg-linear-to-br from-amber-50 via-orange-50/50 to-white overflow-hidden shadow-sm">
+        <div className="mb-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 overflow-hidden">
             {/* Top accent line */}
             <div className="h-0.5 bg-linear-to-r from-amber-400 via-orange-400 to-amber-400" />
 
@@ -92,21 +92,21 @@ export default function ProfileCompletionBanner() {
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
-                            <AppIcon name="zap" className="w-5 h-5 text-amber-600" />
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                            <AppIcon name="zap" className="w-5 h-5 text-amber-400" />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-[13px] sm:text-sm font-semibold text-gray-900 leading-tight">
+                            <h3 className="text-[13px] sm:text-sm font-semibold text-white leading-tight">
                                 Complete your profile
                             </h3>
-                            <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5 leading-snug">
+                            <p className="text-[11px] sm:text-xs text-white/50 mt-0.5 leading-snug">
                                 {pct}% done · {missing.length} section{missing.length !== 1 ? 's' : ''} remaining
                             </p>
                         </div>
                     </div>
                     <button
                         onClick={() => setDismissed(true)}
-                        className="p-1.5 -m-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors shrink-0"
+                        className="p-1.5 -m-1 rounded-lg text-white/40 hover:text-white/60 hover:bg-white/10 transition-colors shrink-0"
                         aria-label="Dismiss"
                     >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,7 +116,7 @@ export default function ProfileCompletionBanner() {
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-gray-200/60 rounded-full h-1.5 mb-4">
+                <div className="w-full bg-white/10 rounded-full h-1.5 mb-4">
                     <div
                         className="h-full rounded-full bg-linear-to-r from-amber-400 to-orange-400 transition-all duration-700 ease-out"
                         style={{ width: `${Math.max(pct, 4)}%` }}
@@ -133,8 +133,8 @@ export default function ProfileCompletionBanner() {
                                 className={`
                                     inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-colors
                                     ${isDone
-                                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                                        : 'bg-white border-gray-200 text-gray-500'
+                                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                        : 'bg-white/5 border-white/10 text-white/40'
                                     }
                                 `}
                             >
@@ -143,7 +143,7 @@ export default function ProfileCompletionBanner() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                     </svg>
                                 ) : (
-                                    <span className="w-3 h-3 rounded-full border border-gray-300" />
+                                    <span className="w-3 h-3 rounded-full border border-white/20" />
                                 )}
                                 {f.label}
                             </div>
@@ -161,8 +161,8 @@ export default function ProfileCompletionBanner() {
                                 className={`
                                     inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded-md border
                                     ${isDone
-                                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                                        : 'bg-white border-gray-200 text-gray-500'
+                                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                        : 'bg-white/5 border-white/10 text-white/40'
                                     }
                                 `}
                             >

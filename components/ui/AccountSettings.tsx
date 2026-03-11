@@ -234,7 +234,7 @@ export default function AccountSettings() {
 								role="switch"
 								aria-checked={notifications[key]}
 								onClick={() => setNotifications(prev => ({ ...prev, [key]: !prev[key] }))}
-								className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications[key] ? 'bg-accent' : 'bg-gray-300'
+								className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications[key] ? 'bg-accent' : 'bg-white/20'
 									}`}
 							>
 								<span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${notifications[key] ? 'translate-x-6' : 'translate-x-1'
