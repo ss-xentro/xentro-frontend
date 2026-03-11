@@ -7,6 +7,7 @@ import { getSessionToken } from '@/lib/auth-utils';
 import { getStartupCompletionStep } from '@/lib/startup-onboarding';
 
 const ALLOWED_PATHS = new Set(['/onboarding/startup']);
+const CACHE_KEY = 'xentro_onboarding_ok';
 
 export default function StartupOnboardingGuard({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
@@ -21,6 +22,12 @@ export default function StartupOnboardingGuard({ children }: { children: React.R
 		const isStartupUser = role === 'startup' || role === 'founder';
 
 		if (!isAuthenticated || !isStartupUser || ALLOWED_PATHS.has(pathname)) {
+			setIsChecking(false);
+			return;
+		}
+
+		// If we already verified onboarding this session, skip the API call
+		if (sessionStorage.getItem(CACHE_KEY) === 'true') {
 			setIsChecking(false);
 			return;
 		}
@@ -40,8 +47,12 @@ export default function StartupOnboardingGuard({ children }: { children: React.R
 					headers: { Authorization: `Bearer ${token}` },
 				});
 
+				// Only redirect on a definitive "no startup" 404 — not on 403/500/network errors
 				if (!res.ok) {
-					router.replace('/onboarding/startup');
+					if (res.status === 404) {
+						router.replace('/onboarding/startup');
+					}
+					// For 403, 500, etc. — don't redirect, give user benefit of the doubt
 					return;
 				}
 
@@ -60,9 +71,12 @@ export default function StartupOnboardingGuard({ children }: { children: React.R
 
 				if (nextStep <= 4) {
 					router.replace('/onboarding/startup');
+				} else {
+					// Cache success so we don't re-check on every navigation
+					sessionStorage.setItem(CACHE_KEY, 'true');
 				}
 			} catch {
-				router.replace('/onboarding/startup');
+				// Network errors — don't redirect, just let the user through
 			} finally {
 				if (!cancelled) {
 					setIsChecking(false);
@@ -76,10 +90,6 @@ export default function StartupOnboardingGuard({ children }: { children: React.R
 			cancelled = true;
 		};
 	}, [isAuthenticated, isLoading, pathname, router, user?.role]);
-
-	if (isChecking && !ALLOWED_PATHS.has(pathname)) {
-		return <>{children}</>;
-	}
 
 	return <>{children}</>;
 }

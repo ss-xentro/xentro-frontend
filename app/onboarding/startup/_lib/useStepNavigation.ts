@@ -118,6 +118,8 @@ export function useStepNavigation({
 			if (!response.ok) throw new Error(result.message || 'Failed to save startup');
 
 			reset();
+			// Clear onboarding guard cache so it re-verifies next session
+			sessionStorage.removeItem('xentro_onboarding_ok');
 			router.push(isCompletionFlow ? '/dashboard' : '/login');
 		} catch (err: unknown) {
 			setError(err instanceof Error ? err.message : 'Something went wrong.');

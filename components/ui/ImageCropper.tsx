@@ -178,18 +178,17 @@ export function ImageCropper({
 
     // Bounding rect gives us the scale-transform visual footprint
     const imgRect = img.getBoundingClientRect();
+    const containerRect = containerRef.current!.getBoundingClientRect();
 
-    const visualCrop = {
-      left: cropRect.left,
-      top: cropRect.top,
-      width: cropRect.width,
-      height: cropRect.height
-    };
+    // cropRect values are container-relative (CSS left/top), while
+    // imgRect values are viewport-relative. Convert to same system.
+    const cropViewportLeft = containerRect.left + cropRect.left;
+    const cropViewportTop = containerRect.top + cropRect.top;
 
-    const ratioX = (visualCrop.left - imgRect.left) / imgRect.width;
-    const ratioY = (visualCrop.top - imgRect.top) / imgRect.height;
-    const ratioWidth = visualCrop.width / imgRect.width;
-    const ratioHeight = visualCrop.height / imgRect.height;
+    const ratioX = (cropViewportLeft - imgRect.left) / imgRect.width;
+    const ratioY = (cropViewportTop - imgRect.top) / imgRect.height;
+    const ratioWidth = cropRect.width / imgRect.width;
+    const ratioHeight = cropRect.height / imgRect.height;
 
     const isRotatedOrSwapped = rotation === 90 || rotation === 270;
     const natW = isRotatedOrSwapped ? img.naturalHeight : img.naturalWidth;

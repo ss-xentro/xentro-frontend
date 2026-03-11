@@ -165,7 +165,7 @@ export default function StartupSettingsPage() {
                                     <div className="grid gap-2">
                                         <label className="block text-sm font-medium text-(--primary) mb-2">Logo</label>
                                         <div className="flex items-center gap-6">
-                                            <div className={`w-20 h-20 rounded-xl border border-(--border) flex items-center justify-center overflow-hidden shrink-0 ${data.logo ? 'bg-white' : 'bg-(--surface-hover)'}`}>
+                                            <div className={`w-20 h-20 rounded-xl border border-(--border) flex items-center justify-center overflow-hidden shrink-0 ${data.logo ? 'bg-[#6B7280]' : 'bg-(--surface-hover)'}`}>
                                                 {data.logo ? (
                                                     <img src={data.logo} alt="Logo" className="w-full h-full object-cover" />
                                                 ) : (

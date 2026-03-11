@@ -49,10 +49,17 @@ export function useFlowInitialization() {
 
 				if (!res.ok) {
 					if (!cancelled) {
-						setFlowMode('signup');
-						setExistingStartupId(null);
-						resetToSignupDraft();
-						resetVerificationState.current?.();
+						// If 404 (no startup), user genuinely needs to create one — stay in signup mode
+						// For other errors (403, 500), redirect to dashboard rather than trapping them here
+						if (res.status === 404) {
+							setFlowMode('signup');
+							setExistingStartupId(null);
+							resetToSignupDraft();
+							resetVerificationState.current?.();
+						} else {
+							router.replace('/dashboard');
+							return;
+						}
 					}
 					return;
 				}
@@ -62,6 +69,23 @@ export function useFlowInitialization() {
 				const whyXentro = getWhyXentroValues(payload.data?.whyXentro ?? []);
 
 				if (!cancelled && startup) {
+					// Check completion against SERVER data first — if already complete, redirect immediately
+					const serverWhyXentro = getWhyXentroValues(payload.data?.whyXentro ?? []);
+					const serverStep = getStartupCompletionStep({
+						name: startup.name,
+						tagline: startup.tagline,
+						logo: startup.logo,
+						founders: startup.founders,
+						sectors: startup.sectors,
+						stage: startup.stage,
+						whyXentro: serverWhyXentro,
+					});
+
+					if (serverStep > COMPLETION_STEPS.length) {
+						router.replace('/dashboard');
+						return;
+					}
+
 					const startupEmail = (startup.primaryContactEmail ?? '').trim().toLowerCase();
 					const localEmail = draft.primaryContactEmail.trim().toLowerCase();
 					const shouldReuseLocalDraft = !localEmail || localEmail === startupEmail;
@@ -118,18 +142,13 @@ export function useFlowInitialization() {
 					setExistingStartupId(startup.id ?? null);
 
 					const nextStep = getStartupCompletionStep(mergedData);
-					if (nextStep > COMPLETION_STEPS.length) {
-						router.replace('/dashboard');
-						return;
-					}
 					setStep(nextStep);
 				}
 			} catch {
 				if (!cancelled) {
-					setFlowMode('signup');
-					setExistingStartupId(null);
-					resetToSignupDraft();
-					resetVerificationState.current?.();
+					// Network error — redirect to dashboard rather than showing broken onboarding
+					router.replace('/dashboard');
+					return;
 				}
 			} finally {
 				if (!cancelled) setIsInitializingFlow(false);

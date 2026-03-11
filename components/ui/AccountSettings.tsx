@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Button, Input } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { useAuth } from '@/contexts/AuthContext';
 import { AppIcon } from '@/components/ui/AppIcon';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -29,6 +30,7 @@ interface AccountSettingsProps {
 }
 
 export default function AccountSettings({ showPasswordSection = false }: AccountSettingsProps) {
+	const { user, setSession, token: authToken } = useAuth();
 	const [settings, setSettings] = useState<Settings | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
@@ -97,6 +99,12 @@ export default function AccountSettings({ showPasswordSection = false }: Account
 
 			setSettings(json.data);
 			setMessage({ type: 'success', text: 'Settings saved successfully' });
+
+			// Sync updated name/avatar to auth cookie + context so sidebar updates
+			if (user && authToken) {
+				const updatedUser = { ...user, name, avatar };
+				setSession(updatedUser, authToken);
+			}
 		} catch (err: any) {
 			setMessage({ type: 'error', text: err.message || 'Failed to save settings' });
 		} finally {

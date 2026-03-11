@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { getSessionToken } from '@/lib/auth-utils';
 import { type UserRole, getNavItems } from './sidebar-nav-config';
 
 const ROLE_LABELS: Record<string, string> = {
@@ -109,10 +110,29 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 	const [searchQuery, setSearchQuery] = useState('');
 	const [profileOpen, setProfileOpen] = useState(false);
 	const [dashExpanded, setDashExpanded] = useState(false);
+	const [startupInfo, setStartupInfo] = useState<{ name: string; slug: string; logo: string | null } | null>(null);
 	const profileRef = useRef<HTMLDivElement>(null);
 	const pathname = usePathname();
 	const router = useRouter();
 	const { user, isAuthenticated, logout } = useAuth();
+
+	const isStartupRole = user?.role === 'startup' || user?.role === 'founder';
+
+	// Fetch startup info for startup/founder roles
+	useEffect(() => {
+		if (!isAuthenticated || !isStartupRole) return;
+		const token = getSessionToken('founder');
+		if (!token) return;
+		fetch('/api/founder/my-startup', { headers: { Authorization: `Bearer ${token}` } })
+			.then(r => r.ok ? r.json() : null)
+			.then(json => {
+				if (json?.data?.startup) {
+					const s = json.data.startup;
+					setStartupInfo({ name: s.name, slug: s.slug, logo: s.logo || null });
+				}
+			})
+			.catch(() => { });
+	}, [isAuthenticated, isStartupRole]);
 
 	const dashboardHref = getDashboardUrl(user?.role);
 	const resolvedRole = (user?.role ?? 'startup') as UserRole;
@@ -133,7 +153,9 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 		if (isDashboardRoute) setDashExpanded(true);
 	}, [isDashboardRoute]);
 
-	const username = user?.email ? user.email.split('@')[0] : 'guest';
+	const username = isStartupRole && startupInfo?.slug ? startupInfo.slug : (user?.email ? user.email.split('@')[0] : 'guest');
+	const displayName = isStartupRole && startupInfo?.name ? startupInfo.name : (user?.name ?? 'Guest');
+	const displayAvatar = isStartupRole && startupInfo?.logo ? startupInfo.logo : (user?.avatar || null);
 
 	useEffect(() => {
 		function handleClickOutside(e: MouseEvent) {
@@ -296,7 +318,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 				{profileOpen && (
 					<div className="absolute bottom-20 left-3 right-3 bg-[#15181C] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-fadeIn">
 						<div className="px-4 py-3 border-b border-white/10">
-							<p className="text-sm font-semibold text-white truncate">{user?.name ?? 'Guest'}</p>
+							<p className="text-sm font-semibold text-white truncate">{displayName}</p>
 							<p className="text-xs text-gray-400 truncate">@{username}</p>
 						</div>
 						<div className="p-1.5 space-y-0.5">
@@ -338,11 +360,15 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 					onClick={() => setProfileOpen((prev) => !prev)}
 					className={cn('w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group relative', isCollapsed && 'justify-center', profileOpen && 'bg-white/5')}
 				>
-					<div className="shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/10 flex items-center justify-center">
-						<span className="text-sm font-semibold text-white">{user?.name ? user.name.charAt(0).toUpperCase() : '?'}</span>
+					<div className="shrink-0 w-9 h-9 rounded-full border border-white/10 flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-500/30 to-purple-500/30">
+						{displayAvatar ? (
+							<img src={displayAvatar} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+						) : (
+							<span className="text-sm font-semibold text-white">{displayName.charAt(0).toUpperCase()}</span>
+						)}
 					</div>
 					<div className={cn('flex-1 text-left overflow-hidden transition-all duration-300', isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')}>
-						<p className="text-sm font-medium text-white truncate">{user?.name ?? 'Guest'}</p>
+						<p className="text-sm font-medium text-white truncate">{displayName}</p>
 						<p className="text-xs text-gray-400 truncate">@{username}</p>
 					</div>
 					{!isCollapsed && (
@@ -352,7 +378,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 					)}
 					{isCollapsed && (
 						<div className="absolute left-full ml-3 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-							{user?.name ?? 'Guest'}
+							{displayName}
 						</div>
 					)}
 				</button>
