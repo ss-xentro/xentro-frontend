@@ -83,44 +83,52 @@ export default function OnboardingWizard({
 		}
 	};
 
+	const buildFormPayload = (extra?: Record<string, unknown>) => ({
+		type: formData.type,
+		name: formData.name,
+		tagline: formData.tagline,
+		city: formData.city,
+		country: formData.country,
+		countryCode: formData.countryCode,
+		operatingMode: formData.operatingMode,
+		startupsSupported: formData.startupsSupported,
+		studentsMentored: formData.studentsMentored,
+		fundingFacilitated: formData.fundingFacilitated,
+		fundingCurrency: formData.fundingCurrency,
+		sdgFocus: formData.sdgFocus,
+		sectorFocus: formData.sectorFocus,
+		logo: formData.logo,
+		website: formData.website,
+		linkedin: formData.linkedin,
+		email: formData.email,
+		phone: formData.phone,
+		description: formData.description,
+		legalDocuments: formData.legalDocuments,
+		...extra,
+	});
+
+	const patchApplication = async (body: Record<string, unknown>) => {
+		const token = getSessionToken('institution');
+		const res = await fetch(`/api/institution-applications/${application.id}/`, {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json',
+				...(token ? { Authorization: `Bearer ${token}` } : {}),
+			},
+			body: JSON.stringify(body),
+		});
+		if (!res.ok) {
+			const payload = await res.json().catch(() => ({}));
+			throw new Error(payload.message || payload.detail || payload.error || 'Request failed');
+		}
+		return res;
+	};
+
 	const handleSaveDraft = async () => {
 		if (!application || savingDraft) return;
 		setSavingDraft(true);
 		try {
-			const token = getSessionToken('institution');
-			const res = await fetch(`/api/institution-applications/${application.id}/`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type': 'application/json',
-					...(token ? { Authorization: `Bearer ${token}` } : {}),
-				},
-				body: JSON.stringify({
-					type: formData.type,
-					name: formData.name,
-					tagline: formData.tagline,
-					city: formData.city,
-					country: formData.country,
-					countryCode: formData.countryCode,
-					operatingMode: formData.operatingMode,
-					startupsSupported: formData.startupsSupported,
-					studentsMentored: formData.studentsMentored,
-					fundingFacilitated: formData.fundingFacilitated,
-					fundingCurrency: formData.fundingCurrency,
-					sdgFocus: formData.sdgFocus,
-					sectorFocus: formData.sectorFocus,
-					logo: formData.logo,
-					website: formData.website,
-					linkedin: formData.linkedin,
-					email: formData.email,
-					phone: formData.phone,
-					description: formData.description,
-					legalDocuments: formData.legalDocuments,
-				}),
-			});
-			if (!res.ok) {
-				const payload = await res.json().catch(() => ({}));
-				throw new Error(payload.message || payload.detail || payload.error || 'Failed to save draft');
-			}
+			await patchApplication(buildFormPayload());
 			toastSuccess('Draft saved successfully!');
 		} catch (err) {
 			const msg = (err as Error).message || 'Failed to save draft';
@@ -152,47 +160,13 @@ export default function OnboardingWizard({
 		}
 
 		try {
-			const token = getSessionToken('institution');
-			const res = await fetch(`/api/institution-applications/${application.id}/`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type': 'application/json',
-					...(token ? { Authorization: `Bearer ${token}` } : {}),
-				},
-				body: JSON.stringify({
-					type: formData.type,
-					name: formData.name,
-					tagline: formData.tagline,
-					city: formData.city,
-					country: formData.country,
-					countryCode: formData.countryCode,
-					operatingMode: formData.operatingMode,
-					startupsSupported: formData.startupsSupported,
-					studentsMentored: formData.studentsMentored,
-					fundingFacilitated: formData.fundingFacilitated,
-					fundingCurrency: formData.fundingCurrency,
-					sdgFocus: formData.sdgFocus,
-					sectorFocus: formData.sectorFocus,
-					logo: formData.logo,
-					website: formData.website,
-					linkedin: formData.linkedin,
-					email: formData.email,
-					phone: formData.phone,
-					description: formData.description,
-					legalDocuments: formData.legalDocuments,
-					status: 'pending',
-				}),
-			});
-
-			if (!res.ok) {
-				const payload = await res.json().catch(() => ({}));
-				throw new Error(payload.message || 'Failed to submit');
-			}
+			const res = await patchApplication(buildFormPayload({ status: 'pending' }));
 
 			const result = await res.json();
 			onApplicationUpdate(result.data ?? result);
 
 			// Reload application
+			const token = getSessionToken('institution');
 			const reload = await fetch('/api/institution-applications', {
 				headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
 			});

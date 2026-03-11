@@ -2,21 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Button, Input, Textarea, Select, FileUpload } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
-import { useEmailCheck } from '@/lib/useEmailCheck';
-import { LocationAutocomplete } from '@/components/ui/LocationAutocomplete';
-import { Spinner } from '@/components/ui/Spinner';
-
-const stageOptions = [
-  { value: 'ideation', label: 'Ideation' },
-  { value: 'pre_seed_prototype', label: 'Pre seed / Prototype' },
-  { value: 'seed_mvp', label: 'Seed / MVP' },
-  { value: 'early_traction', label: 'Early Traction' },
-  { value: 'growth', label: 'Growth' },
-  { value: 'scaling', label: 'Scaling' },
-];
+import { StartupDetailsStep } from './_components/StartupDetailsStep';
+import { FoundersStep } from './_components/FoundersStep';
 
 interface Founder {
   id: string;
@@ -28,40 +18,6 @@ interface ProgramOption {
   id: string;
   name: string;
   type: string;
-}
-
-/** Inline email check indicator for founder emails */
-function FounderEmailCheck({ email }: { email: string }) {
-  const { checking, result } = useEmailCheck(email, 'create_user');
-
-  if (!email || !email.includes('@')) return null;
-
-  return (
-    <div className="mt-1">
-      {checking && (
-        <p className="text-xs text-gray-400 flex items-center gap-1">
-          <Spinner size="sm" className="h-3 w-3" />
-          Checking email...
-        </p>
-      )}
-      {!checking && result && result.canProceed && (
-        <p className="text-xs text-green-600 flex items-center gap-1">
-          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          Email is available
-        </p>
-      )}
-      {!checking && result && !result.canProceed && (
-        <p className="text-xs text-red-600 flex items-center gap-1">
-          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-          {result.message}
-        </p>
-      )}
-    </div>
-  );
 }
 
 export default function AddStartupPage() {
@@ -116,39 +72,8 @@ export default function AddStartupPage() {
     fetchPrograms();
   }, []);
 
-  // Location autocomplete with Nominatim (OpenStreetMap)
-  const handleLocationSelect = (location: { city: string; country: string; countryCode: string; displayName: string }) => {
-    setFormData({
-      ...formData,
-      city: location.city,
-      country: location.country,
-      countryCode: location.countryCode,
-    });
-    setLocationSearch(location.displayName);
-  };
-
-  // Close suggestions on outside click
-  const addFounder = () => {
-    setFounders([...founders, { id: Date.now().toString(), name: '', email: '' }]);
-  };
-
-  const removeFounder = (id: string) => {
-    if (founders.length > 1) {
-      setFounders(founders.filter(f => f.id !== id));
-    }
-  };
-
-  const updateFounder = (id: string, field: 'name' | 'email', value: string) => {
-    setFounders(founders.map(f => f.id === id ? { ...f, [field]: value } : f));
-  };
-
-  const canProceedToStep2 = () => {
-    return formData.name.trim() && formData.city.trim() && formData.country.trim();
-  };
-
-  const canSubmit = () => {
-    return founders.some(f => f.name.trim() && f.email.trim());
-  };
+  const canProceedToStep2 = () => formData.name.trim() && formData.city.trim() && formData.country.trim();
+  const canSubmit = () => founders.some(f => f.name.trim() && f.email.trim());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,172 +155,18 @@ export default function AddStartupPage() {
 
         <Card className="p-10 bg-white border border-gray-200 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-12">
-            {/* Step 1: Startup Details */}
             {currentStep === 1 && (
-              <>
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-2">
-                      Startup Logo
-                    </label>
-                    <FileUpload
-                      value={formData.logo}
-                      onChange={(logo) => setFormData({ ...formData, logo })}
-                      accept="image/*"
-                      maxSize={2}
-                      folder="startup-logos"
-                      enableCrop={true}
-                      aspectRatio={1}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-2">
-                      Startup Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
-                      placeholder="e.g., TechVenture"
-                      required
-                      aria-label="Startup name"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-2">
-                        Stage
-                      </label>
-                      <Select
-                        value={formData.stage}
-                        onChange={(value) => setFormData({ ...formData, stage: value })}
-                        options={stageOptions}
-                        placeholder="Select stage"
-                        aria-label="Startup stage"
-                      />
-                    </div>
-
-                    <div>
-                      <LocationAutocomplete
-                        value={locationSearch}
-                        onInputChange={setLocationSearch}
-                        onSelect={handleLocationSelect}
-                        label="Location"
-                        placeholder="Start typing city..."
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* Program (optional) */}
-                  {programs.length > 0 && (
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-2">
-                        Assign to Program <span className="text-gray-400">(optional)</span>
-                      </label>
-                      <select
-                        value={formData.programId}
-                        onChange={(e) => setFormData({ ...formData, programId: e.target.value })}
-                        className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
-                        aria-label="Assign to program"
-                      >
-                        <option value="">No program</option>
-                        {programs.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} — {p.type}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-
-                {/* What You're Building */}
-                <div className="space-y-3">
-                  <label className="block text-xs font-medium text-gray-500">
-                    What You&apos;re Building
-                  </label>
-                  <textarea
-                    value={formData.oneLiner}
-                    onChange={(e) => setFormData({ ...formData, oneLiner: e.target.value })}
-                    rows={4}
-                    maxLength={280}
-                    className="w-full px-4 py-4 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:border-gray-900 focus:bg-white focus:outline-none transition-all resize-none"
-                    placeholder="Describe your startup in one clear sentence"
-                    aria-label="Startup one-liner"
-                  />
-                  <p className="text-xs text-gray-400">{formData.oneLiner.length} / 280</p>
-                </div>
-              </>
+              <StartupDetailsStep
+                formData={formData}
+                setFormData={setFormData}
+                locationSearch={locationSearch}
+                setLocationSearch={setLocationSearch}
+                programs={programs}
+              />
             )}
 
-            {/* Step 2: Founder Information */}
             {currentStep === 2 && (
-              <>
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-base font-semibold text-gray-900">Founders</h3>
-                    <button
-                      type="button"
-                      onClick={addFounder}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                      + Add Another Founder
-                    </button>
-                  </div>
-
-                  {founders.map((founder, index) => (
-                    <div key={founder.id} className="p-6 border border-gray-200 rounded-lg space-y-4 relative">
-                      {founders.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeFounder(founder.id)}
-                          className="absolute top-4 right-4 text-red-600 hover:text-red-700"
-                          aria-label="Remove founder"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      )}
-
-                      <p className="text-sm font-medium text-gray-700">Founder {index + 1}</p>
-
-                      <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-2">
-                          Name *
-                        </label>
-                        <input
-                          type="text"
-                          value={founder.name}
-                          onChange={(e) => updateFounder(founder.id, 'name', e.target.value)}
-                          className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
-                          placeholder="Full name"
-                          aria-label="Founder name"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-2">
-                          Email *
-                        </label>
-                        <input
-                          type="email"
-                          value={founder.email}
-                          onChange={(e) => updateFounder(founder.id, 'email', e.target.value)}
-                          className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
-                          placeholder="founder@startup.com"
-                          aria-label="Founder email"
-                        />
-                        <FounderEmailCheck email={founder.email} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
+              <FoundersStep founders={founders} setFounders={setFounders} />
             )}
 
             {error && (
@@ -414,7 +185,7 @@ export default function AddStartupPage() {
                     disabled={loading}
                     className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
                   >
-                    ← Back
+                    &larr; Back
                   </button>
                 )}
                 {currentStep === 1 && (
@@ -438,7 +209,7 @@ export default function AddStartupPage() {
                     className="px-6 py-3 text-sm font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                   >
                     Next: Add Founders
-                    <span className="text-base">→</span>
+                    <span className="text-base">&rarr;</span>
                   </button>
                 ) : (
                   <button
@@ -449,7 +220,7 @@ export default function AddStartupPage() {
                     {loading ? 'Creating...' : (
                       <>
                         Create Startup
-                        <span className="text-base">→</span>
+                        <span className="text-base">&rarr;</span>
                       </>
                     )}
                   </button>

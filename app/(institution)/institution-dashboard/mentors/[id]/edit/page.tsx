@@ -6,28 +6,10 @@ import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, BackButton, FeedbackBanner, PageSkeleton } from '@/components/ui';
 import TagInput from '@/components/ui/TagInput';
 import { getSessionToken } from '@/lib/auth-utils';
-
-interface SlotEntry {
-	day: string;
-	startTime: string;
-	endTime: string;
-}
-
-interface DocumentEntry {
-	name: string;
-	url: string;
-	uploadedAt: string;
-}
-
-const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const TIME_OPTIONS = [
-	'06:00', '06:30', '07:00', '07:30', '08:00', '08:30',
-	'09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-	'12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
-	'15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
-	'18:00', '18:30', '19:00', '19:30', '20:00', '20:30',
-	'21:00', '21:30', '22:00',
-];
+import type { SlotEntry, DocumentEntry } from './_components/constants';
+import { AchievementsCard } from './_components/AchievementsCard';
+import { AvailabilitySlotsCard } from './_components/AvailabilitySlotsCard';
+import { DocumentsCard } from './_components/DocumentsCard';
 
 export default function EditMentorPage() {
 	const router = useRouter();
@@ -117,27 +99,6 @@ export default function EditMentorPage() {
 			setLoading(false);
 		}
 	};
-
-	// Achievement management
-	const addAchievement = () => {
-		const text = achievementInput.trim();
-		if (!text) return;
-		setAchievements((prev) => [...prev, text]);
-		setAchievementInput('');
-	};
-	const removeAchievement = (i: number) => setAchievements((prev) => prev.filter((_, idx) => idx !== i));
-
-	// Slot management
-	const addSlot = () => setSlots([...slots, { day: 'Monday', startTime: '09:00', endTime: '10:00' }]);
-	const removeSlot = (i: number) => setSlots(slots.filter((_, idx) => idx !== i));
-	const updateSlot = (i: number, field: keyof SlotEntry, value: string) => {
-		const updated = [...slots];
-		updated[i] = { ...updated[i], [field]: value };
-		setSlots(updated);
-	};
-
-	// Document removal
-	const removeDocument = (i: number) => setDocuments(documents.filter((_, idx) => idx !== i));
 
 	// Submit
 	const handleSubmit = async () => {
@@ -267,35 +228,12 @@ export default function EditMentorPage() {
 				</Card>
 
 				{/* Achievements */}
-				<Card className="p-6 space-y-4">
-					<h3 className="text-lg font-semibold text-gray-900">Achievements & Highlights</h3>
-					<p className="text-sm text-gray-500">Add key accomplishments one at a time</p>
-					<div className="flex gap-2">
-						<input
-							type="text"
-							value={achievementInput}
-							onChange={(e) => setAchievementInput(e.target.value)}
-							onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addAchievement(); } }}
-							placeholder="e.g., Mentored 50+ startups to Series A"
-							className="flex-1 px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none"
-							maxLength={300}
-						/>
-						<Button variant="secondary" size="sm" onClick={addAchievement} disabled={!achievementInput.trim()}>Add</Button>
-					</div>
-					{achievements.length > 0 && (
-						<ul className="space-y-2">
-							{achievements.map((item, i) => (
-								<li key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg group">
-									<span className="mt-0.5 text-amber-500">•</span>
-									<span className="flex-1 text-sm text-gray-800">{item}</span>
-									<button onClick={() => removeAchievement(i)} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-									</button>
-								</li>
-							))}
-						</ul>
-					)}
-				</Card>
+				<AchievementsCard
+					achievements={achievements}
+					setAchievements={setAchievements}
+					achievementInput={achievementInput}
+					setAchievementInput={setAchievementInput}
+				/>
 
 				{/* Pricing */}
 				<Card className="p-6 space-y-4">
@@ -335,61 +273,10 @@ export default function EditMentorPage() {
 				</Card>
 
 				{/* Available Slots */}
-				<Card className="p-6 space-y-4">
-					<div className="flex items-center justify-between">
-						<div>
-							<h3 className="text-lg font-semibold text-gray-900">Available Slots</h3>
-							<p className="text-sm text-gray-500">Weekly availability for mentoring sessions</p>
-						</div>
-						<Button variant="secondary" size="sm" onClick={addSlot}>+ Add Slot</Button>
-					</div>
-					<div className="space-y-3">
-						{slots.map((slot, i) => (
-							<div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-								<select value={slot.day} onChange={(e) => updateSlot(i, 'day', e.target.value)} className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none min-w-32">
-									{DAYS_OF_WEEK.map((d) => <option key={d} value={d}>{d}</option>)}
-								</select>
-								<select value={slot.startTime} onChange={(e) => updateSlot(i, 'startTime', e.target.value)} className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none">
-									{TIME_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
-								</select>
-								<span className="text-gray-500 text-sm">to</span>
-								<select value={slot.endTime} onChange={(e) => updateSlot(i, 'endTime', e.target.value)} className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none">
-									{TIME_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
-								</select>
-								{slots.length > 1 && (
-									<button onClick={() => removeSlot(i)} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
-										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-									</button>
-								)}
-							</div>
-						))}
-					</div>
-				</Card>
+				<AvailabilitySlotsCard slots={slots} setSlots={setSlots} />
 
 				{/* Documents */}
-				<Card className="p-6 space-y-4">
-					<h3 className="text-lg font-semibold text-gray-900">Documents</h3>
-					<p className="text-sm text-gray-500">Certifications, resume, or portfolio documents</p>
-					{documents.length > 0 ? (
-						<div className="space-y-2">
-							{documents.map((doc, i) => (
-								<div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group">
-									<svg className="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-									<div className="flex-1 min-w-0">
-										<p className="text-sm font-medium text-gray-900 truncate">{doc.name}</p>
-										<p className="text-xs text-gray-500">Uploaded {new Date(doc.uploadedAt).toLocaleDateString()}</p>
-									</div>
-									<a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-sm">View</a>
-									<button onClick={() => removeDocument(i)} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-									</button>
-								</div>
-							))}
-						</div>
-					) : (
-						<p className="text-sm text-gray-400 py-4 text-center">No documents uploaded</p>
-					)}
-				</Card>
+				<DocumentsCard documents={documents} setDocuments={setDocuments} />
 
 				{/* Bottom actions */}
 				<div className="flex items-center justify-between pt-4 pb-8">
