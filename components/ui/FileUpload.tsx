@@ -148,7 +148,7 @@ export function FileUpload({
     if (preview) {
         return (
             <div className={cn('w-full', className)}>
-                <div className="relative w-40 h-40 mx-auto rounded-xl overflow-hidden border-2 border-(--border) bg-(--surface)">
+                <div className="relative w-40 h-40 mx-auto rounded-xl overflow-hidden border-2 border-(--border) bg-white">
                     <img
                         src={preview}
                         alt="Preview"
@@ -157,7 +157,7 @@ export function FileUpload({
                     <button
                         type="button"
                         onClick={handleRemove}
-                        className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-(--primary) text-white hover:bg-(--primary-light) transition-colors"
+                        className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-(--primary) text-(--background) hover:bg-(--primary-light) transition-colors"
                         aria-label="Remove image"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

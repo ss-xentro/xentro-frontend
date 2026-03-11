@@ -214,7 +214,7 @@ export default function PitchEditorPage() {
 									className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-200 group ${isActive ? 'bg-(--surface) shadow-(--shadow-sm) border border-(--border)' : 'hover:bg-(--surface-hover)'
 										}`}
 								>
-									<span className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200 ${isDone ? 'bg-success/10 text-success' : isActive ? 'bg-(--primary) text-white' : 'bg-(--surface-hover) text-(--secondary) group-hover:bg-(--surface-pressed)'
+									<span className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200 ${isDone ? 'bg-success/10 text-success' : isActive ? 'bg-(--primary) text-(--background)' : 'bg-(--surface-hover) text-(--secondary) group-hover:bg-(--surface-pressed)'
 										}`}>
 										{isDone ? <CheckIcon className="w-3.5 h-3.5" /> : <span className="text-xs font-semibold">{idx + 1}</span>}
 									</span>
