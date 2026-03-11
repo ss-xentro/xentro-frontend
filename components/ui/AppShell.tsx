@@ -31,7 +31,7 @@ export default function AppShell({ children }: AppShellProps) {
   }
 
   return (
-    <div className="h-screen bg-[#0B0D10] text-white font-sans overflow-hidden">
+    <div className="theme-dark h-screen bg-[#0B0D10] text-white font-sans overflow-hidden">
       <div className="flex h-full">
         <AppShellSidebar isCollapsed={isCollapsed} onToggleCollapse={() => setIsCollapsed(!isCollapsed)} />
 

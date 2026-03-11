@@ -45,7 +45,7 @@ export default function MentorPackages({ hourlyRate, packages, connectionStatus,
 							</li>
 						))}
 					</ul>
-					<button onClick={onConnectOrBook} disabled={connectBtnDisabled} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-gray-900 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-default">
+					<button onClick={onConnectOrBook} disabled={connectBtnDisabled} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-[#0B0D10] hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-default">
 						{connectionStatus === 'accepted' ? 'Book Paid Session' : 'Book Now'}
 					</button>
 				</div>

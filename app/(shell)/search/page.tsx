@@ -157,8 +157,8 @@ export default function SearchPage() {
 					<button
 						onClick={() => handleFilterClick('')}
 						className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${!activeFilter
-							? 'bg-gray-900 text-white'
-							: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+							? 'bg-white text-[#0B0D10]'
+							: 'bg-white/5 text-white/60 hover:bg-white/10'
 							}`}
 					>
 						All ({total})
@@ -171,8 +171,8 @@ export default function SearchPage() {
 								key={key}
 								onClick={() => handleFilterClick(typeKey)}
 								className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${activeFilter === typeKey
-									? 'bg-gray-900 text-white'
-									: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+									? 'bg-white text-[#0B0D10]'
+									: 'bg-white/5 text-white/60 hover:bg-white/10'
 									}`}
 							>
 								<AppIcon name={TYPE_ICONS[typeKey]} className="w-3.5 h-3.5 inline" /> {TYPE_LABELS[typeKey]} ({items.length})
@@ -206,7 +206,7 @@ export default function SearchPage() {
 							<Card className="p-4 hover:bg-(--surface-hover) transition-colors cursor-pointer">
 								<div className="flex items-start gap-4">
 									{/* Avatar / Logo */}
-									<div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-xl">
+									<div className="flex-shrink-0 w-12 h-12 rounded-lg bg-(--surface-hover) flex items-center justify-center text-xl">
 										{item.logo || item.avatar ? (
 											<img
 												src={item.logo || item.avatar}
@@ -241,22 +241,22 @@ export default function SearchPage() {
 										{/* Extra metadata */}
 										<div className="flex flex-wrap gap-1.5 mt-1.5">
 											{item.industry && (
-												<span className="px-1.5 py-0.5 text-[10px] rounded bg-gray-100 text-gray-600">{item.industry}</span>
+												<span className="px-1.5 py-0.5 text-[10px] rounded bg-white/10 text-white/60">{item.industry}</span>
 											)}
 											{item.stage && (
-												<span className="px-1.5 py-0.5 text-[10px] rounded bg-gray-100 text-gray-600">{item.stage}</span>
+												<span className="px-1.5 py-0.5 text-[10px] rounded bg-white/10 text-white/60">{item.stage}</span>
 											)}
 											{item.investorType && (
-												<span className="px-1.5 py-0.5 text-[10px] rounded bg-gray-100 text-gray-600">{item.investorType}</span>
+												<span className="px-1.5 py-0.5 text-[10px] rounded bg-white/10 text-white/60">{item.investorType}</span>
 											)}
 											{item.expertise?.slice(0, 3).map((e) => (
-												<span key={e} className="px-1.5 py-0.5 text-[10px] rounded bg-gray-100 text-gray-600">{e}</span>
+												<span key={e} className="px-1.5 py-0.5 text-[10px] rounded bg-white/10 text-white/60">{e}</span>
 											))}
 											{item.isVirtual && (
 												<span className="px-1.5 py-0.5 text-[10px] rounded bg-blue-50 text-blue-600">Virtual</span>
 											)}
 											{item.startTime && (
-												<span className="px-1.5 py-0.5 text-[10px] rounded bg-gray-100 text-gray-600">
+												<span className="px-1.5 py-0.5 text-[10px] rounded bg-white/10 text-white/60">
 													{new Date(item.startTime).toLocaleDateString()}
 												</span>
 											)}

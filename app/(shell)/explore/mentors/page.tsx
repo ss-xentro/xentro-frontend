@@ -126,7 +126,7 @@ export default function ExploreMentorsPage() {
                         key={opt}
                         onClick={() => setExpertise(opt)}
                         className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${expertise === opt
-                            ? 'bg-white text-gray-900 border-white/80 shadow-sm'
+                            ? 'bg-white text-[#0B0D10] border-white/80 shadow-sm'
                             : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-gray-200'
                             }`}
                     >
@@ -215,7 +215,7 @@ export default function ExploreMentorsPage() {
                                             </span>
                                         ))}
                                         {mentor.expertise.length > 4 && (
-                                            <span className="text-[11px] text-gray-600 px-1.5 py-0.5">
+                                            <span className="text-[11px] text-white/40 px-1.5 py-0.5">
                                                 +{mentor.expertise.length - 4}
                                             </span>
                                         )}

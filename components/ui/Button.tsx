@@ -22,7 +22,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
         const variants = {
             primary: `
-        bg-(--primary) text-white
+        bg-(--primary) text-(--background)
         hover:bg-[var(--primary-light)]
         shadow-[var(--shadow-sm)]
         hover:shadow-[var(--shadow-md)]

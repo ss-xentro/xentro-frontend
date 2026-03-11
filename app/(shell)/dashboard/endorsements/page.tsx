@@ -119,9 +119,9 @@ export default function StartupEndorsementsPage() {
 
 	const statusColor = (status: string) => {
 		switch (status) {
-			case 'accepted': return 'bg-green-100 text-green-700';
-			case 'rejected': return 'bg-red-100 text-red-700';
-			default: return 'bg-yellow-100 text-yellow-700';
+			case 'accepted': return 'bg-emerald-500/15 text-emerald-400';
+			case 'rejected': return 'bg-red-500/15 text-red-400';
+			default: return 'bg-amber-500/15 text-amber-400';
 		}
 	};
 
@@ -129,8 +129,8 @@ export default function StartupEndorsementsPage() {
 		<div className="p-8 space-y-6">
 			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 				<div>
-					<h1 className="text-2xl font-semibold text-gray-900 mb-2">Endorsements</h1>
-					<p className="text-sm text-gray-600">Request endorsement from institutions and track your requests.</p>
+					<h1 className="text-2xl font-semibold text-(--primary) mb-2">Endorsements</h1>
+					<p className="text-sm text-(--secondary)">Request endorsement from institutions and track your requests.</p>
 				</div>
 				<Button onClick={() => setShowRequestForm(!showRequestForm)}>
 					Request Endorsement
@@ -139,31 +139,31 @@ export default function StartupEndorsementsPage() {
 
 			{/* Request form */}
 			{showRequestForm && (
-				<Card className="p-6 bg-blue-50 border-blue-100 space-y-4">
-					<h3 className="font-semibold text-gray-900">Request Endorsement from an Institution</h3>
-					<p className="text-sm text-gray-600">Search for an institution and send them an endorsement request.</p>
+				<Card className="p-6 bg-blue-500/10 border-blue-500/20 space-y-4">
+					<h3 className="font-semibold text-(--primary)">Request Endorsement from an Institution</h3>
+					<p className="text-sm text-(--secondary)">Search for an institution and send them an endorsement request.</p>
 
 					<div>
-						<label className="block text-xs font-medium text-gray-500 mb-2">Search Institution</label>
+						<label className="block text-xs font-medium text-(--secondary) mb-2">Search Institution</label>
 						<input
 							type="text"
 							value={searchQuery}
 							onChange={(e) => searchInstitutions(e.target.value)}
-							className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+							className="w-full px-4 py-3 text-sm text-(--primary) bg-(--surface) border border-(--border) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors"
 							placeholder="Type institution name..."
 						/>
 					</div>
 
 					{institutions.length > 0 && !selectedInstitution && (
-						<div className="border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
+						<div className="border border-(--border) rounded-lg max-h-48 overflow-y-auto">
 							{institutions.map((inst) => (
 								<button
 									key={inst.id}
 									type="button"
 									onClick={() => { setSelectedInstitution(inst); setInstitutions([]); setSearchQuery(inst.name); }}
-									className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b last:border-b-0 transition-colors"
+									className="w-full px-4 py-3 text-left hover:bg-(--surface-hover) border-b border-(--border) last:border-b-0 transition-colors"
 								>
-									<p className="font-medium text-gray-900 text-sm">{inst.name}</p>
+									<p className="font-medium text-(--primary) text-sm">{inst.name}</p>
 									<p className="text-xs text-gray-500">{inst.city}{inst.city && inst.country ? ', ' : ''}{inst.country}</p>
 								</button>
 							))}
@@ -171,9 +171,9 @@ export default function StartupEndorsementsPage() {
 					)}
 
 					{selectedInstitution && (
-						<div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between">
+						<div className="bg-(--surface) border border-(--border) rounded-lg p-4 flex items-center justify-between">
 							<div>
-								<p className="font-semibold text-gray-900">{selectedInstitution.name}</p>
+								<p className="font-semibold text-(--primary)">{selectedInstitution.name}</p>
 								<p className="text-xs text-gray-500">{selectedInstitution.city}{selectedInstitution.city && selectedInstitution.country ? ', ' : ''}{selectedInstitution.country}</p>
 							</div>
 							<button
@@ -186,12 +186,12 @@ export default function StartupEndorsementsPage() {
 					)}
 
 					<div>
-						<label className="block text-xs font-medium text-gray-500 mb-2">Message (optional)</label>
+						<label className="block text-xs font-medium text-(--secondary) mb-2">Message (optional)</label>
 						<textarea
 							value={requestMessage}
 							onChange={(e) => setRequestMessage(e.target.value)}
 							rows={3}
-							className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors resize-none"
+							className="w-full px-4 py-3 text-sm text-(--primary) bg-(--surface) border border-(--border) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors resize-none"
 							placeholder="Tell the institution why you'd like their endorsement..."
 						/>
 					</div>
@@ -213,28 +213,28 @@ export default function StartupEndorsementsPage() {
 			{/* Endorsement list */}
 			{loading ? (
 				<div className="animate-pulse space-y-4">
-					<div className="h-20 bg-gray-100 rounded-lg"></div>
-					<div className="h-20 bg-gray-100 rounded-lg"></div>
+					<div className="h-20 bg-(--surface) rounded-lg"></div>
+					<div className="h-20 bg-(--surface) rounded-lg"></div>
 				</div>
 			) : endorsements.length === 0 ? (
-				<Card className="p-12 text-center bg-white border border-gray-200">
-					<div className="w-16 h-16 rounded-full bg-gray-100 mx-auto mb-4 flex items-center justify-center">
+				<Card className="p-12 text-center">
+					<div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
 						<svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 						</svg>
 					</div>
-					<h3 className="text-lg font-semibold text-gray-900 mb-2">No endorsements yet</h3>
-					<p className="text-gray-600 mb-6">
+					<h3 className="text-lg font-semibold text-(--primary) mb-2">No endorsements yet</h3>
+					<p className="text-(--secondary) mb-6">
 						Request endorsement from institutions to boost your startup&apos;s credibility.
 					</p>
 				</Card>
 			) : (
 				<div className="space-y-3">
 					{endorsements.map((endorsement) => (
-						<Card key={endorsement.id} className="p-5 bg-white border border-gray-200">
+						<Card key={endorsement.id} className="p-5">
 							<div className="flex items-start justify-between">
 								<div>
-									<h4 className="font-semibold text-gray-900">{endorsement.institutionName}</h4>
+									<h4 className="font-semibold text-(--primary)">{endorsement.institutionName}</h4>
 									<span className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded capitalize ${statusColor(endorsement.status)}`}>
 										{endorsement.status}
 									</span>
@@ -242,7 +242,7 @@ export default function StartupEndorsementsPage() {
 										<p className="text-sm text-gray-500 mt-2">Your message: &ldquo;{endorsement.message}&rdquo;</p>
 									)}
 									{endorsement.responseComment && (
-										<p className="text-sm text-gray-700 mt-2 bg-gray-50 p-3 rounded-lg">
+										<p className="text-sm text-(--secondary) mt-2 bg-(--surface-hover) p-3 rounded-lg">
 											<span className="font-medium">Institution response:</span> {endorsement.responseComment}
 										</p>
 									)}

@@ -67,10 +67,10 @@ export function getConnectBtnConfig(status: string | null): ConnectBtnConfig {
 		case 'pending':
 			return { label: 'Request Pending', disabled: true, className: 'bg-amber-500/20 text-amber-300 border-amber-500/30 cursor-default' };
 		case 'accepted':
-			return { label: 'Book a Session', disabled: false, className: 'bg-white text-gray-900 hover:bg-gray-100 border-white/20' };
+			return { label: 'Book a Session', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90 border-white/20' };
 		case 'rejected':
 			return { label: 'Rejected', disabled: true, className: 'bg-red-500/20 text-red-300 border-red-500/30 cursor-default' };
 		default:
-			return { label: 'Connect & Book', disabled: false, className: 'bg-white text-gray-900 hover:bg-gray-100' };
+			return { label: 'Connect & Book', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90' }; ", "oldString": "bg - white text - gray - 900 hover: bg - gray - 100
 	}
 }

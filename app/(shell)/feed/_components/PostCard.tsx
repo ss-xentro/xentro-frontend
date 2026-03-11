@@ -30,8 +30,8 @@ export default function PostCard({ post, isLast, onRequireAuth }: { post: Post; 
 					<div className="flex items-center gap-2 mb-2">
 						<span className="font-semibold text-white text-[15px]">{post.author.name}</span>
 						<span className="text-gray-500 text-[14px]">@{post.author.username}</span>
-						<span className="text-gray-600 text-[14px]">·</span>
-						<span className="text-gray-600 text-[14px]">{post.timestamp}</span>
+						<span className="text-white/30 text-[14px]">·</span>
+						<span className="text-white/30 text-[14px]">{post.timestamp}</span>
 					</div>
 
 					{/* Post Text */}
