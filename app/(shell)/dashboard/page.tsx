@@ -16,14 +16,17 @@ export default function DashboardOverviewPage() {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [windowDays, setWindowDays] = useState<7 | 30 | 90>(30);
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true);
+            setError(null);
             try {
                 const token = getSessionToken('founder');
                 if (!token) return; // Layout handles redirect
 
-                const res = await fetch('/api/founder/my-startup', {
+                const res = await fetch(`/api/founder/my-startup?windowDays=${windowDays}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -44,7 +47,7 @@ export default function DashboardOverviewPage() {
         };
 
         fetchData();
-    }, []);
+    }, [windowDays]);
 
     if (loading) {
         return (
@@ -125,7 +128,13 @@ export default function DashboardOverviewPage() {
                 />
             </div>
 
-            <DashboardAnalyticsBento startup={data.startup} logs={data.recentActivity ?? []} />
+            <DashboardAnalyticsBento
+                startup={data.startup}
+                logs={data.recentActivity ?? []}
+                analytics={data.analytics}
+                windowDays={windowDays}
+                onWindowChange={setWindowDays}
+            />
         </div>
     );
 }
