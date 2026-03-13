@@ -31,13 +31,60 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 			.sort((a, b) => a.startTime.localeCompare(b.startTime));
 	}, [slots, selectedDay]);
 
-	const slotBuckets = useMemo(() => {
-		const getHour = (value: string) => Number(value.split(':')[0] || 0);
+	const getPeriodFromTime = (value: string): 'morning' | 'afternoon' | 'evening' => {
+		const hour = Number(value.split(':')[0] || 0);
+		if (hour < 12) return 'morning';
+		if (hour < 17) return 'afternoon';
+		return 'evening';
+	};
 
+	const toMinutes = (value: string) => {
+		const [hour, minute] = value.split(':').map(Number);
+		return hour * 60 + minute;
+	};
+
+	const toHHMM = (minutes: number) => {
+		const hour = Math.floor(minutes / 60);
+		const minute = minutes % 60;
+		return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+	};
+
+	const getNextTimeOption = (value: string) => {
+		const idx = TIME_OPTIONS.indexOf(value);
+		if (idx === -1) return value;
+		return TIME_OPTIONS[Math.min(idx + 1, TIME_OPTIONS.length - 1)];
+	};
+
+	const getPreviousTimeOption = (value: string) => {
+		const idx = TIME_OPTIONS.indexOf(value);
+		if (idx === -1) return value;
+		return TIME_OPTIONS[Math.max(idx - 1, 0)];
+	};
+
+	const splitByPeriodBoundaries = (start: string, end: string) => {
+		const startMin = toMinutes(start);
+		const endMin = toMinutes(end);
+		if (endMin <= startMin) return [] as Array<{ startTime: string; endTime: string }>;
+
+		const boundaries = [12 * 60, 17 * 60];
+		const splitPoints = boundaries.filter((point) => point > startMin && point < endMin);
+		const result: Array<{ startTime: string; endTime: string }> = [];
+		let cursor = startMin;
+
+		for (const point of splitPoints) {
+			result.push({ startTime: toHHMM(cursor), endTime: toHHMM(point) });
+			cursor = point;
+		}
+
+		result.push({ startTime: toHHMM(cursor), endTime: toHHMM(endMin) });
+		return result;
+	};
+
+	const slotBuckets = useMemo(() => {
 		return {
-			morning: daySlots.filter((slot) => getHour(slot.startTime) < 12),
-			afternoon: daySlots.filter((slot) => getHour(slot.startTime) >= 12 && getHour(slot.startTime) < 17),
-			evening: daySlots.filter((slot) => getHour(slot.startTime) >= 17),
+			morning: daySlots.filter((slot) => getPeriodFromTime(slot.startTime) === 'morning'),
+			afternoon: daySlots.filter((slot) => getPeriodFromTime(slot.startTime) === 'afternoon'),
+			evening: daySlots.filter((slot) => getPeriodFromTime(slot.startTime) === 'evening'),
 		};
 	}, [daySlots]);
 
@@ -45,6 +92,15 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 
 	const isValidRange = newStart < newEnd;
 	const isEditRangeValid = editStart < editEnd;
+	const targetPeriod = getPeriodFromTime(newStart);
+	const addSplitSegments = useMemo(() => {
+		if (!isValidRange) return [] as Array<{ startTime: string; endTime: string }>;
+		return splitByPeriodBoundaries(newStart, newEnd);
+	}, [newStart, newEnd, isValidRange]);
+	const editSplitSegments = useMemo(() => {
+		if (!isEditRangeValid) return [] as Array<{ startTime: string; endTime: string }>;
+		return splitByPeriodBoundaries(editStart, editEnd);
+	}, [editStart, editEnd, isEditRangeValid]);
 
 	const formatTime = (value: string) => {
 		const [hourRaw, minute] = value.split(':').map(Number);
@@ -64,7 +120,38 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 
 	const handleAddSlot = () => {
 		if (!newStart || !newEnd || !isValidRange) return;
-		onAdd({ day: selectedDay, startTime: newStart, endTime: newEnd });
+		const segments = splitByPeriodBoundaries(newStart, newEnd);
+		for (const segment of segments) {
+			onAdd({ day: selectedDay, startTime: segment.startTime, endTime: segment.endTime });
+		}
+	};
+
+	const handleNewStartChange = (value: string) => {
+		setNewStart(value);
+		if (toMinutes(value) >= toMinutes(newEnd)) {
+			setNewEnd(getNextTimeOption(value));
+		}
+	};
+
+	const handleNewEndChange = (value: string) => {
+		setNewEnd(value);
+		if (toMinutes(value) <= toMinutes(newStart)) {
+			setNewStart(getPreviousTimeOption(value));
+		}
+	};
+
+	const handleEditStartChange = (value: string) => {
+		setEditStart(value);
+		if (toMinutes(value) >= toMinutes(editEnd)) {
+			setEditEnd(getNextTimeOption(value));
+		}
+	};
+
+	const handleEditEndChange = (value: string) => {
+		setEditEnd(value);
+		if (toMinutes(value) <= toMinutes(editStart)) {
+			setEditStart(getPreviousTimeOption(value));
+		}
 	};
 
 	useEffect(() => {
@@ -79,8 +166,27 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 
 	const saveEditedSlot = () => {
 		if (editingIndex === null || !isEditRangeValid) return;
-		onUpdate(editingIndex, 'startTime', editStart);
-		onUpdate(editingIndex, 'endTime', editEnd);
+
+		const current = slots[editingIndex];
+		if (!current) return;
+
+		const segments = splitByPeriodBoundaries(editStart, editEnd);
+		if (segments.length === 0) return;
+
+		onUpdate(editingIndex, 'startTime', segments[0].startTime);
+		onUpdate(editingIndex, 'endTime', segments[0].endTime);
+
+		if (segments.length > 1) {
+			for (let i = 1; i < segments.length; i += 1) {
+				onAdd({
+					day: current.day,
+					startTime: segments[i].startTime,
+					endTime: segments[i].endTime,
+				});
+			}
+		}
+
+		setEditingIndex(null);
 	};
 
 	const cancelEditedSlot = () => {
@@ -107,6 +213,12 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 			setNewEnd('19:00');
 			onAdd({ day: selectedDay, startTime: '18:00', endTime: '19:00' });
 		}
+	};
+
+	const periodLabel = (period: 'morning' | 'afternoon' | 'evening') => {
+		if (period === 'morning') return 'Morning';
+		if (period === 'afternoon') return 'Afternoon';
+		return 'Evening';
 	};
 
 	const renderSlotPill = (slot: SlotEntry & { index: number }) => {
@@ -198,7 +310,9 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 					<div className="p-3 rounded-xl bg-(--surface-hover) border border-(--border) space-y-3">
 						<div className="flex flex-wrap items-center justify-between gap-2">
 							<p className="text-sm font-semibold text-(--primary)">Add New Slot</p>
-							<p className="text-xs text-(--secondary)">Selected day: {selectedDay}</p>
+							<p className="text-xs text-(--secondary)">
+								Selected day: {selectedDay} • Goes to {periodLabel(targetPeriod)}
+							</p>
 						</div>
 						<div className="grid grid-cols-1 md:grid-cols-4 gap-3">
 							<select
@@ -215,26 +329,31 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 							</select>
 							<select
 								value={newStart}
-								onChange={(e) => setNewStart(e.target.value)}
+								onChange={(e) => handleNewStartChange(e.target.value)}
 								className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
 							>
 								{TIME_OPTIONS.map((time) => (
-									<option key={time} value={time}>{formatTime(time)}</option>
+									<option key={time} value={time} disabled={toMinutes(time) >= toMinutes(newEnd)}>{formatTime(time)}</option>
 								))}
 							</select>
 							<select
 								value={newEnd}
-								onChange={(e) => setNewEnd(e.target.value)}
+								onChange={(e) => handleNewEndChange(e.target.value)}
 								className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
 							>
 								{TIME_OPTIONS.map((time) => (
-									<option key={time} value={time}>{formatTime(time)}</option>
+									<option key={time} value={time} disabled={toMinutes(time) <= toMinutes(newStart)}>{formatTime(time)}</option>
 								))}
 							</select>
 							<Button variant="secondary" size="sm" onClick={handleAddSlot} disabled={!isValidRange}>
 								Add Slot
 							</Button>
 						</div>
+						{addSplitSegments.length > 1 && (
+							<p className="text-xs text-amber-400">
+								This range spans multiple periods and will be split into {addSplitSegments.length} slots automatically.
+							</p>
+						)}
 					</div>
 
 					{!isValidRange && (
@@ -278,21 +397,21 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 							<p className="text-xs font-medium text-(--secondary) mr-2">Edit selected slot:</p>
 							<select
 								value={editStart}
-								onChange={(e) => setEditStart(e.target.value)}
+								onChange={(e) => handleEditStartChange(e.target.value)}
 								className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
 							>
 								{TIME_OPTIONS.map((time) => (
-									<option key={time} value={time}>{formatTime(time)}</option>
+									<option key={time} value={time} disabled={toMinutes(time) >= toMinutes(editEnd)}>{formatTime(time)}</option>
 								))}
 							</select>
 							<span className="text-(--secondary) text-sm">to</span>
 							<select
 								value={editEnd}
-								onChange={(e) => setEditEnd(e.target.value)}
+								onChange={(e) => handleEditEndChange(e.target.value)}
 								className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
 							>
 								{TIME_OPTIONS.map((time) => (
-									<option key={time} value={time}>{formatTime(time)}</option>
+									<option key={time} value={time} disabled={toMinutes(time) <= toMinutes(editStart)}>{formatTime(time)}</option>
 								))}
 							</select>
 							<Button variant="secondary" size="sm" onClick={cancelEditedSlot}>
@@ -312,6 +431,12 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 								Remove
 							</button>
 						</div>
+					)}
+
+					{editingIndex !== null && editSplitSegments.length > 1 && (
+						<p className="text-xs text-amber-400">
+							This edited range spans multiple periods and will be split into {editSplitSegments.length} slots on save.
+						</p>
 					)}
 
 					{editingIndex !== null && !isEditRangeValid && (
