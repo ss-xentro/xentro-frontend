@@ -2,7 +2,7 @@ import { trending, suggestions } from '../_lib/constants';
 
 export default function RightSidebar({ onRequireAuth }: { onRequireAuth: () => void }) {
 	return (
-		<aside className="sticky top-0 h-screen w-80 shrink-0 hidden xl:block p-4 overflow-y-auto">
+		<aside className="sticky top-0 h-screen w-80 shrink-0 hidden xl:block p-4 overflow-y-auto overflow-x-hidden">
 			<div className="space-y-4">
 				{/* Trending */}
 				<div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
