@@ -240,9 +240,9 @@ export default function EditMentorPage() {
 					<h3 className="text-lg font-semibold text-gray-900">Pricing</h3>
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 						<div>
-							<label className="block text-xs font-medium text-gray-500 mb-2">Rate per hour (USD)</label>
+							<label className="block text-xs font-medium text-gray-500 mb-2">Rate per hour (INR)</label>
 							<div className="relative">
-								<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+								<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">Rs</span>
 								<input
 									type="number"
 									value={pricingPerHour}
@@ -255,9 +255,9 @@ export default function EditMentorPage() {
 							</div>
 						</div>
 						<div>
-							<label className="block text-xs font-medium text-gray-500 mb-2">Base Rate (USD)</label>
+							<label className="block text-xs font-medium text-gray-500 mb-2">Base Rate (INR)</label>
 							<div className="relative">
-								<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+								<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">Rs</span>
 								<input
 									type="number"
 									value={rate}

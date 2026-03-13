@@ -23,7 +23,9 @@ export default function MentorProfilePage() {
 
     // Form state
     const [achievements, setAchievements] = useState<string[]>([]);
-    const [achievementInput, setAchievementInput] = useState('');
+    const [highlights, setHighlights] = useState<string[]>([]);
+    const [achievementDraft, setAchievementDraft] = useState('');
+    const [highlightDraft, setHighlightDraft] = useState('');
     const [pricingPerHour, setPricingPerHour] = useState('');
     const [slots, setSlots] = useState<SlotEntry[]>([{ day: 'Monday', startTime: '09:00', endTime: '10:00' }]);
     const [documents, setDocuments] = useState<DocumentEntry[]>([]);
@@ -32,6 +34,37 @@ export default function MentorProfilePage() {
 
     // Profile info (read-only)
     const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
+    const getContentLength = (value: string) => value.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim().length;
+
+    const parseRichList = (value: unknown): string[] => {
+        if (Array.isArray(value)) {
+            return value
+                .map((item) => String(item).trim())
+                .filter((item) => getContentLength(item) > 0);
+        }
+
+        if (typeof value === 'string' && value.trim()) {
+            try {
+                const parsed = JSON.parse(value);
+                if (Array.isArray(parsed)) {
+                    return parsed
+                        .map((item) => String(item).trim())
+                        .filter((item) => getContentLength(item) > 0);
+                }
+            } catch {
+                // Not JSON; fall back to text split.
+            }
+
+            return value
+                .split(/\n{2,}|;+/)
+                .map((item) => item.trim())
+                .filter((item) => getContentLength(item) > 0)
+                .map((item) => (item.startsWith('<') ? item : `<p>${item}</p>`));
+        }
+
+        return [];
+    };
 
     const fetchProfile = useCallback(async () => {
         const token = getSessionToken('mentor');
@@ -49,18 +82,8 @@ export default function MentorProfilePage() {
             setProfileData(data);
 
             // Pre-fill form fields
-            if (data.achievements) {
-                if (Array.isArray(data.achievements)) {
-                    setAchievements(data.achievements.filter(Boolean));
-                } else if (typeof data.achievements === 'string' && data.achievements.trim()) {
-                    setAchievements(
-                        data.achievements
-                            .split(/[\n;]+/)
-                            .map((s: string) => s.replace(/^[-\u2022*]\s*/, '').trim())
-                            .filter(Boolean)
-                    );
-                }
-            }
+            setAchievements(parseRichList(data.achievements));
+            setHighlights(parseRichList(data.packages));
             if (data.pricing_per_hour) setPricingPerHour(data.pricing_per_hour);
             if (data.documents && Array.isArray(data.documents) && data.documents.length > 0) {
                 setDocuments(data.documents);
@@ -85,8 +108,8 @@ export default function MentorProfilePage() {
     }, [fetchProfile]);
 
     // -- Slot management --
-    const addSlot = () => {
-        setSlots([...slots, { day: 'Monday', startTime: '09:00', endTime: '10:00' }]);
+    const addSlot = (slot: SlotEntry) => {
+        setSlots((prev) => [...prev, slot]);
     };
 
     const removeSlot = (index: number) => {
@@ -148,29 +171,49 @@ export default function MentorProfilePage() {
         setDocuments(documents.filter((_, i) => i !== index));
     };
 
-    // -- Achievement management --
+    // -- Achievement & Highlight management --
     const addAchievement = () => {
-        const text = achievementInput.trim();
-        if (!text) return;
-        setAchievements((prev) => [...prev, text]);
-        setAchievementInput('');
+        const count = getContentLength(achievementDraft);
+        if (count === 0 || count > 500) return;
+        setAchievements((prev) => [...prev, achievementDraft]);
+        setAchievementDraft('');
     };
 
     const removeAchievement = (index: number) => {
         setAchievements((prev) => prev.filter((_, i) => i !== index));
     };
 
-    const handleAchievementKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addAchievement();
-        }
+    const updateAchievement = (index: number, value: string) => {
+        const count = getContentLength(value);
+        if (count > 500) return;
+        setAchievements((prev) => prev.map((item, i) => (i === index ? value : item)));
+    };
+
+    const addHighlight = () => {
+        const count = getContentLength(highlightDraft);
+        if (count === 0 || count > 500) return;
+        setHighlights((prev) => [...prev, highlightDraft]);
+        setHighlightDraft('');
+    };
+
+    const removeHighlight = (index: number) => {
+        setHighlights((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const updateHighlight = (index: number, value: string) => {
+        const count = getContentLength(value);
+        if (count > 500) return;
+        setHighlights((prev) => prev.map((item, i) => (i === index ? value : item)));
     };
 
     // -- Submit --
     const handleSubmit = async () => {
         if (achievements.length === 0) {
             setError('Please add at least one achievement');
+            return;
+        }
+        if (highlights.length === 0) {
+            setError('Please add at least one highlight');
             return;
         }
         if (slots.length === 0) {
@@ -201,6 +244,7 @@ export default function MentorProfilePage() {
                 },
                 body: JSON.stringify({
                     achievements: achievements,
+                    packages: highlights,
                     availability: JSON.stringify(slots),
                     pricing_per_hour: parseFloat(pricingPerHour),
                     documents,
@@ -291,11 +335,20 @@ export default function MentorProfilePage() {
             <Card className="p-6">
                 <AchievementsSection
                     achievements={achievements}
-                    achievementInput={achievementInput}
-                    onInputChange={setAchievementInput}
-                    onAdd={addAchievement}
-                    onRemove={removeAchievement}
-                    onKeyDown={handleAchievementKeyDown}
+                    highlights={highlights}
+                    achievementDraft={achievementDraft}
+                    highlightDraft={highlightDraft}
+                    achievementDraftCount={getContentLength(achievementDraft)}
+                    highlightDraftCount={getContentLength(highlightDraft)}
+                    onAchievementDraftChange={setAchievementDraft}
+                    onHighlightDraftChange={setHighlightDraft}
+                    onAddAchievement={addAchievement}
+                    onAddHighlight={addHighlight}
+                    onUpdateAchievement={updateAchievement}
+                    onUpdateHighlight={updateHighlight}
+                    onRemoveAchievement={removeAchievement}
+                    onRemoveHighlight={removeHighlight}
+                    getContentLength={getContentLength}
                 />
             </Card>
 
@@ -330,10 +383,10 @@ export default function MentorProfilePage() {
                         placeholder="0.00"
                         min="0"
                         step="0.01"
-                        label="Rate per hour (USD)"
+                        label="Rate per hour (INR)"
                         hint="This will be shown on your public profile"
                         icon={
-                            <span className="text-(--secondary) font-medium">$</span>
+                            <span className="text-(--secondary) font-medium">Rs</span>
                         }
                     />
                 </div>

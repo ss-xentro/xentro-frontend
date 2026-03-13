@@ -112,7 +112,7 @@ export default function MentorDashboardPage() {
                         Welcome back, Mentor
                     </h1>
                     <p className="text-(--secondary)">
-                        Here&apos;s your mentoring overview and upcoming sessions.
+                        Here&apos;s your mentoring overview, requests, and calendar at a glance.
                     </p>
                 </div>
                 <div className="flex gap-3">
@@ -248,21 +248,19 @@ export default function MentorDashboardPage() {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Upcoming Sessions */}
+                {/* Requests Summary */}
                 <Card className="lg:col-span-2 p-6 h-fit">
-                    <h3 className="text-lg font-semibold text-(--primary) mb-4">Upcoming Sessions</h3>
+                    <h3 className="text-lg font-semibold text-(--primary) mb-4">Requests Pipeline</h3>
                     <div className="space-y-0 relative">
                         <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-(--border)"></div>
-                        <p className="pl-8 text-(--secondary) py-2">No upcoming sessions scheduled. Your mentees will book sessions soon.</p>
+                        <p className="pl-8 text-(--secondary) py-2">Accepted requests are automatically reflected in your calendar.</p>
                     </div>
 
                     <div className="mt-6 pt-4 border-t border-(--border)">
-                        <Link href="/explore/institute">
+                        <Link href="/mentor-dashboard/requests">
                             <Button variant="secondary" size="sm">
-                                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                                Browse Startups
+                                <AppIcon name="calendar" className="w-4 h-4 mr-2" />
+                                Open Requests
                             </Button>
                         </Link>
                     </div>
@@ -305,6 +303,15 @@ export default function MentorDashboardPage() {
                                 <div>
                                     <p className="text-sm font-medium text-(--primary)">Notifications</p>
                                     <p className="text-xs text-(--secondary)">Check your latest alerts</p>
+                                </div>
+                            </button>
+                        </Link>
+                        <Link href="/mentor-dashboard/calendar" className="block">
+                            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors text-left">
+                                <AppIcon name="calendar" className="w-5 h-5" />
+                                <div>
+                                    <p className="text-sm font-medium text-(--primary)">Calendar</p>
+                                    <p className="text-xs text-(--secondary)">View accepted requests and booked slots</p>
                                 </div>
                             </button>
                         </Link>

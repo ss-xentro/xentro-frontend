@@ -12,6 +12,7 @@ export interface DocumentEntry {
 
 export interface ProfileData {
 	achievements: string[] | string;
+	packages?: string[] | string;
 	pricing_per_hour: string;
 	availability: string;
 	documents: DocumentEntry[];

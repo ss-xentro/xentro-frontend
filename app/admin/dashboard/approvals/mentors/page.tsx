@@ -140,7 +140,7 @@ export default function MentorVerificationPage() {
                     )}
                     {(row.pricing_per_hour || row.rate) && (
                       <div className="text-xs text-muted-foreground">
-                        Rate: ${row.pricing_per_hour || row.rate}/hr
+                        Rate: INR {Number(row.pricing_per_hour || row.rate).toLocaleString('en-IN')}/hr
                       </div>
                     )}
                   </div>

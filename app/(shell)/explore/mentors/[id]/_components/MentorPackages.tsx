@@ -34,7 +34,7 @@ export default function MentorPackages({ hourlyRate, packages, connectionStatus,
 			{hourlyRate && (
 				<div className="bg-white/3 border border-white/6 rounded-xl p-5">
 					<h3 className="text-sm font-semibold text-white mb-1">One-Time Session (60 min)</h3>
-					<p className="text-2xl font-bold text-white mb-1">${Number(hourlyRate).toLocaleString()}</p>
+					<p className="text-2xl font-bold text-white mb-1">INR {Number(hourlyRate).toLocaleString('en-IN')}</p>
 					<ul className="space-y-2 mb-5 mt-4">
 						{['Deep dive session', 'Detailed feedback', 'Action plan'].map((item) => (
 							<li key={item} className="flex items-center gap-2 text-sm text-gray-400">

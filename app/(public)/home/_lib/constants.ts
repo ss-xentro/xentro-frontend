@@ -80,7 +80,7 @@ export const ROLE_META: Record<DetectedRole, {
 		loginHref: '/mentor-login',
 		quickActions: [
 			{ label: 'Manage Slots', href: '/mentor-dashboard', icon: 'calendar' },
-			{ label: 'View Sessions', href: '/mentor-dashboard/sessions', icon: 'clipboard-list' },
+			{ label: 'View Requests', href: '/mentor-dashboard/requests', icon: 'clipboard-list' },
 			{ label: 'Explore Startups', href: '/explore/startups', icon: 'rocket' },
 			{ label: 'View Feed', href: '/feed', icon: 'newspaper' },
 		],

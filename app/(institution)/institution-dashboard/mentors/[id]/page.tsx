@@ -210,8 +210,8 @@ export default function MentorDetailPage() {
 					{/* Details Grid */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200 pt-6">
 						<InfoRow label="Institution" value={mentor.institutionName} />
-						<InfoRow label="Base Rate" value={mentor.rate ? `$${Number(mentor.rate).toFixed(2)}` : null} />
-						<InfoRow label="Pricing / Hour" value={mentor.pricing_per_hour ? `$${Number(mentor.pricing_per_hour).toFixed(2)}/hr` : null} />
+						<InfoRow label="Base Rate" value={mentor.rate ? `INR ${Number(mentor.rate).toLocaleString('en-IN')}` : null} />
+						<InfoRow label="Pricing / Hour" value={mentor.pricing_per_hour ? `INR ${Number(mentor.pricing_per_hour).toLocaleString('en-IN')}/hr` : null} />
 						<InfoRow label="Joined" value={new Date(mentor.created_at).toLocaleDateString()} />
 						<InfoRow label="Last Updated" value={new Date(mentor.updated_at).toLocaleDateString()} />
 					</div>

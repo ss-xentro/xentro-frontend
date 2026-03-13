@@ -4,8 +4,8 @@ export function cn(...classes: (string | undefined | null | false)[]): string {
     return classes.filter(Boolean).join(' ');
 }
 
-export function formatCurrency(amount: number, currency: string = 'USD'): string {
-    const formatter = new Intl.NumberFormat('en-US', {
+export function formatCurrency(amount: number, currency: string = 'INR'): string {
+    const formatter = new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency,
         notation: amount >= 1000000 ? 'compact' : 'standard',
