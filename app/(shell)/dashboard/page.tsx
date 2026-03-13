@@ -121,7 +121,6 @@ export default function DashboardOverviewPage() {
                     className="xl:col-span-4"
                     items={{
                         profileComplete: hasProfile,
-                        teamMembersAdded: hasTeamMembers,
                         emailVerified: hasEmail,
                         fundingHistoryAdded: hasFundsRaised,
                     }}
