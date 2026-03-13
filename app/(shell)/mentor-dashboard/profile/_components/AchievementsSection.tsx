@@ -39,6 +39,7 @@ export default function AchievementsSection({
 	getContentLength,
 }: Props) {
 	const [composerType, setComposerType] = useState<'achievement' | 'highlight'>('achievement');
+	const [isComposerOpen, setIsComposerOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<{ type: 'achievement' | 'highlight'; index: number } | null>(null);
 	const [editingValue, setEditingValue] = useState('');
 
@@ -60,9 +61,29 @@ export default function AchievementsSection({
 	const handleSaveEntry = () => {
 		if (composerType === 'achievement') {
 			onAddAchievement();
-			return;
+		} else {
+			onAddHighlight();
 		}
-		onAddHighlight();
+		setIsComposerOpen(false);
+	};
+
+	const handleAddNewEntry = () => {
+		if (composerType === 'achievement') {
+			onAchievementDraftChange('');
+		} else {
+			onHighlightDraftChange('');
+		}
+		setIsComposerOpen(true);
+		cancelEditor();
+	};
+
+	const handleCancelComposer = () => {
+		if (composerType === 'achievement') {
+			onAchievementDraftChange('');
+		} else {
+			onHighlightDraftChange('');
+		}
+		setIsComposerOpen(false);
 	};
 
 	const openEditor = (type: 'achievement' | 'highlight', index: number, value: string) => {
@@ -166,40 +187,50 @@ export default function AchievementsSection({
 			</div>
 
 			<div className="space-y-3">
-				<div className="flex items-center gap-2">
-					<button
-						type="button"
-						onClick={() => setComposerType('achievement')}
-						className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${composerType === 'achievement' ? 'border-accent bg-accent/10 text-accent' : 'border-(--border) bg-(--surface-hover) text-(--secondary)'}`}
-					>
-						Achievement
-					</button>
-					<button
-						type="button"
-						onClick={() => setComposerType('highlight')}
-						className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${composerType === 'highlight' ? 'border-accent bg-accent/10 text-accent' : 'border-(--border) bg-(--surface-hover) text-(--secondary)'}`}
-					>
-						Highlight
-					</button>
-				</div>
-
-				<div className="space-y-2">
-					<div className="flex items-center justify-between">
-						<h4 className="text-sm font-semibold text-(--primary)">Add {composerType === 'achievement' ? 'Achievement' : 'Highlight'}</h4>
-						<span className="text-xs text-(--secondary)">{currentCount}/500</span>
+				{isComposerOpen ? (
+					<div className="space-y-2">
+						<div className="flex items-center gap-2">
+							<button
+								type="button"
+								onClick={() => setComposerType('achievement')}
+								className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${composerType === 'achievement' ? 'border-accent bg-accent/10 text-accent' : 'border-(--border) bg-(--surface-hover) text-(--secondary)'}`}
+							>
+								Achievement
+							</button>
+							<button
+								type="button"
+								onClick={() => setComposerType('highlight')}
+								className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${composerType === 'highlight' ? 'border-accent bg-accent/10 text-accent' : 'border-(--border) bg-(--surface-hover) text-(--secondary)'}`}
+							>
+								Highlight
+							</button>
+						</div>
+						<div className="flex items-center justify-between">
+							<h4 className="text-sm font-semibold text-(--primary)">Add {composerType === 'achievement' ? 'Achievement' : 'Highlight'}</h4>
+							<span className="text-xs text-(--secondary)">{currentCount}/500</span>
+						</div>
+						<RichTextEditor
+							value={currentDraft}
+							onChange={handleComposerChange}
+							placeholder={composerType === 'achievement' ? 'e.g., Mentored 50+ startups to sustainable traction' : 'e.g., Built repeatable playbooks for founder decision-making'}
+							minimal
+						/>
+						<div className="flex justify-end gap-2">
+							<Button variant="secondary" size="sm" onClick={handleCancelComposer}>
+								Cancel
+							</Button>
+							<Button variant="primary" size="sm" onClick={handleSaveEntry} disabled={currentCount === 0 || currentCount > 500}>
+								Save Entry
+							</Button>
+						</div>
 					</div>
-					<RichTextEditor
-						value={currentDraft}
-						onChange={handleComposerChange}
-						placeholder={composerType === 'achievement' ? 'e.g., Mentored 50+ startups to sustainable traction' : 'e.g., Built repeatable playbooks for founder decision-making'}
-						minimal
-					/>
+				) : (
 					<div className="flex justify-end">
-						<Button variant="primary" size="sm" onClick={handleSaveEntry} disabled={currentCount === 0 || currentCount > 500}>
-							Save Entry
+						<Button variant="secondary" size="sm" onClick={handleAddNewEntry}>
+							Add New Entry
 						</Button>
 					</div>
-				</div>
+				)}
 			</div>
 
 			<div className="space-y-6 mt-5">
