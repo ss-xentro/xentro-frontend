@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/Button';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SlotEntry, DAYS_OF_WEEK, TIME_OPTIONS } from '../_lib/constants';
 
 interface Props {
@@ -14,6 +14,8 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 	const [newStart, setNewStart] = useState('09:00');
 	const [newEnd, setNewEnd] = useState('10:00');
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
+	const [editStart, setEditStart] = useState('09:00');
+	const [editEnd, setEditEnd] = useState('10:00');
 
 	const dayStats = useMemo(() => {
 		return DAYS_OF_WEEK.map((day) => ({
@@ -42,6 +44,7 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 	const totalSlots = slots.length;
 
 	const isValidRange = newStart < newEnd;
+	const isEditRangeValid = editStart < editEnd;
 
 	const formatTime = (value: string) => {
 		const [hourRaw, minute] = value.split(':').map(Number);
@@ -62,6 +65,32 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 	const handleAddSlot = () => {
 		if (!newStart || !newEnd || !isValidRange) return;
 		onAdd({ day: selectedDay, startTime: newStart, endTime: newEnd });
+	};
+
+	useEffect(() => {
+		if (editingIndex === null) return;
+		if (!slots[editingIndex]) {
+			setEditingIndex(null);
+			return;
+		}
+		setEditStart(slots[editingIndex].startTime);
+		setEditEnd(slots[editingIndex].endTime);
+	}, [editingIndex, slots]);
+
+	const saveEditedSlot = () => {
+		if (editingIndex === null || !isEditRangeValid) return;
+		onUpdate(editingIndex, 'startTime', editStart);
+		onUpdate(editingIndex, 'endTime', editEnd);
+	};
+
+	const cancelEditedSlot = () => {
+		if (editingIndex === null || !slots[editingIndex]) {
+			setEditingIndex(null);
+			return;
+		}
+		setEditStart(slots[editingIndex].startTime);
+		setEditEnd(slots[editingIndex].endTime);
+		setEditingIndex(null);
 	};
 
 	const quickAdd = (range: 'morning' | 'afternoon' | 'evening') => {
@@ -87,18 +116,22 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 			<button
 				type="button"
 				key={`${slot.index}-${slot.startTime}`}
-				onClick={() => setEditingIndex(slot.index)}
+				onClick={() => {
+					setEditingIndex(slot.index);
+					setEditStart(slot.startTime);
+					setEditEnd(slot.endTime);
+				}}
 				className={`group relative px-3 py-2.5 rounded-lg border text-sm transition-all min-w-[148px] text-left ${active
-					? 'bg-accent text-white border-accent shadow-sm'
+					? 'bg-(--surface-hover) text-(--primary) border-accent shadow-sm ring-1 ring-accent/40'
 					: 'bg-(--surface) text-(--primary) border-(--border) hover:border-accent/40 hover:bg-(--surface-hover)'
 					}`}
 			>
 				<p className="font-medium leading-tight">
 					{formatTime(slot.startTime)}
-					<span className={`mx-1 ${active ? 'text-white/80' : 'text-(--secondary)'}`}>-&gt;</span>
+					<span className="mx-1 text-(--secondary)">-&gt;</span>
 					{formatTime(slot.endTime)}
 				</p>
-				<p className={`text-[11px] mt-1 ${active ? 'text-white/80' : 'text-(--secondary)'}`}>
+				<p className="text-[11px] mt-1 text-(--secondary)">
 					{getDurationLabel(slot.startTime, slot.endTime)}
 				</p>
 			</button>
@@ -144,7 +177,7 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 									key={item.day}
 									onClick={() => {
 										setSelectedDay(item.day);
-										setEditingIndex(null);
+										cancelEditedSlot();
 									}}
 									className={`w-full flex items-center justify-between rounded-lg border px-3 py-2 text-sm transition-colors ${active
 										? 'border-accent bg-accent/10 text-accent'
@@ -170,7 +203,10 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 						<div className="grid grid-cols-1 md:grid-cols-4 gap-3">
 							<select
 								value={selectedDay}
-								onChange={(e) => setSelectedDay(e.target.value)}
+								onChange={(e) => {
+									setSelectedDay(e.target.value);
+									cancelEditedSlot();
+								}}
 								className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
 							>
 								{DAYS_OF_WEEK.map((day) => (
@@ -241,8 +277,8 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 						<div className="rounded-xl border border-(--border) bg-(--surface-hover) p-3 flex flex-wrap items-center gap-2">
 							<p className="text-xs font-medium text-(--secondary) mr-2">Edit selected slot:</p>
 							<select
-								value={slots[editingIndex].startTime}
-								onChange={(e) => onUpdate(editingIndex, 'startTime', e.target.value)}
+								value={editStart}
+								onChange={(e) => setEditStart(e.target.value)}
 								className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
 							>
 								{TIME_OPTIONS.map((time) => (
@@ -251,14 +287,20 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 							</select>
 							<span className="text-(--secondary) text-sm">to</span>
 							<select
-								value={slots[editingIndex].endTime}
-								onChange={(e) => onUpdate(editingIndex, 'endTime', e.target.value)}
+								value={editEnd}
+								onChange={(e) => setEditEnd(e.target.value)}
 								className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
 							>
 								{TIME_OPTIONS.map((time) => (
 									<option key={time} value={time}>{formatTime(time)}</option>
 								))}
 							</select>
+							<Button variant="secondary" size="sm" onClick={cancelEditedSlot}>
+								Cancel
+							</Button>
+							<Button variant="primary" size="sm" onClick={saveEditedSlot} disabled={!isEditRangeValid}>
+								Save
+							</Button>
 							<button
 								type="button"
 								onClick={() => {
@@ -270,6 +312,10 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 								Remove
 							</button>
 						</div>
+					)}
+
+					{editingIndex !== null && !isEditRangeValid && (
+						<p className="text-xs text-error">End time must be after start time before you can save.</p>
 					)}
 				</div>
 			</div>
