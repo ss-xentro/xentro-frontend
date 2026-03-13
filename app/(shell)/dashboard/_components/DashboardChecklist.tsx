@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 
@@ -21,15 +22,40 @@ function ChecklistItem({ label, checked }: { label: string; checked: boolean }) 
 	);
 }
 
-export function DashboardChecklist({ hasFundsRaised }: { hasFundsRaised: boolean }) {
+interface DashboardChecklistProps {
+	className?: string;
+	items: {
+		profileComplete: boolean;
+		teamMembersAdded: boolean;
+		emailVerified: boolean;
+		fundingHistoryAdded: boolean;
+	};
+}
+
+export function DashboardChecklist({ className = '', items }: DashboardChecklistProps) {
+	const completionState = useMemo(() => {
+		const entries = Object.values(items);
+		const completed = entries.filter(Boolean).length;
+		return {
+			completed,
+			total: entries.length,
+			allComplete: completed === entries.length,
+		};
+	}, [items]);
+
+	if (completionState.allComplete) return null;
+
 	return (
-		<Card className="p-6 h-fit">
+		<Card className={`p-6 h-fit ${className}`}>
 			<h3 className="text-lg font-semibold text-(--primary) mb-4">Your Checklist</h3>
+			<p className="text-sm text-(--secondary) mb-4">
+				{completionState.completed}/{completionState.total} completed
+			</p>
 			<div className="space-y-3">
-				<ChecklistItem label="Complete Company Profile" checked={true} />
-				<ChecklistItem label="Add Team Members" checked={false} />
-				<ChecklistItem label="Verify Email" checked={true} />
-				<ChecklistItem label="Add Funding History" checked={hasFundsRaised} />
+				<ChecklistItem label="Complete Company Profile" checked={items.profileComplete} />
+				<ChecklistItem label="Add Team Members" checked={items.teamMembersAdded} />
+				<ChecklistItem label="Verify Email" checked={items.emailVerified} />
+				<ChecklistItem label="Add Funding History" checked={items.fundingHistoryAdded} />
 			</div>
 
 			<div className="mt-6 pt-6 border-t border-(--border)">

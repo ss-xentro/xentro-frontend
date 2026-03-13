@@ -19,6 +19,8 @@ export interface StartupData {
 	foundedDate: string;
 	fundsRaised: string;
 	primaryContactEmail: string;
+	founders?: Array<{ id?: string; name?: string; email?: string }>;
+	teamMembers?: Array<{ id?: string; name?: string; email?: string }>;
 }
 
 export interface DashboardData {
