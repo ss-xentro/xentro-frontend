@@ -101,7 +101,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
   // If only explorer context, don't show switcher
   if (contexts.length <= 1 && contexts[0]?.context === 'explorer') {
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-(--background)">
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-(--surface) border border-(--border)">
         <AppIcon name={currentMeta.icon} className="w-4 h-4" />
         <span className="text-sm font-medium">{currentMeta.label}</span>
       </div>
@@ -118,7 +118,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
         aria-label={`Switch context — current: ${currentMeta.label}`}
         className={cn(
           'flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors',
-          'bg-(--background) hover:bg-(--border)',
+          'bg-(--surface) border border-(--border) hover:bg-(--surface-hover)',
           switching && 'opacity-50 cursor-not-allowed'
         )}
       >
@@ -136,7 +136,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-56 bg-(--surface) border border-(--border) rounded-xl shadow-xl z-50 overflow-hidden animate-fadeInUp" role="listbox" aria-label="Available contexts">
+        <div className="absolute left-0 mt-2 w-56 bg-(--surface) border border-(--border) rounded-xl shadow-xl z-50 overflow-hidden animate-fadeInUp backdrop-blur-sm" role="listbox" aria-label="Available contexts">
           <div className="px-4 py-2 border-b border-(--border)">
             <p className="text-xs text-(--secondary)">Switch context</p>
           </div>
@@ -154,7 +154,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
                   aria-selected={isActive}
                   className={cn(
                     'w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors',
-                    'hover:bg-(--background)',
+                    'hover:bg-(--surface-hover)',
                     isActive && 'bg-accent/10'
                   )}
                 >

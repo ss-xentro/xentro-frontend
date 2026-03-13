@@ -145,7 +145,7 @@ export function NotificationsDropdown({ token }: NotificationsDropdownProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-(--background) transition-colors"
+        className="relative p-2 rounded-lg border border-(--border) bg-(--surface) hover:bg-(--surface-hover) transition-colors"
         aria-label={unreadCount > 0 ? `Notifications — ${unreadCount} unread` : 'Notifications'}
         aria-expanded={isOpen}
         aria-haspopup="true"
@@ -161,7 +161,7 @@ export function NotificationsDropdown({ token }: NotificationsDropdownProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-(--surface) border border-(--border) rounded-xl shadow-xl z-50 overflow-hidden animate-fadeInUp" role="dialog" aria-label="Notifications">
+        <div className="absolute right-0 mt-2 w-80 bg-(--surface) border border-(--border) rounded-xl shadow-xl z-50 overflow-hidden animate-fadeInUp backdrop-blur-sm" role="dialog" aria-label="Notifications">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-(--border)">
             <h3 className="font-semibold text-(--primary)">Notifications</h3>
@@ -216,7 +216,7 @@ export function NotificationsDropdown({ token }: NotificationsDropdownProps) {
                     }}
                     className={cn(
                       'flex gap-3 px-4 py-3 cursor-pointer transition-colors',
-                      'hover:bg-(--background)',
+                      'hover:bg-(--surface-hover)',
                       !notification.isRead && 'bg-accent/5'
                     )}
                   >
@@ -252,7 +252,7 @@ export function NotificationsDropdown({ token }: NotificationsDropdownProps) {
           {notifications.length > 0 && (
             <Link
               href="/notifications"
-              className="block text-center px-4 py-3 text-sm text-accent hover:bg-(--background) border-t border-(--border) transition-colors"
+              className="block text-center px-4 py-3 text-sm text-accent hover:bg-(--surface-hover) border-t border-(--border) transition-colors"
             >
               View all notifications
             </Link>
