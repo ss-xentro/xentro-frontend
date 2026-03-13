@@ -7,4 +7,6 @@ export { PitchVisionStrategy } from './PitchVisionStrategy';
 export { PitchCertifications } from './PitchCertifications';
 export { TeamTabContent } from './TeamTabContent';
 export { StartupSidebar } from './StartupSidebar';
+export { StartupAboutSidebar } from './StartupAboutSidebar';
+export type { AboutSidebarSection } from './StartupAboutSidebar';
 export type { StartupWithDetails, Founder, TeamMemberData } from './types';

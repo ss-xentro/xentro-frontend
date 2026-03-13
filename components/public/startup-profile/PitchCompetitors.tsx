@@ -19,7 +19,7 @@ export function PitchCompetitors({ competitors }: PitchCompetitorsProps) {
 	return (
 		<section>
 			<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">Competitive Landscape</h2>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+			<div className="space-y-4">
 				{competitors.map((comp, idx) => (
 					<div key={idx} className="p-4 rounded-xl border border-(--border) bg-(--surface) hover:border-(--primary)/20 transition-colors">
 						<div className="flex items-center gap-3 mb-3">

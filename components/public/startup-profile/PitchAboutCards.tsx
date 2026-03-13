@@ -22,8 +22,8 @@ export function PitchAboutCards({ pitchAbout, description }: PitchAboutCardsProp
 	if (!about && !problem && !solution) return null;
 
 	return (
-		<section className="space-y-10">
-			{/* About — full width, prominent */}
+		<section className="space-y-8">
+			{/* About */}
 			{about && (
 				<div>
 					<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-3">About</h2>
@@ -35,34 +35,25 @@ export function PitchAboutCards({ pitchAbout, description }: PitchAboutCardsProp
 				</div>
 			)}
 
-			{/* Problem & Solution — side by side */}
-			{(problem || solution) && (
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-					{problem && (
-						<div className="p-5 rounded-xl border border-(--border) bg-(--surface)">
-							<div className="flex items-center gap-2 mb-3">
-								<span className="w-6 h-6 rounded-md bg-red-50 text-red-500 flex items-center justify-center text-sm">!</span>
-								<h3 className="text-sm font-semibold text-(--primary)">Problem</h3>
-							</div>
-							{isHtml(problem) ? (
-								<RichTextDisplay html={problem} compact className="text-sm text-(--secondary)" />
-							) : (
-								<p className="text-sm text-(--secondary) leading-relaxed">{problem}</p>
-							)}
-						</div>
+
+			{problem && (
+				<div>
+					<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-3">Problem</h2>
+					{isHtml(problem) ? (
+						<RichTextDisplay html={problem} className="text-base sm:text-lg leading-relaxed max-w-3xl" />
+					) : (
+						<p className="text-base sm:text-lg text-(--primary) leading-relaxed max-w-3xl">{problem}</p>
 					)}
-					{solution && (
-						<div className="p-5 rounded-xl border border-(--border) bg-(--surface)">
-							<div className="flex items-center gap-2 mb-3">
-								<span className="w-6 h-6 rounded-md bg-green-50 text-green-600 flex items-center justify-center text-sm">&#10003;</span>
-								<h3 className="text-sm font-semibold text-(--primary)">Solution</h3>
-							</div>
-							{isHtml(solution) ? (
-								<RichTextDisplay html={solution} compact className="text-sm text-(--secondary)" />
-							) : (
-								<p className="text-sm text-(--secondary) leading-relaxed">{solution}</p>
-							)}
-						</div>
+				</div>
+			)}
+
+			{solution && (
+				<div>
+					<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-3">Solution</h2>
+					{isHtml(solution) ? (
+						<RichTextDisplay html={solution} className="text-base sm:text-lg leading-relaxed max-w-3xl" />
+					) : (
+						<p className="text-base sm:text-lg text-(--primary) leading-relaxed max-w-3xl">{solution}</p>
 					)}
 				</div>
 			)}

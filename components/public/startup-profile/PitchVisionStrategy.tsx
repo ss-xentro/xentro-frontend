@@ -19,7 +19,7 @@ export function PitchVisionStrategy({ items }: PitchVisionStrategyProps) {
 	return (
 		<section>
 			<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">Vision &amp; Strategy</h2>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+			<div className="space-y-4">
 				{items.map((item, idx) => (
 					<div key={idx} className="p-4 rounded-xl border border-(--border) bg-(--surface) hover:border-(--primary)/20 transition-colors">
 						<div className="w-8 h-8 rounded-md bg-(--surface-hover) flex items-center justify-center mb-3">

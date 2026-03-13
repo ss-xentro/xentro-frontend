@@ -13,7 +13,8 @@ import {
   PitchVisionStrategy,
   PitchCertifications,
   TeamTabContent,
-  StartupSidebar,
+  StartupAboutSidebar,
+  type AboutSidebarSection,
 } from '@/components/public/startup-profile';
 import type { StartupWithDetails } from '@/components/public/startup-profile';
 import { cn, hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
@@ -96,6 +97,30 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
   const impacts = (startup.pitchImpacts || []).filter(hasValidPitchItem);
   const certifications = (startup.pitchCertifications || []).filter(hasValidPitchItem);
   const hasPitchContent = (pitchAbout && (pitchAbout.about || pitchAbout.problemStatement || pitchAbout.solutionProposed)) || competitors.length > 0 || customers.length > 0 || businessModels.length > 0 || marketSizes.length > 0 || visionStrategies.length > 0 || impacts.length > 0 || certifications.length > 0;
+
+  const hasPitchQuote = Boolean(startup.pitch);
+  const hasAboutContent = Boolean(pitchAbout?.about || startup.description);
+  const hasProblemContent = Boolean(pitchAbout?.problemStatement);
+  const hasSolutionContent = Boolean(pitchAbout?.solutionProposed);
+  const hasCustomers = customers.length > 0;
+  const hasBusinessModels = businessModels.length > 0;
+  const hasMarketSizes = marketSizes.length > 0;
+  const hasCompetitors = competitors.length > 0;
+  const hasVisionStrategies = visionStrategies.length > 0;
+  const hasImpacts = impacts.length > 0;
+  const hasCertifications = certifications.length > 0;
+
+  const aboutSidebarSections: AboutSidebarSection[] = [
+    hasPitchQuote ? { id: 'pitch-quote', label: 'Pitch' } : null,
+    hasAboutContent ? { id: 'about', label: 'About' } : null,
+    hasCustomers ? { id: 'customers', label: 'Customers' } : null,
+    hasBusinessModels ? { id: 'business-model', label: 'Business Model' } : null,
+    hasMarketSizes ? { id: 'market-size', label: 'Market Size' } : null,
+    hasCompetitors ? { id: 'competitive-landscape', label: 'Competitive Landscape' } : null,
+    hasVisionStrategies ? { id: 'vision-strategy', label: 'Vision & Strategy' } : null,
+    hasImpacts ? { id: 'impact', label: 'Impact' } : null,
+    hasCertifications ? { id: 'certifications', label: 'Certifications' } : null,
+  ].filter((section): section is AboutSidebarSection => section !== null);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'about', label: 'About' },
@@ -206,79 +231,116 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
           {/* ── About Tab ── */}
           {activeTab === 'about' && (
-            <div className="space-y-8 animate-fadeIn">
-              {/* Pitch quote */}
-              {startup.pitch && (
-                <section className="border-l-2 border-(--primary) pl-5">
-                  <p className="text-lg sm:text-xl text-(--primary) leading-relaxed font-medium italic">
-                    &ldquo;{startup.pitch}&rdquo;
-                  </p>
-                </section>
-              )}
+            <div className="animate-fadeIn lg:grid lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-8 items-start">
+              <div className="space-y-8">
+                <div className="lg:hidden">
+                  <StartupAboutSidebar startup={startup} sections={aboutSidebarSections} />
+                </div>
 
-              {/* About / Problem / Solution */}
-              <PitchAboutCards pitchAbout={pitchAbout} description={startup.description} />
+                {/* Pitch quote */}
+                {hasPitchQuote && (
+                  <section id="pitch-quote" className="scroll-mt-28 border-l-2 border-(--primary) pl-5">
+                    <p className="text-lg sm:text-xl text-(--primary) leading-relaxed font-medium italic">
+                      &ldquo;{startup.pitch}&rdquo;
+                    </p>
+                  </section>
+                )}
 
-              {/* Inline focus areas + investors */}
-              <StartupSidebar startup={startup} />
+                {(hasAboutContent || hasProblemContent || hasSolutionContent) && (
+                  <section id="about" className="scroll-mt-28">
+                    <PitchAboutCards pitchAbout={pitchAbout} description={startup.description} />
+                  </section>
+                )}
 
-              {/* Business Model & Market Size — side by side */}
-              {(businessModels.length > 0 || marketSizes.length > 0) && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {businessModels.length > 0 && (
+                {hasCustomers && (
+                  <section id="customers" className="scroll-mt-28">
+                    <PitchCustomers customers={customers} />
+                  </section>
+                )}
+
+                {hasBusinessModels && (
+                  <section id="business-model" className="scroll-mt-28">
                     <PitchImageTextSection title="Business Model" items={businessModels} />
-                  )}
-                  {marketSizes.length > 0 && (
+                  </section>
+                )}
+
+                {hasMarketSizes && (
+                  <section id="market-size" className="scroll-mt-28">
                     <PitchImageTextSection title="Market Size" items={marketSizes} />
-                  )}
-                </div>
-              )}
+                  </section>
+                )}
 
-              {/* Competitors */}
-              <PitchCompetitors competitors={competitors} />
+                {hasCompetitors && (
+                  <section id="competitive-landscape" className="scroll-mt-28">
+                    <PitchCompetitors competitors={competitors} />
+                  </section>
+                )}
 
-              {/* Empty state */}
-              {!hasPitchContent && (
-                <div className="text-center py-16">
-                  <div className="w-12 h-12 rounded-full bg-(--surface-hover) mx-auto mb-3 flex items-center justify-center">
-                    <svg className="w-6 h-6 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-medium text-(--primary) mb-1">Profile info coming soon</p>
-                  <p className="text-xs text-(--secondary)">The startup hasn&apos;t added details to their profile yet.</p>
-                </div>
-              )}
+                {hasVisionStrategies && (
+                  <section id="vision-strategy" className="scroll-mt-28">
+                    <PitchVisionStrategy items={visionStrategies} />
+                  </section>
+                )}
 
-              {/* Contact footer */}
-              {canExpressInvestorInterest && (
-                <section className="pt-6 border-t border-(--border)">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-(--border) bg-(--surface) p-4">
-                    <div>
-                      <p className="text-sm font-medium text-(--primary)">Investor actions</p>
-                      <p className="text-xs text-(--secondary) mt-1">
-                        Register investor interest to notify the startup team.
-                      </p>
-                      {interestMessage ? <p className="text-xs text-accent mt-2">{interestMessage}</p> : null}
+                {hasImpacts && (
+                  <section id="impact" className="scroll-mt-28">
+                    <PitchImageTextSection title="Impact" items={impacts} />
+                  </section>
+                )}
+
+                {hasCertifications && (
+                  <section id="certifications" className="scroll-mt-28">
+                    <PitchCertifications certifications={certifications} />
+                  </section>
+                )}
+
+                {/* Empty state */}
+                {!hasPitchContent && (
+                  <div className="text-center py-16">
+                    <div className="w-12 h-12 rounded-full bg-(--surface-hover) mx-auto mb-3 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-3">
-                      {canExpressInvestorInterest ? (
-                        <Button
-                          type="button"
-                          variant={startup.investorInterestRecorded ? 'secondary' : 'primary'}
-                          size="sm"
-                          isLoading={interestLoading}
-                          disabled={interestLoading || startup.investorInterestRecorded}
-                          onClick={submitInvestorInterest}
-                        >
-                          {startup.investorInterestRecorded ? 'Interest Registered' : 'Show Investor Interest'}
-                        </Button>
-                      ) : null}
-                    </div>
+                    <p className="text-sm font-medium text-(--primary) mb-1">Profile info coming soon</p>
+                    <p className="text-xs text-(--secondary)">The startup hasn&apos;t added details to their profile yet.</p>
                   </div>
-                </section>
-              )}
+                )}
+
+                {/* Contact footer */}
+                {canExpressInvestorInterest && (
+                  <section className="pt-6 border-t border-(--border)">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-(--border) bg-(--surface) p-4">
+                      <div>
+                        <p className="text-sm font-medium text-(--primary)">Investor actions</p>
+                        <p className="text-xs text-(--secondary) mt-1">
+                          Register investor interest to notify the startup team.
+                        </p>
+                        {interestMessage ? <p className="text-xs text-accent mt-2">{interestMessage}</p> : null}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3">
+                        {canExpressInvestorInterest ? (
+                          <Button
+                            type="button"
+                            variant={startup.investorInterestRecorded ? 'secondary' : 'primary'}
+                            size="sm"
+                            isLoading={interestLoading}
+                            disabled={interestLoading || startup.investorInterestRecorded}
+                            onClick={submitInvestorInterest}
+                          >
+                            {startup.investorInterestRecorded ? 'Interest Registered' : 'Show Investor Interest'}
+                          </Button>
+                        ) : null}
+                      </div>
+                    </div>
+                  </section>
+                )}
+              </div>
+
+              <div className="hidden lg:block">
+                <StartupAboutSidebar startup={startup} sections={aboutSidebarSections} />
+              </div>
             </div>
           )}
 
@@ -291,37 +353,16 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
 
           {/* ── Activity Tab ── */}
           {activeTab === 'activity' && (
-            <div className="space-y-8 animate-fadeIn">
-              {/* Customers */}
-              <PitchCustomers customers={customers} />
-
-              {/* Vision & Strategy */}
-              <PitchVisionStrategy items={visionStrategies} />
-
-              {/* Impact & Certifications — side by side */}
-              {(impacts.length > 0 || certifications.length > 0) && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {impacts.length > 0 && (
-                    <PitchImageTextSection title="Impact" items={impacts} />
-                  )}
-                  {certifications.length > 0 && (
-                    <PitchCertifications certifications={certifications} />
-                  )}
+            <div className="animate-fadeIn">
+              <section className="rounded-xl border border-(--border) bg-(--surface) p-6 sm:p-8 text-center">
+                <div className="w-12 h-12 rounded-full bg-(--surface-hover) mx-auto mb-3 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                  </svg>
                 </div>
-              )}
-
-              {/* Empty state when nothing to show */}
-              {customers.length === 0 && visionStrategies.length === 0 && impacts.length === 0 && certifications.length === 0 && (
-                <div className="text-center py-16">
-                  <div className="w-12 h-12 rounded-full bg-(--surface-hover) mx-auto mb-3 flex items-center justify-center">
-                    <svg className="w-6 h-6 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-medium text-(--primary) mb-1">No activity yet</p>
-                  <p className="text-xs text-(--secondary)">Check back later for updates from this startup.</p>
-                </div>
-              )}
+                <p className="text-sm font-medium text-(--primary) mb-1">Startup activity feed is coming soon</p>
+                <p className="text-xs text-(--secondary)">Posts created by this startup will appear here as soon as they publish to the feed.</p>
+              </section>
             </div>
           )}
         </div>

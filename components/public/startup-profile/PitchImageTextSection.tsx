@@ -29,15 +29,14 @@ export function PitchImageTextSection({ title, items }: PitchImageTextSectionPro
 			<div className="space-y-4">
 				{items.map((item, idx) => (
 					<div key={idx} className={cn(
-						'flex flex-col md:flex-row gap-5 items-start p-5 rounded-xl border border-(--border) bg-(--surface)',
-						idx % 2 !== 0 && 'md:flex-row-reverse'
+						'flex flex-col gap-5 items-start p-5 rounded-xl border border-(--border) bg-(--surface)'
 					)}>
 						{item.imageUrl && (
-							<div className="w-full md:w-2/5 rounded-lg overflow-hidden bg-(--surface-hover) shrink-0">
+							<div className="w-full rounded-lg overflow-hidden bg-(--surface-hover) shrink-0">
 								<img src={item.imageUrl} alt={item.title} className="w-full h-44 object-cover" />
 							</div>
 						)}
-						<div className={cn('w-full', item.imageUrl ? 'md:w-3/5' : '')}>
+						<div className="w-full">
 							<h3 className="text-sm font-semibold text-(--primary) mb-2">{item.title}</h3>
 							{item.description && (
 								isHtml(item.description) ? (

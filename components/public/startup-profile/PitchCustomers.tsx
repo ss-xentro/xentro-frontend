@@ -19,7 +19,7 @@ export function PitchCustomers({ customers }: PitchCustomersProps) {
 	return (
 		<section>
 			<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">What Customers Say</h2>
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div className="space-y-4">
 				{customers.map((customer, idx) => (
 					<div key={idx} className="p-5 rounded-xl border border-(--border) bg-(--surface)">
 						<svg className="w-5 h-5 text-(--border) mb-3" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151C7.546 6.068 5.983 8.789 5.983 11H10v10H0z" /></svg>
