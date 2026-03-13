@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from 'react';
 import { Badge } from '@/components/ui';
+import { MediaPreview } from '@/components/ui/MediaPreview';
 import type { StartupWithDetails, Founder, TeamMemberData } from './types';
 
 interface TeamTabContentProps {
@@ -6,6 +10,8 @@ interface TeamTabContentProps {
 }
 
 export function TeamTabContent({ startup }: TeamTabContentProps) {
+	const [selectedMember, setSelectedMember] = useState<CombinedTeamMember | null>(null);
+
 	const hasFounders = startup.founders && startup.founders.length > 0;
 	const hasTeam = startup.teamMembers && startup.teamMembers.length > 0;
 	const hasOwner = !!startup.owner;
@@ -111,21 +117,43 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 			{!isEmpty && (
 				<div>
 					<h3 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">Team</h3>
-					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+					<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 						{combinedTeam.map((member) => (
-							<div key={member.id} className="flex items-center gap-3 p-4 rounded-xl border border-(--border) bg-(--surface)">
-								<div className="w-10 h-10 rounded-full bg-(--surface-hover) flex items-center justify-center shrink-0 overflow-hidden">
-									{member.avatar ? (
-										<img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
-									) : (
-										<span className="text-sm font-semibold text-(--secondary)">{member.initial}</span>
-									)}
+							<div key={member.id} className="rounded-2xl border border-(--border) bg-(--surface) p-5 text-center">
+								<div className="flex justify-center mb-4">
+									<div className="h-28 w-28 rounded-full border-2 border-(--border) overflow-hidden bg-(--surface-hover)">
+										{member.avatar ? (
+											<button
+												type="button"
+												onClick={() => setSelectedMember(member)}
+												className="h-full w-full"
+												aria-label={`Open ${member.name} profile image`}
+											>
+												<MediaPreview
+													src={member.avatar}
+													alt={member.name}
+													className="h-full w-full rounded-none border-0"
+													mediaClassName="object-cover"
+													showControls={false}
+												/>
+											</button>
+										) : (
+											<div className="h-full w-full flex items-center justify-center text-2xl font-semibold text-(--secondary)">
+												{member.initial}
+											</div>
+										)}
+									</div>
 								</div>
-								<div className="flex-1 min-w-0">
-									<h4 className="text-sm font-medium text-(--primary) truncate">{member.name}</h4>
-									<p className="text-xs text-(--secondary) truncate">{member.title}</p>
+
+								<h4 className="text-base font-semibold text-(--primary) truncate">{member.name}</h4>
+								<p className="text-sm text-(--secondary) mt-1 truncate">{member.title}</p>
+
+								<div className="mt-4 pt-4 border-t border-(--border) flex items-center justify-center gap-2">
+									<Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+										{member.role.replace('_', ' ')}
+									</Badge>
+									{member.isPrimary && <Badge variant="info" className="text-xs">Primary</Badge>}
 								</div>
-								{member.isPrimary && <Badge variant="info" className="shrink-0 text-xs">Primary</Badge>}
 							</div>
 						))}
 					</div>
@@ -189,6 +217,40 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 					</svg>
 					{startup.teamSize} team members{startup.employeeCount ? ` (${startup.employeeCount} employees)` : ''}
 				</p>
+			)}
+
+			{selectedMember && selectedMember.avatar && (
+				<div
+					className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+					onClick={() => setSelectedMember(null)}
+				>
+					<div
+						className="w-full max-w-2xl bg-(--surface) border border-(--border) rounded-2xl overflow-hidden"
+						onClick={(e) => e.stopPropagation()}
+					>
+						<div className="relative h-[65vh] min-h-[360px] bg-black">
+							<MediaPreview
+								src={selectedMember.avatar}
+								alt={selectedMember.name}
+								className="h-full w-full rounded-none border-0 bg-black"
+								mediaClassName="object-contain"
+								showControls={false}
+							/>
+							<button
+								type="button"
+								onClick={() => setSelectedMember(null)}
+								className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white hover:bg-black/80"
+								aria-label="Close profile image preview"
+							>
+								X
+							</button>
+						</div>
+						<div className="p-5 text-center">
+							<h4 className="text-lg font-semibold text-(--primary)">{selectedMember.name}</h4>
+							<p className="text-sm text-(--secondary)">{selectedMember.title}</p>
+						</div>
+					</div>
+				</div>
 			)}
 		</div>
 	);
