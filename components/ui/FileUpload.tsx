@@ -1,8 +1,9 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { ImageCropper } from './ImageCropper';
+import { MediaPreview } from './MediaPreview';
 
 interface FileUploadProps {
     value?: string | null;
@@ -36,10 +37,33 @@ export function FileUpload({
     const [showCropModal, setShowCropModal] = useState(false);
     const [imageToCrop, setImageToCrop] = useState<string | null>(null);
     const [originalFile, setOriginalFile] = useState<File | null>(null);
+    const previewObjectUrlRef = useRef<string | null>(null);
+    const cropObjectUrlRef = useRef<string | null>(null);
+
+    const revokePreviewObjectUrl = useCallback(() => {
+        if (previewObjectUrlRef.current) {
+            URL.revokeObjectURL(previewObjectUrlRef.current);
+            previewObjectUrlRef.current = null;
+        }
+    }, []);
+
+    const revokeCropObjectUrl = useCallback(() => {
+        if (cropObjectUrlRef.current) {
+            URL.revokeObjectURL(cropObjectUrlRef.current);
+            cropObjectUrlRef.current = null;
+        }
+    }, []);
 
     useEffect(() => {
         setPreview(value ?? null);
     }, [value]);
+
+    useEffect(() => {
+        return () => {
+            revokePreviewObjectUrl();
+            revokeCropObjectUrl();
+        };
+    }, [revokePreviewObjectUrl, revokeCropObjectUrl]);
 
     const handleFile = useCallback(async (file: File) => {
         setError(null);
@@ -56,6 +80,7 @@ export function FileUpload({
 
         setOriginalFile(file);
         const localPreview = URL.createObjectURL(file);
+        cropObjectUrlRef.current = localPreview;
 
         if (enableCrop) {
             setImageToCrop(localPreview);
@@ -67,7 +92,9 @@ export function FileUpload({
 
     const uploadFile = async (file: File) => {
         setIsUploading(true);
+        revokePreviewObjectUrl();
         const localPreview = URL.createObjectURL(file);
+        previewObjectUrlRef.current = localPreview;
         setPreview(localPreview);
 
         try {
@@ -90,9 +117,11 @@ export function FileUpload({
             const { data } = await response.json();
             onChange(data.url as string);
             setPreview(data.url as string);
+            revokePreviewObjectUrl();
         } catch (err) {
             setError((err as Error).message);
             setPreview(value ?? null);
+            revokePreviewObjectUrl();
         } finally {
             setIsUploading(false);
         }
@@ -108,6 +137,7 @@ export function FileUpload({
 
         setShowCropModal(false);
         setImageToCrop(null);
+        revokeCropObjectUrl();
         await uploadFile(croppedFile);
     };
 
@@ -139,21 +169,19 @@ export function FileUpload({
     }, [handleFile]);
 
     const handleRemove = useCallback(() => {
+        revokePreviewObjectUrl();
+        revokeCropObjectUrl();
         onChange(null);
         setError(null);
         setPreview(null);
         setIsUploading(false);
-    }, [onChange]);
+    }, [onChange, revokePreviewObjectUrl, revokeCropObjectUrl]);
 
     if (preview) {
         return (
             <div className={cn('w-full', className)}>
                 <div className="relative w-40 h-40 mx-auto rounded-xl overflow-hidden border-2 border-(--border) bg-[#6B7280]">
-                    <img
-                        src={preview}
-                        alt="Preview"
-                        className="w-full h-full object-contain"
-                    />
+                    <MediaPreview src={preview} alt="Preview" className="h-full w-full rounded-none border-0 bg-[#6B7280]" mediaClassName="object-contain" />
                     <button
                         type="button"
                         onClick={handleRemove}
@@ -231,6 +259,7 @@ export function FileUpload({
                     onCancel={() => {
                         setShowCropModal(false);
                         setImageToCrop(null);
+                        revokeCropObjectUrl();
                     }}
                 />
             )}

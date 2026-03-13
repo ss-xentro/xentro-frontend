@@ -18,12 +18,14 @@ import {
 import { SECTIONS, WRITE_ROLES, CheckIcon } from './_components/PitchHelpers';
 import type { SectionKey } from './_components/PitchHelpers';
 import PitchSectionContent from './_components/PitchSectionContent';
+import PitchSectionReadOnly from './_components/PitchSectionReadOnly';
 
 export default function PitchEditorPage() {
 	const [startupId, setStartupId] = useState<string | null>(null);
 	const [myRole, setMyRole] = useState('');
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
+	const [isEditMode, setIsEditMode] = useState(false);
 	const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 	const [activeSection, setActiveSection] = useState<SectionKey>('videoPitch');
 
@@ -111,6 +113,7 @@ export default function PitchEditorPage() {
 			});
 			if (!startupRes.ok) throw new Error('Failed to save video pitch');
 			setMessage({ type: 'success', text: 'All changes saved successfully.' });
+			setIsEditMode(false);
 		} catch {
 			setMessage({ type: 'error', text: 'Failed to save. Please try again.' });
 		} finally {
@@ -181,14 +184,27 @@ export default function PitchEditorPage() {
 					<div>
 						<h1 className="text-2xl font-bold text-(--primary) tracking-tight">Pitch Deck</h1>
 						<p className="text-sm text-(--secondary) mt-1">
-							{canEdit ? 'Build your pitch — each section appears on your public profile.' : 'Viewing your pitch in read-only mode.'}
+							{canEdit ? (isEditMode ? 'Edit mode is on. Update sections and save when done.' : 'Review your pitch content. Click Edit Pitch Deck when you want to make changes.') : 'Viewing your pitch in read-only mode.'}
 						</p>
 					</div>
 					{canEdit && (
-						<Button onClick={handleSave} isLoading={isSaving} size="sm">
-							<CheckIcon className="w-4 h-4 mr-1.5" />
-							Save Changes
-						</Button>
+						<div className="flex items-center gap-2">
+							{isEditMode && (
+								<Button type="button" variant="secondary" size="sm" onClick={() => setIsEditMode(false)}>
+									Cancel
+								</Button>
+							)}
+							<Button onClick={isEditMode ? handleSave : () => setIsEditMode(true)} isLoading={isSaving} size="sm">
+								{isEditMode ? (
+									<>
+										<CheckIcon className="w-4 h-4 mr-1.5" />
+										Save Changes
+									</>
+								) : (
+									'Edit Pitch Deck'
+								)}
+							</Button>
+						</div>
 					)}
 				</div>
 				<div className="flex items-center gap-4">
@@ -262,7 +278,7 @@ export default function PitchEditorPage() {
 						</div>
 					</div>
 
-					<fieldset disabled={!canEdit} className={!canEdit ? 'opacity-75' : ''}>
+					{canEdit && isEditMode ? (
 						<PitchSectionContent
 							activeSection={activeSection}
 							canEdit={canEdit}
@@ -288,7 +304,20 @@ export default function PitchEditorPage() {
 							removeItem={removeItem}
 							updateItem={updateItem}
 						/>
-					</fieldset>
+					) : (
+						<PitchSectionReadOnly
+							activeSection={activeSection}
+							demoVideoUrl={demoVideoUrl}
+							aboutData={aboutData}
+							competitors={competitors}
+							customers={customers}
+							businessModels={businessModels}
+							marketSizes={marketSizes}
+							visionStrategies={visionStrategies}
+							impacts={impacts}
+							certifications={certifications}
+						/>
+					)}
 
 					{/* Section navigation */}
 					<div className="flex items-center justify-between mt-8 pt-6 border-t border-(--border)">
@@ -301,7 +330,7 @@ export default function PitchEditorPage() {
 							<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
 							{currentIdx > 0 ? SECTIONS[currentIdx - 1].label : 'Previous'}
 						</button>
-						{canEdit && <Button onClick={handleSave} isLoading={isSaving} size="sm" variant="secondary">Save Draft</Button>}
+						{canEdit && isEditMode && <Button onClick={handleSave} isLoading={isSaving} size="sm" variant="secondary">Save Draft</Button>}
 						<button
 							type="button"
 							onClick={goNext}

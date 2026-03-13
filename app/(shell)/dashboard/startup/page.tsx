@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { Badge } from '@/components/ui/Badge';
+import { MediaPreview } from '@/components/ui/MediaPreview';
 import { getSessionToken } from '@/lib/auth-utils';
 
 // Reusing options from onboarding (should be shared constants)
@@ -41,10 +42,22 @@ export default function StartupSettingsPage() {
     const [activeTab, setActiveTab] = useState<'details' | 'funding'>('details');
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
     const [data, setData] = useState<any>(null);
     const [myRole, setMyRole] = useState<string>('');
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const canEdit = WRITE_ROLES.has(myRole);
+
+    const stageLabel = stages.find((item) => item.value === data?.stage)?.label || 'Not set';
+    const statusLabel = statuses.find((item) => item.value === data?.status)?.label || 'Not set';
+    const fundingRoundLabel = fundingRoundOptions.find((item) => item.value === data?.fundingRound)?.label || 'Not set';
+
+    const formatDate = (value?: string | null) => {
+        if (!value) return 'Not set';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return 'Not set';
+        return d.toLocaleDateString();
+    };
 
     useEffect(() => {
         fetchData();
@@ -90,6 +103,7 @@ export default function StartupSettingsPage() {
             if (!res.ok) throw new Error('Failed to update');
 
             setMessage({ type: 'success', text: 'Changes saved successfully.' });
+            setIsEditMode(false);
 
             // Update local storage if name/logo changed? Optional.
 
@@ -109,13 +123,20 @@ export default function StartupSettingsPage() {
                 <div>
                     <h1 className="text-2xl font-bold text-(--primary)">Startup Profile</h1>
                     <p className="text-(--secondary)">
-                        {canEdit ? "Manage your startup's public information and settings." : "View your startup's public information. You have view-only access."}
+                        {canEdit ? (isEditMode ? "Edit mode is on. Save when you're done." : "Review your startup details. Click Edit Startup to update them.") : "View your startup's public information. You have view-only access."}
                     </p>
                 </div>
                 {canEdit && (
-                    <Button onClick={handleUpdate} isLoading={isSaving}>
-                        Save Changes
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        {isEditMode && (
+                            <Button type="button" variant="secondary" onClick={() => setIsEditMode(false)}>
+                                Cancel
+                            </Button>
+                        )}
+                        <Button onClick={isEditMode ? handleUpdate : () => setIsEditMode(true)} isLoading={isSaving}>
+                            {isEditMode ? 'Save Changes' : 'Edit Startup'}
+                        </Button>
+                    </div>
                 )}
             </div>
 
@@ -148,12 +169,12 @@ export default function StartupSettingsPage() {
             </div>
 
             <form onSubmit={handleUpdate}>
-                <fieldset disabled={!canEdit} className={!canEdit ? 'opacity-75' : ''}>
-                    {activeTab === 'details' && (
-                        <div className="space-y-6">
-                            <Card className="p-6 space-y-6">
-                                <h3 className="text-lg font-semibold text-(--primary)">Identity</h3>
+                {activeTab === 'details' && (
+                    <div className="space-y-6">
+                        <Card className="p-6 space-y-6">
+                            <h3 className="text-lg font-semibold text-(--primary)">Identity</h3>
 
+                            {canEdit && isEditMode ? (
                                 <div className="grid gap-6">
                                     <Input
                                         label="Startup Name"
@@ -167,7 +188,7 @@ export default function StartupSettingsPage() {
                                         <div className="flex items-center gap-6">
                                             <div className={`w-20 h-20 rounded-xl border border-(--border) flex items-center justify-center overflow-hidden shrink-0 ${data.logo ? 'bg-[#6B7280]' : 'bg-(--surface-hover)'}`}>
                                                 {data.logo ? (
-                                                    <img src={data.logo} alt="Logo" className="w-full h-full object-cover" />
+                                                    <MediaPreview src={data.logo} alt="Logo" className="h-full w-full rounded-none border-0 bg-[#6B7280]" mediaClassName="object-cover" />
                                                 ) : (
                                                     <span className="text-2xl font-bold text-(--secondary)">
                                                         {data.name.substring(0, 2).toUpperCase()}
@@ -193,7 +214,7 @@ export default function StartupSettingsPage() {
                                         <div className="flex flex-col gap-3">
                                             {data.coverImage && (
                                                 <div className="w-full h-32 sm:h-40 rounded-xl bg-(--surface-hover) border border-(--border) overflow-hidden shrink-0">
-                                                    <img src={data.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                                                    <MediaPreview src={data.coverImage} alt="Cover" className="h-full w-full rounded-none border-0" mediaClassName="object-cover" />
                                                 </div>
                                             )}
                                             <FileUpload
@@ -223,10 +244,49 @@ export default function StartupSettingsPage() {
                                         characterCount
                                     />
                                 </div>
-                            </Card>
+                            ) : (
+                                <div className="grid gap-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div>
+                                            <p className="text-xs text-(--secondary) uppercase tracking-wide">Startup Name</p>
+                                            <p className="mt-1 text-sm font-medium text-(--primary)">{data.name || 'Not set'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-(--secondary) uppercase tracking-wide">Tagline</p>
+                                            <p className="mt-1 text-sm text-(--primary)">{data.tagline || 'Not set'}</p>
+                                        </div>
+                                    </div>
 
-                            <Card className="p-6 space-y-6">
-                                <h3 className="text-lg font-semibold text-(--primary)">Status & Location</h3>
+                                    <div>
+                                        <p className="text-xs text-(--secondary) uppercase tracking-wide mb-2">One-line Pitch</p>
+                                        <p className="text-sm text-(--primary)">{data.pitch || 'Not set'}</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div>
+                                            <p className="text-xs text-(--secondary) uppercase tracking-wide mb-2">Logo</p>
+                                            {data.logo ? (
+                                                <MediaPreview src={data.logo} alt="Startup logo" className="h-24 w-24" mediaClassName="object-cover" />
+                                            ) : (
+                                                <p className="text-sm text-(--secondary)">Not set</p>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-(--secondary) uppercase tracking-wide mb-2">Cover Photo</p>
+                                            {data.coverImage ? (
+                                                <MediaPreview src={data.coverImage} alt="Startup cover" className="h-24 w-full" mediaClassName="object-cover" />
+                                            ) : (
+                                                <p className="text-sm text-(--secondary)">Not set</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </Card>
+
+                        <Card className="p-6 space-y-6">
+                            <h3 className="text-lg font-semibold text-(--primary)">Status & Location</h3>
+                            {canEdit && isEditMode ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <Select
                                         label="Stage"
@@ -255,53 +315,94 @@ export default function StartupSettingsPage() {
                                         onChange={(e) => setData({ ...data, location: e.target.value })}
                                     />
                                 </div>
-                            </Card>
-                        </div>
-                    )}
-
-                    {activeTab === 'funding' && (
-                        <Card className="p-6 space-y-6">
-                            <h3 className="text-lg font-semibold text-(--primary)">Funding Information</h3>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <Select
-                                    label="Latest Round"
-                                    value={data.fundingRound}
-                                    onChange={(val) => setData({ ...data, fundingRound: val })}
-                                    options={fundingRoundOptions}
-                                />
-
-                                <Input
-                                    label="Total Funds Raised"
-                                    type="number"
-                                    value={data.fundsRaised || ''}
-                                    onChange={(e) => setData({ ...data, fundsRaised: e.target.value })}
-                                    icon={<span>$</span>}
-                                />
-
-                                <Input
-                                    label="Currency"
-                                    value={data.fundingCurrency}
-                                    onChange={(e) => setData({ ...data, fundingCurrency: e.target.value })}
-                                />
-                            </div>
-
-                            {/* Investors - simple text area for list management */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-(--primary)">Investors</label>
-                                <Textarea
-                                    value={(data.investors || []).join(', ')}
-                                    onChange={(e) => {
-                                        const list = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                                        setData({ ...data, investors: list });
-                                    }}
-                                    placeholder="Sequoia, a16z, etc. (comma separated)"
-                                    hint="List your key investors separated by commas."
-                                />
-                            </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <p className="text-xs text-(--secondary) uppercase tracking-wide">Stage</p>
+                                        <p className="mt-1 text-sm text-(--primary)">{stageLabel}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-(--secondary) uppercase tracking-wide">Current Status</p>
+                                        <div className="mt-2"><Badge variant="default">{statusLabel}</Badge></div>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-(--secondary) uppercase tracking-wide">Founded Date</p>
+                                        <p className="mt-1 text-sm text-(--primary)">{formatDate(data.foundedDate)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-(--secondary) uppercase tracking-wide">Location</p>
+                                        <p className="mt-1 text-sm text-(--primary)">{data.location || 'Not set'}</p>
+                                    </div>
+                                </div>
+                            )}
                         </Card>
-                    )}
-                </fieldset>
+                    </div>
+                )}
+
+                {activeTab === 'funding' && (
+                    <Card className="p-6 space-y-6">
+                        <h3 className="text-lg font-semibold text-(--primary)">Funding Information</h3>
+
+                        {canEdit && isEditMode ? (
+                            <>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <Select
+                                        label="Latest Round"
+                                        value={data.fundingRound}
+                                        onChange={(val) => setData({ ...data, fundingRound: val })}
+                                        options={fundingRoundOptions}
+                                    />
+
+                                    <Input
+                                        label="Total Funds Raised"
+                                        type="number"
+                                        value={data.fundsRaised || ''}
+                                        onChange={(e) => setData({ ...data, fundsRaised: e.target.value })}
+                                        icon={<span>$</span>}
+                                    />
+
+                                    <Input
+                                        label="Currency"
+                                        value={data.fundingCurrency}
+                                        onChange={(e) => setData({ ...data, fundingCurrency: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-(--primary)">Investors</label>
+                                    <Textarea
+                                        value={(data.investors || []).join(', ')}
+                                        onChange={(e) => {
+                                            const list = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                                            setData({ ...data, investors: list });
+                                        }}
+                                        placeholder="Sequoia, a16z, etc. (comma separated)"
+                                        hint="List your key investors separated by commas."
+                                    />
+                                </div>
+                            </>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <p className="text-xs text-(--secondary) uppercase tracking-wide">Latest Round</p>
+                                    <p className="mt-1 text-sm text-(--primary)">{fundingRoundLabel}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-(--secondary) uppercase tracking-wide">Total Funds Raised</p>
+                                    <p className="mt-1 text-sm text-(--primary)">{data.fundsRaised ? `${data.fundsRaised}` : 'Not set'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-(--secondary) uppercase tracking-wide">Currency</p>
+                                    <p className="mt-1 text-sm text-(--primary)">{data.fundingCurrency || 'Not set'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-(--secondary) uppercase tracking-wide">Investors</p>
+                                    <p className="mt-1 text-sm text-(--primary)">{(data.investors || []).length > 0 ? data.investors.join(', ') : 'Not set'}</p>
+                                </div>
+                            </div>
+                        )}
+                    </Card>
+                )}
             </form>
         </div>
     );

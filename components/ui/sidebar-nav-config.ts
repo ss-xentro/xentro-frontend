@@ -13,6 +13,7 @@ export function getNavItems(role: UserRole): NavItem[] {
 	switch (role) {
 		case 'institution':
 			return [
+				{ name: 'Overview', href: '/institution-dashboard', icon: icons.overview },
 				{ name: 'Edit Profile', href: '/institution-edit', icon: icons.edit },
 				{ name: 'Startups', href: '/institution-dashboard/startups', icon: icons.bolt },
 				{ name: 'Mentors', href: '/institution-dashboard/mentors', icon: icons.mentors },
@@ -25,6 +26,7 @@ export function getNavItems(role: UserRole): NavItem[] {
 		case 'startup':
 		case 'founder':
 			return [
+				{ name: 'Overview', href: '/dashboard', icon: icons.overview },
 				{ name: 'Edit Profile', href: '/dashboard/startup', icon: icons.edit },
 				{ name: 'Pitch Deck', href: '/dashboard/startup/pitch', icon: icons.document },
 				{ name: 'Team', href: '/dashboard/team', icon: icons.team },
@@ -34,6 +36,7 @@ export function getNavItems(role: UserRole): NavItem[] {
 			];
 		case 'mentor':
 			return [
+				{ name: 'Overview', href: '/mentor-dashboard', icon: icons.overview },
 				{ name: 'Mentees', href: '/mentor-dashboard/mentees', icon: icons.team },
 				{ name: 'Requests', href: '/mentor-dashboard/requests', icon: icons.addPerson },
 				{ name: 'Profile', href: '/mentor-dashboard/profile', icon: icons.profile },
@@ -43,6 +46,7 @@ export function getNavItems(role: UserRole): NavItem[] {
 			];
 		case 'investor':
 			return [
+				{ name: 'Overview', href: '/investor-dashboard', icon: icons.overview },
 				{ name: 'Deal Flow', href: '/investor-dashboard/deals', icon: icons.trendUp },
 				{ name: 'Portfolio', href: '/investor-dashboard/portfolio', icon: icons.building },
 			];

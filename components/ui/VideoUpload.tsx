@@ -1,7 +1,8 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { MediaPreview } from './MediaPreview';
 
 interface VideoUploadProps {
   value?: string | null;
@@ -30,14 +31,30 @@ export function VideoUpload({
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(value ?? null);
+  const previewObjectUrlRef = useRef<string | null>(null);
+
+  const revokePreviewObjectUrl = useCallback(() => {
+    if (previewObjectUrlRef.current) {
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+      previewObjectUrlRef.current = null;
+    }
+  }, []);
 
   useEffect(() => {
     setPreview(value ?? null);
   }, [value]);
 
+  useEffect(() => {
+    return () => {
+      revokePreviewObjectUrl();
+    };
+  }, [revokePreviewObjectUrl]);
+
   const uploadFile = useCallback(async (file: File) => {
     setIsUploading(true);
+    revokePreviewObjectUrl();
     const localPreview = URL.createObjectURL(file);
+    previewObjectUrlRef.current = localPreview;
     setPreview(localPreview);
 
     try {
@@ -60,13 +77,15 @@ export function VideoUpload({
       const { data } = await response.json();
       onChange(data.url as string);
       setPreview(data.url as string);
+      revokePreviewObjectUrl();
     } catch (err) {
       setError((err as Error).message);
       setPreview(value ?? null);
+      revokePreviewObjectUrl();
     } finally {
       setIsUploading(false);
     }
-  }, [folder, entityType, entityId, onChange, value]);
+  }, [folder, entityType, entityId, onChange, value, revokePreviewObjectUrl]);
 
   const handleFile = useCallback(async (file: File) => {
     setError(null);
@@ -135,21 +154,18 @@ export function VideoUpload({
   }, [handleFile]);
 
   const handleRemove = useCallback(() => {
+    revokePreviewObjectUrl();
     onChange(null);
     setError(null);
     setPreview(null);
     setIsUploading(false);
-  }, [onChange]);
+  }, [onChange, revokePreviewObjectUrl]);
 
   if (preview) {
     return (
       <div className={cn('w-full', className)}>
         <div className="relative w-full max-w-lg mx-auto rounded-xl overflow-hidden border-2 border-(--border) bg-(--surface) aspect-video">
-          <video
-            src={preview}
-            controls
-            className="w-full h-full object-contain bg-black"
-          />
+          <MediaPreview src={preview} kind="video" className="h-full w-full rounded-none border-0 bg-black" mediaClassName="object-contain" />
           <button
             type="button"
             onClick={handleRemove}
