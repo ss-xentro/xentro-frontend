@@ -1,8 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui';
-import { AppIcon } from '@/components/ui/AppIcon';
-import { sdgLabels, sectorLabels, SDGFocus } from '@/lib/types';
+import { sdgLabels, SDGFocus } from '@/lib/types';
 import type { StartupWithDetails } from './types';
 
 export interface AboutSidebarSection {
@@ -16,12 +15,11 @@ interface StartupAboutSidebarProps {
 }
 
 export function StartupAboutSidebar({ startup, sections }: StartupAboutSidebarProps) {
-	const hasSectors = startup.sectors && startup.sectors.length > 0;
 	const hasSDG = startup.sdgFocus && startup.sdgFocus.length > 0;
 	const hasInvestors = startup.investors && startup.investors.length > 0;
 	const hasHighlights = startup.highlights && startup.highlights.length > 0;
 	const hasPrograms = startup.programs && startup.programs.length > 0;
-	const hasMetadata = hasPrograms || hasInvestors || hasSectors || hasSDG || hasHighlights;
+	const hasMetadata = hasPrograms || hasInvestors || hasSDG || hasHighlights;
 
 	if (sections.length === 0 && !hasMetadata) return null;
 
@@ -70,29 +68,6 @@ export function StartupAboutSidebar({ startup, sections }: StartupAboutSidebarPr
 											{investor}
 										</Badge>
 									))}
-								</div>
-							</div>
-						)}
-
-						{hasSectors && (
-							<div>
-								<p className="text-sm font-semibold uppercase tracking-wide text-(--secondary) mb-2">Sectors</p>
-								<div className="flex flex-wrap gap-2">
-									{startup.sectors!.map((sector) => {
-										const info = sectorLabels[sector];
-										return (
-											<Badge key={sector} variant="outline" className="text-xs">
-												{info ? (
-													<>
-														<AppIcon name={info.icon} className="w-3.5 h-3.5 inline mr-1" />
-														{info.label}
-													</>
-												) : (
-													sector
-												)}
-											</Badge>
-										);
-									})}
 								</div>
 							</div>
 						)}

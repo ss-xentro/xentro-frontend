@@ -3,7 +3,9 @@
 import { Button } from '@/components/ui'; // Keep existing Button import
 import { VideoModal } from '@/components/ui/VideoModal'; // Add new VideoModal import
 import { useState } from 'react'; // Add useState import
-import { startupStageLabels, startupStatusLabels, fundingRoundLabels } from '@/lib/types';
+import { Badge } from '@/components/ui';
+import { AppIcon } from '@/components/ui/AppIcon';
+import { startupStageLabels, startupStatusLabels, fundingRoundLabels, sectorLabels } from '@/lib/types';
 import { cn, formatCurrency } from '@/lib/utils';
 import type { StartupWithDetails } from './types';
 
@@ -24,6 +26,7 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 	const location = startup.city && startup.country
 		? `${startup.city}, ${startup.country}`
 		: startup.location || null;
+	const hasSectors = Boolean(startup.sectors && startup.sectors.length > 0);
 
 	return (
 		<section className="border-b border-(--border)">
@@ -87,6 +90,29 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 
 							{startup.tagline && (
 								<p className="text-base text-(--secondary) mb-4 max-w-xl leading-relaxed">{startup.tagline}</p>
+							)}
+
+							{hasSectors && (
+								<div className="mb-4">
+									<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary) mb-2">Sectors</p>
+									<div className="flex flex-wrap gap-2">
+										{startup.sectors!.map((sector) => {
+											const info = sectorLabels[sector];
+											return (
+												<Badge key={sector} variant="outline" className="text-xs">
+													{info ? (
+														<>
+															<AppIcon name={info.icon} className="w-3.5 h-3.5 inline mr-1" />
+															{info.label}
+														</>
+													) : (
+														sector
+													)}
+												</Badge>
+											);
+										})}
+									</div>
+								</div>
 							)}
 
 							{/* Meta row */}
