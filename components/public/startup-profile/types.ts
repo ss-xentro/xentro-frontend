@@ -33,7 +33,7 @@ export interface TeamMemberData {
 export interface StartupWithDetails extends Startup {
 	teamMembers?: TeamMemberData[];
 	founders?: Founder[];
-	owner?: { id: string; name: string; email: string } | null;
+	owner?: { id: string; name: string; email?: string } | null;
 	isRestricted?: boolean;
 }
 

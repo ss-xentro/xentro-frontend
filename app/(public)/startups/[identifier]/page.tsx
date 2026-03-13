@@ -251,23 +251,18 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
               )}
 
               {/* Contact footer */}
-              {(startup.primaryContactEmail || canExpressInvestorInterest) && (
+              {canExpressInvestorInterest && (
                 <section className="pt-6 border-t border-(--border)">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-(--border) bg-(--surface) p-4">
                     <div>
                       <p className="text-sm font-medium text-(--primary)">Investor actions</p>
                       <p className="text-xs text-(--secondary) mt-1">
-                        {startup.primaryContactEmail ? 'Reach out directly or register investor interest.' : 'Register investor interest to notify the startup team.'}
+                        Register investor interest to notify the startup team.
                       </p>
                       {interestMessage ? <p className="text-xs text-accent mt-2">{interestMessage}</p> : null}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3">
-                      {startup.primaryContactEmail ? (
-                        <a href={`mailto:${startup.primaryContactEmail}`} className="text-sm text-(--primary) hover:underline">
-                          {startup.primaryContactEmail}
-                        </a>
-                      ) : null}
                       {canExpressInvestorInterest ? (
                         <Button
                           type="button"
