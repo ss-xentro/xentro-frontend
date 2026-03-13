@@ -80,7 +80,7 @@ const PUBLIC_PREFIXES = [
   '/explore', '/startups', '/institutions', '/events', '/search',
 ];
 
-function parseCookie(cookieValue: string): { role: string; contexts: string[] } | null {
+function parseCookie(cookieValue: string): { role: string; contexts: string[]; startupOnboarded?: boolean } | null {
   try {
     return JSON.parse(decodeURIComponent(cookieValue));
   } catch {
@@ -102,6 +102,15 @@ function checkAuth(request: NextRequest): NextResponse | null {
   const authCookie = request.cookies.get(AUTH_COOKIE)?.value;
   const auth = authCookie ? parseCookie(authCookie) : null;
   const isLoggedIn = !!auth?.role;
+
+  const isStartupUser = auth?.role === 'startup' || auth?.role === 'founder';
+  const onboardingOnlyPath = pathname === '/startup/onboarding' || pathname.startsWith('/startup/onboarding/');
+  const legacyOnboardingPath = pathname === '/onboarding/startup' || pathname.startsWith('/onboarding/startup/');
+
+  // Startup users with incomplete onboarding can only access onboarding.
+  if (isLoggedIn && isStartupUser && auth?.startupOnboarded === false && !onboardingOnlyPath && !legacyOnboardingPath) {
+    return NextResponse.redirect(new URL('/startup/onboarding', request.url));
+  }
 
   // Guest-only routes: redirect logged-in users to /home
   if (isLoggedIn && GUEST_ONLY_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))) {

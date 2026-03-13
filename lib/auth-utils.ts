@@ -69,6 +69,16 @@ export interface SessionUser {
     avatar?: string;
     role: string;
     contexts: string[];
+    startupOnboarded?: boolean;
+}
+
+function readStartupOnboarded(raw: Record<string, unknown>): boolean | undefined {
+    const value = raw.startupOnboarded
+        ?? raw.startup_onboarded
+        ?? raw.startupOnboardingComplete
+        ?? raw.startup_onboarding_complete;
+
+    return typeof value === 'boolean' ? value : undefined;
 }
 
 /**
@@ -80,6 +90,7 @@ export function normalizeUser(raw: Record<string, unknown>): SessionUser {
     const name = (raw.name || raw.full_name || raw.fullName ||
         [raw.first_name, raw.last_name].filter(Boolean).join(' ') || '') as string;
     const contexts = (raw.unlockedContexts ?? raw.unlocked_contexts ?? []) as string[];
+    const startupOnboarded = readStartupOnboarded(raw);
 
     return {
         id: (raw.id ?? raw.pk ?? '') as string,
@@ -88,6 +99,7 @@ export function normalizeUser(raw: Record<string, unknown>): SessionUser {
         avatar: (raw.avatar ?? raw.profile_picture ?? raw.profilePicture ?? '') as string,
         role,
         contexts,
+        startupOnboarded,
     };
 }
 

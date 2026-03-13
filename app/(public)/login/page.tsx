@@ -11,6 +11,8 @@ import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { clearAllRoleTokens, syncAuthCookie, setRoleToken, setTokenCookie, normalizeUser } from '@/lib/auth-utils';
+import { isStartupOnboardingComplete } from '@/lib/startup-onboarding';
+import type { User } from '@/lib/types/user';
 
 // Startup/founder users land on /dashboard after login once onboarding is complete.
 const DASHBOARD_MAP: Record<string, string> = {
@@ -22,6 +24,51 @@ const DASHBOARD_MAP: Record<string, string> = {
     admin: '/admin/dashboard',
     explorer: '/feed',
 };
+
+const STARTUP_ONBOARDING_PATH = '/startup/onboarding';
+
+function readStartupOnboarded(rawUser: Record<string, unknown>): boolean | null {
+    const value = rawUser.startupOnboarded
+        ?? rawUser.startup_onboarded
+        ?? rawUser.startupOnboardingComplete
+        ?? rawUser.startup_onboarding_complete;
+
+    return typeof value === 'boolean' ? value : null;
+}
+
+async function resolveStartupLandingPath(rawUser: Record<string, unknown>, token: string): Promise<string> {
+    const explicitStartupOnboarded = readStartupOnboarded(rawUser);
+    if (explicitStartupOnboarded === false) return STARTUP_ONBOARDING_PATH;
+    if (explicitStartupOnboarded === true) return '/dashboard';
+
+    try {
+        const res = await fetch('/api/founder/my-startup', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+            return res.status === 404 ? STARTUP_ONBOARDING_PATH : '/dashboard';
+        }
+
+        const payload = await res.json();
+        const startup = payload.data?.startup;
+        const whyXentro = payload.data?.whyXentro ?? [];
+
+        const isComplete = isStartupOnboardingComplete({
+            name: startup?.name,
+            tagline: startup?.tagline,
+            logo: startup?.logo,
+            founders: startup?.founders,
+            sectors: startup?.sectors,
+            stage: startup?.stage,
+            whyXentro,
+        });
+
+        return isComplete ? '/dashboard' : STARTUP_ONBOARDING_PATH;
+    } catch {
+        return '/dashboard';
+    }
+}
 
 function storeSession(data: { user: Record<string, unknown>; token: string; startupId?: string }) {
     // Clear ALL previous role tokens to prevent stale cross-role access
@@ -113,7 +160,14 @@ export default function UnifiedLoginPage() {
             const role = storeSession(data);
             // Build a proper User object for AuthContext
             const norm = normalizeUser(data.user);
-            setSession({ id: norm.id || '', email: norm.email || '', name: norm.name || '', avatar: norm.avatar || '', role: (norm.role || role) as any, unlockedContexts: norm.contexts }, data.token);
+            setSession({ id: norm.id || '', email: norm.email || '', name: norm.name || '', avatar: norm.avatar || '', role: (norm.role || role) as User['role'], unlockedContexts: norm.contexts }, data.token);
+
+            if (role === 'startup' || role === 'founder') {
+                const startupLandingPath = await resolveStartupLandingPath(data.user, data.token);
+                router.push(startupLandingPath);
+                return;
+            }
+
             router.push(DASHBOARD_MAP[role] || '/feed');
         } catch (err) {
             setError((err as Error).message);
@@ -149,7 +203,14 @@ export default function UnifiedLoginPage() {
 
             const role = storeSession(data);
             const norm2 = normalizeUser(data.user);
-            setSession({ id: norm2.id || '', email: norm2.email || '', name: norm2.name || '', avatar: norm2.avatar || '', role: (norm2.role || role) as any, unlockedContexts: norm2.contexts }, data.token);
+            setSession({ id: norm2.id || '', email: norm2.email || '', name: norm2.name || '', avatar: norm2.avatar || '', role: (norm2.role || role) as User['role'], unlockedContexts: norm2.contexts }, data.token);
+
+            if (role === 'startup' || role === 'founder') {
+                const startupLandingPath = await resolveStartupLandingPath(data.user, data.token);
+                router.push(startupLandingPath);
+                return;
+            }
+
             router.push(DASHBOARD_MAP[role] || '/feed');
         } catch (err) {
             setError((err as Error).message);
