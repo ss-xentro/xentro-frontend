@@ -11,7 +11,7 @@ export function PitchCertifications({ certifications }: PitchCertificationsProps
 
 	return (
 		<section>
-			<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">Certifications</h2>
+			<h2 className="text-sm sm:text-base font-semibold uppercase tracking-wide text-(--secondary) mb-4">Certifications</h2>
 			<div className="space-y-4">
 				{certifications.map((cert, idx) => (
 					<div key={idx} className="p-4 rounded-xl border border-(--border) bg-(--surface) hover:border-(--primary)/20 transition-colors">

@@ -25,7 +25,7 @@ export function PitchImageTextSection({ title, items }: PitchImageTextSectionPro
 
 	return (
 		<section>
-			<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">{title}</h2>
+			<h2 className="text-sm sm:text-base font-semibold uppercase tracking-wide text-(--secondary) mb-4">{title}</h2>
 			<div className="space-y-4">
 				{items.map((item, idx) => (
 					<div key={idx} className={cn(

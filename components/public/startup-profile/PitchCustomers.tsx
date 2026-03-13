@@ -18,7 +18,7 @@ export function PitchCustomers({ customers }: PitchCustomersProps) {
 
 	return (
 		<section>
-			<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">What Customers Say</h2>
+			<h2 className="text-sm sm:text-base font-semibold uppercase tracking-wide text-(--secondary) mb-4">What Customers Say</h2>
 			<div className="space-y-4">
 				{customers.map((customer, idx) => (
 					<div key={idx} className="p-5 rounded-xl border border-(--border) bg-(--surface)">

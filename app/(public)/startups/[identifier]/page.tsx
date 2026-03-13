@@ -231,7 +231,11 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
           {/* ── About Tab ── */}
           {activeTab === 'about' && (
-            <div className="animate-fadeIn lg:grid lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-8 items-start">
+            <div className="animate-fadeIn lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 items-start">
+              <div className="hidden lg:block">
+                <StartupAboutSidebar startup={startup} sections={aboutSidebarSections} />
+              </div>
+
               <div className="space-y-8">
                 <div className="lg:hidden">
                   <StartupAboutSidebar startup={startup} sections={aboutSidebarSections} />
@@ -338,9 +342,6 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                 )}
               </div>
 
-              <div className="hidden lg:block">
-                <StartupAboutSidebar startup={startup} sections={aboutSidebarSections} />
-              </div>
             </div>
           )}
 
