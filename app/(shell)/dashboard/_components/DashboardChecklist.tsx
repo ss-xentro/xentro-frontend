@@ -26,7 +26,6 @@ interface DashboardChecklistProps {
 	className?: string;
 	items: {
 		profileComplete: boolean;
-		teamMembersAdded: boolean;
 		emailVerified: boolean;
 		fundingHistoryAdded: boolean;
 	};
@@ -53,7 +52,6 @@ export function DashboardChecklist({ className = '', items }: DashboardChecklist
 			</p>
 			<div className="space-y-3">
 				<ChecklistItem label="Complete Company Profile" checked={items.profileComplete} />
-				<ChecklistItem label="Add Team Members" checked={items.teamMembersAdded} />
 				<ChecklistItem label="Verify Email" checked={items.emailVerified} />
 				<ChecklistItem label="Add Funding History" checked={items.fundingHistoryAdded} />
 			</div>
