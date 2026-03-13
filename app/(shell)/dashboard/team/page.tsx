@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
+import { MediaPreview } from '@/components/ui/MediaPreview';
 import { getSessionToken } from '@/lib/auth-utils';
 
 interface TeamMember {
@@ -13,6 +14,7 @@ interface TeamMember {
     name: string;
     email: string;
     role: string;
+    avatar?: string | null;
     isPrimary: boolean;
     joinedAt: string;
 }
@@ -173,7 +175,17 @@ export default function TeamPage() {
                         <div className="flex items-start justify-between">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-full bg-(--surface-hover) flex items-center justify-center text-lg font-bold text-(--secondary) border border-(--border)">
-                                    {member.name.substring(0, 2).toUpperCase()}
+                                    {member.avatar ? (
+                                        <MediaPreview
+                                            src={member.avatar}
+                                            alt={member.name}
+                                            className="h-full w-full rounded-full border-0"
+                                            mediaClassName="object-cover"
+                                            showControls={false}
+                                        />
+                                    ) : (
+                                        member.name.substring(0, 2).toUpperCase()
+                                    )}
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-(--primary)">{member.name}</h3>

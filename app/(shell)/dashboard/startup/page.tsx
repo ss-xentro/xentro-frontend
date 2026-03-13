@@ -107,7 +107,13 @@ export default function StartupSettingsPage() {
                 body: JSON.stringify(data),
             });
 
+            const json = await res.json().catch(() => null);
+
             if (!res.ok) throw new Error('Failed to update');
+
+            if (json) {
+                setData(json);
+            }
 
             setMessage({ type: 'success', text: 'Changes saved successfully.' });
             setIsEditMode(false);

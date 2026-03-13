@@ -399,6 +399,7 @@ export function ImageCropper({
             </button>
 
             <Button
+              type="button"
               className="min-w-[100px] h-9 ml-2 bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm"
               onClick={handleCrop}
             >
