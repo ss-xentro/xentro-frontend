@@ -42,11 +42,14 @@ export default function StartupSettingsPage() {
     const [activeTab, setActiveTab] = useState<'details' | 'funding'>('details');
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isLogoUploading, setIsLogoUploading] = useState(false);
+    const [isCoverUploading, setIsCoverUploading] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [data, setData] = useState<any>(null);
     const [myRole, setMyRole] = useState<string>('');
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const canEdit = WRITE_ROLES.has(myRole);
+    const hasPendingUploads = isLogoUploading || isCoverUploading;
 
     const stageLabel = stages.find((item) => item.value === data?.stage)?.label || 'Not set';
     const statusLabel = statuses.find((item) => item.value === data?.status)?.label || 'Not set';
@@ -86,6 +89,10 @@ export default function StartupSettingsPage() {
 
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (hasPendingUploads) {
+            setMessage({ type: 'error', text: 'Please wait for image uploads to finish before saving.' });
+            return;
+        }
         setIsSaving(true);
         setMessage(null);
 
@@ -133,7 +140,7 @@ export default function StartupSettingsPage() {
                                 Cancel
                             </Button>
                         )}
-                        <Button onClick={isEditMode ? handleUpdate : () => setIsEditMode(true)} isLoading={isSaving}>
+                        <Button onClick={isEditMode ? handleUpdate : () => setIsEditMode(true)} isLoading={isSaving} disabled={isEditMode && hasPendingUploads}>
                             {isEditMode ? 'Save Changes' : 'Edit Startup'}
                         </Button>
                     </div>
@@ -199,6 +206,7 @@ export default function StartupSettingsPage() {
                                                 <FileUpload
                                                     value={data.logo || ''}
                                                     onChange={(url) => setData((prev: any) => ({ ...prev, logo: url }))}
+                                                    onUploadStateChange={setIsLogoUploading}
                                                     folder="startup-logos"
                                                     className="w-full"
                                                     accept="image/*"
@@ -220,6 +228,7 @@ export default function StartupSettingsPage() {
                                             <FileUpload
                                                 value={data.coverImage || ''}
                                                 onChange={(url) => setData((prev: any) => ({ ...prev, coverImage: url }))}
+                                                onUploadStateChange={setIsCoverUploading}
                                                 folder="startup-covers"
                                                 className="w-full"
                                                 accept="image/*"
@@ -229,6 +238,10 @@ export default function StartupSettingsPage() {
                                             <p className="text-xs text-(--secondary)">Recommended size: 1200 x 400px (3:1 aspect ratio).</p>
                                         </div>
                                     </div>
+
+                                    {hasPendingUploads && (
+                                        <p className="text-sm text-(--secondary)">Uploading media... Save will be enabled when uploads finish.</p>
+                                    )}
 
                                     <Input
                                         label="Tagline"

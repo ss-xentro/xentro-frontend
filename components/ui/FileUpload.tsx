@@ -8,6 +8,7 @@ import { MediaPreview } from './MediaPreview';
 interface FileUploadProps {
     value?: string | null;
     onChange: (file: string | null) => void;
+    onUploadStateChange?: (isUploading: boolean) => void;
     accept?: string;
     maxSize?: number; // in MB
     className?: string;
@@ -21,6 +22,7 @@ interface FileUploadProps {
 export function FileUpload({
     value,
     onChange,
+    onUploadStateChange,
     accept = 'image/*',
     maxSize = 5,
     className,
@@ -92,6 +94,7 @@ export function FileUpload({
 
     const uploadFile = async (file: File) => {
         setIsUploading(true);
+        onUploadStateChange?.(true);
         revokePreviewObjectUrl();
         const localPreview = URL.createObjectURL(file);
         previewObjectUrlRef.current = localPreview;
@@ -124,6 +127,7 @@ export function FileUpload({
             revokePreviewObjectUrl();
         } finally {
             setIsUploading(false);
+            onUploadStateChange?.(false);
         }
     };
 
@@ -171,11 +175,12 @@ export function FileUpload({
     const handleRemove = useCallback(() => {
         revokePreviewObjectUrl();
         revokeCropObjectUrl();
+        onUploadStateChange?.(false);
         onChange(null);
         setError(null);
         setPreview(null);
         setIsUploading(false);
-    }, [onChange, revokePreviewObjectUrl, revokeCropObjectUrl]);
+    }, [onChange, onUploadStateChange, revokePreviewObjectUrl, revokeCropObjectUrl]);
 
     if (preview) {
         return (
