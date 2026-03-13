@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from './Button';
 import { X, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
@@ -27,13 +27,12 @@ export function ImageCropper({
 
   // Core transform state
   const [zoom, setZoom] = useState(1);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0); // in degrees: 0, 90, 180, 270
 
   // Interaction state
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
-  const offsetStart = useRef({ x: 0, y: 0 });
+  const cropStart = useRef({ left: 0, top: 0 });
 
   // Pinch zoom state
   const pinchStartDistance = useRef(0);
@@ -93,21 +92,30 @@ export function ImageCropper({
 
     setIsDragging(true);
     dragStart.current = { x: e.clientX, y: e.clientY };
-    offsetStart.current = { ...offset };
+    cropStart.current = { left: cropRect.left, top: cropRect.top };
 
     if (containerRef.current) containerRef.current.setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
+    if (!isDragging || !containerRef.current) return;
+
+    const container = containerRef.current.getBoundingClientRect();
 
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
 
-    setOffset({
-      x: offsetStart.current.x + dx,
-      y: offsetStart.current.y + dy
-    });
+    const maxLeft = Math.max(0, container.width - cropRect.width);
+    const maxTop = Math.max(0, container.height - cropRect.height);
+
+    const nextLeft = Math.min(maxLeft, Math.max(0, cropStart.current.left + dx));
+    const nextTop = Math.min(maxTop, Math.max(0, cropStart.current.top + dy));
+
+    setCropRect((prev) => ({
+      ...prev,
+      left: nextLeft,
+      top: nextTop,
+    }));
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -161,8 +169,6 @@ export function ImageCropper({
   // 4. Handle Rotation
   const handleRotate = () => {
     setRotation((prev) => (prev + 90) % 360);
-    // Reset pan constraints to center
-    setOffset({ x: 0, y: 0 });
   };
 
   // 5. Final Crop math
@@ -256,41 +262,31 @@ export function ImageCropper({
           className="relative w-full aspect-square sm:h-[400px] sm:aspect-auto bg-[#e5e7eb] overflow-hidden"
           ref={containerRef}
         >
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <img
+              ref={imageRef}
+              src={imageSrc}
+              alt="Crop preview"
+              draggable={false}
+              className="max-w-full max-h-full origin-center"
+              style={{
+                width: 'auto',
+                height: 'auto',
+                objectFit: 'contain',
+                transform: `scale(${zoom}) rotate(${rotation}deg)`,
+                transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+              }}
+            />
+          </div>
+
           <div
-            className="absolute inset-0 cursor-grab active:cursor-grabbing hover:bg-black/5 transition-colors"
+            className="absolute inset-0 cursor-move hover:bg-black/5 transition-colors"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
             onWheel={handleWheel}
           >
-            <div
-              className="absolute pointer-events-none flex items-center justify-center transform-gpu"
-              style={{
-                left: cropRect.left,
-                top: cropRect.top,
-                width: cropRect.width,
-                height: cropRect.height,
-              }}
-            >
-              <img
-                ref={imageRef}
-                src={imageSrc}
-                alt="Crop preview"
-                draggable={false}
-                className="max-w-none origin-center"
-                style={{
-                  minWidth: '100%',
-                  minHeight: '100%',
-                  width: 'auto',
-                  height: 'auto',
-                  objectFit: 'cover',
-                  transform: `translate(${offset.x / zoom}px, ${offset.y / zoom}px) scale(${zoom}) rotate(${rotation}deg)`,
-                  transition: isDragging ? 'none' : 'transform 0.1s ease-out',
-                }}
-              />
-            </div>
-
             {/* Dim Overlay and Mask */}
             {cropRect.width > 0 && (
               <div className="absolute inset-0 pointer-events-none">

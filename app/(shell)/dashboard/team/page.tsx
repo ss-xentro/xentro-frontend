@@ -43,6 +43,7 @@ export default function TeamPage() {
     const [newMember, setNewMember] = useState({ name: '', email: '', role: 'founder' });
     const [isInviting, setIsInviting] = useState(false);
     const [inviteError, setInviteError] = useState<string | null>(null);
+    const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
 
     useEffect(() => {
         fetchTeam();
@@ -169,51 +170,101 @@ export default function TeamPage() {
                 </Card>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {team.map((member) => (
-                    <Card key={member.id} className="p-6 relative group">
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-(--surface-hover) flex items-center justify-center text-lg font-bold text-(--secondary) border border-(--border)">
-                                    {member.avatar ? (
-                                        <MediaPreview
-                                            src={member.avatar}
-                                            alt={member.name}
-                                            className="h-full w-full rounded-full border-0"
-                                            mediaClassName="object-cover"
-                                            showControls={false}
-                                        />
-                                    ) : (
-                                        member.name.substring(0, 2).toUpperCase()
-                                    )}
+                    <Card key={member.id} className="relative overflow-hidden p-0 group">
+                        <div className="relative h-52 w-full bg-(--surface-hover)">
+                            {member.avatar ? (
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedMember(member)}
+                                    className="h-full w-full text-left"
+                                    aria-label={`Open ${member.name} profile image`}
+                                >
+                                    <MediaPreview
+                                        src={member.avatar}
+                                        alt={member.name}
+                                        className="h-full w-full rounded-none border-0"
+                                        mediaClassName="object-cover"
+                                        showControls={false}
+                                    />
+                                </button>
+                            ) : (
+                                <div className="h-full w-full flex items-center justify-center text-5xl font-semibold text-(--secondary)">
+                                    {member.name.substring(0, 2).toUpperCase()}
                                 </div>
-                                <div>
-                                    <h3 className="font-semibold text-(--primary)">{member.name}</h3>
-                                    <p className="text-sm text-(--secondary)">{member.email}</p>
-                                </div>
-                            </div>
-                            {member.isPrimary && (
-                                <Badge variant="info" size="sm">Primary</Badge>
                             )}
+                            <div className="absolute top-3 right-3 flex gap-2">
+                                {member.isPrimary && (
+                                    <Badge variant="info" size="sm">Primary</Badge>
+                                )}
+                            </div>
                         </div>
 
-                        <div className="mt-4 pt-4 border-t border-(--border) flex items-center justify-between">
-                            <Badge variant="outline" className="uppercase text-[10px] tracking-wider">
-                                {member.role.replace('_', ' ')}
-                            </Badge>
+                        <div className="p-5 space-y-3">
+                            <div>
+                                <h3 className="text-xl font-semibold text-(--primary)">{member.name}</h3>
+                                <p className="text-sm text-(--secondary)">{member.email}</p>
+                            </div>
 
-                            {!member.isPrimary && WRITE_ROLES.has(myRole) && (
-                                <button
-                                    onClick={() => handleRemove(member.id)}
-                                    className="text-xs text-error hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    Remove
-                                </button>
-                            )}
+                            <div className="pt-3 border-t border-(--border) flex items-center justify-between">
+                                <Badge variant="outline" className="uppercase text-[10px] tracking-wider">
+                                    {member.role.replace('_', ' ')}
+                                </Badge>
+
+                                {!member.isPrimary && WRITE_ROLES.has(myRole) && (
+                                    <button
+                                        onClick={() => handleRemove(member.id)}
+                                        className="text-xs text-error hover:underline opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        Remove
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </Card>
                 ))}
             </div>
+
+            {selectedMember && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+                    onClick={() => setSelectedMember(null)}
+                >
+                    <div
+                        className="w-full max-w-2xl bg-(--surface) border border-(--border) rounded-2xl overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="relative h-[65vh] min-h-[360px] bg-black">
+                            {selectedMember.avatar ? (
+                                <MediaPreview
+                                    src={selectedMember.avatar}
+                                    alt={selectedMember.name}
+                                    className="h-full w-full rounded-none border-0 bg-black"
+                                    mediaClassName="object-contain"
+                                    showControls={false}
+                                />
+                            ) : (
+                                <div className="h-full w-full flex items-center justify-center text-7xl font-semibold text-white/70">
+                                    {selectedMember.name.substring(0, 2).toUpperCase()}
+                                </div>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => setSelectedMember(null)}
+                                className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white hover:bg-black/80"
+                                aria-label="Close profile image preview"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="p-5">
+                            <h4 className="text-lg font-semibold text-(--primary)">{selectedMember.name}</h4>
+                            <p className="text-sm text-(--secondary)">{selectedMember.email}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
