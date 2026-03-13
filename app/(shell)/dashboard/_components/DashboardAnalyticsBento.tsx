@@ -90,7 +90,7 @@ function InteractiveTrendChart({
 			<div className="relative">
 				{hasData ? (
 					<div
-						className="absolute -top-2 z-10 -translate-x-1/2 rounded-lg border border-(--border) bg-white px-3 py-2 shadow-sm"
+						className="absolute -top-2 z-10 -translate-x-1/2 rounded-lg border border-(--border) bg-(--surface) px-3 py-2 shadow-(--shadow-lg)"
 						style={{ left: tooltipLeft }}
 					>
 						<p className="text-[11px] uppercase tracking-wide text-(--secondary)">{formatShortLabel(safeLabels[activeIndex])}</p>
@@ -258,8 +258,8 @@ export function DashboardAnalyticsBento({
 								type="button"
 								onClick={() => onWindowChange(option)}
 								className={`px-3 py-1.5 text-sm rounded-md transition-colors ${windowDays === option
-									? 'bg-accent text-white'
-									: 'text-(--secondary) hover:text-(--primary)'
+									? 'bg-(--primary) text-(--background)'
+									: 'text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover)'
 									}`}
 							>
 								{option}d

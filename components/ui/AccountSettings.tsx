@@ -200,7 +200,7 @@ export default function AccountSettings({ showPasswordSection = false }: Account
 
 				{/* Avatar */}
 				<div className="flex items-center gap-5">
-					<div className={`w-20 h-20 rounded-full border-2 border-(--border) flex items-center justify-center overflow-hidden shrink-0 ${avatar ? 'bg-white' : 'bg-(--surface-hover)'}`}>
+					<div className="w-20 h-20 rounded-full border-2 border-(--border) flex items-center justify-center overflow-hidden shrink-0 bg-(--surface-hover)">
 						{avatar ? (
 							<img src={avatar} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
 						) : (
@@ -293,10 +293,10 @@ export default function AccountSettings({ showPasswordSection = false }: Account
 								role="switch"
 								aria-checked={notifications[key]}
 								onClick={() => setNotifications(prev => ({ ...prev, [key]: !prev[key] }))}
-								className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${notifications[key] ? 'bg-accent' : 'bg-white/20'
+								className={`relative inline-flex h-6 w-11 items-center rounded-full border transition-colors ${notifications[key] ? 'bg-(--primary) border-(--primary)' : 'bg-(--surface-hover) border-(--border)'
 									}`}
 							>
-								<span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${notifications[key] ? 'translate-x-6' : 'translate-x-1'
+								<span className={`inline-block h-4 w-4 rounded-full transition-transform ${notifications[key] ? 'translate-x-6 bg-(--background)' : 'translate-x-1 bg-(--secondary-light)'
 									}`} />
 							</button>
 						</label>
