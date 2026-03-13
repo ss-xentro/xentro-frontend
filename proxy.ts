@@ -63,7 +63,7 @@ const ROLE_ROUTE_MAP: Record<string, string[]> = {
   admin: ['/admin/dashboard'],
   startup: ['/dashboard'],
   founder: ['/dashboard'],
-  mentor: ['/mentor-dashboard'],
+  mentor: ['/mentor-dashboard', '/mentor/onboarding'],
   institution: ['/institution-dashboard', '/institution-edit'],
   investor: ['/investor-dashboard'],
 };

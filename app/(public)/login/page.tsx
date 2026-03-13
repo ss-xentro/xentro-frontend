@@ -26,6 +26,7 @@ const DASHBOARD_MAP: Record<string, string> = {
 };
 
 const STARTUP_ONBOARDING_PATH = '/startup/onboarding';
+const MENTOR_ONBOARDING_PATH = '/mentor/onboarding';
 
 function readStartupOnboarded(rawUser: Record<string, unknown>): boolean | null {
     const value = rawUser.startupOnboarded
@@ -67,6 +68,34 @@ async function resolveStartupLandingPath(rawUser: Record<string, unknown>, token
         return isComplete ? '/dashboard' : STARTUP_ONBOARDING_PATH;
     } catch {
         return '/dashboard';
+    }
+}
+
+async function resolveMentorLandingPath(token: string): Promise<string> {
+    try {
+        const res = await fetch('/api/auth/mentor-profile/', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.status === 404) {
+            return MENTOR_ONBOARDING_PATH;
+        }
+
+        if (!res.ok) {
+            return '/feed';
+        }
+
+        const profile = await res.json();
+        const hasOccupation = Boolean(String(profile.occupation || '').trim());
+
+        const expertiseValue = profile.expertise;
+        const hasExpertise = Array.isArray(expertiseValue)
+            ? expertiseValue.length > 0
+            : Boolean(String(expertiseValue || '').trim());
+
+        return hasOccupation && hasExpertise ? '/feed' : MENTOR_ONBOARDING_PATH;
+    } catch {
+        return '/feed';
     }
 }
 
@@ -168,6 +197,12 @@ export default function UnifiedLoginPage() {
                 return;
             }
 
+            if (role === 'mentor') {
+                const mentorLandingPath = await resolveMentorLandingPath(data.token);
+                router.push(mentorLandingPath);
+                return;
+            }
+
             router.push(DASHBOARD_MAP[role] || '/feed');
         } catch (err) {
             setError((err as Error).message);
@@ -208,6 +243,12 @@ export default function UnifiedLoginPage() {
             if (role === 'startup' || role === 'founder') {
                 const startupLandingPath = await resolveStartupLandingPath(data.user, data.token);
                 router.push(startupLandingPath);
+                return;
+            }
+
+            if (role === 'mentor') {
+                const mentorLandingPath = await resolveMentorLandingPath(data.token);
+                router.push(mentorLandingPath);
                 return;
             }
 

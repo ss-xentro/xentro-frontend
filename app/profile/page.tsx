@@ -116,7 +116,7 @@ export default function ProfilePage() {
               <Link href="/dashboard"><Button className="w-full min-h-[44px]" variant="ghost">Founder Dashboard</Button></Link>
               <Link href="/institution-dashboard"><Button className="w-full min-h-[44px]" variant="ghost">Institution Dashboard</Button></Link>
               <Link href="/onboarding/startup"><Button className="w-full min-h-[44px]" variant="ghost">Startup Onboarding</Button></Link>
-              <Link href="/mentor-signup"><Button className="w-full min-h-[44px]" variant="ghost">Mentor Onboarding</Button></Link>
+              <Link href="/mentor/onboarding"><Button className="w-full min-h-[44px]" variant="ghost">Mentor Onboarding</Button></Link>
               <Link href="/institution-onboarding"><Button className="w-full min-h-[44px]" variant="ghost">Institution Onboarding</Button></Link>
               <Link href="/notifications"><Button className="w-full min-h-[44px]" variant="ghost">Notifications</Button></Link>
             </div>
