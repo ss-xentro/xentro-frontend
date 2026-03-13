@@ -104,7 +104,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(newUser);
         setToken(newToken);
         // Store user metadata cookie
-        syncAuthCookie(newUser as unknown as Record<string, unknown>);
+        const existing = getAuthCookie();
+        syncAuthCookie({
+            ...(existing ?? {}),
+            ...(newUser as unknown as Record<string, unknown>),
+        });
         // Store token in HttpOnly cookie (fire and forget)
         setTokenCookie(newToken);
     }, []);

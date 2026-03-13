@@ -12,6 +12,7 @@ import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { clearAllRoleTokens, syncAuthCookie, setRoleToken, setTokenCookie, normalizeUser } from '@/lib/auth-utils';
 import { isStartupOnboardingComplete } from '@/lib/startup-onboarding';
+import { isMentorOnboardingComplete } from '@/lib/mentor-onboarding';
 import type { User } from '@/lib/types/user';
 
 // Startup/founder users land on /dashboard after login once onboarding is complete.
@@ -71,7 +72,11 @@ async function resolveStartupLandingPath(rawUser: Record<string, unknown>, token
     }
 }
 
-async function resolveMentorLandingPath(token: string): Promise<string> {
+async function resolveMentorLandingPath(rawUser: Record<string, unknown>, token: string): Promise<string> {
+    const explicitMentorOnboarded = rawUser.mentorOnboarded ?? rawUser.mentor_onboarded;
+    if (explicitMentorOnboarded === false) return MENTOR_ONBOARDING_PATH;
+    if (explicitMentorOnboarded === true) return '/feed';
+
     try {
         const res = await fetch('/api/auth/mentor-profile/', {
             headers: { Authorization: `Bearer ${token}` },
@@ -86,14 +91,7 @@ async function resolveMentorLandingPath(token: string): Promise<string> {
         }
 
         const profile = await res.json();
-        const hasOccupation = Boolean(String(profile.occupation || '').trim());
-
-        const expertiseValue = profile.expertise;
-        const hasExpertise = Array.isArray(expertiseValue)
-            ? expertiseValue.length > 0
-            : Boolean(String(expertiseValue || '').trim());
-
-        return hasOccupation && hasExpertise ? '/feed' : MENTOR_ONBOARDING_PATH;
+        return isMentorOnboardingComplete(profile) ? '/feed' : MENTOR_ONBOARDING_PATH;
     } catch {
         return '/feed';
     }
@@ -198,7 +196,7 @@ export default function UnifiedLoginPage() {
             }
 
             if (role === 'mentor') {
-                const mentorLandingPath = await resolveMentorLandingPath(data.token);
+                const mentorLandingPath = await resolveMentorLandingPath(data.user, data.token);
                 router.push(mentorLandingPath);
                 return;
             }
@@ -247,7 +245,7 @@ export default function UnifiedLoginPage() {
             }
 
             if (role === 'mentor') {
-                const mentorLandingPath = await resolveMentorLandingPath(data.token);
+                const mentorLandingPath = await resolveMentorLandingPath(data.user, data.token);
                 router.push(mentorLandingPath);
                 return;
             }

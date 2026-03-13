@@ -6,7 +6,8 @@ import { Input } from '@/components/ui';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
 import { OnboardingWizardLayout } from '@/components/ui/OnboardingWizardLayout';
 import TagInput from '@/components/ui/TagInput';
-import { getAuthCookie, getSessionToken } from '@/lib/auth-utils';
+import { getAuthCookie, getSessionToken, syncAuthCookie } from '@/lib/auth-utils';
+import { isMentorOnboardingComplete } from '@/lib/mentor-onboarding';
 
 type Feedback = { type: 'success' | 'error'; message: string } | null;
 
@@ -95,6 +96,11 @@ export default function MentorOnboardingPage() {
 				}
 
 				const data = await res.json();
+				if (isMentorOnboardingComplete(data)) {
+					router.replace('/mentor-dashboard');
+					return;
+				}
+
 				setOccupation(data.occupation || '');
 				setFocusTags(toTagArray(data.expertise));
 			} catch {
@@ -158,6 +164,13 @@ export default function MentorOnboardingPage() {
 			if (!response.ok) {
 				throw new Error(result.message || 'Failed to save mentor onboarding details.');
 			}
+
+			syncAuthCookie({
+				...(authUser ?? {}),
+				mentorOnboarded: true,
+				mentor_onboarded: true,
+			});
+			sessionStorage.setItem('xentro_mentor_onboarding_ok', 'true');
 
 			setFeedback({ type: 'success', message: 'Mentor onboarding saved. Redirecting...' });
 			setTimeout(() => router.push('/mentor-dashboard'), 1200);

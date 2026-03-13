@@ -80,7 +80,7 @@ const PUBLIC_PREFIXES = [
   '/explore', '/startups', '/institutions', '/events', '/search',
 ];
 
-function parseCookie(cookieValue: string): { role: string; contexts: string[]; startupOnboarded?: boolean } | null {
+function parseCookie(cookieValue: string): { role: string; contexts: string[]; startupOnboarded?: boolean; mentorOnboarded?: boolean } | null {
   try {
     return JSON.parse(decodeURIComponent(cookieValue));
   } catch {
@@ -106,10 +106,16 @@ function checkAuth(request: NextRequest): NextResponse | null {
   const isStartupUser = auth?.role === 'startup' || auth?.role === 'founder';
   const onboardingOnlyPath = pathname === '/startup/onboarding' || pathname.startsWith('/startup/onboarding/');
   const legacyOnboardingPath = pathname === '/onboarding/startup' || pathname.startsWith('/onboarding/startup/');
+  const isMentorUser = auth?.role === 'mentor';
+  const mentorOnboardingPath = pathname === '/mentor/onboarding' || pathname.startsWith('/mentor/onboarding/');
 
   // Startup users with incomplete onboarding can only access onboarding.
   if (isLoggedIn && isStartupUser && auth?.startupOnboarded === false && !onboardingOnlyPath && !legacyOnboardingPath) {
     return NextResponse.redirect(new URL('/startup/onboarding', request.url));
+  }
+
+  if (isLoggedIn && isMentorUser && auth?.mentorOnboarded === false && !mentorOnboardingPath) {
+    return NextResponse.redirect(new URL('/mentor/onboarding', request.url));
   }
 
   // Guest-only routes: redirect logged-in users to /home

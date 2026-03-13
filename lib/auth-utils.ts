@@ -70,6 +70,7 @@ export interface SessionUser {
     role: string;
     contexts: string[];
     startupOnboarded?: boolean;
+    mentorOnboarded?: boolean;
 }
 
 function readStartupOnboarded(raw: Record<string, unknown>): boolean | undefined {
@@ -77,6 +78,15 @@ function readStartupOnboarded(raw: Record<string, unknown>): boolean | undefined
         ?? raw.startup_onboarded
         ?? raw.startupOnboardingComplete
         ?? raw.startup_onboarding_complete;
+
+    return typeof value === 'boolean' ? value : undefined;
+}
+
+function readMentorOnboarded(raw: Record<string, unknown>): boolean | undefined {
+    const value = raw.mentorOnboarded
+        ?? raw.mentor_onboarded
+        ?? raw.mentorOnboardingComplete
+        ?? raw.mentor_onboarding_complete;
 
     return typeof value === 'boolean' ? value : undefined;
 }
@@ -91,6 +101,7 @@ export function normalizeUser(raw: Record<string, unknown>): SessionUser {
         [raw.first_name, raw.last_name].filter(Boolean).join(' ') || '') as string;
     const contexts = (raw.unlockedContexts ?? raw.unlocked_contexts ?? []) as string[];
     const startupOnboarded = readStartupOnboarded(raw);
+    const mentorOnboarded = readMentorOnboarded(raw);
 
     return {
         id: (raw.id ?? raw.pk ?? '') as string,
@@ -100,6 +111,7 @@ export function normalizeUser(raw: Record<string, unknown>): SessionUser {
         role,
         contexts,
         startupOnboarded,
+        mentorOnboarded,
     };
 }
 
