@@ -52,7 +52,7 @@ export default function ProfilePage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-(--surface) via-white to-(--surface-hover) text-(--primary)">
+    <main className="min-h-screen bg-linear-to-b from-(--background) via-(--surface) to-(--surface-hover) text-(--primary)">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
@@ -74,19 +74,19 @@ export default function ProfilePage() {
               {joinState?.verified && <Badge className="bg-green-100 text-green-700">Verified</Badge>}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-              <div className="p-3 rounded-lg border border-(--border) bg-white/60">
+              <div className="p-3 rounded-lg border border-(--border) bg-(--surface)">
                 <p className="text-(--secondary)">Name</p>
                 <p className="font-medium">{joinState?.name || user?.name || '—'}</p>
               </div>
-              <div className="p-3 rounded-lg border border-(--border) bg-white/60">
+              <div className="p-3 rounded-lg border border-(--border) bg-(--surface)">
                 <p className="text-(--secondary)">Email</p>
                 <p className="font-medium">{joinState?.email || user?.email || '—'}</p>
               </div>
-              <div className="p-3 rounded-lg border border-(--border) bg-white/60">
+              <div className="p-3 rounded-lg border border-(--border) bg-(--surface)">
                 <p className="text-(--secondary)">Date of birth</p>
                 <p className="font-medium">{joinState?.dob || 'Not provided yet'}</p>
               </div>
-              <div className="p-3 rounded-lg border border-(--border) bg-white/60">
+              <div className="p-3 rounded-lg border border-(--border) bg-(--surface)">
                 <p className="text-(--secondary)">Contexts</p>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {(user?.unlockedContexts || ['explorer']).map((ctx) => (
@@ -95,7 +95,7 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-            <div className="p-3 rounded-lg border border-(--border) bg-white/60 text-sm">
+            <div className="p-3 rounded-lg border border-(--border) bg-(--surface) text-sm">
               <p className="text-(--secondary) mb-2">Interests</p>
               {joinState?.interests?.length ? (
                 <div className="flex flex-wrap gap-2">

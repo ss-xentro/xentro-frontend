@@ -126,7 +126,7 @@ export default function MentorRequestsPage() {
 				</div>
 			) : filtered.length === 0 ? (
 				<Card className="p-8 text-center bg-(--surface)">
-					<AppIcon name="handshake" className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+					<AppIcon name="handshake" className="w-10 h-10 text-(--secondary) mx-auto mb-3" />
 					<h3 className="text-lg font-semibold text-(--primary)">
 						{filter === 'all' ? 'No connection requests yet' : `No ${filter} requests`}
 					</h3>

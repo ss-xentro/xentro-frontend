@@ -67,7 +67,7 @@ export default function MenteesPage() {
                 </div>
             ) : mentees.length === 0 ? (
                 <Card className="p-8 text-center bg-(--surface)">
-                    <AppIcon name="users" className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                    <AppIcon name="users" className="w-10 h-10 text-(--secondary) mx-auto mb-3" />
                     <h3 className="text-lg font-semibold text-(--primary)">No mentees yet</h3>
                     <p className="text-sm text-(--secondary) mt-1">When someone books a session with you, they&apos;ll appear here.</p>
                 </Card>

@@ -165,7 +165,7 @@ export default function EditInstitutionPage() {
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value as InstitutionType })}
                   required
-                  className="w-full px-4 py-3 rounded-lg border border-(--border) bg-white focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="w-full px-4 py-3 rounded-lg border border-(--border) bg-(--surface) focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   <option value="">Select type...</option>
                   {Object.entries(institutionTypeLabels).map(([key, { label }]) => (
@@ -183,7 +183,7 @@ export default function EditInstitutionPage() {
                 <select
                   value={formData.operatingMode}
                   onChange={(e) => setFormData({ ...formData, operatingMode: e.target.value as OperatingMode })}
-                  className="w-full px-4 py-3 rounded-lg border border-(--border) bg-white focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="w-full px-4 py-3 rounded-lg border border-(--border) bg-(--surface) focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   <option value="">Select mode...</option>
                   {Object.entries(operatingModeLabels).map(([key, { label }]) => (

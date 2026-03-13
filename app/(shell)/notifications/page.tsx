@@ -149,11 +149,11 @@ export default function NotificationsPage() {
   return (
     <div className="max-w-3xl mx-auto">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-10 backdrop-blur-xl bg-[#0B0D10]/80 border-b border-white/10 px-6 py-5">
+      <div className="sticky top-0 z-10 backdrop-blur-xl bg-(--background) border-b border-(--border) px-6 py-5">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-white tracking-tight">Notifications</h1>
+              <h1 className="text-2xl font-bold text-(--primary) tracking-tight">Notifications</h1>
               {connected && (
                 <span className="flex items-center gap-1 text-xs text-green-400" title="Real-time updates active">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
@@ -162,7 +162,7 @@ export default function NotificationsPage() {
               )}
             </div>
             {unreadCount > 0 && (
-              <p className="text-sm text-gray-400 mt-0.5">
+              <p className="text-sm text-(--secondary) mt-0.5">
                 {unreadCount} unread notification{unreadCount > 1 ? 's' : ''}
               </p>
             )}
@@ -170,7 +170,7 @@ export default function NotificationsPage() {
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-sm font-medium rounded-xl transition-colors"
+              className="px-4 py-2 bg-(--surface) hover:bg-(--surface-hover) text-(--primary) text-sm font-medium rounded-xl transition-colors"
             >
               Mark all read
             </button>
@@ -184,8 +184,8 @@ export default function NotificationsPage() {
             className={cn(
               'text-sm px-4 py-2 rounded-xl font-medium transition-colors',
               filter === 'all'
-                ? 'bg-white/10 text-white'
-                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5',
+                ? 'bg-(--surface) text-(--primary)'
+                : 'text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover)',
             )}
           >
             All
@@ -195,8 +195,8 @@ export default function NotificationsPage() {
             className={cn(
               'text-sm px-4 py-2 rounded-xl font-medium transition-colors',
               filter === 'unread'
-                ? 'bg-white/10 text-white'
-                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5',
+                ? 'bg-(--surface) text-(--primary)'
+                : 'text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover)',
             )}
           >
             Unread {unreadCount > 0 && `(${unreadCount})`}
@@ -209,34 +209,34 @@ export default function NotificationsPage() {
         {loading ? (
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-4 animate-pulse">
+              <div key={i} className="bg-(--surface) border border-(--border) rounded-2xl p-4 animate-pulse">
                 <div className="flex gap-4">
-                  <div className="w-10 h-10 bg-white/10 rounded-full" />
+                  <div className="w-10 h-10 bg-(--surface-hover) rounded-full" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-white/10 rounded w-2/3" />
-                    <div className="h-3 bg-white/10 rounded w-1/2" />
+                    <div className="h-4 bg-(--surface-hover) rounded w-2/3" />
+                    <div className="h-3 bg-(--surface-hover) rounded w-1/2" />
                   </div>
                 </div>
               </div>
             ))}
           </div>
         ) : error ? (
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+          <div className="bg-(--surface) border border-(--border) rounded-2xl p-8 text-center">
             <p className="text-red-400 mb-4">{error}</p>
             <button
               onClick={fetchNotifications}
-              className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-sm rounded-xl transition-colors"
+              className="px-4 py-2 bg-(--surface-hover) hover:bg-(--surface) text-(--primary) text-sm rounded-xl transition-colors"
             >
               Try Again
             </button>
           </div>
         ) : notifications.length === 0 ? (
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-10 text-center">
-            <AppIcon name="bell" className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">
+          <div className="bg-(--surface) border border-(--border) rounded-2xl p-10 text-center">
+            <AppIcon name="bell" className="w-12 h-12 text-(--secondary) mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-(--primary) mb-2">
               {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
             </h3>
-            <p className="text-gray-400 text-sm">
+            <p className="text-(--secondary) text-sm">
               {filter === 'unread'
                 ? "You're all caught up!"
                 : 'When something happens, you\'ll see it here.'}
@@ -248,7 +248,7 @@ export default function NotificationsPage() {
               <button
                 key={notification.id}
                 className={cn(
-                  'w-full text-left bg-white/5 border border-white/10 rounded-2xl p-4 transition-all duration-200 hover:bg-white/[0.07] hover:border-white/20',
+                  'w-full text-left bg-(--surface) border border-(--border) rounded-2xl p-4 transition-all duration-200 hover:bg-(--surface-hover)',
                   !notification.isRead && 'bg-blue-500/5 border-blue-500/20',
                 )}
                 onClick={() => {
@@ -267,7 +267,7 @@ export default function NotificationsPage() {
                       <p
                         className={cn(
                           'text-sm',
-                          notification.isRead ? 'text-white/40' : 'text-white font-medium',
+                          notification.isRead ? 'text-(--secondary)' : 'text-(--primary) font-medium',
                         )}
                       >
                         {notification.title}
@@ -277,9 +277,9 @@ export default function NotificationsPage() {
                       )}
                     </div>
                     {notification.message && (
-                      <p className="text-sm text-white/40 mt-1">{notification.message}</p>
+                      <p className="text-sm text-(--secondary) mt-1">{notification.message}</p>
                     )}
-                    <p className="text-xs text-white/30 mt-2">
+                    <p className="text-xs text-(--secondary) mt-2">
                       {formatDate(notification.createdAt)}
                     </p>
                   </div>

@@ -13,8 +13,8 @@ export default function DocumentsSection({ documents, uploading, uploadError, on
 	return (
 		<>
 			<div className="flex items-center gap-3 mb-5">
-				<div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
-					<svg className="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<div className="w-8 h-8 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center">
+					<svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 					</svg>
 				</div>
@@ -66,8 +66,8 @@ export default function DocumentsSection({ documents, uploading, uploadError, on
 				<div className="mt-4 space-y-2">
 					{documents.map((doc, index) => (
 						<div key={index} className="flex items-center gap-3 p-3 bg-(--surface-hover) rounded-lg group">
-							<div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
-								<svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<div className="w-8 h-8 rounded-lg bg-(--surface) border border-(--border) flex items-center justify-center shrink-0">
+								<svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 								</svg>
 							</div>
@@ -90,7 +90,7 @@ export default function DocumentsSection({ documents, uploading, uploadError, on
 							</a>
 							<button
 								onClick={() => onRemove(index)}
-								className="w-8 h-8 flex items-center justify-center rounded-lg text-(--secondary) hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+								className="w-8 h-8 flex items-center justify-center rounded-lg text-(--secondary) hover:text-red-500 hover:bg-(--surface) transition-colors opacity-0 group-hover:opacity-100"
 								aria-label="Remove document"
 							>
 								<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

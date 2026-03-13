@@ -92,7 +92,7 @@ export default function CompleteProfileModal({ isOpen, onClose }: CompleteProfil
                     <div className="space-y-3">
                         <button
                             onClick={handleComplete}
-                            className="w-full py-3 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-accent/90 transition-colors"
+                            className="w-full py-3 bg-accent text-black rounded-xl text-sm font-semibold hover:bg-accent/90 transition-colors"
                         >
                             Complete Now
                         </button>

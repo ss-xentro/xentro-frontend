@@ -33,8 +33,8 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 		<>
 			<div className="flex items-center justify-between mb-5">
 				<div className="flex items-center gap-3">
-					<div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-						<svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<div className="w-8 h-8 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center">
+						<svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 						</svg>
 					</div>
@@ -55,7 +55,7 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 				<select
 					value={newDay}
 					onChange={(e) => setNewDay(e.target.value)}
-					className="h-10 px-3 bg-white border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
+					className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
 				>
 					{DAYS_OF_WEEK.map((day) => (
 						<option key={day} value={day}>{day}</option>
@@ -66,14 +66,14 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 					type="time"
 					value={newStart}
 					onChange={(e) => setNewStart(e.target.value)}
-					className="h-10 px-3 bg-white border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
+					className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
 				/>
 
 				<input
 					type="time"
 					value={newEnd}
 					onChange={(e) => setNewEnd(e.target.value)}
-					className="h-10 px-3 bg-white border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
+					className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
 				/>
 
 				<div className="text-xs text-(--secondary) flex items-center md:justify-end">
@@ -95,14 +95,14 @@ export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpd
 											type="time"
 											value={slot.startTime}
 											onChange={(e) => onUpdate(slot.index, 'startTime', e.target.value)}
-											className="h-9 px-2 bg-white border border-(--border) rounded text-sm text-(--primary)"
+											className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
 										/>
 										<span className="text-(--secondary) text-sm">to</span>
 										<input
 											type="time"
 											value={slot.endTime}
 											onChange={(e) => onUpdate(slot.index, 'endTime', e.target.value)}
-											className="h-9 px-2 bg-white border border-(--border) rounded text-sm text-(--primary)"
+											className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
 										/>
 										<button
 											onClick={() => onRemove(slot.index)}

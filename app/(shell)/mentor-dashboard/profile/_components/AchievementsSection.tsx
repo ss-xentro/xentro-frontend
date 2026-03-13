@@ -40,8 +40,8 @@ export default function AchievementsSection({
 	return (
 		<>
 			<div className="flex items-center gap-3 mb-5">
-				<div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
-					<svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<div className="w-8 h-8 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center">
+					<svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
 					</svg>
 				</div>
@@ -95,14 +95,14 @@ export default function AchievementsSection({
 						<li key={index} className="p-3 bg-(--surface-hover) rounded-lg space-y-2">
 							<div className="flex items-center justify-between">
 								<span className="text-xs font-semibold text-(--secondary)">Achievement #{index + 1} ({getContentLength(item)}/500)</span>
-								<button onClick={() => onRemoveAchievement(index)} className="w-7 h-7 flex items-center justify-center rounded-md text-(--secondary) hover:text-red-500 hover:bg-red-50 transition-all shrink-0" aria-label="Remove achievement">
+								<button onClick={() => onRemoveAchievement(index)} className="w-7 h-7 flex items-center justify-center rounded-md text-(--secondary) hover:text-red-500 hover:bg-(--surface) transition-all shrink-0" aria-label="Remove achievement">
 									<svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 									</svg>
 								</button>
 							</div>
 							<RichTextEditor value={item} onChange={(value) => onUpdateAchievement(index, value)} minimal />
-							<RichTextDisplay html={item} compact className="rounded-md border border-(--border) bg-white p-3" />
+							<RichTextDisplay html={item} compact className="rounded-md border border-(--border) bg-(--surface) p-3" />
 						</li>
 					))}
 				</ul>
@@ -118,14 +118,14 @@ export default function AchievementsSection({
 						<li key={index} className="p-3 bg-(--surface-hover) rounded-lg space-y-2">
 							<div className="flex items-center justify-between">
 								<span className="text-xs font-semibold text-(--secondary)">Highlight #{index + 1} ({getContentLength(item)}/500)</span>
-								<button onClick={() => onRemoveHighlight(index)} className="w-7 h-7 flex items-center justify-center rounded-md text-(--secondary) hover:text-red-500 hover:bg-red-50 transition-all shrink-0" aria-label="Remove highlight">
+								<button onClick={() => onRemoveHighlight(index)} className="w-7 h-7 flex items-center justify-center rounded-md text-(--secondary) hover:text-red-500 hover:bg-(--surface) transition-all shrink-0" aria-label="Remove highlight">
 									<svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 									</svg>
 								</button>
 							</div>
 							<RichTextEditor value={item} onChange={(value) => onUpdateHighlight(index, value)} minimal />
-							<RichTextDisplay html={item} compact className="rounded-md border border-(--border) bg-white p-3" />
+							<RichTextDisplay html={item} compact className="rounded-md border border-(--border) bg-(--surface) p-3" />
 						</li>
 					))}
 				</ul>

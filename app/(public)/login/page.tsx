@@ -175,7 +175,7 @@ export default function UnifiedLoginPage() {
             const res = await fetch('/api/auth/otp/verify/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sessionId, otp }),
+                body: JSON.stringify({ sessionId, otp, email }),
             });
 
             const data = await res.json();
@@ -286,7 +286,7 @@ export default function UnifiedLoginPage() {
                                         <div className="w-full border-t border-(--border)" />
                                     </div>
                                     <div className="relative flex justify-center text-sm">
-                                        <span className="px-4 bg-white text-(--secondary)">or continue with email</span>
+                                        <span className="px-4 bg-(--surface) text-(--secondary)">or continue with email</span>
                                     </div>
                                 </div>
 

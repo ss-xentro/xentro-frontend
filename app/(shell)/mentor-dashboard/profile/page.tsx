@@ -309,8 +309,8 @@ export default function MentorProfilePage() {
                         </div>
                         <div className="ml-auto">
                             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${profileData.profile_completed
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-amber-100 text-amber-800'
+                                ? 'bg-accent/15 text-accent border border-accent/30'
+                                : 'bg-(--surface-hover) text-(--secondary) border border-(--border)'
                                 }`}>
                                 {profileData.profile_completed ? 'Profile Complete' : 'Incomplete'}
                             </span>
@@ -365,8 +365,8 @@ export default function MentorProfilePage() {
             {/* Section 3: Pricing */}
             <Card className="p-6">
                 <div className="flex items-center gap-3 mb-5">
-                    <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="w-8 h-8 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center">
+                        <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>

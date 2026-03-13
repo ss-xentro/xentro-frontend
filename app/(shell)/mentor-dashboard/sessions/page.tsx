@@ -30,10 +30,10 @@ type Booking = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    confirmed: 'bg-green-100 text-green-800',
-    cancelled: 'bg-red-100 text-red-800',
-    completed: 'bg-blue-100 text-blue-800',
+    pending: 'bg-amber-500/15 text-amber-400 border border-amber-500/20',
+    confirmed: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20',
+    cancelled: 'bg-red-500/15 text-red-400 border border-red-500/20',
+    completed: 'bg-blue-500/15 text-blue-400 border border-blue-500/20',
 };
 
 export default function SessionsPage() {
@@ -167,13 +167,13 @@ export default function SessionsPage() {
             <div className="flex gap-1 bg-(--surface-hover) p-1 rounded-xl w-fit">
                 <button
                     onClick={() => setTab('upcoming')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${tab === 'upcoming' ? 'bg-white shadow-sm text-(--primary)' : 'text-(--secondary) hover:text-(--primary)'}`}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${tab === 'upcoming' ? 'bg-(--surface) shadow-sm text-(--primary)' : 'text-(--secondary) hover:text-(--primary)'}`}
                 >
                     Upcoming ({upcoming.length})
                 </button>
                 <button
                     onClick={() => setTab('slots')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${tab === 'slots' ? 'bg-white shadow-sm text-(--primary)' : 'text-(--secondary) hover:text-(--primary)'}`}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${tab === 'slots' ? 'bg-(--surface) shadow-sm text-(--primary)' : 'text-(--secondary) hover:text-(--primary)'}`}
                 >
                     Availability
                 </button>
@@ -183,7 +183,7 @@ export default function SessionsPage() {
                 <div className="space-y-3">
                     {upcoming.length === 0 ? (
                         <Card className="p-8 text-center bg-(--surface)">
-                            <AppIcon name="calendar" className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                            <AppIcon name="calendar" className="w-10 h-10 text-(--secondary) mx-auto mb-3" />
                             <h3 className="text-lg font-semibold text-(--primary)">No upcoming sessions</h3>
                             <p className="text-sm text-(--secondary) mt-1">Set your availability in the Availability tab to start getting bookings.</p>
                         </Card>
@@ -203,7 +203,7 @@ export default function SessionsPage() {
                                         {b.notes && <p className="text-xs text-(--secondary) italic mt-1">&ldquo;{b.notes}&rdquo;</p>}
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
-                                        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${STATUS_COLORS[b.status] || 'bg-gray-100 text-gray-700'}`}>
+                                        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${STATUS_COLORS[b.status] || 'bg-(--surface-hover) text-(--secondary) border border-(--border)'}`}>
                                             {b.status}
                                         </span>
                                         {b.status === 'pending' && (
@@ -211,7 +211,7 @@ export default function SessionsPage() {
                                                 <Button onClick={() => updateBooking(b.id, 'confirmed')} className="text-xs px-3 py-1">
                                                     Confirm
                                                 </Button>
-                                                <Button variant="ghost" onClick={() => updateBooking(b.id, 'cancelled')} className="text-xs px-3 py-1 text-red-600">
+                                                <Button variant="ghost" onClick={() => updateBooking(b.id, 'cancelled')} className="text-xs px-3 py-1 text-error">
                                                     Cancel
                                                 </Button>
                                             </>
@@ -272,7 +272,7 @@ export default function SessionsPage() {
                             {savingSlots ? 'Saving…' : 'Save Availability'}
                         </Button>
                     </div>
-                    {message && <p className={`text-sm ${message.includes('Failed') ? 'text-red-600' : 'text-green-600'}`}>{message}</p>}
+                    {message && <p className={`text-sm ${message.includes('Failed') ? 'text-red-400' : 'text-emerald-400'}`}>{message}</p>}
                 </div>
             )}
         </div>

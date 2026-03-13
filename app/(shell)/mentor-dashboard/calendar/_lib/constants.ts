@@ -31,7 +31,7 @@ export const STATUS_COLORS: Record<string, string> = {
 	confirmed: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
 	completed: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
 	cancelled: 'bg-red-500/15 text-red-400 border-red-500/20',
-	no_show: 'bg-white/10 text-white/50 border-white/20',
+	no_show: 'bg-(--surface-hover) text-(--secondary) border-(--border)',
 };
 
 export function parseTime(t: string): number {

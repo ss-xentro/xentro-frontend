@@ -37,9 +37,9 @@ export function getNavItems(role: UserRole): NavItem[] {
 		case 'mentor':
 			return [
 				{ name: 'Overview', href: '/mentor-dashboard', icon: icons.overview },
+				{ name: 'Profile', href: '/mentor-dashboard/profile', icon: icons.profile },
 				{ name: 'Mentees', href: '/mentor-dashboard/mentees', icon: icons.team },
 				{ name: 'Requests', href: '/mentor-dashboard/requests', icon: icons.addPerson },
-				{ name: 'Profile', href: '/mentor-dashboard/profile', icon: icons.profile },
 				{ name: 'Endorsements', href: '/mentor-dashboard/endorsements', icon: icons.endorsement },
 			];
 		case 'investor':

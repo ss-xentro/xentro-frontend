@@ -93,8 +93,8 @@ export default function PublicEventsPage() {
 	return (
 		<div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
 			<div>
-				<h1 className="text-3xl font-bold text-white">Events</h1>
-				<p className="text-gray-400 mt-1">
+				<h1 className="text-3xl font-bold text-(--primary)">Events</h1>
+				<p className="text-(--secondary) mt-1">
 					Discover upcoming events from institutions and the startup community.
 				</p>
 			</div>
@@ -102,25 +102,25 @@ export default function PublicEventsPage() {
 			{loading ? (
 				<div className="grid gap-4 md:grid-cols-2">
 					{[1, 2, 3, 4].map((i) => (
-						<div key={i} className="h-48 rounded-xl bg-white/5 animate-pulse" />
+						<div key={i} className="h-48 rounded-xl bg-(--surface) animate-pulse" />
 					))}
 				</div>
 			) : events.length === 0 ? (
 				<div className="text-center py-20">
-					<p className="text-lg text-gray-400">No events scheduled yet.</p>
+					<p className="text-lg text-(--secondary)">No events scheduled yet.</p>
 				</div>
 			) : (
 				<>
 					{upcomingEvents.length > 0 && (
 						<section className="space-y-4">
-							<h2 className="text-lg font-semibold text-white">Upcoming</h2>
+							<h2 className="text-lg font-semibold text-(--primary)">Upcoming</h2>
 							<div className="grid gap-4 md:grid-cols-2">
 								{upcomingEvents.map((event) => {
 									const start = formatDate(event.startTime);
 									return (
 										<Card
 											key={event.id}
-											className="p-5 bg-white/5 border-white/10 hover:bg-white/[0.07] transition-colors space-y-3"
+											className="p-5 bg-(--surface) border-(--border) hover:bg-(--surface-hover) transition-colors space-y-3"
 										>
 											<div className="flex gap-4">
 												{start && (
@@ -128,16 +128,16 @@ export default function PublicEventsPage() {
 														<span className="text-[10px] uppercase text-accent font-semibold">
 															{start.month}
 														</span>
-														<span className="text-lg font-bold text-white leading-tight">
+														<span className="text-lg font-bold text-(--primary) leading-tight">
 															{start.day}
 														</span>
 													</div>
 												)}
 												<div className="flex-1 min-w-0">
-													<h3 className="font-semibold text-white truncate">
+													<h3 className="font-semibold text-(--primary) truncate">
 														{event.name}
 													</h3>
-													<div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
+													<div className="flex items-center gap-2 mt-1 text-xs text-(--secondary)">
 														{start && <span>{start.time}</span>}
 														{event.location && (
 															<>
@@ -155,13 +155,13 @@ export default function PublicEventsPage() {
 											</div>
 
 											{event.description && (
-												<p className="text-sm text-gray-400 line-clamp-2">
+												<p className="text-sm text-(--secondary) line-clamp-2">
 													{event.description}
 												</p>
 											)}
 
-											<div className="flex items-center justify-between pt-2 border-t border-white/5">
-												<span className="text-xs text-gray-500">
+											<div className="flex items-center justify-between pt-2 border-t border-(--border)">
+												<span className="text-xs text-(--secondary)">
 													{event.attendeeCount} attendee{event.attendeeCount !== 1 ? 's' : ''}
 													{event.maxAttendees ? ` / ${event.maxAttendees}` : ''}
 												</span>
@@ -186,31 +186,31 @@ export default function PublicEventsPage() {
 
 					{pastEvents.length > 0 && (
 						<section className="space-y-4">
-							<h2 className="text-lg font-semibold text-gray-400">Past Events</h2>
+							<h2 className="text-lg font-semibold text-(--secondary)">Past Events</h2>
 							<div className="grid gap-4 md:grid-cols-2">
 								{pastEvents.map((event) => {
 									const start = formatDate(event.startTime);
 									return (
 										<Card
 											key={event.id}
-											className="p-5 bg-white/[0.02] border-white/5 opacity-70 space-y-2"
+											className="p-5 bg-(--surface) border-(--border) opacity-70 space-y-2"
 										>
 											<div className="flex gap-4">
 												{start && (
-													<div className="flex-shrink-0 w-14 h-14 rounded-lg bg-white/5 flex flex-col items-center justify-center">
-														<span className="text-[10px] uppercase text-gray-500 font-semibold">
+													<div className="flex-shrink-0 w-14 h-14 rounded-lg bg-(--surface-hover) flex flex-col items-center justify-center">
+														<span className="text-[10px] uppercase text-(--secondary) font-semibold">
 															{start.month}
 														</span>
-														<span className="text-lg font-bold text-gray-300 leading-tight">
+														<span className="text-lg font-bold text-(--primary) leading-tight">
 															{start.day}
 														</span>
 													</div>
 												)}
 												<div className="flex-1 min-w-0">
-													<h3 className="font-semibold text-gray-300 truncate">
+													<h3 className="font-semibold text-(--primary) truncate">
 														{event.name}
 													</h3>
-													<p className="text-xs text-gray-500 mt-0.5">
+													<p className="text-xs text-(--secondary) mt-0.5">
 														{event.attendeeCount} attended
 													</p>
 												</div>

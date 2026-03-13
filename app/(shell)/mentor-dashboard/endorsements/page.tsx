@@ -139,7 +139,7 @@ export default function EndorsementsPage() {
 
 			{/* Request form */}
 			{showRequestForm && (
-				<Card className="p-6 bg-blue-500/10 border-blue-500/20 space-y-4">
+				<Card className="p-6 bg-accent/10 border-accent/20 space-y-4">
 					<h3 className="font-semibold text-(--primary)">Request Endorsement from an Institution</h3>
 					<p className="text-sm text-(--secondary)">Search for an institution and send them an endorsement request.</p>
 
@@ -164,7 +164,7 @@ export default function EndorsementsPage() {
 									className="w-full px-4 py-3 text-left hover:bg-(--surface-hover) border-b border-(--border) last:border-b-0 transition-colors"
 								>
 									<p className="font-medium text-(--primary) text-sm">{inst.name}</p>
-									<p className="text-xs text-gray-500">{inst.city}{inst.city && inst.country ? ', ' : ''}{inst.country}</p>
+									<p className="text-xs text-(--secondary)">{inst.city}{inst.city && inst.country ? ', ' : ''}{inst.country}</p>
 								</button>
 							))}
 						</div>
@@ -174,11 +174,11 @@ export default function EndorsementsPage() {
 						<div className="bg-(--surface) border border-(--border) rounded-lg p-4 flex items-center justify-between">
 							<div>
 								<p className="font-semibold text-(--primary)">{selectedInstitution.name}</p>
-								<p className="text-xs text-gray-500">{selectedInstitution.city}{selectedInstitution.city && selectedInstitution.country ? ', ' : ''}{selectedInstitution.country}</p>
+								<p className="text-xs text-(--secondary)">{selectedInstitution.city}{selectedInstitution.city && selectedInstitution.country ? ', ' : ''}{selectedInstitution.country}</p>
 							</div>
 							<button
 								onClick={() => { setSelectedInstitution(null); setSearchQuery(''); }}
-								className="text-sm text-gray-400 hover:text-gray-600"
+								className="text-sm text-(--secondary) hover:text-(--primary)"
 							>
 								Change
 							</button>
@@ -219,7 +219,7 @@ export default function EndorsementsPage() {
 			) : endorsements.length === 0 ? (
 				<Card className="p-12 text-center">
 					<div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
-						<svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 						</svg>
 					</div>
@@ -239,7 +239,7 @@ export default function EndorsementsPage() {
 										{endorsement.status}
 									</span>
 									{endorsement.message && (
-										<p className="text-sm text-gray-500 mt-2">Your message: &ldquo;{endorsement.message}&rdquo;</p>
+										<p className="text-sm text-(--secondary) mt-2">Your message: &ldquo;{endorsement.message}&rdquo;</p>
 									)}
 									{endorsement.responseComment && (
 										<p className="text-sm text-(--secondary) mt-2 bg-(--surface-hover) p-3 rounded-lg">
@@ -247,7 +247,7 @@ export default function EndorsementsPage() {
 										</p>
 									)}
 								</div>
-								<p className="text-xs text-gray-400">
+								<p className="text-xs text-(--secondary)">
 									{new Date(endorsement.createdAt).toLocaleDateString()}
 								</p>
 							</div>

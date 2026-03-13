@@ -28,7 +28,7 @@ export function OnboardingNavbar({ exitHref = '/join', exitLabel = 'Exit', showL
 	};
 
 	return (
-		<nav className="h-16 border-b border-(--border) bg-white/80 backdrop-blur-md sticky top-0 z-50">
+		<nav className="h-16 border-b border-(--border) bg-(--surface) backdrop-blur-md sticky top-0 z-50">
 			<div className="container mx-auto px-4 h-full flex items-center justify-between">
 				<Link href="/" className="flex items-center gap-2">
 					<Image src="/xentro-logo.png" alt="Xentro" width={32} height={32} className="rounded-lg" />
