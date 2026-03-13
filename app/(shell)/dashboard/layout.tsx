@@ -54,13 +54,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isLoading) {
         return (
             <div className="animate-pulse p-6 space-y-6">
-                <div className="h-7 w-48 bg-white/5 rounded-lg" />
+                <div className="h-7 w-48 bg-(--surface) border border-(--border) rounded-lg" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[...Array(4)].map((_, i) => (
-                        <div key={i} className="h-24 bg-white/5 rounded-xl" />
+                        <div key={i} className="h-24 bg-(--surface) border border-(--border) rounded-xl" />
                     ))}
                 </div>
-                <div className="h-64 bg-white/5 rounded-xl" />
+                <div className="h-64 bg-(--surface) border border-(--border) rounded-xl" />
             </div>
         );
     }

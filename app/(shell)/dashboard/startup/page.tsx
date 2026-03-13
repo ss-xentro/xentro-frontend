@@ -164,7 +164,7 @@ export default function StartupSettingsPage() {
                 <button
                     onClick={() => setActiveTab('details')}
                     className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'details'
-                        ? 'border-accent text-accent'
+                        ? 'border-(--primary) text-(--primary)'
                         : 'border-transparent text-(--secondary) hover:text-(--primary)'
                         }`}
                 >
@@ -173,7 +173,7 @@ export default function StartupSettingsPage() {
                 <button
                     onClick={() => setActiveTab('funding')}
                     className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'funding'
-                        ? 'border-accent text-accent'
+                        ? 'border-(--primary) text-(--primary)'
                         : 'border-transparent text-(--secondary) hover:text-(--primary)'
                         }`}
                 >

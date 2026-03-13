@@ -34,6 +34,7 @@
 
   /* Borders */
   --border: #E5E7EB;
+  --border-hover: #D1D5DB;
   --border-light: #F3F4F6;
   --border-focus: #111827;
 
@@ -143,6 +144,7 @@ button {
   --surface-hover: #1B202A;
   --surface-pressed: #242B37;
   --border: rgba(255, 255, 255, 0.16);
+  --border-hover: rgba(255, 255, 255, 0.28);
   --border-light: rgba(255, 255, 255, 0.08);
   --border-focus: rgba(255, 255, 255, 0.3);
   --error-light: rgba(239, 68, 68, 0.15);

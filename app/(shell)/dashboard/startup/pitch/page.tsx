@@ -169,7 +169,7 @@ export default function PitchEditorPage() {
 		<div className="animate-fadeIn">
 			{/* Toast */}
 			{message && (
-				<div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-(--shadow-lg) text-sm font-medium transition-all duration-300 animate-slideInRight ${message.type === 'success' ? 'bg-white border border-success/20 text-success' : 'bg-white border border-error/20 text-error'
+				<div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-(--shadow-lg) text-sm font-medium transition-all duration-300 animate-slideInRight ${message.type === 'success' ? 'bg-(--surface) border border-success/30 text-success' : 'bg-(--surface) border border-error/30 text-error'
 					}`}>
 					{message.type === 'success' ? <CheckIcon className="w-4 h-4" /> : (
 						<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>

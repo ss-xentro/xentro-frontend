@@ -58,7 +58,7 @@ export function DashboardChecklist({ className = '', items }: DashboardChecklist
 
 			<div className="mt-6 pt-6 border-t border-(--border)">
 				<h4 className="text-sm font-medium text-(--primary) mb-2">Need Help?</h4>
-				<Link href="/help" className="text-sm text-accent hover:underline">
+				<Link href="/help" className="text-sm text-(--primary) hover:underline">
 					Visit Founder Support Center &rarr;
 				</Link>
 			</div>

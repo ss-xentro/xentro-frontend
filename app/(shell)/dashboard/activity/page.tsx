@@ -42,7 +42,7 @@ export default function ActivityPage() {
     function renderDetails(details: any) {
         if (!details) return null;
         return (
-            <div className="mt-1 text-xs text-(--secondary) font-mono bg-(--background) p-1.5 rounded border border-(--border) inline-block">
+            <div className="mt-1 text-xs text-(--secondary) font-mono bg-(--surface-hover) p-1.5 rounded border border-(--border) inline-block">
                 {Object.entries(details).map(([key, value]) => (
                     <span key={key} className="mr-3">
                         <span className="opacity-70">{key}:</span> {String(value)}
@@ -68,7 +68,7 @@ export default function ActivityPage() {
                     logs.map((log) => (
                         <div key={log.id} className="p-5 hover:bg-(--surface-hover) transition-colors flex gap-4">
                             <div className="mt-1 shrink-0">
-                                <div className="w-8 h-8 rounded-full bg-(--accent-subtle) flex items-center justify-center text-accent">
+                                <div className="w-8 h-8 rounded-full bg-(--surface-hover) flex items-center justify-center text-(--primary)">
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>

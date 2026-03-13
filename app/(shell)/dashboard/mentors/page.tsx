@@ -67,7 +67,7 @@ export default function MyMentorsPage() {
                         {acceptedCount > 0 ? `${acceptedCount} connected mentor${acceptedCount > 1 ? 's' : ''}` : 'Manage your mentor connections and session bookings'}
                     </p>
                 </div>
-                <Link href="/explore/mentors" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-accent text-white hover:bg-accent-hover transition-colors">
+                <Link href="/explore/mentors" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-(--primary) text-(--background) hover:bg-(--primary-light) transition-colors">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -81,14 +81,14 @@ export default function MyMentorsPage() {
                     <button
                         key={t}
                         onClick={() => setTab(t)}
-                        className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${tab === t ? 'bg-(--background) text-(--primary) shadow-sm' : 'text-(--secondary) hover:text-(--primary)'}`}
+                        className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-colors ${tab === t ? 'bg-(--surface-hover) text-(--primary) shadow-sm' : 'text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover)'}`}
                     >
                         {t === 'connections' ? 'Connections' : 'Bookings'}
                         {t === 'connections' && pendingCount > 0 && (
                             <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-amber-500 text-white rounded-full">{pendingCount}</span>
                         )}
                         {t === 'bookings' && upcomingBookings.length > 0 && (
-                            <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-accent text-white rounded-full">{upcomingBookings.length}</span>
+                            <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-(--primary) text-(--background) rounded-full">{upcomingBookings.length}</span>
                         )}
                     </button>
                 ))}

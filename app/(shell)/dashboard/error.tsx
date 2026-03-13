@@ -17,7 +17,7 @@ export default function DashboardError({
 	return (
 		<div className="flex items-center justify-center min-h-[60vh] px-4">
 			<div className="max-w-md w-full text-center space-y-6">
-				<AppIcon name="frown" className="w-12 h-12 text-gray-400 mx-auto" />
+				<AppIcon name="frown" className="w-12 h-12 text-(--secondary) mx-auto" />
 				<h2 className="text-xl font-bold text-(--primary)">Dashboard Error</h2>
 				<p className="text-(--secondary) text-sm">
 					{error.message || 'Something went wrong loading the dashboard.'}
@@ -25,7 +25,7 @@ export default function DashboardError({
 				<div className="flex gap-3 justify-center">
 					<button
 						onClick={reset}
-						className="px-5 py-2 bg-accent text-white rounded-xl text-sm font-medium hover:bg-accent/90 transition-colors"
+						className="px-5 py-2 bg-(--primary) text-(--background) rounded-xl text-sm font-medium hover:bg-(--primary-light) transition-colors"
 					>
 						Try Again
 					</button>

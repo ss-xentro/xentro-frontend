@@ -26,10 +26,10 @@ export default function BookingsList({ bookings, cancellingId, onCancel }: Booki
 				const badge = BOOKING_STATUS_BADGE[booking.status] || BOOKING_STATUS_BADGE.pending;
 				const sched = new Date(booking.scheduledDate);
 				return (
-					<div key={booking.id} className="flex items-start gap-4 p-4 bg-(--surface) border border-(--border) rounded-xl hover:border-(--border-hover) transition-colors">
-						<div className="w-14 h-14 rounded-xl bg-accent/10 flex flex-col items-center justify-center shrink-0">
-							<span className="text-xs font-medium text-accent">{sched.toLocaleDateString('en-US', { month: 'short' })}</span>
-							<span className="text-lg font-bold text-accent leading-tight">{sched.getDate()}</span>
+					<div key={booking.id} className="flex items-start gap-4 p-4 bg-(--surface) border border-(--border) rounded-xl hover:border-(--secondary-light) transition-colors">
+						<div className="w-14 h-14 rounded-xl bg-(--surface-hover) flex flex-col items-center justify-center shrink-0">
+							<span className="text-xs font-medium text-(--primary)">{sched.toLocaleDateString('en-US', { month: 'short' })}</span>
+							<span className="text-lg font-bold text-(--primary) leading-tight">{sched.getDate()}</span>
 						</div>
 						<div className="flex-1 min-w-0">
 							<div className="flex items-center justify-between gap-3">
