@@ -18,6 +18,7 @@ export default function MentorProfilePage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [showActionFooter, setShowActionFooter] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -106,6 +107,17 @@ export default function MentorProfilePage() {
     useEffect(() => {
         fetchProfile();
     }, [fetchProfile]);
+
+    useEffect(() => {
+        const onScroll = () => {
+            setShowActionFooter(window.scrollY > 240);
+        };
+
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
     // -- Slot management --
     const addSlot = (slot: SlotEntry) => {
@@ -271,12 +283,20 @@ export default function MentorProfilePage() {
         return <FormSkeleton />;
     }
 
+    const completionStats = {
+        achievements: achievements.length,
+        highlights: highlights.length,
+        slots: slots.length,
+        docs: documents.length,
+    };
+
     return (
-        <div className="space-y-8 animate-fadeIn max-w-3xl">
+        <div className="space-y-8 animate-fadeIn w-full pb-24">
             {/* Header */}
-            <div>
+            <div className="space-y-2">
                 <BackButton href="/mentor-dashboard" label="Back to Dashboard" />
-                <h1 className="text-2xl font-bold text-(--primary)">Complete Your Profile</h1>
+                <p className="text-xs uppercase tracking-[0.16em] text-(--secondary)">Mentor Profile Builder</p>
+                <h1 className="text-3xl font-bold text-(--primary)">Complete Your Profile</h1>
                 <p className="text-(--secondary) mt-1">
                     Fill in your details to make your mentor profile live and discoverable.
                 </p>
@@ -331,28 +351,71 @@ export default function MentorProfilePage() {
                 </Card>
             )}
 
-            {/* Section 1: Achievements */}
-            <Card className="p-6">
-                <AchievementsSection
-                    achievements={achievements}
-                    highlights={highlights}
-                    achievementDraft={achievementDraft}
-                    highlightDraft={highlightDraft}
-                    achievementDraftCount={getContentLength(achievementDraft)}
-                    highlightDraftCount={getContentLength(highlightDraft)}
-                    onAchievementDraftChange={setAchievementDraft}
-                    onHighlightDraftChange={setHighlightDraft}
-                    onAddAchievement={addAchievement}
-                    onAddHighlight={addHighlight}
-                    onUpdateAchievement={updateAchievement}
-                    onUpdateHighlight={updateHighlight}
-                    onRemoveAchievement={removeAchievement}
-                    onRemoveHighlight={removeHighlight}
-                    getContentLength={getContentLength}
-                />
-            </Card>
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                {/* Section 1: Achievements */}
+                <Card className="p-6 xl:col-span-8">
+                    <AchievementsSection
+                        achievements={achievements}
+                        highlights={highlights}
+                        achievementDraft={achievementDraft}
+                        highlightDraft={highlightDraft}
+                        achievementDraftCount={getContentLength(achievementDraft)}
+                        highlightDraftCount={getContentLength(highlightDraft)}
+                        onAchievementDraftChange={setAchievementDraft}
+                        onHighlightDraftChange={setHighlightDraft}
+                        onAddAchievement={addAchievement}
+                        onAddHighlight={addHighlight}
+                        onUpdateAchievement={updateAchievement}
+                        onUpdateHighlight={updateHighlight}
+                        onRemoveAchievement={removeAchievement}
+                        onRemoveHighlight={removeHighlight}
+                        getContentLength={getContentLength}
+                    />
+                </Card>
 
-            {/* Section 2: Available Slots */}
+                <div className="xl:col-span-4 space-y-6">
+                    {/* Section 2: Pricing */}
+                    <Card className="p-6">
+                        <div className="flex items-center gap-3 mb-5">
+                            <div className="w-8 h-8 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center">
+                                <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-(--primary)">Pricing</h3>
+                                <p className="text-sm text-(--secondary)">Set your hourly rate in INR</p>
+                            </div>
+                        </div>
+                        <Input
+                            type="number"
+                            value={pricingPerHour}
+                            onChange={(e) => setPricingPerHour(e.target.value)}
+                            placeholder="0.00"
+                            min="0"
+                            step="0.01"
+                            label="Rate per hour (INR)"
+                            hint="Shown on your public profile"
+                            icon={
+                                <span className="text-(--secondary) font-medium">Rs</span>
+                            }
+                        />
+                    </Card>
+
+                    {/* Section 3: Documents */}
+                    <Card className="p-6">
+                        <DocumentsSection
+                            documents={documents}
+                            uploading={uploading}
+                            uploadError={uploadError}
+                            onUpload={handleDocumentUpload}
+                            onRemove={removeDocument}
+                        />
+                    </Card>
+                </div>
+            </div>
+
+            {/* Section 4: Available Slots */}
             <Card className="p-6">
                 <AvailabilitySlotsSection
                     slots={slots}
@@ -362,66 +425,50 @@ export default function MentorProfilePage() {
                 />
             </Card>
 
-            {/* Section 3: Pricing */}
-            <Card className="p-6">
-                <div className="flex items-center gap-3 mb-5">
-                    <div className="w-8 h-8 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center">
-                        <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-semibold text-(--primary)">Pricing</h3>
-                        <p className="text-sm text-(--secondary)">Set your hourly rate for mentoring sessions</p>
+            {/* Sticky Submit Footer */}
+            <div
+                className={`fixed bottom-4 left-4 right-4 z-40 lg:left-auto lg:right-8 lg:max-w-4xl transition-all duration-300 ${showActionFooter || saving
+                    ? 'opacity-100 translate-y-0 pointer-events-auto'
+                    : 'opacity-0 translate-y-3 pointer-events-none'
+                    }`}
+            >
+                <div className="rounded-2xl border border-(--border) bg-(--surface) shadow-(--shadow-lg) px-4 py-3 backdrop-blur-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                            <span className="px-2 py-1 rounded-full bg-(--surface-hover) text-(--secondary)">
+                                Achievements: {completionStats.achievements}
+                            </span>
+                            <span className="px-2 py-1 rounded-full bg-(--surface-hover) text-(--secondary)">
+                                Highlights: {completionStats.highlights}
+                            </span>
+                            <span className="px-2 py-1 rounded-full bg-(--surface-hover) text-(--secondary)">
+                                Slots: {completionStats.slots}
+                            </span>
+                            <span className="px-2 py-1 rounded-full bg-(--surface-hover) text-(--secondary)">
+                                Documents: {completionStats.docs}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <Button
+                                variant="secondary"
+                                size="lg"
+                                onClick={() => router.push('/mentor-dashboard')}
+                                disabled={saving}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="lg"
+                                onClick={handleSubmit}
+                                isLoading={saving}
+                                disabled={saving}
+                            >
+                                {saving ? 'Saving...' : 'Submit Profile'}
+                            </Button>
+                        </div>
                     </div>
                 </div>
-                <div className="max-w-xs">
-                    <Input
-                        type="number"
-                        value={pricingPerHour}
-                        onChange={(e) => setPricingPerHour(e.target.value)}
-                        placeholder="0.00"
-                        min="0"
-                        step="0.01"
-                        label="Rate per hour (INR)"
-                        hint="This will be shown on your public profile"
-                        icon={
-                            <span className="text-(--secondary) font-medium">Rs</span>
-                        }
-                    />
-                </div>
-            </Card>
-
-            {/* Section 4: Documents */}
-            <Card className="p-6">
-                <DocumentsSection
-                    documents={documents}
-                    uploading={uploading}
-                    uploadError={uploadError}
-                    onUpload={handleDocumentUpload}
-                    onRemove={removeDocument}
-                />
-            </Card>
-
-            {/* Submit */}
-            <div className="flex items-center gap-4 pb-8">
-                <Button
-                    variant="primary"
-                    size="lg"
-                    onClick={handleSubmit}
-                    isLoading={saving}
-                    disabled={saving}
-                >
-                    {saving ? 'Saving...' : 'Submit Profile'}
-                </Button>
-                <Button
-                    variant="secondary"
-                    size="lg"
-                    onClick={() => router.push('/mentor-dashboard')}
-                    disabled={saving}
-                >
-                    Cancel
-                </Button>
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/Button';
 import { useMemo, useState } from 'react';
-import { SlotEntry, DAYS_OF_WEEK } from '../_lib/constants';
+import { SlotEntry, DAYS_OF_WEEK, TIME_OPTIONS } from '../_lib/constants';
 
 interface Props {
 	slots: SlotEntry[];
@@ -10,122 +10,275 @@ interface Props {
 }
 
 export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpdate }: Props) {
-	const [newDay, setNewDay] = useState(DAYS_OF_WEEK[0]);
+	const [selectedDay, setSelectedDay] = useState(DAYS_OF_WEEK[0]);
 	const [newStart, setNewStart] = useState('09:00');
 	const [newEnd, setNewEnd] = useState('10:00');
+	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-	const groupedSlots = useMemo(() => {
+	const dayStats = useMemo(() => {
 		return DAYS_OF_WEEK.map((day) => ({
 			day,
-			slots: slots
-				.map((slot, index) => ({ ...slot, index }))
-				.filter((slot) => slot.day === day)
-				.sort((a, b) => a.startTime.localeCompare(b.startTime)),
+			count: slots.filter((slot) => slot.day === day).length,
 		}));
 	}, [slots]);
 
+	const daySlots = useMemo(() => {
+		return slots
+			.map((slot, index) => ({ ...slot, index }))
+			.filter((slot) => slot.day === selectedDay)
+			.sort((a, b) => a.startTime.localeCompare(b.startTime));
+	}, [slots, selectedDay]);
+
+	const slotBuckets = useMemo(() => {
+		const getHour = (value: string) => Number(value.split(':')[0] || 0);
+
+		return {
+			morning: daySlots.filter((slot) => getHour(slot.startTime) < 12),
+			afternoon: daySlots.filter((slot) => getHour(slot.startTime) >= 12 && getHour(slot.startTime) < 17),
+			evening: daySlots.filter((slot) => getHour(slot.startTime) >= 17),
+		};
+	}, [daySlots]);
+
+	const totalSlots = slots.length;
+
+	const isValidRange = newStart < newEnd;
+
+	const formatTime = (value: string) => {
+		const [hourRaw, minute] = value.split(':').map(Number);
+		const suffix = hourRaw >= 12 ? 'PM' : 'AM';
+		const hour = hourRaw % 12 || 12;
+		return `${hour}:${String(minute).padStart(2, '0')} ${suffix}`;
+	};
+
+	const getDurationLabel = (start: string, end: string) => {
+		const [startHour, startMinute] = start.split(':').map(Number);
+		const [endHour, endMinute] = end.split(':').map(Number);
+		const minutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
+		if (minutes <= 0) return 'Invalid range';
+		if (minutes % 60 === 0) return `${minutes / 60}h`;
+		return `${minutes} min`;
+	};
+
 	const handleAddSlot = () => {
-		if (!newStart || !newEnd || newStart >= newEnd) return;
-		onAdd({ day: newDay, startTime: newStart, endTime: newEnd });
+		if (!newStart || !newEnd || !isValidRange) return;
+		onAdd({ day: selectedDay, startTime: newStart, endTime: newEnd });
+	};
+
+	const quickAdd = (range: 'morning' | 'afternoon' | 'evening') => {
+		if (range === 'morning') {
+			setNewStart('09:00');
+			setNewEnd('10:00');
+			onAdd({ day: selectedDay, startTime: '09:00', endTime: '10:00' });
+		} else if (range === 'afternoon') {
+			setNewStart('14:00');
+			setNewEnd('15:00');
+			onAdd({ day: selectedDay, startTime: '14:00', endTime: '15:00' });
+		} else {
+			setNewStart('18:00');
+			setNewEnd('19:00');
+			onAdd({ day: selectedDay, startTime: '18:00', endTime: '19:00' });
+		}
+	};
+
+	const renderSlotPill = (slot: SlotEntry & { index: number }) => {
+		const active = editingIndex === slot.index;
+
+		return (
+			<button
+				type="button"
+				key={`${slot.index}-${slot.startTime}`}
+				onClick={() => setEditingIndex(slot.index)}
+				className={`group relative px-3 py-2.5 rounded-lg border text-sm transition-all min-w-[148px] text-left ${active
+					? 'bg-accent text-white border-accent shadow-sm'
+					: 'bg-(--surface) text-(--primary) border-(--border) hover:border-accent/40 hover:bg-(--surface-hover)'
+					}`}
+			>
+				<p className="font-medium leading-tight">
+					{formatTime(slot.startTime)}
+					<span className={`mx-1 ${active ? 'text-white/80' : 'text-(--secondary)'}`}>-&gt;</span>
+					{formatTime(slot.endTime)}
+				</p>
+				<p className={`text-[11px] mt-1 ${active ? 'text-white/80' : 'text-(--secondary)'}`}>
+					{getDurationLabel(slot.startTime, slot.endTime)}
+				</p>
+			</button>
+		);
 	};
 
 	return (
-		<>
-			<div className="flex items-center justify-between mb-5">
-				<div className="flex items-center gap-3">
-					<div className="w-8 h-8 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center">
+		<div className="space-y-6 w-full">
+			<div className="flex items-start justify-between gap-4">
+				<div className="flex items-start gap-3">
+					<div className="w-9 h-9 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center">
 						<svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 						</svg>
 					</div>
 					<div>
 						<h3 className="text-lg font-semibold text-(--primary)">Available Slots</h3>
-						<p className="text-sm text-(--secondary)">Use the timetable below and configure exact start/end times per slot.</p>
-					</div>
-				</div>
-				<Button variant="secondary" size="sm" onClick={handleAddSlot} disabled={!newStart || !newEnd || newStart >= newEnd}>
-					<svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-					</svg>
-					Add Slot
-				</Button>
-			</div>
-
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4 p-3 bg-(--surface-hover) rounded-lg border border-(--border)">
-				<select
-					value={newDay}
-					onChange={(e) => setNewDay(e.target.value)}
-					className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
-				>
-					{DAYS_OF_WEEK.map((day) => (
-						<option key={day} value={day}>{day}</option>
-					))}
-				</select>
-
-				<input
-					type="time"
-					value={newStart}
-					onChange={(e) => setNewStart(e.target.value)}
-					className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
-				/>
-
-				<input
-					type="time"
-					value={newEnd}
-					onChange={(e) => setNewEnd(e.target.value)}
-					className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
-				/>
-
-				<div className="text-xs text-(--secondary) flex items-center md:justify-end">
-					{newStart >= newEnd ? 'End time must be after start time.' : 'Add slots day-by-day.'}
-				</div>
-			</div>
-
-			<div className="space-y-3">
-				{groupedSlots.map((dayGroup) => (
-					<div key={dayGroup.day} className="rounded-lg border border-(--border) overflow-hidden">
-						<div className="px-3 py-2 bg-(--surface-hover) text-sm font-semibold text-(--primary)">{dayGroup.day}</div>
-						<div className="divide-y divide-(--border)">
-							{dayGroup.slots.length === 0 ? (
-								<div className="px-3 py-2 text-xs text-(--secondary)">No slots</div>
-							) : (
-								dayGroup.slots.map((slot) => (
-									<div key={`${slot.index}-${slot.startTime}`} className="px-3 py-2 flex items-center gap-2">
-										<input
-											type="time"
-											value={slot.startTime}
-											onChange={(e) => onUpdate(slot.index, 'startTime', e.target.value)}
-											className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
-										/>
-										<span className="text-(--secondary) text-sm">to</span>
-										<input
-											type="time"
-											value={slot.endTime}
-											onChange={(e) => onUpdate(slot.index, 'endTime', e.target.value)}
-											className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
-										/>
-										<button
-											onClick={() => onRemove(slot.index)}
-											className="ml-auto w-8 h-8 flex items-center justify-center rounded-lg text-(--secondary) hover:text-red-500 hover:bg-red-50 transition-colors"
-											aria-label="Remove slot"
-										>
-											<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-											</svg>
-										</button>
-									</div>
-								))
-							)}
+						<p className="text-sm text-(--secondary)">Pick a day, add precise time windows, and fine-tune selected slots from the editor below.</p>
+						<div className="mt-3 flex flex-wrap gap-2">
+							<span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-(--surface-hover) text-(--primary)">
+								{totalSlots} total slot{totalSlots !== 1 ? 's' : ''}
+							</span>
+							<span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">
+								{selectedDay}: {daySlots.length}
+							</span>
 						</div>
 					</div>
-				))}
+				</div>
+			</div>
+
+			<div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+				<div className="xl:col-span-3 rounded-xl border border-(--border) bg-(--surface) p-4 h-fit xl:sticky xl:top-6">
+					<div className="mb-3">
+						<p className="text-xs uppercase tracking-wide text-(--secondary)">Weekly View</p>
+						<p className="text-sm font-semibold text-(--primary)">Select Day</p>
+					</div>
+					<div className="space-y-2">
+						{dayStats.map((item) => {
+							const active = item.day === selectedDay;
+							return (
+								<button
+									type="button"
+									key={item.day}
+									onClick={() => {
+										setSelectedDay(item.day);
+										setEditingIndex(null);
+									}}
+									className={`w-full flex items-center justify-between rounded-lg border px-3 py-2 text-sm transition-colors ${active
+										? 'border-accent bg-accent/10 text-accent'
+										: 'border-(--border) bg-(--surface) text-(--primary) hover:bg-(--surface-hover)'
+										}`}
+								>
+									<span className="font-medium">{item.day}</span>
+									<span className={`inline-flex min-w-6 h-6 items-center justify-center rounded-full px-1 text-xs font-semibold ${active ? 'bg-accent text-white' : 'bg-(--surface-hover) text-(--secondary)'}`}>
+										{item.count}
+									</span>
+								</button>
+							);
+						})}
+					</div>
+				</div>
+
+				<div className="xl:col-span-9 rounded-xl border border-(--border) bg-(--surface) p-5 space-y-5">
+					<div className="p-3 rounded-xl bg-(--surface-hover) border border-(--border) space-y-3">
+						<div className="flex flex-wrap items-center justify-between gap-2">
+							<p className="text-sm font-semibold text-(--primary)">Add New Slot</p>
+							<p className="text-xs text-(--secondary)">Selected day: {selectedDay}</p>
+						</div>
+						<div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+							<select
+								value={selectedDay}
+								onChange={(e) => setSelectedDay(e.target.value)}
+								className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
+							>
+								{DAYS_OF_WEEK.map((day) => (
+									<option key={day} value={day}>{day}</option>
+								))}
+							</select>
+							<select
+								value={newStart}
+								onChange={(e) => setNewStart(e.target.value)}
+								className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
+							>
+								{TIME_OPTIONS.map((time) => (
+									<option key={time} value={time}>{formatTime(time)}</option>
+								))}
+							</select>
+							<select
+								value={newEnd}
+								onChange={(e) => setNewEnd(e.target.value)}
+								className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
+							>
+								{TIME_OPTIONS.map((time) => (
+									<option key={time} value={time}>{formatTime(time)}</option>
+								))}
+							</select>
+							<Button variant="secondary" size="sm" onClick={handleAddSlot} disabled={!isValidRange}>
+								Add Slot
+							</Button>
+						</div>
+					</div>
+
+					{!isValidRange && (
+						<p className="text-xs text-error">End time must be after start time.</p>
+					)}
+
+					<div className="grid grid-cols-1 2xl:grid-cols-3 gap-4">
+						<div className="rounded-xl border border-(--border)">
+							<div className="px-3 py-2 border-b border-(--border) flex items-center justify-between">
+								<p className="text-sm font-semibold text-(--primary)">Morning</p>
+								<button type="button" onClick={() => quickAdd('morning')} className="text-xs text-accent hover:underline">+ Add Slot</button>
+							</div>
+							<div className="p-3 flex flex-wrap gap-2">
+								{slotBuckets.morning.length === 0 ? <p className="text-xs text-(--secondary)">No morning slots</p> : slotBuckets.morning.map(renderSlotPill)}
+							</div>
+						</div>
+
+						<div className="rounded-xl border border-(--border)">
+							<div className="px-3 py-2 border-b border-(--border) flex items-center justify-between">
+								<p className="text-sm font-semibold text-(--primary)">Afternoon</p>
+								<button type="button" onClick={() => quickAdd('afternoon')} className="text-xs text-accent hover:underline">+ Add Slot</button>
+							</div>
+							<div className="p-3 flex flex-wrap gap-2">
+								{slotBuckets.afternoon.length === 0 ? <p className="text-xs text-(--secondary)">No afternoon slots</p> : slotBuckets.afternoon.map(renderSlotPill)}
+							</div>
+						</div>
+
+						<div className="rounded-xl border border-(--border)">
+							<div className="px-3 py-2 border-b border-(--border) flex items-center justify-between">
+								<p className="text-sm font-semibold text-(--primary)">Evening</p>
+								<button type="button" onClick={() => quickAdd('evening')} className="text-xs text-accent hover:underline">+ Add Slot</button>
+							</div>
+							<div className="p-3 flex flex-wrap gap-2">
+								{slotBuckets.evening.length === 0 ? <p className="text-xs text-(--secondary)">No evening slots</p> : slotBuckets.evening.map(renderSlotPill)}
+							</div>
+						</div>
+					</div>
+
+					{editingIndex !== null && slots[editingIndex] && (
+						<div className="rounded-xl border border-(--border) bg-(--surface-hover) p-3 flex flex-wrap items-center gap-2">
+							<p className="text-xs font-medium text-(--secondary) mr-2">Edit selected slot:</p>
+							<select
+								value={slots[editingIndex].startTime}
+								onChange={(e) => onUpdate(editingIndex, 'startTime', e.target.value)}
+								className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
+							>
+								{TIME_OPTIONS.map((time) => (
+									<option key={time} value={time}>{formatTime(time)}</option>
+								))}
+							</select>
+							<span className="text-(--secondary) text-sm">to</span>
+							<select
+								value={slots[editingIndex].endTime}
+								onChange={(e) => onUpdate(editingIndex, 'endTime', e.target.value)}
+								className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
+							>
+								{TIME_OPTIONS.map((time) => (
+									<option key={time} value={time}>{formatTime(time)}</option>
+								))}
+							</select>
+							<button
+								type="button"
+								onClick={() => {
+									onRemove(editingIndex);
+									setEditingIndex(null);
+								}}
+								className="ml-auto px-3 h-9 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm"
+							>
+								Remove
+							</button>
+						</div>
+					)}
+				</div>
 			</div>
 
 			{slots.length === 0 && (
-				<div className="text-center py-8 text-(--secondary)">
-					<p className="text-sm">No slots added yet. Click &quot;Add Slot&quot; to set your availability.</p>
+				<div className="text-center py-4 text-(--secondary)">
+					<p className="text-sm">No slots added yet. Use the controls above to build your schedule.</p>
 				</div>
 			)}
-		</>
+		</div>
 	);
 }
