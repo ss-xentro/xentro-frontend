@@ -48,6 +48,9 @@ export interface Startup {
 	ownerId?: string | null;
 	programs?: { id: string; name: string; type: string; description?: string | null; isActive?: boolean }[] | null;
 	profileViews?: number;
+	investorInterestCount?: number;
+	searchAppearances?: number;
+	investorInterestRecorded?: boolean;
 	createdAt?: string;
 	updatedAt?: string;
 

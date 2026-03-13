@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/Button';
 import { StartupProfileNavbar } from '@/components/public/StartupProfileNavbar';
 import {
   StartupProfileHero,
@@ -16,7 +17,7 @@ import {
 } from '@/components/public/startup-profile';
 import type { StartupWithDetails } from '@/components/public/startup-profile';
 import { cn, hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
-import { getSessionToken } from '@/lib/auth-utils';
+import { getAuthCookie, getSessionToken } from '@/lib/auth-utils';
 
 type Tab = 'about' | 'team' | 'activity';
 
@@ -25,10 +26,12 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
   const [startup, setStartup] = useState<StartupWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('about');
+  const [interestLoading, setInterestLoading] = useState(false);
+  const [interestMessage, setInterestMessage] = useState<string | null>(null);
 
   useEffect(() => {
     params.then(p => {
-      let headers: HeadersInit = { 'x-public-view': 'true' };
+      const headers: HeadersInit = { 'x-public-view': 'true' };
       const token = getSessionToken();
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -99,6 +102,50 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
     { key: 'team', label: 'Team' },
     { key: 'activity', label: 'Activity' },
   ];
+
+  const session = getAuthCookie();
+  const canExpressInvestorInterest = Boolean(
+    session && (session.role === 'investor' || session.contexts.includes('investor'))
+  );
+
+  const submitInvestorInterest = async () => {
+    if (!startup) return;
+
+    const token = getSessionToken('investor') || getSessionToken();
+    if (!token) {
+      setInterestMessage('Log in with an investor account to show interest.');
+      return;
+    }
+
+    setInterestLoading(true);
+    setInterestMessage(null);
+
+    try {
+      const res = await fetch(`/api/startups/${startup.slug || startup.id}/interest/`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const payload = await res.json();
+      if (!res.ok) {
+        throw new Error(payload.error || 'Failed to register investor interest.');
+      }
+
+      setStartup((current) => current ? ({
+        ...current,
+        investorInterestRecorded: true,
+        investorInterestCount: payload.investorInterestCount ?? current.investorInterestCount,
+      }) : current);
+      setInterestMessage(payload.alreadyRecorded ? 'Interest already recorded.' : 'Interest recorded successfully.');
+    } catch (error) {
+      setInterestMessage(error instanceof Error ? error.message : 'Failed to register investor interest.');
+    } finally {
+      setInterestLoading(false);
+    }
+  };
 
   // Restricted View handling
   if (startup.isRestricted) {
@@ -204,15 +251,36 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
               )}
 
               {/* Contact footer */}
-              {startup.primaryContactEmail && (
+              {(startup.primaryContactEmail || canExpressInvestorInterest) && (
                 <section className="pt-6 border-t border-(--border)">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-4 h-4 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <a href={`mailto:${startup.primaryContactEmail}`} className="text-sm text-(--primary) hover:underline">
-                      {startup.primaryContactEmail}
-                    </a>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-(--border) bg-(--surface) p-4">
+                    <div>
+                      <p className="text-sm font-medium text-(--primary)">Investor actions</p>
+                      <p className="text-xs text-(--secondary) mt-1">
+                        {startup.primaryContactEmail ? 'Reach out directly or register investor interest.' : 'Register investor interest to notify the startup team.'}
+                      </p>
+                      {interestMessage ? <p className="text-xs text-accent mt-2">{interestMessage}</p> : null}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      {startup.primaryContactEmail ? (
+                        <a href={`mailto:${startup.primaryContactEmail}`} className="text-sm text-(--primary) hover:underline">
+                          {startup.primaryContactEmail}
+                        </a>
+                      ) : null}
+                      {canExpressInvestorInterest ? (
+                        <Button
+                          type="button"
+                          variant={startup.investorInterestRecorded ? 'secondary' : 'primary'}
+                          size="sm"
+                          isLoading={interestLoading}
+                          disabled={interestLoading || startup.investorInterestRecorded}
+                          onClick={submitInvestorInterest}
+                        >
+                          {startup.investorInterestRecorded ? 'Interest Registered' : 'Show Investor Interest'}
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                 </section>
               )}

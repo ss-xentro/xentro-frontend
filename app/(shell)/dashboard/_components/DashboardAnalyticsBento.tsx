@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import type { ActivityLog, DashboardAnalytics, StartupData } from './types';
 
@@ -29,46 +30,112 @@ function Sparkline({ values, stroke }: { values: number[]; stroke: string }) {
 	);
 }
 
-function TinyMultiLineGraph({
+function formatShortLabel(label: string | undefined) {
+	if (!label) return '';
+	const date = new Date(label);
+	if (Number.isNaN(date.getTime())) return label;
+	return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function buildChartPoints(values: number[], width: number, height: number, offsetX: number, offsetY: number, max: number) {
+	if (!values.length) return [] as Array<{ x: number; y: number; value: number }>;
+	const innerWidth = Math.max(width - offsetX * 2, 1);
+	const innerHeight = Math.max(height - offsetY * 2, 1);
+	const stepX = values.length > 1 ? innerWidth / (values.length - 1) : innerWidth;
+
+	return values.map((value, index) => ({
+		x: offsetX + index * stepX,
+		y: offsetY + innerHeight - (value / Math.max(max, 1)) * innerHeight,
+		value,
+	}));
+}
+
+function InteractiveTrendChart({
+	labels,
 	profile,
 	investor,
 	search,
 }: {
+	labels: string[];
 	profile: number[];
 	investor: number[];
 	search: number[];
 }) {
-	const width = 460;
-	const height = 120;
-	const gridLines = [20, 50, 80].map((pct) => (height * pct) / 100);
+	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+	const width = 560;
+	const height = 220;
+	const offsetX = 28;
+	const offsetY = 18;
+	const maxValue = Math.max(...profile, ...investor, ...search, 1);
+	const safeLabels = labels.length ? labels : profile.map((_, index) => `Day ${index + 1}`);
+	const profilePoints = useMemo(() => buildChartPoints(profile, width, height, offsetX, offsetY, maxValue), [profile, maxValue]);
+	const investorPoints = useMemo(() => buildChartPoints(investor, width, height, offsetX, offsetY, maxValue), [investor, maxValue]);
+	const searchPoints = useMemo(() => buildChartPoints(search, width, height, offsetX, offsetY, maxValue), [search, maxValue]);
+	const stepX = safeLabels.length > 1 ? (width - offsetX * 2) / (safeLabels.length - 1) : width - offsetX * 2;
+	const hasData = safeLabels.length > 0 && profilePoints.length > 0 && investorPoints.length > 0 && searchPoints.length > 0;
+	const activeIndex = hoveredIndex ?? safeLabels.length - 1;
+	const activeX = offsetX + Math.max(activeIndex, 0) * stepX;
+	const tooltipLeft = `${Math.min(92, Math.max(8, (activeX / width) * 100))}%`;
+	const yAxisTicks = [maxValue, Math.round(maxValue / 2), 0];
+
+	const resolveIndex = (clientX: number, bounds: DOMRect) => {
+		if (safeLabels.length <= 1) return 0;
+		const relativeX = ((clientX - bounds.left) / bounds.width) * (width - offsetX * 2);
+		const index = Math.round(relativeX / stepX);
+		return Math.min(safeLabels.length - 1, Math.max(0, index));
+	};
 
 	return (
-		<svg viewBox={`0 0 ${width} ${height}`} className="w-full h-32 rounded-lg bg-(--surface)">
-			{gridLines.map((y) => (
-				<line key={y} x1="0" y1={y} x2={width} y2={y} stroke="var(--border)" strokeWidth="1" />
-			))}
-			<polyline
-				fill="none"
-				stroke="#06b6d4"
-				strokeWidth="2"
-				points={buildPoints(profile, width, height)}
-				strokeLinecap="round"
-			/>
-			<polyline
-				fill="none"
-				stroke="#22c55e"
-				strokeWidth="2"
-				points={buildPoints(investor, width, height)}
-				strokeLinecap="round"
-			/>
-			<polyline
-				fill="none"
-				stroke="#f59e0b"
-				strokeWidth="2"
-				points={buildPoints(search, width, height)}
-				strokeLinecap="round"
-			/>
-		</svg>
+		<div className="mt-4 rounded-xl border border-(--border) bg-(--surface) p-4">
+			<div className="relative">
+				{hasData ? (
+					<div
+						className="absolute -top-2 z-10 -translate-x-1/2 rounded-lg border border-(--border) bg-white px-3 py-2 shadow-sm"
+						style={{ left: tooltipLeft }}
+					>
+						<p className="text-[11px] uppercase tracking-wide text-(--secondary)">{formatShortLabel(safeLabels[activeIndex])}</p>
+						<p className="text-xs text-(--primary) mt-1">Views: <span className="tabular-nums">{profile[activeIndex] ?? 0}</span></p>
+						<p className="text-xs text-(--primary)">Interest: <span className="tabular-nums">{investor[activeIndex] ?? 0}</span></p>
+						<p className="text-xs text-(--primary)">Search: <span className="tabular-nums">{search[activeIndex] ?? 0}</span></p>
+					</div>
+				) : null}
+				<svg
+					viewBox={`0 0 ${width} ${height}`}
+					className="w-full h-56"
+					onMouseMove={(event) => {
+						if (!hasData) return;
+						setHoveredIndex(resolveIndex(event.clientX, event.currentTarget.getBoundingClientRect()));
+					}}
+					onMouseLeave={() => setHoveredIndex(null)}
+				>
+					{yAxisTicks.map((tick) => {
+						const y = offsetY + (height - offsetY * 2) - (tick / Math.max(maxValue, 1)) * (height - offsetY * 2);
+						return (
+							<g key={tick}>
+								<line x1={offsetX} y1={y} x2={width - offsetX} y2={y} stroke="var(--border)" strokeWidth="1" />
+								<text x="2" y={y + 4} fontSize="10" fill="currentColor" className="text-(--secondary)">{tick}</text>
+							</g>
+						);
+					})}
+					{hasData ? <line x1={activeX} y1={offsetY} x2={activeX} y2={height - offsetY} stroke="var(--border)" strokeDasharray="4 4" /> : null}
+					<polyline fill="none" stroke="#06b6d4" strokeWidth="2.5" points={profilePoints.map((point) => `${point.x},${point.y}`).join(' ')} strokeLinecap="round" strokeLinejoin="round" />
+					<polyline fill="none" stroke="#22c55e" strokeWidth="2.5" points={investorPoints.map((point) => `${point.x},${point.y}`).join(' ')} strokeLinecap="round" strokeLinejoin="round" />
+					<polyline fill="none" stroke="#f59e0b" strokeWidth="2.5" points={searchPoints.map((point) => `${point.x},${point.y}`).join(' ')} strokeLinecap="round" strokeLinejoin="round" />
+					{hasData && hoveredIndex !== null ? (
+						<g>
+							<circle cx={profilePoints[hoveredIndex]?.x} cy={profilePoints[hoveredIndex]?.y} r="4" fill="#06b6d4" />
+							<circle cx={investorPoints[hoveredIndex]?.x} cy={investorPoints[hoveredIndex]?.y} r="4" fill="#22c55e" />
+							<circle cx={searchPoints[hoveredIndex]?.x} cy={searchPoints[hoveredIndex]?.y} r="4" fill="#f59e0b" />
+						</g>
+					) : null}
+				</svg>
+			</div>
+			<div className="mt-3 flex items-center justify-between text-[11px] text-(--secondary)">
+				<span>{formatShortLabel(safeLabels[0])}</span>
+				<span>{formatShortLabel(safeLabels[Math.floor((safeLabels.length - 1) / 2)])}</span>
+				<span>{formatShortLabel(safeLabels[safeLabels.length - 1])}</span>
+			</div>
+		</div>
 	);
 }
 
@@ -164,6 +231,7 @@ export function DashboardAnalyticsBento({
 		?? getFallbackSeries(logs, (action) => action.includes('investor') || action.includes('interest'));
 	const searchSeries = analytics?.sparkline?.searchAppearances
 		?? getFallbackSeries(logs, (action) => action.includes('search'));
+	const chartLabels = analytics?.sparkline?.labels ?? profileSeries.map((_, index) => `Day ${index + 1}`);
 
 	const profileUpdates = countByAction(logs, (action) => action.includes('updated') || action.includes('edit'));
 	const pitchUpdates = countByAction(logs, (action) => action.includes('pitch'));
@@ -190,8 +258,8 @@ export function DashboardAnalyticsBento({
 								type="button"
 								onClick={() => onWindowChange(option)}
 								className={`px-3 py-1.5 text-sm rounded-md transition-colors ${windowDays === option
-										? 'bg-accent text-white'
-										: 'text-(--secondary) hover:text-(--primary)'
+									? 'bg-accent text-white'
+									: 'text-(--secondary) hover:text-(--primary)'
 									}`}
 							>
 								{option}d
@@ -238,7 +306,7 @@ export function DashboardAnalyticsBento({
 				<p className="text-xs uppercase tracking-[0.14em] text-(--secondary)">Engagement Breakdown</p>
 				<h3 className="mt-2 text-xl font-semibold text-(--primary)">How people discover and interact with you</h3>
 				<div className="mt-4">
-					<TinyMultiLineGraph profile={profileSeries} investor={investorSeries} search={searchSeries} />
+					<InteractiveTrendChart labels={chartLabels} profile={profileSeries} investor={investorSeries} search={searchSeries} />
 					<div className="mt-2 flex flex-wrap gap-3 text-xs text-(--secondary)">
 						<span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-full bg-cyan-500" />Profile Views</span>
 						<span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-full bg-green-500" />Investor Interest</span>
