@@ -30,6 +30,14 @@ interface CalendarLinks {
 	ics?: string;
 }
 
+interface EventOccurrence {
+	id: string;
+	startTime: string;
+	endTime: string;
+	maxAttendees: number | null;
+	status: string;
+}
+
 function formatDateTime(value: string | null): string {
 	if (!value) return 'TBA';
 	return new Date(value).toLocaleString('en-US', {
@@ -57,6 +65,8 @@ export default function EventDetailPage() {
 	const [holdExpiresAt, setHoldExpiresAt] = useState<string | null>(null);
 	const [holdSecondsLeft, setHoldSecondsLeft] = useState(0);
 	const [calendarLinks, setCalendarLinks] = useState<CalendarLinks | null>(null);
+	const [occurrences, setOccurrences] = useState<EventOccurrence[]>([]);
+	const [selectedOccurrenceId, setSelectedOccurrenceId] = useState<string>('');
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
 
@@ -85,6 +95,25 @@ export default function EventDetailPage() {
 		return () => {
 			mounted = false;
 		};
+	}, [eventId]);
+
+	useEffect(() => {
+		if (!eventId) return;
+		fetch(`/api/events/${eventId}/occurrences/`)
+			.then(async (res) => {
+				if (!res.ok) return { data: [] };
+				return res.json();
+			})
+			.then((data) => {
+				const list = data.data || [];
+				setOccurrences(list);
+				if (list.length > 0) {
+					setSelectedOccurrenceId((prev) => prev || list[0].id);
+				}
+			})
+			.catch(() => {
+				setOccurrences([]);
+			});
 	}, [eventId]);
 
 	useEffect(() => {
@@ -140,7 +169,10 @@ export default function EventDetailPage() {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`,
 				},
-				body: JSON.stringify({ quantity }),
+				body: JSON.stringify({
+					quantity,
+					occurrenceId: selectedOccurrenceId || undefined,
+				}),
 			});
 			const payload = await res.json().catch(() => ({}));
 			if (!res.ok) {
@@ -218,6 +250,7 @@ export default function EventDetailPage() {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`,
 				},
+				body: JSON.stringify({ occurrenceId: selectedOccurrenceId || undefined }),
 			});
 			const payload = await res.json().catch(() => ({}));
 			if (!res.ok) {
@@ -312,6 +345,23 @@ export default function EventDetailPage() {
 							className="w-full rounded-lg border border-(--border) bg-(--surface-hover) px-3 py-2 text-sm text-(--primary)"
 						/>
 					</div>
+
+					{occurrences.length > 0 && (
+						<div className="space-y-1 text-sm">
+							<p className="text-(--secondary)">Occurrence</p>
+							<select
+								value={selectedOccurrenceId}
+								onChange={(e) => setSelectedOccurrenceId(e.target.value)}
+								className="w-full rounded-lg border border-(--border) bg-(--surface-hover) px-3 py-2 text-sm text-(--primary)"
+							>
+								{occurrences.map((occ) => (
+									<option key={occ.id} value={occ.id}>
+										{formatDateTime(occ.startTime)}
+									</option>
+								))}
+							</select>
+						</div>
+					)}
 
 					<div className="space-y-1 text-sm">
 						<p className="text-(--secondary)">Availability</p>

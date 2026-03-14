@@ -19,6 +19,8 @@ type BookingEvent = {
 	bookingStatus: 'going' | 'maybe' | 'not_going';
 	registeredAt: string;
 	qrCodeUrl: string | null;
+	invoiceUrl?: string;
+	certificateUrl?: string;
 };
 
 function isUpcoming(startTime: string | null): boolean {
@@ -43,6 +45,40 @@ export default function EventBookingsPage() {
 	const [loading, setLoading] = useState(true);
 	const [bookings, setBookings] = useState<BookingEvent[]>([]);
 	const [error, setError] = useState<string | null>(null);
+	const [downloadingRef, setDownloadingRef] = useState<string | null>(null);
+
+	const downloadDocument = async (url: string | undefined, fallbackName: string) => {
+		if (!url) return;
+		const token = getSessionToken();
+		if (!token) {
+			router.push('/login');
+			return;
+		}
+
+		setDownloadingRef(url);
+		try {
+			const response = await fetch(url, {
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			if (!response.ok) {
+				throw new Error('Download failed');
+			}
+
+			const blob = await response.blob();
+			const href = window.URL.createObjectURL(blob);
+			const anchor = document.createElement('a');
+			anchor.href = href;
+			anchor.download = fallbackName;
+			document.body.appendChild(anchor);
+			anchor.click();
+			anchor.remove();
+			window.URL.revokeObjectURL(href);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Download failed');
+		} finally {
+			setDownloadingRef(null);
+		}
+	};
 
 	useEffect(() => {
 		const token = getSessionToken();
@@ -127,6 +163,22 @@ export default function EventBookingsPage() {
 										{event.isVirtual && (
 											<p className="text-xs text-(--secondary)">Online confirmation sent to your email.</p>
 										)}
+										<div className="flex flex-wrap gap-2">
+											<Button
+												variant="ghost"
+												onClick={() => downloadDocument(event.invoiceUrl, `invoice-${event.bookingReference}.txt`)}
+												disabled={!event.invoiceUrl || downloadingRef === event.invoiceUrl}
+											>
+												Invoice
+											</Button>
+											<Button
+												variant="ghost"
+												onClick={() => downloadDocument(event.certificateUrl, `certificate-${event.bookingReference}.txt`)}
+												disabled={!event.certificateUrl || downloadingRef === event.certificateUrl}
+											>
+												Certificate
+											</Button>
+										</div>
 										<Link href={`/events/${event.id}`} className="inline-block text-sm text-accent hover:underline">View event details</Link>
 									</Card>
 								))}
@@ -143,6 +195,15 @@ export default function EventBookingsPage() {
 										<h3 className="font-semibold text-(--primary)">{event.name}</h3>
 										<p className="text-xs text-(--secondary)">{formatDateTime(event.startTime)}</p>
 										<p className="text-xs text-(--secondary)">Reference: {event.bookingReference}</p>
+										<div className="flex flex-wrap gap-2">
+											<Button
+												variant="ghost"
+												onClick={() => downloadDocument(event.invoiceUrl, `invoice-${event.bookingReference}.txt`)}
+												disabled={!event.invoiceUrl || downloadingRef === event.invoiceUrl}
+											>
+												Invoice
+											</Button>
+										</div>
 										<Link href={`/events/${event.id}`} className="inline-block text-sm text-accent hover:underline">View event details</Link>
 									</Card>
 								))}
