@@ -86,7 +86,7 @@ export default function ProfileView({
 					</div>
 
 					<div className="flex-1 sm:pb-2">
-						<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+						<div className="flex flex-col gap-3">
 							<div>
 								<div className="flex items-center gap-2 flex-wrap">
 									<h2 className="text-xl sm:text-2xl font-bold text-(--primary)">{profileData.user_name}</h2>
@@ -114,9 +114,11 @@ export default function ProfileView({
 								)}
 								<p className="text-xs text-(--secondary) mt-0.5">{profileData.user_email}</p>
 							</div>
+						</div>
+						<div className="flex justify-center sm:justify-center">
 							<button
 								onClick={onEditClick}
-								className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-(--border) text-sm font-medium text-(--primary) hover:bg-(--surface-hover) transition-colors shrink-0"
+								className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-white bg-white text-slate-900 text-sm font-semibold hover:bg-white/90 transition-colors shadow-sm"
 							>
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />

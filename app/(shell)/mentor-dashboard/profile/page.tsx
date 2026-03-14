@@ -353,26 +353,52 @@ export default function MentorProfilePage() {
                 <FeedbackBanner type="error" title="Error" message={error} />
             )}
 
-            {/* Photos */}
-            <div className="relative rounded-xl overflow-visible">
-                <PhotoUpload
-                    currentUrl={coverPhoto}
-                    label="Cover Photo"
-                    onUpload={setCoverPhoto}
-                    variant="cover"
-                    mentorName={profileData?.user_name}
-                />
-                <div className="absolute -bottom-10 left-8">
-                    <PhotoUpload
-                        currentUrl={avatar}
-                        label="Profile Picture"
-                        onUpload={setAvatar}
-                        variant="avatar"
-                        mentorName={profileData?.user_name}
-                    />
+            {/* Profile section merged with Settings-style basics */}
+            <Card className="p-6 space-y-5">
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <h2 className="text-lg font-semibold text-(--primary)">Profile</h2>
+                        <p className="text-sm text-(--secondary) mt-0.5">
+                            Basic identity details are managed in Settings; profile media can be edited here.
+                        </p>
+                    </div>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => router.push('/mentor-dashboard/settings')}
+                    >
+                        Open Settings
+                    </Button>
                 </div>
-            </div>
-            <div className="h-10" />
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+                    <div className="lg:col-span-2">
+                        <PhotoUpload
+                            currentUrl={coverPhoto}
+                            label="Cover Photo"
+                            onUpload={setCoverPhoto}
+                            variant="cover"
+                            mentorName={profileData?.user_name}
+                        />
+                    </div>
+
+                    <div className="rounded-xl border border-(--border) bg-(--surface-hover) p-4">
+                        <div className="flex flex-col items-center text-center gap-3">
+                            <PhotoUpload
+                                currentUrl={avatar}
+                                label="Profile Picture"
+                                onUpload={setAvatar}
+                                variant="avatar"
+                                mentorName={profileData?.user_name}
+                            />
+                            <div>
+                                <p className="text-sm font-semibold text-(--primary)">{profileData?.user_name}</p>
+                                <p className="text-xs text-(--secondary)">{profileData?.user_email}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Card>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
                 {/* Section 1: Achievements */}
