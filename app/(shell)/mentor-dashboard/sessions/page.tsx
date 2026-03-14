@@ -100,12 +100,34 @@ export default function SessionsPage() {
 
     function toggleSlot(day: string, time: string) {
         const key = `${day}-${time}`;
-        setSelectedSlots(prev => {
-            const next = new Set(prev);
-            if (next.has(key)) next.delete(key);
-            else next.add(key);
-            return next;
-        });
+        // Removing is always allowed
+        if (selectedSlots.has(key)) {
+            setMessage(null);
+            setSelectedSlots(prev => { const next = new Set(prev); next.delete(key); return next; });
+            return;
+        }
+        // Check whether adding this slot would overlap with any already-selected slot on the same day
+        const toMins = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+        const newStart = toMins(time);
+        const newEnd = newStart + 60;
+        for (const selKey of selectedSlots) {
+            const dashIdx = selKey.indexOf('-');
+            const selDay = selKey.slice(0, dashIdx);
+            const selTime = selKey.slice(dashIdx + 1);
+            if (selDay !== day) continue;
+            // Use real end_time from DB slot if available, otherwise assume 1-hour grid slot
+            const dbSlot = slots.find(s => s.dayOfWeek === selDay && s.startTime === selTime);
+            const selStart = toMins(selTime);
+            const selEnd = dbSlot ? toMins(dbSlot.endTime) : selStart + 60;
+            if (newStart < selEnd && selStart < newEnd) {
+                const endLabel = `${String(Math.floor(newEnd / 60)).padStart(2, '0')}:00`;
+                const selEndLabel = dbSlot ? dbSlot.endTime : `${String(Math.floor(selEnd / 60)).padStart(2, '0')}:00`;
+                setMessage(`Cannot add ${time}–${endLabel} on ${day}: overlaps with existing slot ${selTime}–${selEndLabel}`);
+                return;
+            }
+        }
+        setMessage(null);
+        setSelectedSlots(prev => { const next = new Set(prev); next.add(key); return next; });
     }
 
     async function saveSlots() {
@@ -302,7 +324,7 @@ export default function SessionsPage() {
                             {savingSlots ? 'Saving…' : 'Save Availability'}
                         </Button>
                     </div>
-                    {message && <p className={`text-sm ${message.includes('Failed') ? 'text-red-400' : 'text-emerald-400'}`}>{message}</p>}
+                    {message && <p className={`text-sm font-medium ${message.startsWith('Cannot') || message.includes('Overlap') || message.includes('Failed') ? 'text-red-400' : 'text-emerald-400'}`}>{message}</p>}
                 </div>
             )}
         </div>
