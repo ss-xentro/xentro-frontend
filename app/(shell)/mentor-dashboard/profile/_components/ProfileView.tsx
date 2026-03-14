@@ -1,13 +1,13 @@
 'use client';
 
 import RichTextDisplay from '@/components/ui/RichTextDisplay';
-import { ProfileData, DocumentEntry } from '../_lib/constants';
+import { ProfileData, DocumentEntry, PricingPlan } from '../_lib/constants';
 
 interface ProfileViewProps {
 	profileData: ProfileData;
 	achievements: string[];
 	highlights: string[];
-	pricingPerHour: string;
+	pricingPlans: PricingPlan[];
 	documents: DocumentEntry[];
 	slots: Array<{ day: string; startTime: string; endTime: string }>;
 	onEditClick: () => void;
@@ -37,7 +37,7 @@ export default function ProfileView({
 	profileData,
 	achievements,
 	highlights,
-	pricingPerHour,
+	pricingPlans,
 	documents,
 	slots,
 	onEditClick,
@@ -140,21 +140,19 @@ export default function ProfileView({
 			</div>
 
 			{/* Stats row */}
-			{pricingPerHour && (
-				<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-					{[
-						{ label: 'Hourly Rate', value: `₹${Number(pricingPerHour).toLocaleString('en-IN')}` },
-						{ label: 'Achievements', value: String(achievements.length) },
-						{ label: 'Highlights', value: String(highlights.length) },
-						{ label: 'Availability Slots', value: String(slots.length) },
-					].map(({ label, value }) => (
-						<div key={label} className="border border-(--border) rounded-xl px-4 py-3 bg-(--surface)">
-							<p className="text-xs text-(--secondary) mb-1">{label}</p>
-							<p className="text-xl font-bold text-(--primary)">{value}</p>
-						</div>
-					))}
-				</div>
-			)}
+			<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+				{[
+					{ label: 'Pricing Plans', value: String(pricingPlans.length) },
+					{ label: 'Achievements', value: String(achievements.length) },
+					{ label: 'Highlights', value: String(highlights.length) },
+					{ label: 'Availability Slots', value: String(slots.length) },
+				].map(({ label, value }) => (
+					<div key={label} className="border border-(--border) rounded-xl px-4 py-3 bg-(--surface)">
+						<p className="text-xs text-(--secondary) mb-1">{label}</p>
+						<p className="text-xl font-bold text-(--primary)">{value}</p>
+					</div>
+				))}
+			</div>
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 				<div className="lg:col-span-2 space-y-5">
@@ -265,41 +263,39 @@ export default function ProfileView({
 					)}
 				</div>
 
-				{/* Sidebar: Pricing */}
+				{/* Sidebar: Pricing Plans */}
 				<div className="space-y-4">
-					{pricingPerHour && (
-						<div className="border border-(--border) rounded-xl p-5 bg-(--surface)">
-							<h3 className="text-sm font-semibold text-(--primary) mb-1">One-Time Session (60 min)</h3>
-							<p className="text-2xl font-bold text-(--primary) mb-4">
-								₹{Number(pricingPerHour).toLocaleString('en-IN')}
-							</p>
-							<ul className="space-y-2 mb-5">
-								{['Deep dive session', 'Detailed feedback', 'Action plan'].map((item) => (
-									<li key={item} className="flex items-center gap-2 text-sm text-(--secondary)">
-										<svg className="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-											<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-										</svg>
-										{item}
-									</li>
-								))}
-							</ul>
+					{pricingPlans.length > 0 ? (
+						pricingPlans.map((plan, idx) => (
+							<div key={idx} className="border border-(--border) rounded-xl p-5 bg-(--surface)">
+								<div className="flex items-start justify-between mb-1">
+									<h3 className="text-sm font-semibold text-(--primary)">{plan.sessionType || 'Session'}</h3>
+									{plan.duration && (
+										<span className="text-xs text-(--secondary) shrink-0 ml-2">{plan.duration}</span>
+									)}
+								</div>
+								<p className="text-2xl font-bold text-(--primary) mb-4">
+									{!plan.price || plan.price === '0' ? 'Free' : `₹${Number(plan.price).toLocaleString('en-IN')}`}
+								</p>
+								{plan.perks.filter(Boolean).length > 0 && (
+									<ul className="space-y-2">
+										{plan.perks.filter(Boolean).map((perk, j) => (
+											<li key={j} className="flex items-center gap-2 text-sm text-(--secondary)">
+												<svg className="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+													<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+												</svg>
+												{perk}
+											</li>
+										))}
+									</ul>
+								)}
+							</div>
+						))
+					) : (
+						<div className="border border-dashed border-(--border) rounded-xl p-5 text-center">
+							<p className="text-sm text-(--secondary)">No pricing plans set</p>
 						</div>
 					)}
-
-					<div className="border border-(--border) rounded-xl p-5 bg-(--surface)">
-						<h3 className="text-sm font-semibold text-(--primary) mb-1">Free Session (30 min)</h3>
-						<p className="text-2xl font-bold text-(--primary) mb-4">Free</p>
-						<ul className="space-y-2">
-							{['Quick consultation', 'Q&A session', 'General advice'].map((item) => (
-								<li key={item} className="flex items-center gap-2 text-sm text-(--secondary)">
-									<svg className="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-										<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-									</svg>
-									{item}
-								</li>
-							))}
-						</ul>
-					</div>
 
 					{achievements.length === 0 && highlights.length === 0 && slots.length === 0 && (
 						<div className="border border-dashed border-(--border) rounded-xl p-5 text-center">

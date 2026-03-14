@@ -10,10 +10,18 @@ export interface DocumentEntry {
 	uploadedAt: string;
 }
 
+export interface PricingPlan {
+	sessionType: string;
+	duration: string;
+	price: string;
+	perks: string[];
+}
+
 export interface ProfileData {
 	achievements: string[] | string;
 	packages?: string[] | string;
-	pricing_per_hour: string;
+	pricing_per_hour?: string;
+	pricing_plans?: PricingPlan[];
 	availability: string;
 	documents: DocumentEntry[];
 	profile_completed: boolean;
