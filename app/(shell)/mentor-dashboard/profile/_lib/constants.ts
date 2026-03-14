@@ -22,6 +22,9 @@ export interface ProfileData {
 	expertise: string | string[];
 	occupation: string;
 	status: string;
+	avatar?: string;
+	cover_photo?: string;
+	verified?: boolean;
 }
 
 export const DAYS_OF_WEEK = [

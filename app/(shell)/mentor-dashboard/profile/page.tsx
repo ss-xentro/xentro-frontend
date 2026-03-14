@@ -13,14 +13,20 @@ import { SlotEntry, DocumentEntry, ProfileData } from './_lib/constants';
 import AchievementsSection from './_components/AchievementsSection';
 import AvailabilitySlotsSection from './_components/AvailabilitySlotsSection';
 import DocumentsSection from './_components/DocumentsSection';
+import PhotoUpload from './_components/PhotoUpload';
+import ProfileView from './_components/ProfileView';
 
 export default function MentorProfilePage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [showActionFooter, setShowActionFooter] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Photo state (uploaded immediately, saved with form submit)
+    const [avatar, setAvatar] = useState('');
+    const [coverPhoto, setCoverPhoto] = useState('');
 
     // Form state
     const [achievements, setAchievements] = useState<string[]>([]);
@@ -33,7 +39,6 @@ export default function MentorProfilePage() {
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
 
-    // Profile info (read-only)
     const [profileData, setProfileData] = useState<ProfileData | null>(null);
 
     const getContentLength = (value: string) => value.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim().length;
@@ -86,6 +91,8 @@ export default function MentorProfilePage() {
             setAchievements(parseRichList(data.achievements));
             setHighlights(parseRichList(data.packages));
             if (data.pricing_per_hour) setPricingPerHour(data.pricing_per_hour);
+            if (data.avatar) setAvatar(data.avatar);
+            if (data.cover_photo) setCoverPhoto(data.cover_photo);
             if (data.documents && Array.isArray(data.documents) && data.documents.length > 0) {
                 setDocuments(data.documents);
             }
@@ -97,6 +104,10 @@ export default function MentorProfilePage() {
                     // availability might be plain text
                 }
             }
+            // Auto-enter edit mode when profile has never been completed
+            if (!data.profile_completed) {
+                setIsEditMode(true);
+            }
         } catch {
             setError('Could not load your profile. Please try again.');
         } finally {
@@ -107,17 +118,6 @@ export default function MentorProfilePage() {
     useEffect(() => {
         fetchProfile();
     }, [fetchProfile]);
-
-    useEffect(() => {
-        const onScroll = () => {
-            setShowActionFooter(window.scrollY > 240);
-        };
-
-        onScroll();
-        window.addEventListener('scroll', onScroll, { passive: true });
-
-        return () => window.removeEventListener('scroll', onScroll);
-    }, []);
 
     // -- Slot management --
     const addSlot = (slot: SlotEntry) => {
@@ -260,6 +260,8 @@ export default function MentorProfilePage() {
                     availability: JSON.stringify(slots),
                     pricing_per_hour: parseFloat(pricingPerHour),
                     documents,
+                    avatar,
+                    cover_photo: coverPhoto,
                 }),
             });
 
@@ -271,6 +273,7 @@ export default function MentorProfilePage() {
             const data = await res.json();
             setProfileData(data);
             setSuccess(true);
+            setIsEditMode(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (err) {
             setError((err as Error).message);
@@ -283,6 +286,31 @@ export default function MentorProfilePage() {
         return <FormSkeleton />;
     }
 
+    // View mode — show public-profile-style preview
+    if (!isEditMode && profileData) {
+        return (
+            <div className="space-y-4 animate-fadeIn">
+                {success && (
+                    <FeedbackBanner
+                        type="success"
+                        title="Profile Updated Successfully!"
+                        message="Your mentor profile is now live and discoverable."
+                    />
+                )}
+                <ProfileView
+                    profileData={{ ...profileData, avatar, cover_photo: coverPhoto }}
+                    achievements={achievements}
+                    highlights={highlights}
+                    pricingPerHour={pricingPerHour}
+                    documents={documents}
+                    slots={slots}
+                    onEditClick={() => { setSuccess(false); setIsEditMode(true); }}
+                />
+            </div>
+        );
+    }
+
+    // Edit mode
     const completionStats = {
         achievements: achievements.length,
         highlights: highlights.length,
@@ -291,65 +319,60 @@ export default function MentorProfilePage() {
     };
 
     return (
-        <div className="space-y-8 animate-fadeIn w-full pb-24">
+        <div className="space-y-8 animate-fadeIn w-full pb-28">
             {/* Header */}
-            <div className="space-y-2">
-                <BackButton href="/mentor-dashboard" label="Back to Dashboard" />
-                <p className="text-xs uppercase tracking-[0.16em] text-(--secondary)">Mentor Profile Builder</p>
-                <h1 className="text-3xl font-bold text-(--primary)">Complete Your Profile</h1>
-                <p className="text-(--secondary) mt-1">
-                    Fill in your details to make your mentor profile live and discoverable.
-                </p>
+            <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1">
+                    <BackButton href="/mentor-dashboard" label="Back to Dashboard" />
+                    <p className="text-xs uppercase tracking-[0.16em] text-(--secondary)">Mentor Profile Builder</p>
+                    <h1 className="text-3xl font-bold text-(--primary)">Edit Your Profile</h1>
+                </div>
+                <div className="flex items-center gap-2 mt-6">
+                    {profileData?.profile_completed && (
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setIsEditMode(false)}
+                        >
+                            Cancel
+                        </Button>
+                    )}
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={handleSubmit}
+                        isLoading={saving}
+                        disabled={saving}
+                    >
+                        {saving ? 'Saving...' : 'Save Profile'}
+                    </Button>
+                </div>
             </div>
-
-            {success && (
-                <FeedbackBanner
-                    type="success"
-                    title="Profile Updated Successfully!"
-                    message={`Your mentor profile is now live. A confirmation email has been sent to ${profileData?.user_email || 'you'}.`}
-                />
-            )}
 
             {error && (
                 <FeedbackBanner type="error" title="Error" message={error} />
             )}
 
-            {/* Profile Overview */}
-            {profileData && (
-                <Card className="p-6">
-                    <div className="flex items-center gap-4 mb-2">
-                        <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                            <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-semibold text-(--primary)">{profileData.user_name}</h2>
-                            <p className="text-sm text-(--secondary)">{profileData.occupation || 'Mentor'} · {profileData.user_email}</p>
-                        </div>
-                        <div className="ml-auto">
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${profileData.profile_completed
-                                ? 'bg-accent/15 text-accent border border-accent/30'
-                                : 'bg-(--surface-hover) text-(--secondary) border border-(--border)'
-                                }`}>
-                                {profileData.profile_completed ? 'Profile Complete' : 'Incomplete'}
-                            </span>
-                        </div>
-                    </div>
-                    {profileData.expertise && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                            {(Array.isArray(profileData.expertise) ? profileData.expertise : String(profileData.expertise).split(',')).map((skill, idx) => (
-                                <span
-                                    key={idx}
-                                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-(--surface-hover) text-(--primary)"
-                                >
-                                    {typeof skill === 'string' ? skill.trim() : skill}
-                                </span>
-                            ))}
-                        </div>
-                    )}
-                </Card>
-            )}
+            {/* Photos */}
+            <div className="relative rounded-xl overflow-visible">
+                <PhotoUpload
+                    currentUrl={coverPhoto}
+                    label="Cover Photo"
+                    onUpload={setCoverPhoto}
+                    variant="cover"
+                    mentorName={profileData?.user_name}
+                />
+                <div className="absolute -bottom-10 left-8">
+                    <PhotoUpload
+                        currentUrl={avatar}
+                        label="Profile Picture"
+                        onUpload={setAvatar}
+                        variant="avatar"
+                        mentorName={profileData?.user_name}
+                    />
+                </div>
+            </div>
+            <div className="h-10" />
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
                 {/* Section 1: Achievements */}
@@ -425,14 +448,9 @@ export default function MentorProfilePage() {
                 />
             </Card>
 
-            {/* Sticky Submit Footer */}
-            <div
-                className={`fixed bottom-4 left-4 right-4 z-40 lg:left-auto lg:right-8 lg:max-w-4xl transition-all duration-300 ${showActionFooter || saving
-                    ? 'opacity-100 translate-y-0 pointer-events-auto'
-                    : 'opacity-0 translate-y-3 pointer-events-none'
-                    }`}
-            >
-                <div className="rounded-2xl border border-(--border) bg-(--surface) shadow-(--shadow-lg) px-4 py-3 backdrop-blur-sm">
+            {/* Always-visible sticky footer */}
+            <div className="fixed bottom-4 left-4 right-4 z-40 lg:left-auto lg:right-8 lg:max-w-4xl">
+                <div className="rounded-2xl border border-(--border) bg-(--surface) shadow-lg px-4 py-3 backdrop-blur-sm">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div className="flex flex-wrap items-center gap-2 text-xs">
                             <span className="px-2 py-1 rounded-full bg-(--surface-hover) text-(--secondary)">
@@ -449,14 +467,16 @@ export default function MentorProfilePage() {
                             </span>
                         </div>
                         <div className="flex items-center gap-2 sm:gap-3">
-                            <Button
-                                variant="secondary"
-                                size="lg"
-                                onClick={() => router.push('/mentor-dashboard')}
-                                disabled={saving}
-                            >
-                                Cancel
-                            </Button>
+                            {profileData?.profile_completed && (
+                                <Button
+                                    variant="secondary"
+                                    size="lg"
+                                    onClick={() => setIsEditMode(false)}
+                                    disabled={saving}
+                                >
+                                    Cancel
+                                </Button>
+                            )}
                             <Button
                                 variant="primary"
                                 size="lg"
@@ -464,7 +484,7 @@ export default function MentorProfilePage() {
                                 isLoading={saving}
                                 disabled={saving}
                             >
-                                {saving ? 'Saving...' : 'Submit Profile'}
+                                {saving ? 'Saving...' : 'Save Profile'}
                             </Button>
                         </div>
                     </div>
