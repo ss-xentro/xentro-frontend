@@ -11,6 +11,7 @@ interface ProfileViewProps {
 	documents: DocumentEntry[];
 	slots: Array<{ day: string; startTime: string; endTime: string }>;
 	onEditClick: () => void;
+	onViewPublicProfile: () => void;
 }
 
 function ExpertiseTag({ label }: { label: string }) {
@@ -41,6 +42,7 @@ export default function ProfileView({
 	documents,
 	slots,
 	onEditClick,
+	onViewPublicProfile,
 }: ProfileViewProps) {
 	const expertiseList = Array.isArray(profileData.expertise)
 		? profileData.expertise
@@ -115,7 +117,7 @@ export default function ProfileView({
 								<p className="text-xs text-(--secondary) mt-0.5">{profileData.user_email}</p>
 							</div>
 						</div>
-						<div className="flex justify-center sm:justify-center">
+						<div className="flex flex-wrap items-center justify-center gap-2 sm:justify-center">
 							<button
 								onClick={onEditClick}
 								className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-white bg-white text-slate-900 text-sm font-semibold hover:bg-white/90 transition-colors shadow-sm"
@@ -124,6 +126,16 @@ export default function ProfileView({
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
 								</svg>
 								Edit Profile
+							</button>
+							<button
+								onClick={onViewPublicProfile}
+								className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-(--border) bg-(--surface-hover) text-(--primary) text-sm font-semibold hover:bg-(--surface) transition-colors"
+							>
+								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z" />
+								</svg>
+								View Public Profile
 							</button>
 						</div>
 					</div>

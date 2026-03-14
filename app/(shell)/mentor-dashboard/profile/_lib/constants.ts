@@ -18,6 +18,7 @@ export interface PricingPlan {
 }
 
 export interface ProfileData {
+	id: string;
 	achievements: string[] | string;
 	packages?: string[] | string;
 	pricing_per_hour?: string;

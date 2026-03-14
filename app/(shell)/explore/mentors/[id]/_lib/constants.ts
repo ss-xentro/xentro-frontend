@@ -14,6 +14,14 @@ export interface MentorDetail {
 	documents?: Array<{ name?: string; url?: string; type?: string }>;
 	institutionId?: string | null;
 	institutionName?: string | null;
+	mentoredStartups: Array<{
+		id: string;
+		name: string;
+		logo?: string | null;
+		institutionId?: string | null;
+		institutionName?: string | null;
+		isExternalInstitution?: boolean;
+	}>;
 }
 
 export interface MentorSlot {
@@ -53,6 +61,9 @@ export function parseMentorData(found: Record<string, unknown>): MentorDetail {
 		documents: Array.isArray(found.documents) ? found.documents as MentorDetail['documents'] : [],
 		institutionId: (found.institutionId as string) || null,
 		institutionName: (found.institutionName as string) || null,
+		mentoredStartups: Array.isArray(found.mentored_startups)
+			? (found.mentored_startups as MentorDetail['mentoredStartups'])
+			: [],
 	};
 }
 

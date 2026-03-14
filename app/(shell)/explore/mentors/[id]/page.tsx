@@ -25,16 +25,16 @@ export default function MentorDetailPage() {
 	const [showConnectModal, setShowConnectModal] = useState(false);
 	const [slots, setSlots] = useState<MentorSlot[]>([]);
 	const [slotsLoading, setSlotsLoading] = useState(false);
+	const [activeTab, setActiveTab] = useState<'overview' | 'mentoredStartups'>('overview');
 
 	useEffect(() => {
 		async function load() {
 			try {
 				setLoading(true);
-				const res = await fetch('/api/mentors');
+				const res = await fetch(`/api/mentors/${mentorId}`);
 				if (!res.ok) return;
 				const json = await res.json();
-				const raw = json.mentors ?? json.data ?? [];
-				const found = raw.find((m: Record<string, unknown>) => m.id === mentorId);
+				const found = json.data;
 				if (found) setMentor(parseMentorData(found));
 			} catch (err) {
 				console.error(err);
@@ -166,53 +166,141 @@ export default function MentorDetailPage() {
 				</div>
 			)}
 
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-				<div className="lg:col-span-2 space-y-5">
-					{mentor.expertise.length > 0 && (
-						<Section title="Areas of Expertise">
-							<div className="flex flex-wrap gap-2">
-								{mentor.expertise.map((tag) => (
-									<span key={tag} className="text-sm px-4 py-1.5 rounded-full bg-white/5 text-gray-300 border border-white/10">{tag}</span>
-								))}
-							</div>
-						</Section>
-					)}
-
-					{mentor.achievements.length > 0 && (
-						<Section title="Achievements" icon={<svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" /></svg>}>
-							<ul className="space-y-3">
-								{mentor.achievements.map((a, i) => (
-									<li key={i} className="flex items-start gap-3 text-sm text-gray-400">
-										<div className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
-											<svg className="w-3 h-3 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" /></svg>
-										</div>
-										{a}
-									</li>
-								))}
-							</ul>
-						</Section>
-					)}
-
-					<AvailabilityBookingSection
-						mentorId={mentorId}
-						mentorName={mentor.name}
-						connectionStatus={connectionStatus}
-						slots={slots}
-						slotsLoading={slotsLoading}
-						availability={mentor.availability}
-					/>
-
-					<DocumentsSection documents={mentor.documents} verified={mentor.verified} />
+			<div className="mb-5">
+				<div className="inline-flex items-center p-1 rounded-xl bg-white/3 border border-white/8">
+					<button
+						type="button"
+						onClick={() => setActiveTab('overview')}
+						className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'overview'
+							? 'bg-white text-[#0B0D10]'
+							: 'text-gray-300 hover:text-white'
+							}`}
+					>
+						Overview
+					</button>
+					<button
+						type="button"
+						onClick={() => setActiveTab('mentoredStartups')}
+						className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'mentoredStartups'
+							? 'bg-white text-[#0B0D10]'
+							: 'text-gray-300 hover:text-white'
+							}`}
+					>
+						Previously Mentored Startups
+					</button>
 				</div>
-
-				<MentorPackages
-					hourlyRate={hourlyRate ?? null}
-					packages={mentor.packages}
-					connectionStatus={connectionStatus}
-					connectBtnDisabled={btnConfig.disabled}
-					onConnectOrBook={scrollToBooking}
-				/>
 			</div>
+
+			{activeTab === 'overview' && (
+
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+					<div className="lg:col-span-2 space-y-5">
+						{mentor.expertise.length > 0 && (
+							<Section title="Areas of Expertise">
+								<div className="flex flex-wrap gap-2">
+									{mentor.expertise.map((tag) => (
+										<span key={tag} className="text-sm px-4 py-1.5 rounded-full bg-white/5 text-gray-300 border border-white/10">{tag}</span>
+									))}
+								</div>
+							</Section>
+						)}
+
+						{mentor.achievements.length > 0 && (
+							<Section title="Achievements" icon={<svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" /></svg>}>
+								<ul className="space-y-3">
+									{mentor.achievements.map((a, i) => (
+										<li key={i} className="flex items-start gap-3 text-sm text-gray-400">
+											<div className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
+												<svg className="w-3 h-3 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" /></svg>
+											</div>
+											{a}
+										</li>
+									))}
+								</ul>
+							</Section>
+						)}
+
+						<AvailabilityBookingSection
+							mentorId={mentorId}
+							mentorName={mentor.name}
+							connectionStatus={connectionStatus}
+							slots={slots}
+							slotsLoading={slotsLoading}
+							availability={mentor.availability}
+						/>
+
+						<DocumentsSection documents={mentor.documents} verified={mentor.verified} />
+					</div>
+
+					<MentorPackages
+						hourlyRate={hourlyRate ?? null}
+						packages={mentor.packages}
+						connectionStatus={connectionStatus}
+						connectBtnDisabled={btnConfig.disabled}
+						onConnectOrBook={scrollToBooking}
+					/>
+				</div>
+			)}
+
+			{activeTab === 'mentoredStartups' && (
+				<div className="bg-white/3 border border-white/8 rounded-xl p-5">
+					<div className="flex items-start justify-between gap-3 mb-4">
+						<div>
+							<h3 className="text-lg font-semibold text-white">Previously Mentored Startups</h3>
+							<p className="text-sm text-gray-400 mt-0.5">Startups this mentor has completed sessions with on Xentro.</p>
+						</div>
+						<span className="px-2.5 py-1 rounded-full text-xs bg-white/8 text-gray-300 border border-white/10">
+							{mentor.mentoredStartups.length}
+						</span>
+					</div>
+
+					{mentor.mentoredStartups.length === 0 ? (
+						<div className="border border-dashed border-white/12 rounded-xl p-8 text-center">
+							<div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
+								<svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z" />
+								</svg>
+							</div>
+							<p className="text-sm font-medium text-white">No mentoring experience on platform yet</p>
+							<p className="text-xs text-gray-500 mt-1">Completed startup mentorships will appear here.</p>
+						</div>
+					) : (
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+							{mentor.mentoredStartups.map((startup) => (
+								<Link
+									key={startup.id}
+									href={`/startups/${startup.id}`}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="rounded-xl border border-white/8 bg-white/[0.02] p-4 hover:bg-white/[0.05] hover:border-white/20 transition-colors"
+								>
+									<div className="flex items-center gap-3">
+										<div className="w-10 h-10 rounded-lg bg-white/6 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+											{startup.logo ? (
+												<img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
+											) : (
+												<span className="text-sm font-bold text-gray-300">{startup.name.charAt(0).toUpperCase()}</span>
+											)}
+										</div>
+										<div className="min-w-0 flex-1">
+											<p className="text-sm font-semibold text-white truncate">{startup.name}</p>
+											{startup.isExternalInstitution && startup.institutionName && (
+												<p className="text-xs text-amber-300 mt-0.5 truncate">
+													Associated with {startup.institutionName}
+												</p>
+											)}
+											<p className="text-[11px] text-gray-500 mt-1">View startup profile</p>
+										</div>
+										<svg className="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+											<path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+										</svg>
+									</div>
+								</Link>
+							))}
+						</div>
+					)}
+				</div>
+			)}
 
 			{showConnectModal && mentor && (
 				<ConnectModal
