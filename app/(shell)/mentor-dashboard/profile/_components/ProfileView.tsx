@@ -65,7 +65,7 @@ export default function ProfileView({
 	return (
 		<div className="space-y-5">
 			{/* Cover photo */}
-			<div className="relative w-full h-36 sm:h-44 rounded-xl overflow-hidden bg-gradient-to-br from-violet-500/20 via-indigo-500/15 to-purple-500/10 border border-(--border)">
+			<div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden bg-gradient-to-br from-violet-500/20 via-indigo-500/15 to-purple-500/10 border border-(--border)">
 				{profileData.cover_photo && (
 					<img src={profileData.cover_photo} alt="Cover" className="w-full h-full object-cover" />
 				)}

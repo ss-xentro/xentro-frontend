@@ -321,32 +321,10 @@ export default function MentorProfilePage() {
     return (
         <div className="space-y-8 animate-fadeIn w-full pb-28">
             {/* Header */}
-            <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                    <BackButton href="/mentor-dashboard" label="Back to Dashboard" />
-                    <p className="text-xs uppercase tracking-[0.16em] text-(--secondary)">Mentor Profile Builder</p>
-                    <h1 className="text-3xl font-bold text-(--primary)">Edit Your Profile</h1>
-                </div>
-                <div className="flex items-center gap-2 mt-6">
-                    {profileData?.profile_completed && (
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => setIsEditMode(false)}
-                        >
-                            Cancel
-                        </Button>
-                    )}
-                    <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={handleSubmit}
-                        isLoading={saving}
-                        disabled={saving}
-                    >
-                        {saving ? 'Saving...' : 'Save Profile'}
-                    </Button>
-                </div>
+            <div className="space-y-1">
+                <BackButton href="/mentor-dashboard" label="Back to Dashboard" />
+                <p className="text-xs uppercase tracking-[0.16em] text-(--secondary)">Mentor Profile Builder</p>
+                <h1 className="text-3xl font-bold text-(--primary)">Edit Your Profile</h1>
             </div>
 
             {error && (

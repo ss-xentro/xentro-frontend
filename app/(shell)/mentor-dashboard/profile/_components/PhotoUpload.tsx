@@ -1,6 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ImageCropper } from '@/components/ui/ImageCropper';
 
 interface PhotoUploadProps {
 	currentUrl?: string;
@@ -14,16 +15,23 @@ export default function PhotoUpload({ currentUrl, label, onUpload, variant, ment
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [uploading, setUploading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [showCropModal, setShowCropModal] = useState(false);
+	const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+	const [originalFile, setOriginalFile] = useState<File | null>(null);
+	const cropObjectUrlRef = useRef<string | null>(null);
 
-	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (!file) return;
-
-		if (file.size > 5 * 1024 * 1024) {
-			setError('File must be under 5MB');
-			return;
+	const revokeCropObjectUrl = useCallback(() => {
+		if (cropObjectUrlRef.current) {
+			URL.revokeObjectURL(cropObjectUrlRef.current);
+			cropObjectUrlRef.current = null;
 		}
+	}, []);
 
+	useEffect(() => {
+		return () => revokeCropObjectUrl();
+	}, [revokeCropObjectUrl]);
+
+	const uploadFile = async (file: File) => {
 		setUploading(true);
 		setError(null);
 
@@ -43,74 +51,139 @@ export default function PhotoUpload({ currentUrl, label, onUpload, variant, ment
 			setError((err as Error).message);
 		} finally {
 			setUploading(false);
-			e.target.value = '';
 		}
+	};
+
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		if (file.size > 5 * 1024 * 1024) {
+			setError('File must be under 5MB');
+			return;
+		}
+
+		setError(null);
+		setOriginalFile(file);
+
+		const localPreview = URL.createObjectURL(file);
+		revokeCropObjectUrl();
+		cropObjectUrlRef.current = localPreview;
+		setImageToCrop(localPreview);
+		setShowCropModal(true);
+		e.target.value = '';
+	};
+
+	const handleCropComplete = async (croppedBlob: Blob) => {
+		if (!croppedBlob || !originalFile) return;
+
+		const croppedFile = new File([croppedBlob], originalFile.name, {
+			type: originalFile.type,
+			lastModified: Date.now(),
+		});
+
+		setShowCropModal(false);
+		setImageToCrop(null);
+		revokeCropObjectUrl();
+		await uploadFile(croppedFile);
 	};
 
 	if (variant === 'cover') {
 		return (
-			<div className="relative w-full h-36 sm:h-44 rounded-xl overflow-hidden bg-gradient-to-br from-violet-500/20 via-indigo-500/15 to-purple-500/10 border border-(--border)">
-				{currentUrl && (
-					<img src={currentUrl} alt="Cover" className="w-full h-full object-cover" />
-				)}
-				<button
-					type="button"
-					onClick={() => inputRef.current?.click()}
-					disabled={uploading}
-					title={label}
-					className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/80 transition-colors"
-				>
-					{uploading ? (
-						<svg className="w-4 h-4 text-white animate-spin" fill="none" viewBox="0 0 24 24">
-							<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-							<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-						</svg>
-					) : (
-						<svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-						</svg>
+			<>
+				<div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden bg-gradient-to-br from-violet-500/20 via-indigo-500/15 to-purple-500/10 border border-(--border)">
+					{currentUrl && (
+						<img src={currentUrl} alt="Cover" className="w-full h-full object-cover" />
 					)}
-				</button>
-				{error && (
-					<p className="absolute bottom-0 left-0 right-0 text-xs text-red-400 bg-black/70 px-3 py-1">{error}</p>
+					<button
+						type="button"
+						onClick={() => inputRef.current?.click()}
+						disabled={uploading}
+						title={label}
+						className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/80 transition-colors"
+					>
+						{uploading ? (
+							<svg className="w-4 h-4 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+								<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+								<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+							</svg>
+						) : (
+							<svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+							</svg>
+						)}
+					</button>
+					{error && (
+						<p className="absolute bottom-0 left-0 right-0 text-xs text-red-400 bg-black/70 px-3 py-1">{error}</p>
+					)}
+					<input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={uploading} />
+				</div>
+
+				{showCropModal && imageToCrop && (
+					<ImageCropper
+						imageSrc={imageToCrop}
+						aspectRatio={3 / 1}
+						cropShape="rect"
+						onCropComplete={handleCropComplete}
+						onCancel={() => {
+							setShowCropModal(false);
+							setImageToCrop(null);
+							revokeCropObjectUrl();
+						}}
+					/>
 				)}
-				<input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={uploading} />
-			</div>
+			</>
 		);
 	}
 
 	// Avatar variant
 	return (
-		<div className="relative shrink-0">
-			<div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-(--surface) bg-gradient-to-br from-violet-500/20 to-indigo-500/20 flex items-center justify-center overflow-hidden shadow-lg">
-				{currentUrl ? (
-					<img src={currentUrl} alt={mentorName || 'Mentor'} className="w-full h-full object-cover" />
-				) : (
-					<span className="text-2xl sm:text-3xl font-bold text-(--secondary)">
-						{mentorName ? mentorName.charAt(0).toUpperCase() : 'M'}
-					</span>
-				)}
+		<>
+			<div className="relative shrink-0">
+				<div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-(--surface) bg-gradient-to-br from-violet-500/20 to-indigo-500/20 flex items-center justify-center overflow-hidden shadow-lg">
+					{currentUrl ? (
+						<img src={currentUrl} alt={mentorName || 'Mentor'} className="w-full h-full object-cover" />
+					) : (
+						<span className="text-2xl sm:text-3xl font-bold text-(--secondary)">
+							{mentorName ? mentorName.charAt(0).toUpperCase() : 'M'}
+						</span>
+					)}
+				</div>
+				<button
+					type="button"
+					onClick={() => inputRef.current?.click()}
+					disabled={uploading}
+					title={label}
+					className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-(--surface) border border-(--border) flex items-center justify-center hover:bg-(--surface-hover) transition-colors shadow-sm"
+				>
+					{uploading ? (
+						<svg className="w-3.5 h-3.5 text-(--secondary) animate-spin" fill="none" viewBox="0 0 24 24">
+							<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+							<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+						</svg>
+					) : (
+						<svg className="w-3.5 h-3.5 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+						</svg>
+					)}
+				</button>
+				{error && <p className="absolute -bottom-5 left-0 text-xs text-red-400 whitespace-nowrap">{error}</p>}
+				<input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={uploading} />
 			</div>
-			<button
-				type="button"
-				onClick={() => inputRef.current?.click()}
-				disabled={uploading}
-				title={label}
-				className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-(--surface) border border-(--border) flex items-center justify-center hover:bg-(--surface-hover) transition-colors shadow-sm"
-			>
-				{uploading ? (
-					<svg className="w-3.5 h-3.5 text-(--secondary) animate-spin" fill="none" viewBox="0 0 24 24">
-						<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-						<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-					</svg>
-				) : (
-					<svg className="w-3.5 h-3.5 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-					</svg>
-				)}
-			</button>
-			{error && <p className="absolute -bottom-5 left-0 text-xs text-red-400 whitespace-nowrap">{error}</p>}
-			<input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={uploading} />
-		</div>
+
+			{showCropModal && imageToCrop && (
+				<ImageCropper
+					imageSrc={imageToCrop}
+					aspectRatio={1}
+					cropShape="circle"
+					onCropComplete={handleCropComplete}
+					onCancel={() => {
+						setShowCropModal(false);
+						setImageToCrop(null);
+						revokeCropObjectUrl();
+					}}
+				/>
+			)}
+		</>
 	);
 }
