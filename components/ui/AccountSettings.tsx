@@ -27,9 +27,11 @@ interface Settings {
 
 interface AccountSettingsProps {
 	showPasswordSection?: boolean;
+	/** When true, hides avatar + name and renames the section to "Contact Information". Use on pages where those are managed elsewhere (e.g. the Profile page). */
+	contactOnly?: boolean;
 }
 
-export default function AccountSettings({ showPasswordSection = false }: AccountSettingsProps) {
+export default function AccountSettings({ showPasswordSection = false, contactOnly = false }: AccountSettingsProps) {
 	const { user, setSession, token: authToken } = useAuth();
 	const [settings, setSettings] = useState<Settings | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -151,7 +153,7 @@ export default function AccountSettings({ showPasswordSection = false }: Account
 		}
 	};
 
-	const profileIncomplete = !name?.trim() || !phone?.trim();
+	const profileIncomplete = contactOnly ? !phone?.trim() : (!name?.trim() || !phone?.trim());
 
 	if (loading) {
 		return (
@@ -188,73 +190,83 @@ export default function AccountSettings({ showPasswordSection = false }: Account
 					<div>
 						<p className="text-sm font-medium text-amber-400">Complete your profile</p>
 						<p className="text-xs text-(--secondary) mt-0.5">
-							Please fill in your {!name?.trim() ? 'name' : ''}{!name?.trim() && !phone?.trim() ? ' and ' : ''}{!phone?.trim() ? 'phone number' : ''} to complete your profile.
+							{contactOnly
+								? 'Please fill in your phone number.'
+								: `Please fill in your ${!name?.trim() ? 'name' : ''}${!name?.trim() && !phone?.trim() ? ' and ' : ''}${!phone?.trim() ? 'phone number' : ''}.`
+							}
 						</p>
 					</div>
 				</div>
 			)}
 
-			{/* Profile Section */}
+			{/* Profile / Contact Information Section */}
 			<Card className="p-6 space-y-5">
-				<h2 className="text-lg font-semibold text-(--primary)">Profile</h2>
-
-				{/* Avatar */}
-				<div className="flex items-center gap-5">
-					<div className="w-20 h-20 rounded-full border-2 border-(--border) flex items-center justify-center overflow-hidden shrink-0 bg-(--surface-hover)">
-						{avatar ? (
-							<img src={avatar} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-						) : (
-							<span className="text-2xl font-bold text-(--secondary)">
-								{name ? name.charAt(0).toUpperCase() : '?'}
-							</span>
-						)}
-					</div>
-					<div className="flex flex-col gap-2">
-						<label className="block text-sm font-medium text-(--secondary)">Profile Photo</label>
-						<div className="flex items-center gap-2">
-							<label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-(--surface-hover) border border-(--border) text-(--primary) hover:bg-(--surface-pressed) transition-colors">
-								<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-									<path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-								</svg>
-								Upload
-								<input type="file" accept="image/*" className="hidden" onChange={(e) => {
-									const file = e.target.files?.[0];
-									if (!file) return;
-									setAvatarUploading(true);
-									const formData = new FormData();
-									formData.append('file', file);
-									formData.append('folder', 'avatars');
-									fetch('/api/media', { method: 'POST', body: formData })
-										.then(r => r.json())
-										.then(json => { if (json.data?.url) setAvatar(json.data.url); })
-										.catch(() => setMessage({ type: 'error', text: 'Failed to upload avatar' }))
-										.finally(() => setAvatarUploading(false));
-								}} />
-							</label>
-							{avatar && (
-								<button
-									type="button"
-									onClick={() => setAvatar('')}
-									className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
-								>
-									Remove
-								</button>
-							)}
-							{avatarUploading && <span className="text-xs text-(--secondary)">Uploading...</span>}
-						</div>
-						<p className="text-xs text-(--secondary)">JPG, PNG or SVG. Max 5MB.</p>
-					</div>
+				<div className="flex items-center justify-between">
+					<h2 className="text-lg font-semibold text-(--primary)">{contactOnly ? 'Contact Information' : 'Profile'}</h2>
 				</div>
 
-				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<div>
-						<label className="block text-sm font-medium text-(--secondary) mb-1">Name</label>
-						<Input
-							value={name}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-							placeholder="Your full name"
-						/>
+				{/* Avatar — hidden in contactOnly mode (managed on Profile page) */}
+				{!contactOnly && (
+					<div className="flex items-center gap-5">
+						<div className="w-20 h-20 rounded-full border-2 border-(--border) flex items-center justify-center overflow-hidden shrink-0 bg-(--surface-hover)">
+							{avatar ? (
+								<img src={avatar} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+							) : (
+								<span className="text-2xl font-bold text-(--secondary)">
+									{name ? name.charAt(0).toUpperCase() : '?'}
+								</span>
+							)}
+						</div>
+						<div className="flex flex-col gap-2">
+							<label className="block text-sm font-medium text-(--secondary)">Profile Photo</label>
+							<div className="flex items-center gap-2">
+								<label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-(--surface-hover) border border-(--border) text-(--primary) hover:bg-(--surface-pressed) transition-colors">
+									<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+										<path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+									</svg>
+									Upload
+									<input type="file" accept="image/*" className="hidden" onChange={(e) => {
+										const file = e.target.files?.[0];
+										if (!file) return;
+										setAvatarUploading(true);
+										const formData = new FormData();
+										formData.append('file', file);
+										formData.append('folder', 'avatars');
+										fetch('/api/media', { method: 'POST', body: formData })
+											.then(r => r.json())
+											.then(json => { if (json.data?.url) setAvatar(json.data.url); })
+											.catch(() => setMessage({ type: 'error', text: 'Failed to upload avatar' }))
+											.finally(() => setAvatarUploading(false));
+									}} />
+								</label>
+								{avatar && (
+									<button
+										type="button"
+										onClick={() => setAvatar('')}
+										className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+									>
+										Remove
+									</button>
+								)}
+								{avatarUploading && <span className="text-xs text-(--secondary)">Uploading...</span>}
+							</div>
+							<p className="text-xs text-(--secondary)">JPG, PNG or SVG. Max 5MB.</p>
+						</div>
 					</div>
+				)}
+
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					{/* Name — hidden in contactOnly mode (managed on Profile page) */}
+					{!contactOnly && (
+						<div>
+							<label className="block text-sm font-medium text-(--secondary) mb-1">Name</label>
+							<Input
+								value={name}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+								placeholder="Your full name"
+							/>
+						</div>
+					)}
 					<div>
 						<label className="block text-sm font-medium text-(--secondary) mb-1">Email</label>
 						<Input value={settings?.email || ''} disabled />

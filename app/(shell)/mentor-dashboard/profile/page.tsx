@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -18,6 +19,7 @@ import ProfileView from './_components/ProfileView';
 
 export default function MentorProfilePage() {
     const router = useRouter();
+    const { user, setSession, token: authToken } = useAuth();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -25,6 +27,7 @@ export default function MentorProfilePage() {
     const [error, setError] = useState<string | null>(null);
 
     // Photo state (uploaded immediately, saved with form submit)
+    const [name, setName] = useState('');
     const [avatar, setAvatar] = useState('');
     const [coverPhoto, setCoverPhoto] = useState('');
 
@@ -91,6 +94,7 @@ export default function MentorProfilePage() {
             setAchievements(parseRichList(data.achievements));
             setHighlights(parseRichList(data.packages));
             if (data.pricing_per_hour) setPricingPerHour(data.pricing_per_hour);
+            if (data.user_name) setName(data.user_name);
             if (data.avatar) setAvatar(data.avatar);
             if (data.cover_photo) setCoverPhoto(data.cover_photo);
             if (data.documents && Array.isArray(data.documents) && data.documents.length > 0) {
@@ -262,6 +266,7 @@ export default function MentorProfilePage() {
                     documents,
                     avatar,
                     cover_photo: coverPhoto,
+                    name,
                 }),
             });
 
@@ -274,6 +279,10 @@ export default function MentorProfilePage() {
             setProfileData(data);
             setSuccess(true);
             setIsEditMode(false);
+            // Sync updated name/avatar into the auth session so the sidebar reflects changes
+            if (user && authToken) {
+                setSession({ ...user, name, avatar }, authToken);
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (err) {
             setError((err as Error).message);
@@ -367,11 +376,18 @@ export default function MentorProfilePage() {
                                 label="Profile Picture"
                                 onUpload={setAvatar}
                                 variant="avatar"
-                                mentorName={profileData?.user_name}
+                                mentorName={name || profileData?.user_name}
                             />
-                            <div>
-                                <p className="text-sm font-semibold text-(--primary)">{profileData?.user_name}</p>
-                                <p className="text-xs text-(--secondary)">{profileData?.user_email}</p>
+                            <div className="w-full">
+                                <label className="block text-xs font-medium text-(--secondary) mb-1 text-left">Display Name</label>
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Your full name"
+                                    className="w-full px-3 py-2 text-sm rounded-lg border border-(--border) bg-(--surface) text-(--primary) placeholder:text-(--secondary) focus:outline-none focus:ring-2 focus:ring-accent/40"
+                                />
+                                <p className="text-xs text-(--secondary) mt-1">{profileData?.user_email}</p>
                             </div>
                         </div>
                     </div>

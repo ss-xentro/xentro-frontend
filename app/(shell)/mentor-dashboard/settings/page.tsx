@@ -3,5 +3,5 @@
 import AccountSettings from '@/components/ui/AccountSettings';
 
 export default function MentorSettingsPage() {
-	return <AccountSettings />;
+	return <AccountSettings contactOnly />;
 }
