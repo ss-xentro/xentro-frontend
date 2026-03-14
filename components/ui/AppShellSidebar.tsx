@@ -139,9 +139,9 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 	const resolvedRole = (user?.role ?? 'startup') as UserRole;
 	const dashboardChildren = isAuthenticated ? getNavItems(resolvedRole) : [];
 	const exploreChildren = [
-		{ name: 'Institutions', href: '/explore/institute' },
-		{ name: 'Startups', href: '/explore/startups' },
-		{ name: 'Mentors', href: '/explore/mentors' },
+		{ name: 'Institutions', href: '/explore/institute', iconPath: CHILD_ICON_PATHS.building },
+		{ name: 'Startups', href: '/explore/startups', iconPath: CHILD_ICON_PATHS.bolt },
+		{ name: 'Mentors', href: '/explore/mentors', iconPath: CHILD_ICON_PATHS.mentors },
 	];
 
 	// Settings URL per role (shown in profile popup)
@@ -334,7 +334,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 									{exploreExpanded && !isCollapsed && (
 										<div className="ml-4 pl-3 border-l border-white/10 space-y-0.5">
 											{exploreChildren.map((child) => {
-												const childActive = pathname === child.href;
+												const childActive = pathname === child.href || pathname.startsWith(child.href + '/');
 												return (
 													<Link
 														key={child.href}
@@ -344,7 +344,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 															childActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200',
 														)}
 													>
-														<NavIcon svgPath={getChildIconPath('Explore')} active={childActive} size="w-4 h-4" />
+														<NavIcon svgPath={child.iconPath} active={childActive} size="w-4 h-4" />
 														<span className="text-[13px] font-medium">{child.name}</span>
 													</Link>
 												);
