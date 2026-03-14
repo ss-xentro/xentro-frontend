@@ -36,7 +36,7 @@ export default function EventCard({ event, onEdit, onDelete }: EventCardProps) {
 				<div><span className="font-medium">Start:</span> {formatDate(event.startTime)}</div>
 				<div><span className="font-medium">End:</span> {formatDate(event.endTime)}</div>
 				<div><span className="font-medium">Location:</span> {event.location || (event.isVirtual ? 'Virtual' : '—')}</div>
-				<div><span className="font-medium">Attendees:</span> {event.attendeeCount}{event.maxAttendees ? ` / ${event.maxAttendees}` : ''}</div>
+				<div><span className="font-medium">Slots:</span> {event.attendeeCount} booked{event.maxAttendees ? ` / ${event.maxAttendees}` : ' / unlimited'}</div>
 			</div>
 
 			<div className="flex items-center gap-2 pt-1 border-t border-(--border)">

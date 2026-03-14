@@ -45,6 +45,10 @@ export default function InstitutionEventsPage() {
     const handleSave = async () => {
         const token = getSessionToken();
         if (!token || !form.name.trim()) return;
+        if (modalMode === 'create' && (!form.maxAttendees || Number(form.maxAttendees) <= 0)) {
+            setError('Available slots are required when creating an event.');
+            return;
+        }
         setSaving(true);
         try {
             const body: Record<string, unknown> = {

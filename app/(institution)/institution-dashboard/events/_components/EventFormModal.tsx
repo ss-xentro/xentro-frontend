@@ -36,7 +36,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 				</div>
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<Input label="Price (USD)" type="number" placeholder="0 for free" value={form.price} onChange={(e) => set('price', e.target.value)} />
-					<Input label="Max attendees" type="number" placeholder="Unlimited" value={form.maxAttendees} onChange={(e) => set('maxAttendees', e.target.value)} />
+					<Input label="Available slots" type="number" min="1" placeholder="Total bookable seats" value={form.maxAttendees} onChange={(e) => set('maxAttendees', e.target.value)} />
 				</div>
 
 				<label className="flex items-center gap-2 text-sm text-(--primary) cursor-pointer">
