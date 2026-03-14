@@ -75,6 +75,29 @@ export default function SessionsPage() {
         } catch { return ''; }
     }
 
+    function checkForOverlaps(slotList: Array<{ dayOfWeek: string; startTime: string; endTime: string }>): string | null {
+        const byDay: Record<string, Array<{ start: number; end: number; label: string }>> = {};
+        for (const s of slotList) {
+            const toMins = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+            const start = toMins(s.startTime);
+            const end = toMins(s.endTime);
+            if (!byDay[s.dayOfWeek]) byDay[s.dayOfWeek] = [];
+            byDay[s.dayOfWeek].push({ start, end, label: `${s.startTime}–${s.endTime}` });
+        }
+        for (const [day, daySlots] of Object.entries(byDay)) {
+            for (let i = 0; i < daySlots.length; i++) {
+                for (let j = i + 1; j < daySlots.length; j++) {
+                    const a = daySlots[i];
+                    const b = daySlots[j];
+                    if (a.start < b.end && b.start < a.end) {
+                        return `Overlap on ${day}: ${a.label} conflicts with ${b.label}`;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     function toggleSlot(day: string, time: string) {
         const key = `${day}-${time}`;
         setSelectedSlots(prev => {
@@ -96,6 +119,13 @@ export default function SessionsPage() {
             const endTime = `${String(startHour + 1).padStart(2, '0')}:00`;
             return { dayOfWeek: day, startTime, endTime };
         });
+
+        const overlapError = checkForOverlaps(newSlots);
+        if (overlapError) {
+            setMessage(overlapError);
+            setSavingSlots(false);
+            return;
+        }
 
         try {
             // Delete existing slots first, then create new ones
