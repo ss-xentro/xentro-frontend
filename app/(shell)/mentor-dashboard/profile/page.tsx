@@ -341,7 +341,7 @@ export default function MentorProfilePage() {
                     documents={documents}
                     slots={slots}
                     onEditClick={() => { setSuccess(false); setIsEditMode(true); }}
-                    onViewPublicProfile={() => router.push(`/explore/mentors/${profileData.id}`)}
+                    onViewPublicProfile={() => router.push(`/mentors/${profileData.id}`)}
                 />
             </div>
         );

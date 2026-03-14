@@ -69,13 +69,13 @@ export default function ConnectionsList({ connections, filter, onFilterChange }:
 									</div>
 									{conn.status === 'accepted' && (
 										<div className="mt-3 flex gap-2">
-											<Link href={`/explore/mentors/${conn.mentor}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-(--surface-hover) text-(--primary) hover:bg-(--surface-pressed) transition-colors">
+											<Link href={`/mentors/${conn.mentor}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-(--surface-hover) text-(--primary) hover:bg-(--surface-pressed) transition-colors">
 												<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
 													<path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 												</svg>
 												Book Session
 											</Link>
-											<Link href={`/explore/mentors/${conn.mentor}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-(--border) text-(--secondary) hover:text-(--primary) hover:border-(--secondary-light) transition-colors">
+											<Link href={`/mentors/${conn.mentor}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-(--border) text-(--secondary) hover:text-(--primary) hover:border-(--secondary-light) transition-colors">
 												View Profile
 											</Link>
 										</div>

@@ -165,7 +165,7 @@ export default function ExploreMentorsPage() {
                     {displayMentors.map((mentor) => (
                         <Link
                             key={mentor.id}
-                            href={`/explore/mentors/${mentor.id}`}
+                            href={`/mentors/${mentor.id}`}
                             className="group relative bg-white/3 hover:bg-white/6 border border-white/6 hover:border-white/12 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col"
                         >
                             {/* Card body */}

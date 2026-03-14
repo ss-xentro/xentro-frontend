@@ -33,8 +33,36 @@ export interface MentorSlot {
 }
 
 function parseArr(v: unknown): string[] {
-	if (typeof v === 'string') return v.split('\n').map((s: string) => s.trim()).filter(Boolean);
-	if (Array.isArray(v)) return v as string[];
+	const sanitize = (input: string): string =>
+		input
+			.replace(/<[^>]*>/g, ' ')
+			.replace(/&nbsp;/g, ' ')
+			.replace(/\s+/g, ' ')
+			.trim();
+
+	if (Array.isArray(v)) {
+		return v.map((item) => sanitize(String(item))).filter(Boolean);
+	}
+
+	if (typeof v === 'string') {
+		const raw = v.trim();
+		if (!raw) return [];
+
+		try {
+			const parsed = JSON.parse(raw);
+			if (Array.isArray(parsed)) {
+				return parsed.map((item) => sanitize(String(item))).filter(Boolean);
+			}
+		} catch {
+			// fall through to delimiter parsing
+		}
+
+		return raw
+			.split(/\n{2,}|;+/)
+			.map((s) => sanitize(s))
+			.filter(Boolean);
+	}
+
 	return [];
 }
 
@@ -76,12 +104,12 @@ export interface ConnectBtnConfig {
 export function getConnectBtnConfig(status: string | null): ConnectBtnConfig {
 	switch (status) {
 		case 'pending':
-			return { label: 'Request Pending', disabled: true, className: 'bg-amber-500/20 text-amber-300 border-amber-500/30 cursor-default' };
+			return { label: 'Book Session', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90 border-white/20' };
 		case 'accepted':
 			return { label: 'Book a Session', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90 border-white/20' };
 		case 'rejected':
-			return { label: 'Rejected', disabled: true, className: 'bg-red-500/20 text-red-300 border-red-500/30 cursor-default' };
+			return { label: 'Book Session', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90 border-white/20' };
 		default:
-			return { label: 'Connect & Book', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90' };
+			return { label: 'Book Session', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90' };
 	}
 }
