@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
@@ -126,8 +126,11 @@ export default function UnifiedLoginPage() {
     const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [sessionId, setSessionId] = useState<string | null>(null);
+    const otpSendInFlightRef = useRef(false);
 
     const sendOTP = async () => {
+        if (otpSendInFlightRef.current) return;
+        otpSendInFlightRef.current = true;
         setLoading(true);
         setError(null);
 
@@ -157,6 +160,7 @@ export default function UnifiedLoginPage() {
         } catch (err) {
             setError((err as Error).message);
         } finally {
+            otpSendInFlightRef.current = false;
             setLoading(false);
         }
     };
