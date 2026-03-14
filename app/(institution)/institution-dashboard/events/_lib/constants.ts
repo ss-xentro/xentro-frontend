@@ -9,6 +9,14 @@ export interface EventItem {
 	price: number | null;
 	isVirtual: boolean;
 	maxAttendees: number | null;
+	status?: 'draft' | 'published' | 'cancelled';
+	coverImage?: string | null;
+	gallery?: string[];
+	speakerLineup?: unknown[];
+	agendaTimeline?: unknown[];
+	recurrenceRule?: Record<string, unknown> | null;
+	ticketTypes?: unknown[];
+	cancellationCutoffHours?: number;
 	attendeeCount: number;
 	approved: boolean;
 	createdAt: string;
@@ -26,6 +34,14 @@ export interface EventFormData {
 	price: string;
 	isVirtual: boolean;
 	maxAttendees: string;
+	status: 'draft' | 'published' | 'cancelled';
+	coverImage: string;
+	galleryJson: string;
+	speakerLineupJson: string;
+	agendaTimelineJson: string;
+	recurrenceRuleJson: string;
+	ticketTypesJson: string;
+	cancellationCutoffHours: string;
 }
 
 export const EMPTY_FORM: EventFormData = {
@@ -38,6 +54,14 @@ export const EMPTY_FORM: EventFormData = {
 	price: '',
 	isVirtual: false,
 	maxAttendees: '',
+	status: 'published',
+	coverImage: '',
+	galleryJson: '[]',
+	speakerLineupJson: '[]',
+	agendaTimelineJson: '[]',
+	recurrenceRuleJson: '',
+	ticketTypesJson: '[]',
+	cancellationCutoffHours: '2',
 };
 
 export function formatDate(dateStr: string | null) {
@@ -62,5 +86,13 @@ export function eventToForm(event: EventItem): EventFormData {
 		price: event.price != null ? String(event.price) : '',
 		isVirtual: event.isVirtual,
 		maxAttendees: event.maxAttendees != null ? String(event.maxAttendees) : '',
+		status: event.status || 'published',
+		coverImage: event.coverImage || '',
+		galleryJson: JSON.stringify(event.gallery || [], null, 2),
+		speakerLineupJson: JSON.stringify(event.speakerLineup || [], null, 2),
+		agendaTimelineJson: JSON.stringify(event.agendaTimeline || [], null, 2),
+		recurrenceRuleJson: event.recurrenceRule ? JSON.stringify(event.recurrenceRule, null, 2) : '',
+		ticketTypesJson: JSON.stringify(event.ticketTypes || [], null, 2),
+		cancellationCutoffHours: String(event.cancellationCutoffHours ?? 2),
 	};
 }

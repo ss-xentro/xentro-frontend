@@ -39,6 +39,21 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 					<Input label="Available slots" type="number" min="1" placeholder="Total bookable seats" value={form.maxAttendees} onChange={(e) => set('maxAttendees', e.target.value)} />
 				</div>
 
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<Input label="Status" placeholder="draft | published | cancelled" value={form.status} onChange={(e) => set('status', e.target.value as EventFormData['status'])} />
+					<Input label="Cover image URL" placeholder="https://..." value={form.coverImage} onChange={(e) => set('coverImage', e.target.value)} />
+				</div>
+
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<Input label="Cancellation cutoff (hours)" type="number" min="0" value={form.cancellationCutoffHours} onChange={(e) => set('cancellationCutoffHours', e.target.value)} />
+					<Input label="Recurrence rule (JSON)" placeholder='{"frequency":"weekly"}' value={form.recurrenceRuleJson} onChange={(e) => set('recurrenceRuleJson', e.target.value)} />
+				</div>
+
+				<Textarea label="Gallery (JSON array)" rows={3} value={form.galleryJson} onChange={(e) => set('galleryJson', e.target.value)} />
+				<Textarea label="Speaker lineup (JSON array)" rows={3} value={form.speakerLineupJson} onChange={(e) => set('speakerLineupJson', e.target.value)} />
+				<Textarea label="Agenda timeline (JSON array)" rows={3} value={form.agendaTimelineJson} onChange={(e) => set('agendaTimelineJson', e.target.value)} />
+				<Textarea label="Ticket types (JSON array)" rows={3} value={form.ticketTypesJson} onChange={(e) => set('ticketTypesJson', e.target.value)} />
+
 				<label className="flex items-center gap-2 text-sm text-(--primary) cursor-pointer">
 					<input type="checkbox" checked={form.isVirtual} onChange={(e) => set('isVirtual', e.target.checked)} className="rounded border-(--border)" />
 					Virtual event

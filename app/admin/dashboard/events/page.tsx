@@ -17,6 +17,14 @@ type EventItem = {
 	attendeeCount: number;
 	organizerName: string | null;
 	approved: boolean;
+	status?: 'draft' | 'published' | 'cancelled';
+	coverImage?: string | null;
+	gallery?: string[];
+	speakerLineup?: unknown[];
+	agendaTimeline?: unknown[];
+	recurrenceRule?: Record<string, unknown> | null;
+	ticketTypes?: unknown[];
+	cancellationCutoffHours?: number;
 };
 
 type EventForm = {
@@ -29,6 +37,14 @@ type EventForm = {
 	price: string;
 	isVirtual: boolean;
 	maxAttendees: string;
+	status: 'draft' | 'published' | 'cancelled';
+	coverImage: string;
+	galleryJson: string;
+	speakerLineupJson: string;
+	agendaTimelineJson: string;
+	recurrenceRuleJson: string;
+	ticketTypesJson: string;
+	cancellationCutoffHours: string;
 };
 
 const EMPTY_FORM: EventForm = {
@@ -41,6 +57,14 @@ const EMPTY_FORM: EventForm = {
 	price: '',
 	isVirtual: false,
 	maxAttendees: '',
+	status: 'published',
+	coverImage: '',
+	galleryJson: '[]',
+	speakerLineupJson: '[]',
+	agendaTimelineJson: '[]',
+	recurrenceRuleJson: '',
+	ticketTypesJson: '[]',
+	cancellationCutoffHours: '2',
 };
 
 function toForm(event: EventItem): EventForm {
@@ -54,6 +78,14 @@ function toForm(event: EventItem): EventForm {
 		price: '',
 		isVirtual: event.isVirtual,
 		maxAttendees: event.maxAttendees != null ? String(event.maxAttendees) : '',
+		status: event.status || 'published',
+		coverImage: event.coverImage || '',
+		galleryJson: JSON.stringify(event.gallery || [], null, 2),
+		speakerLineupJson: JSON.stringify(event.speakerLineup || [], null, 2),
+		agendaTimelineJson: JSON.stringify(event.agendaTimeline || [], null, 2),
+		recurrenceRuleJson: event.recurrenceRule ? JSON.stringify(event.recurrenceRule, null, 2) : '',
+		ticketTypesJson: JSON.stringify(event.ticketTypes || [], null, 2),
+		cancellationCutoffHours: String(event.cancellationCutoffHours ?? 2),
 	};
 }
 
@@ -115,6 +147,16 @@ export default function AdminEventsPage() {
 		setError(null);
 
 		try {
+			const parseJsonOrThrow = (label: string, value: string, fallback: unknown) => {
+				const trimmed = value.trim();
+				if (!trimmed) return fallback;
+				try {
+					return JSON.parse(trimmed);
+				} catch {
+					throw new Error(`${label} must be valid JSON`);
+				}
+			};
+
 			const body = {
 				name: form.name,
 				description: form.description || null,
@@ -125,6 +167,14 @@ export default function AdminEventsPage() {
 				price: form.price ? Number(form.price) : null,
 				is_virtual: form.isVirtual,
 				max_attendees: Number(form.maxAttendees),
+				status: form.status,
+				cover_image: form.coverImage || null,
+				cancellation_cutoff_hours: form.cancellationCutoffHours ? Number(form.cancellationCutoffHours) : 2,
+				gallery: parseJsonOrThrow('Gallery', form.galleryJson, []),
+				speaker_lineup: parseJsonOrThrow('Speaker lineup', form.speakerLineupJson, []),
+				agenda_timeline: parseJsonOrThrow('Agenda timeline', form.agendaTimelineJson, []),
+				recurrence_rule: parseJsonOrThrow('Recurrence rule', form.recurrenceRuleJson, null),
+				ticket_types: parseJsonOrThrow('Ticket types', form.ticketTypesJson, []),
 			};
 			const url = editingId ? `/api/events/${editingId}/` : '/api/events/';
 			const method = editingId ? 'PATCH' : 'POST';
@@ -245,6 +295,18 @@ export default function AdminEventsPage() {
 								<input type="number" min="0" className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Price" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
 								<input type="number" min="1" className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Available slots" value={form.maxAttendees} onChange={(e) => setForm((f) => ({ ...f, maxAttendees: e.target.value }))} />
 							</div>
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Status: draft/published/cancelled" value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as EventForm['status'] }))} />
+								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Cover image URL" value={form.coverImage} onChange={(e) => setForm((f) => ({ ...f, coverImage: e.target.value }))} />
+							</div>
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+								<input type="number" min="0" className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Cancellation cutoff hours" value={form.cancellationCutoffHours} onChange={(e) => setForm((f) => ({ ...f, cancellationCutoffHours: e.target.value }))} />
+								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder='Recurrence JSON e.g. {"frequency":"weekly"}' value={form.recurrenceRuleJson} onChange={(e) => setForm((f) => ({ ...f, recurrenceRuleJson: e.target.value }))} />
+							</div>
+							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Gallery JSON array" value={form.galleryJson} onChange={(e) => setForm((f) => ({ ...f, galleryJson: e.target.value }))} />
+							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Speaker lineup JSON array" value={form.speakerLineupJson} onChange={(e) => setForm((f) => ({ ...f, speakerLineupJson: e.target.value }))} />
+							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Agenda timeline JSON array" value={form.agendaTimelineJson} onChange={(e) => setForm((f) => ({ ...f, agendaTimelineJson: e.target.value }))} />
+							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Ticket types JSON array" value={form.ticketTypesJson} onChange={(e) => setForm((f) => ({ ...f, ticketTypesJson: e.target.value }))} />
 							<label className="text-sm text-gray-700 flex items-center gap-2">
 								<input type="checkbox" checked={form.isVirtual} onChange={(e) => setForm((f) => ({ ...f, isVirtual: e.target.checked }))} />
 								Online event

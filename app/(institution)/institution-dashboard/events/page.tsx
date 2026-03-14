@@ -51,6 +51,16 @@ export default function InstitutionEventsPage() {
         }
         setSaving(true);
         try {
+            const parseJsonOrThrow = (label: string, value: string, fallback: unknown) => {
+                const trimmed = value.trim();
+                if (!trimmed) return fallback;
+                try {
+                    return JSON.parse(trimmed);
+                } catch {
+                    throw new Error(`${label} must be valid JSON`);
+                }
+            };
+
             const body: Record<string, unknown> = {
                 name: form.name,
                 description: form.description || null,
@@ -61,6 +71,14 @@ export default function InstitutionEventsPage() {
                 price: form.price ? Number(form.price) : null,
                 is_virtual: form.isVirtual,
                 max_attendees: form.maxAttendees ? Number(form.maxAttendees) : null,
+                status: form.status,
+                cover_image: form.coverImage || null,
+                cancellation_cutoff_hours: form.cancellationCutoffHours ? Number(form.cancellationCutoffHours) : 2,
+                gallery: parseJsonOrThrow('Gallery', form.galleryJson, []),
+                speaker_lineup: parseJsonOrThrow('Speaker lineup', form.speakerLineupJson, []),
+                agenda_timeline: parseJsonOrThrow('Agenda timeline', form.agendaTimelineJson, []),
+                recurrence_rule: parseJsonOrThrow('Recurrence rule', form.recurrenceRuleJson, null),
+                ticket_types: parseJsonOrThrow('Ticket types', form.ticketTypesJson, []),
             };
             const url = modalMode === 'edit' && editingEvent ? `/api/events/${editingEvent.id}/` : '/api/events/';
             const method = modalMode === 'edit' ? 'PATCH' : 'POST';
