@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
@@ -117,6 +117,7 @@ function storeSession(data: { user: Record<string, unknown>; token: string; star
 }
 
 export default function UnifiedLoginPage() {
+    const OTP_RESEND_COOLDOWN_SECONDS = 30;
     const router = useRouter();
     const { setSession } = useAuth();
     const [step, setStep] = useState<'email' | 'otp'>('email');
@@ -126,10 +127,20 @@ export default function UnifiedLoginPage() {
     const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [sessionId, setSessionId] = useState<string | null>(null);
+    const [otpCooldown, setOtpCooldown] = useState(0);
     const otpSendInFlightRef = useRef(false);
+
+    useEffect(() => {
+        if (otpCooldown <= 0) return;
+        const timer = setInterval(() => {
+            setOtpCooldown(prev => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [otpCooldown]);
 
     const sendOTP = async () => {
         if (otpSendInFlightRef.current) return;
+        if (otpCooldown > 0) return;
         otpSendInFlightRef.current = true;
         setLoading(true);
         setError(null);
@@ -157,6 +168,7 @@ export default function UnifiedLoginPage() {
 
             setSessionId(data.sessionId);
             setStep('otp');
+            setOtpCooldown(OTP_RESEND_COOLDOWN_SECONDS);
         } catch (err) {
             setError((err as Error).message);
         } finally {
@@ -310,10 +322,10 @@ export default function UnifiedLoginPage() {
                                     <Button
                                         type="submit"
                                         className="w-full"
-                                        disabled={loading || !email}
+                                        disabled={loading || !email || otpCooldown > 0}
                                         isLoading={loading}
                                     >
-                                        {loading ? 'Sending...' : 'Get OTP'}
+                                        {loading ? 'Sending...' : otpCooldown > 0 ? `Get OTP (${otpCooldown}s)` : 'Get OTP'}
                                     </Button>
 
                                     <p className="text-center text-sm text-(--secondary)">
@@ -371,10 +383,10 @@ export default function UnifiedLoginPage() {
                                 <button
                                     type="button"
                                     onClick={() => sendOTP()}
-                                    disabled={loading}
+                                    disabled={loading || otpCooldown > 0}
                                     className="w-full text-sm text-accent hover:underline disabled:opacity-50"
                                 >
-                                    Resend OTP
+                                    {otpCooldown > 0 ? `Resend OTP in ${otpCooldown}s` : 'Resend OTP'}
                                 </button>
                             </form>
                         )}
