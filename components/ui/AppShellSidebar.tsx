@@ -110,6 +110,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 	const [searchQuery, setSearchQuery] = useState('');
 	const [profileOpen, setProfileOpen] = useState(false);
 	const [dashExpanded, setDashExpanded] = useState(false);
+	const [exploreExpanded, setExploreExpanded] = useState(false);
 	const [startupInfo, setStartupInfo] = useState<{ name: string; slug: string; logo: string | null } | null>(null);
 	const profileRef = useRef<HTMLDivElement>(null);
 	const pathname = usePathname();
@@ -137,6 +138,11 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 	const dashboardHref = getDashboardUrl(user?.role);
 	const resolvedRole = (user?.role ?? 'startup') as UserRole;
 	const dashboardChildren = isAuthenticated ? getNavItems(resolvedRole) : [];
+	const exploreChildren = [
+		{ name: 'Institutions', href: '/explore/institute' },
+		{ name: 'Startups', href: '/explore/startups' },
+		{ name: 'Mentors', href: '/explore/mentors' },
+	];
 
 	// Settings URL per role (shown in profile popup)
 	const settingsHrefMap: Record<string, string> = {
@@ -149,9 +155,14 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 
 	// Auto-expand dashboard if on a dashboard route
 	const isDashboardRoute = pathname === dashboardHref || pathname.startsWith(dashboardHref + '/');
+	const isExploreRoute = pathname.startsWith('/explore');
 	useEffect(() => {
 		if (isDashboardRoute) setDashExpanded(true);
 	}, [isDashboardRoute]);
+
+	useEffect(() => {
+		if (isExploreRoute) setExploreExpanded(true);
+	}, [isExploreRoute]);
 
 	const username = isStartupRole && startupInfo?.slug ? startupInfo.slug : (user?.email ? user.email.split('@')[0] : 'guest');
 	const displayName = isStartupRole && startupInfo?.name ? startupInfo.name : (user?.name ?? 'Guest');
@@ -288,6 +299,62 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 
 					{/* Other nav items */}
 					{NAV_ITEMS.map((item) => {
+						if (item.label === 'Explore') {
+							return (
+								<div key={item.icon}>
+									<button
+										onClick={() => {
+											if (isCollapsed) {
+												router.push(item.href);
+											} else {
+												setExploreExpanded((prev) => !prev);
+											}
+										}}
+										className={cn(
+											'relative w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-colors duration-200 group',
+											isCollapsed ? 'justify-center' : '',
+											isExploreRoute ? 'bg-white/10' : 'hover:bg-white/5',
+										)}
+									>
+										<NavIcon svgPath={item.path} active={isExploreRoute} />
+										<span className={cn('text-[15px] font-medium transition-all duration-300 whitespace-nowrap overflow-hidden flex-1 text-left', isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100', isExploreRoute ? 'text-white' : 'text-gray-400')}>
+											{item.label}
+										</span>
+										{!isCollapsed && (
+											<svg className={cn('w-4 h-4 text-white/40 transition-transform duration-200 shrink-0', exploreExpanded && 'rotate-180')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+											</svg>
+										)}
+										{isCollapsed && (
+											<div className="absolute left-full ml-3 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+												{item.label}
+											</div>
+										)}
+									</button>
+									{exploreExpanded && !isCollapsed && (
+										<div className="ml-4 pl-3 border-l border-white/10 space-y-0.5">
+											{exploreChildren.map((child) => {
+												const childActive = pathname === child.href;
+												return (
+													<Link
+														key={child.href}
+														href={child.href}
+														className={cn(
+															'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200',
+															childActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200',
+														)}
+													>
+														<NavIcon svgPath={getChildIconPath('Explore')} active={childActive} size="w-4 h-4" />
+														<span className="text-[13px] font-medium">{child.name}</span>
+													</Link>
+												);
+											})}
+										</div>
+									)}
+								</div>
+							);
+						}
+
 						const active = isNavActive(item.href, item.label);
 						return (
 							<Link

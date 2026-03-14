@@ -8,6 +8,7 @@ import type { DashboardData } from './_components/types';
 import { StartupInfoCard } from './_components/StartupInfoCard';
 import { DashboardAnalyticsBento } from './_components/DashboardAnalyticsBento';
 import { DashboardChecklist } from './_components/DashboardChecklist';
+import { StartupProfileCompletionBanner } from './_components/StartupProfileCompletionBanner';
 
 // Roles that have write access (can edit startup, invite members)
 const WRITE_ROLES = new Set(['founder', 'co_founder', 'ceo', 'cto', 'coo', 'cfo', 'cpo']);
@@ -77,13 +78,18 @@ export default function DashboardOverviewPage() {
         && data.startup.logo
         && data.startup.stage
     );
-    const hasTeamMembers = Boolean((data.startup.teamMembers?.length || 0) > 0);
+    const hasTeamMembers = Boolean(((data.startup.founders?.length || 0) + (data.startup.teamMembers?.length || 0)) > 0);
     const hasEmail = Boolean(data.startup.primaryContactEmail?.trim());
     const hasFundsRaised = Boolean(Number(data.startup.fundsRaised || 0) > 0);
     const checklistComplete = hasProfile && hasTeamMembers && hasEmail && hasFundsRaised;
 
     return (
         <div className="space-y-8 animate-fadeIn">
+            <StartupProfileCompletionBanner
+                startup={data.startup}
+                canEdit={WRITE_ROLES.has(data.founderRole)}
+            />
+
             {/* Welcome Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>

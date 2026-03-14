@@ -120,20 +120,22 @@ export default function ExploreMentorsPage() {
     return (
         <div className="p-6">
             {/* Filters */}
-            <div className="flex flex-wrap gap-2 mb-8">
-                {EXPERTISE_OPTIONS.map((opt) => (
-                    <button
-                        key={opt}
-                        onClick={() => setExpertise(opt)}
-                        className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${expertise === opt
-                            ? 'bg-white text-[#0B0D10] border-white/80 shadow-sm'
-                            : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-gray-200'
-                            }`}
-                    >
-                        {opt === 'all' ? 'All' : opt}
-                    </button>
-                ))}
-            </div>
+            {mentors.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-8">
+                    {EXPERTISE_OPTIONS.map((opt) => (
+                        <button
+                            key={opt}
+                            onClick={() => setExpertise(opt)}
+                            className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${expertise === opt
+                                ? 'bg-white text-[#0B0D10] border-white/80 shadow-sm'
+                                : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-gray-200'
+                                }`}
+                        >
+                            {opt === 'all' ? 'All' : opt}
+                        </button>
+                    ))}
+                </div>
+            )}
 
             {/* Skeleton */}
             {loading && (

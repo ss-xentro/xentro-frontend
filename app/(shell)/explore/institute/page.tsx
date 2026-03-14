@@ -36,22 +36,25 @@ export default function ExploreInstitutionsPage() {
         const matchType = selectedType === 'all' || inst.type === selectedType;
         return matchType && inst.status === 'published';
     });
+    const hasActiveFilter = selectedType !== 'all';
 
     return (
         <div className="p-6">
             {/* Filter bar */}
-            <div className="flex gap-3 mb-8">
-                <select
-                    value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    className="h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-white/30 transition-colors"
-                >
-                    <option value="all" className="bg-[#0B0D10]">All Types</option>
-                    {Object.entries(institutionTypeLabels).map(([key, { label }]) => (
-                        <option key={key} value={key} className="bg-[#0B0D10]">{label}</option>
-                    ))}
-                </select>
-            </div>
+            {(loading || institutions.length > 0 || hasActiveFilter) && (
+                <div className="flex gap-3 mb-8">
+                    <select
+                        value={selectedType}
+                        onChange={(e) => setSelectedType(e.target.value)}
+                        className="h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-white/30 transition-colors"
+                    >
+                        <option value="all" className="bg-[#0B0D10]">All Types</option>
+                        {Object.entries(institutionTypeLabels).map(([key, { label }]) => (
+                            <option key={key} value={key} className="bg-[#0B0D10]">{label}</option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
             {/* Error */}
             {error && (

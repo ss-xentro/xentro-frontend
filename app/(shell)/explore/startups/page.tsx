@@ -42,6 +42,7 @@ function StartupsContent() {
     const [loading, setLoading] = useState(true);
     const [stage, setStage] = useState(searchParams.get('stage') || 'all');
     const [funding, setFunding] = useState(searchParams.get('funding') || 'all');
+    const hasActiveFilters = stage !== 'all' || funding !== 'all';
 
     const fetchStartups = useCallback(async () => {
         setLoading(true);
@@ -76,22 +77,24 @@ function StartupsContent() {
     return (
         <div className="p-6">
             {/* Filters */}
-            <div className="flex gap-3 mb-8">
-                <select
-                    value={stage}
-                    onChange={(e) => setStage(e.target.value)}
-                    className="h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-white/30"
-                >
-                    {stages.map((s) => <option key={s.value} value={s.value} className="bg-[#0B0D10]">{s.label}</option>)}
-                </select>
-                <select
-                    value={funding}
-                    onChange={(e) => setFunding(e.target.value)}
-                    className="h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-white/30"
-                >
-                    {fundingRounds.map((f) => <option key={f.value} value={f.value} className="bg-[#0B0D10]">{f.label}</option>)}
-                </select>
-            </div>
+            {(loading || startups.length > 0 || hasActiveFilters) && (
+                <div className="flex gap-3 mb-8">
+                    <select
+                        value={stage}
+                        onChange={(e) => setStage(e.target.value)}
+                        className="h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-white/30"
+                    >
+                        {stages.map((s) => <option key={s.value} value={s.value} className="bg-[#0B0D10]">{s.label}</option>)}
+                    </select>
+                    <select
+                        value={funding}
+                        onChange={(e) => setFunding(e.target.value)}
+                        className="h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-white/30"
+                    >
+                        {fundingRounds.map((f) => <option key={f.value} value={f.value} className="bg-[#0B0D10]">{f.label}</option>)}
+                    </select>
+                </div>
+            )}
 
             {/* Skeleton */}
             {loading && (

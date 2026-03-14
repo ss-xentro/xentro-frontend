@@ -171,8 +171,8 @@ export default function TeamPage() {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {team.map((member) => (
-                    <Card key={member.id} className="relative overflow-hidden p-0 group">
+                {team.map((member, index) => (
+                    <Card key={`${member.id}-${member.email}-${member.role}-${index}`} className="relative overflow-hidden p-0 group">
                         <div className="relative h-52 w-full bg-(--surface-hover)">
                             {member.avatar ? (
                                 <button
