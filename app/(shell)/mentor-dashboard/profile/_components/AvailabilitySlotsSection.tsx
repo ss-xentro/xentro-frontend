@@ -1,6 +1,7 @@
-import { Button } from '@/components/ui/Button';
-import { useEffect, useMemo, useState } from 'react';
-import { SlotEntry, DAYS_OF_WEEK, TIME_OPTIONS } from '../_lib/constants';
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { SlotEntry, DAYS_OF_WEEK, TIME_OPTIONS } from "../_lib/constants";
 
 interface Props {
 	slots: SlotEntry[];
@@ -9,447 +10,964 @@ interface Props {
 	onUpdate: (index: number, field: keyof SlotEntry, value: string) => void;
 }
 
-export default function AvailabilitySlotsSection({ slots, onAdd, onRemove, onUpdate }: Props) {
+const DAY_SHORT: Record<string, string> = {
+	Monday: "Mon",
+	Tuesday: "Tue",
+	Wednesday: "Wed",
+	Thursday: "Thu",
+	Friday: "Fri",
+	Saturday: "Sat",
+	Sunday: "Sun",
+};
+
+export default function AvailabilitySlotsSection({
+	slots,
+	onAdd,
+	onRemove,
+	onUpdate,
+}: Props) {
 	const [selectedDay, setSelectedDay] = useState(DAYS_OF_WEEK[0]);
-	const [newStart, setNewStart] = useState('09:00');
-	const [newEnd, setNewEnd] = useState('10:00');
+	const [newStart, setNewStart] = useState("09:00");
+	const [newEnd, setNewEnd] = useState("10:00");
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
-	const [editStart, setEditStart] = useState('09:00');
-	const [editEnd, setEditEnd] = useState('10:00');
+	const [editStart, setEditStart] = useState("09:00");
+	const [editEnd, setEditEnd] = useState("10:00");
+	const [addError, setAddError] = useState<string | null>(null);
+	const [editError, setEditError] = useState<string | null>(null);
 
-	const dayStats = useMemo(() => {
-		return DAYS_OF_WEEK.map((day) => ({
-			day,
-			count: slots.filter((slot) => slot.day === day).length,
-		}));
-	}, [slots]);
+	/* ── helpers ── */
 
-	const daySlots = useMemo(() => {
-		return slots
-			.map((slot, index) => ({ ...slot, index }))
-			.filter((slot) => slot.day === selectedDay)
-			.sort((a, b) => a.startTime.localeCompare(b.startTime));
-	}, [slots, selectedDay]);
-
-	const getPeriodFromTime = (value: string): 'morning' | 'afternoon' | 'evening' => {
-		const hour = Number(value.split(':')[0] || 0);
-		if (hour < 12) return 'morning';
-		if (hour < 17) return 'afternoon';
-		return 'evening';
+	const toMinutes = (v: string) => {
+		const [h, m] = v.split(":").map(Number);
+		return h * 60 + m;
 	};
 
-	const toMinutes = (value: string) => {
-		const [hour, minute] = value.split(':').map(Number);
-		return hour * 60 + minute;
+	const toHHMM = (mins: number) => {
+		const h = Math.floor(mins / 60);
+		const m = mins % 60;
+		return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 	};
 
-	const toHHMM = (minutes: number) => {
-		const hour = Math.floor(minutes / 60);
-		const minute = minutes % 60;
-		return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+	const formatTime = (v: string) => {
+		const [hRaw, mRaw] = v.split(":").map(Number);
+		const suffix = hRaw >= 12 ? "PM" : "AM";
+		const h = hRaw % 12 || 12;
+		return `${h}:${String(mRaw).padStart(2, "0")} ${suffix}`;
 	};
 
-	const getNextTimeOption = (value: string) => {
-		const idx = TIME_OPTIONS.indexOf(value);
-		if (idx === -1) return value;
+	const getDuration = (start: string, end: string) => {
+		const mins = toMinutes(end) - toMinutes(start);
+		if (mins <= 0) return "";
+		if (mins % 60 === 0) return `${mins / 60}h`;
+		if (mins > 60) return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+		return `${mins}m`;
+	};
+
+	const getPeriod = (v: string): "morning" | "afternoon" | "evening" => {
+		const h = Number(v.split(":")[0]);
+		if (h < 12) return "morning";
+		if (h < 17) return "afternoon";
+		return "evening";
+	};
+
+	const getNextOption = (v: string) => {
+		const idx = TIME_OPTIONS.indexOf(v);
 		return TIME_OPTIONS[Math.min(idx + 1, TIME_OPTIONS.length - 1)];
 	};
 
-	const getPreviousTimeOption = (value: string) => {
-		const idx = TIME_OPTIONS.indexOf(value);
-		if (idx === -1) return value;
+	const getPrevOption = (v: string) => {
+		const idx = TIME_OPTIONS.indexOf(v);
 		return TIME_OPTIONS[Math.max(idx - 1, 0)];
 	};
 
-	const splitByPeriodBoundaries = (start: string, end: string) => {
+	/** Returns true if [startA, endA) overlaps with [startB, endB) */
+	const overlaps = (
+		startA: string,
+		endA: string,
+		startB: string,
+		endB: string,
+	) =>
+		toMinutes(startA) < toMinutes(endB) && toMinutes(startB) < toMinutes(endA);
+
+	/**
+	 * Checks whether a proposed [start, end) range conflicts with any
+	 * existing slot on `day`. Pass `excludeIndex` when editing so the
+	 * slot being edited doesn't block itself.
+	 */
+	const getOverlapError = (
+		day: string,
+		start: string,
+		end: string,
+		excludeIndex?: number,
+	): string | null => {
+		for (let i = 0; i < slots.length; i++) {
+			if (i === excludeIndex) continue;
+			const s = slots[i];
+			if (s.day !== day) continue;
+			if (overlaps(start, end, s.startTime, s.endTime)) {
+				const isDuplicate = s.startTime === start && s.endTime === end;
+				if (isDuplicate) {
+					return `${formatTime(start)} – ${formatTime(end)} already exists on ${day}.`;
+				}
+				return `Overlaps with ${formatTime(s.startTime)} – ${formatTime(s.endTime)} on ${day}.`;
+			}
+		}
+		return null;
+	};
+
+	const splitByBoundaries = (start: string, end: string) => {
 		const startMin = toMinutes(start);
 		const endMin = toMinutes(end);
-		if (endMin <= startMin) return [] as Array<{ startTime: string; endTime: string }>;
-
-		const boundaries = [12 * 60, 17 * 60];
-		const splitPoints = boundaries.filter((point) => point > startMin && point < endMin);
-		const result: Array<{ startTime: string; endTime: string }> = [];
+		if (endMin <= startMin)
+			return [] as { startTime: string; endTime: string }[];
+		const boundaries = [12 * 60, 17 * 60].filter(
+			(b) => b > startMin && b < endMin,
+		);
+		const result: { startTime: string; endTime: string }[] = [];
 		let cursor = startMin;
-
-		for (const point of splitPoints) {
-			result.push({ startTime: toHHMM(cursor), endTime: toHHMM(point) });
-			cursor = point;
+		for (const b of boundaries) {
+			result.push({ startTime: toHHMM(cursor), endTime: toHHMM(b) });
+			cursor = b;
 		}
-
 		result.push({ startTime: toHHMM(cursor), endTime: toHHMM(endMin) });
 		return result;
 	};
 
-	const slotBuckets = useMemo(() => {
-		return {
-			morning: daySlots.filter((slot) => getPeriodFromTime(slot.startTime) === 'morning'),
-			afternoon: daySlots.filter((slot) => getPeriodFromTime(slot.startTime) === 'afternoon'),
-			evening: daySlots.filter((slot) => getPeriodFromTime(slot.startTime) === 'evening'),
-		};
-	}, [daySlots]);
-
-	const totalSlots = slots.length;
+	/* ── derived ── */
 
 	const isValidRange = newStart < newEnd;
-	const isEditRangeValid = editStart < editEnd;
-	const targetPeriod = getPeriodFromTime(newStart);
-	const addSplitSegments = useMemo(() => {
-		if (!isValidRange) return [] as Array<{ startTime: string; endTime: string }>;
-		return splitByPeriodBoundaries(newStart, newEnd);
-	}, [newStart, newEnd, isValidRange]);
-	const editSplitSegments = useMemo(() => {
-		if (!isEditRangeValid) return [] as Array<{ startTime: string; endTime: string }>;
-		return splitByPeriodBoundaries(editStart, editEnd);
-	}, [editStart, editEnd, isEditRangeValid]);
+	const isEditValid = editStart < editEnd;
+	const targetPeriod = getPeriod(newStart);
 
-	const formatTime = (value: string) => {
-		const [hourRaw, minute] = value.split(':').map(Number);
-		const suffix = hourRaw >= 12 ? 'PM' : 'AM';
-		const hour = hourRaw % 12 || 12;
-		return `${hour}:${String(minute).padStart(2, '0')} ${suffix}`;
+	const dayStats = useMemo(
+		() =>
+			DAYS_OF_WEEK.map((day) => ({
+				day,
+				count: slots.filter((s) => s.day === day).length,
+			})),
+		[slots],
+	);
+
+	const daySlots = useMemo(
+		() =>
+			slots
+				.map((s, index) => ({ ...s, index }))
+				.filter((s) => s.day === selectedDay)
+				.sort((a, b) => a.startTime.localeCompare(b.startTime)),
+		[slots, selectedDay],
+	);
+
+	const buckets = useMemo(
+		() => ({
+			morning: daySlots.filter((s) => getPeriod(s.startTime) === "morning"),
+			afternoon: daySlots.filter((s) => getPeriod(s.startTime) === "afternoon"),
+			evening: daySlots.filter((s) => getPeriod(s.startTime) === "evening"),
+		}),
+		[daySlots],
+	);
+
+	const addSplits = useMemo(
+		() => (isValidRange ? splitByBoundaries(newStart, newEnd) : []),
+		[newStart, newEnd, isValidRange],
+	);
+
+	const editSplits = useMemo(
+		() => (isEditValid ? splitByBoundaries(editStart, editEnd) : []),
+		[editStart, editEnd, isEditValid],
+	);
+
+	/* ── handlers ── */
+
+	const handleNewStartChange = (v: string) => {
+		setAddError(null);
+		setNewStart(v);
+		if (toMinutes(v) >= toMinutes(newEnd)) setNewEnd(getNextOption(v));
 	};
 
-	const getDurationLabel = (start: string, end: string) => {
-		const [startHour, startMinute] = start.split(':').map(Number);
-		const [endHour, endMinute] = end.split(':').map(Number);
-		const minutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
-		if (minutes <= 0) return 'Invalid range';
-		if (minutes % 60 === 0) return `${minutes / 60}h`;
-		return `${minutes} min`;
+	const handleNewEndChange = (v: string) => {
+		setAddError(null);
+		setNewEnd(v);
+		if (toMinutes(v) <= toMinutes(newStart)) setNewStart(getPrevOption(v));
+	};
+
+	const handleEditStartChange = (v: string) => {
+		setEditError(null);
+		setEditStart(v);
+		if (toMinutes(v) >= toMinutes(editEnd)) setEditEnd(getNextOption(v));
+	};
+
+	const handleEditEndChange = (v: string) => {
+		setEditError(null);
+		setEditEnd(v);
+		if (toMinutes(v) <= toMinutes(editStart)) setEditStart(getPrevOption(v));
 	};
 
 	const handleAddSlot = () => {
-		if (!newStart || !newEnd || !isValidRange) return;
-		const segments = splitByPeriodBoundaries(newStart, newEnd);
-		for (const segment of segments) {
-			onAdd({ day: selectedDay, startTime: segment.startTime, endTime: segment.endTime });
+		if (!isValidRange) return;
+		// Check each segment that would be created against existing slots
+		for (const seg of addSplits) {
+			const err = getOverlapError(selectedDay, seg.startTime, seg.endTime);
+			if (err) {
+				setAddError(err);
+				return;
+			}
+		}
+		setAddError(null);
+		for (const seg of addSplits) {
+			onAdd({
+				day: selectedDay,
+				startTime: seg.startTime,
+				endTime: seg.endTime,
+			});
 		}
 	};
 
-	const handleNewStartChange = (value: string) => {
-		setNewStart(value);
-		if (toMinutes(value) >= toMinutes(newEnd)) {
-			setNewEnd(getNextTimeOption(value));
+	const handleQuickAdd = (period: "morning" | "afternoon" | "evening") => {
+		const map = {
+			morning: ["09:00", "10:00"],
+			afternoon: ["14:00", "15:00"],
+			evening: ["18:00", "19:00"],
+		};
+		const [s, e] = map[period];
+		const err = getOverlapError(selectedDay, s, e);
+		if (err) {
+			setAddError(err);
+			return;
 		}
+		setAddError(null);
+		onAdd({ day: selectedDay, startTime: s, endTime: e });
 	};
 
-	const handleNewEndChange = (value: string) => {
-		setNewEnd(value);
-		if (toMinutes(value) <= toMinutes(newStart)) {
-			setNewStart(getPreviousTimeOption(value));
-		}
+	const openEdit = (index: number) => {
+		const slot = slots[index];
+		if (!slot) return;
+		setEditStart(slot.startTime);
+		setEditEnd(slot.endTime);
+		setEditingIndex(index);
 	};
 
-	const handleEditStartChange = (value: string) => {
-		setEditStart(value);
-		if (toMinutes(value) >= toMinutes(editEnd)) {
-			setEditEnd(getNextTimeOption(value));
+	const cancelEdit = () => {
+		if (editingIndex !== null && slots[editingIndex]) {
+			setEditStart(slots[editingIndex].startTime);
+			setEditEnd(slots[editingIndex].endTime);
 		}
+		setEditingIndex(null);
+		setEditError(null);
 	};
 
-	const handleEditEndChange = (value: string) => {
-		setEditEnd(value);
-		if (toMinutes(value) <= toMinutes(editStart)) {
-			setEditStart(getPreviousTimeOption(value));
+	const saveEdit = () => {
+		if (editingIndex === null || !isEditValid) return;
+		const current = slots[editingIndex];
+		if (!current) return;
+		const segs = splitByBoundaries(editStart, editEnd);
+		if (segs.length === 0) return;
+		// Check all segments against existing slots, excluding the one being edited
+		for (const seg of segs) {
+			const err = getOverlapError(
+				current.day,
+				seg.startTime,
+				seg.endTime,
+				editingIndex,
+			);
+			if (err) {
+				setEditError(err);
+				return;
+			}
 		}
+		setEditError(null);
+		onUpdate(editingIndex, "startTime", segs[0].startTime);
+		onUpdate(editingIndex, "endTime", segs[0].endTime);
+		for (let i = 1; i < segs.length; i++) {
+			onAdd({
+				day: current.day,
+				startTime: segs[i].startTime,
+				endTime: segs[i].endTime,
+			});
+		}
+		setEditingIndex(null);
+	};
+
+	const removeSlot = (index: number) => {
+		onRemove(index);
+		setEditingIndex(null);
 	};
 
 	useEffect(() => {
 		if (editingIndex === null) return;
-		if (!slots[editingIndex]) {
+		const slot = slots[editingIndex];
+		if (!slot) {
 			setEditingIndex(null);
 			return;
 		}
-		setEditStart(slots[editingIndex].startTime);
-		setEditEnd(slots[editingIndex].endTime);
-	}, [editingIndex, slots]);
+		setEditStart(slot.startTime);
+		setEditEnd(slot.endTime);
+		setEditError(null);
+	}, [editingIndex]);
 
-	const saveEditedSlot = () => {
-		if (editingIndex === null || !isEditRangeValid) return;
+	// Clear add-error when the selected day changes (different day = different context)
+	useEffect(() => {
+		setAddError(null);
+	}, [selectedDay]);
 
-		const current = slots[editingIndex];
-		if (!current) return;
+	/* ── sub-components ── */
 
-		const segments = splitByPeriodBoundaries(editStart, editEnd);
-		if (segments.length === 0) return;
-
-		onUpdate(editingIndex, 'startTime', segments[0].startTime);
-		onUpdate(editingIndex, 'endTime', segments[0].endTime);
-
-		if (segments.length > 1) {
-			for (let i = 1; i < segments.length; i += 1) {
-				onAdd({
-					day: current.day,
-					startTime: segments[i].startTime,
-					endTime: segments[i].endTime,
-				});
-			}
-		}
-
-		setEditingIndex(null);
-	};
-
-	const cancelEditedSlot = () => {
-		if (editingIndex === null || !slots[editingIndex]) {
-			setEditingIndex(null);
-			return;
-		}
-		setEditStart(slots[editingIndex].startTime);
-		setEditEnd(slots[editingIndex].endTime);
-		setEditingIndex(null);
-	};
-
-	const quickAdd = (range: 'morning' | 'afternoon' | 'evening') => {
-		if (range === 'morning') {
-			setNewStart('09:00');
-			setNewEnd('10:00');
-			onAdd({ day: selectedDay, startTime: '09:00', endTime: '10:00' });
-		} else if (range === 'afternoon') {
-			setNewStart('14:00');
-			setNewEnd('15:00');
-			onAdd({ day: selectedDay, startTime: '14:00', endTime: '15:00' });
-		} else {
-			setNewStart('18:00');
-			setNewEnd('19:00');
-			onAdd({ day: selectedDay, startTime: '18:00', endTime: '19:00' });
-		}
-	};
-
-	const periodLabel = (period: 'morning' | 'afternoon' | 'evening') => {
-		if (period === 'morning') return 'Morning';
-		if (period === 'afternoon') return 'Afternoon';
-		return 'Evening';
-	};
-
-	const renderSlotPill = (slot: SlotEntry & { index: number }) => {
-		const active = editingIndex === slot.index;
-
+	const periodIcon = (p: "morning" | "afternoon" | "evening") => {
+		if (p === "morning")
+			return (
+				<svg
+					className="w-3.5 h-3.5"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+					strokeWidth={2}
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"
+					/>
+				</svg>
+			);
+		if (p === "afternoon")
+			return (
+				<svg
+					className="w-3.5 h-3.5"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+					strokeWidth={2}
+				>
+					<circle cx="12" cy="12" r="4" />
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						d="M12 2v2m0 16v2M2 12h2m16 0h2"
+					/>
+				</svg>
+			);
 		return (
-			<button
-				type="button"
-				key={`${slot.index}-${slot.startTime}`}
-				onClick={() => {
-					setEditingIndex(slot.index);
-					setEditStart(slot.startTime);
-					setEditEnd(slot.endTime);
-				}}
-				className={`group relative px-3 py-2.5 rounded-lg border text-sm transition-all min-w-[148px] text-left ${active
-					? 'bg-(--surface-hover) text-(--primary) border-accent shadow-sm ring-1 ring-accent/40'
-					: 'bg-(--surface) text-(--primary) border-(--border) hover:border-accent/40 hover:bg-(--surface-hover)'
-					}`}
+			<svg
+				className="w-3.5 h-3.5"
+				fill="none"
+				stroke="currentColor"
+				viewBox="0 0 24 24"
+				strokeWidth={2}
 			>
-				<p className="font-medium leading-tight">
-					{formatTime(slot.startTime)}
-					<span className="mx-1 text-(--secondary)">-&gt;</span>
-					{formatTime(slot.endTime)}
-				</p>
-				<p className="text-[11px] mt-1 text-(--secondary)">
-					{getDurationLabel(slot.startTime, slot.endTime)}
-				</p>
-			</button>
+				<path
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+				/>
+			</svg>
 		);
 	};
 
+	const periodColors: Record<string, string> = {
+		morning: "text-amber-400",
+		afternoon: "text-sky-400",
+		evening: "text-indigo-400",
+	};
+
+	const selectClass = `
+		h-10 w-full px-3 pr-8
+		bg-white/5 border border-white/10
+		rounded-lg text-sm text-white
+		appearance-none cursor-pointer
+		focus:outline-none focus:border-white/30
+		transition-colors
+	`;
+
 	return (
-		<div className="space-y-6 w-full">
-			<div className="flex items-start justify-between gap-4">
-				<div className="flex items-start gap-3">
-					<div className="w-9 h-9 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center">
-						<svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-						</svg>
-					</div>
-					<div>
-						<h3 className="text-lg font-semibold text-(--primary)">Available Slots</h3>
-						<p className="text-sm text-(--secondary)">Pick a day, add precise time windows, and fine-tune selected slots from the editor below.</p>
-						<div className="mt-3 flex flex-wrap gap-2">
-							<span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-(--surface-hover) text-(--primary)">
-								{totalSlots} total slot{totalSlots !== 1 ? 's' : ''}
+		<div className="space-y-5 w-full">
+			{/* Header */}
+			<div className="flex items-start gap-3">
+				<div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+					<svg
+						className="w-4 h-4 text-white/60"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						strokeWidth={2}
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+						/>
+					</svg>
+				</div>
+				<div className="flex-1 min-w-0">
+					<div className="flex items-center gap-3 flex-wrap">
+						<h3 className="text-sm font-semibold text-white">
+							Available Slots
+						</h3>
+						<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/6 border border-white/10 text-xs text-gray-400">
+							{slots.length} total
+						</span>
+						{daySlots.length > 0 && (
+							<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/8 border border-white/10 text-xs text-white">
+								{DAY_SHORT[selectedDay]}: {daySlots.length}
 							</span>
-							<span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">
-								{selectedDay}: {daySlots.length}
-							</span>
-						</div>
+						)}
 					</div>
+					<p className="text-xs text-gray-500 mt-0.5">
+						Select a day, define a time range, then save your profile.
+					</p>
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-				<div className="xl:col-span-3 rounded-xl border border-(--border) bg-(--surface) p-4 h-fit xl:sticky xl:top-6">
-					<div className="mb-3">
-						<p className="text-xs uppercase tracking-wide text-(--secondary)">Weekly View</p>
-						<p className="text-sm font-semibold text-(--primary)">Select Day</p>
-					</div>
-					<div className="space-y-2">
-						{dayStats.map((item) => {
-							const active = item.day === selectedDay;
-							return (
-								<button
-									type="button"
-									key={item.day}
-									onClick={() => {
-										setSelectedDay(item.day);
-										cancelEditedSlot();
-									}}
-									className={`w-full flex items-center justify-between rounded-lg border px-3 py-2 text-sm transition-colors ${active
-										? 'border-accent bg-accent/10 text-accent'
-										: 'border-(--border) bg-(--surface) text-(--primary) hover:bg-(--surface-hover)'
-										}`}
-								>
-									<span className="font-medium">{item.day}</span>
-									<span className={`inline-flex min-w-6 h-6 items-center justify-center rounded-full px-1 text-xs font-semibold ${active ? 'bg-accent text-white' : 'bg-(--surface-hover) text-(--secondary)'}`}>
-										{item.count}
+			<div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+				{/* ── Day picker ── */}
+				<div className="xl:col-span-3 rounded-xl border border-white/10 bg-white/[0.02] p-3 space-y-1 xl:sticky xl:top-6 h-fit">
+					<p className="text-[10px] uppercase tracking-widest text-gray-600 font-medium px-1 pb-1">
+						Day
+					</p>
+					{dayStats.map(({ day, count }) => {
+						const active = day === selectedDay;
+						return (
+							<button
+								type="button"
+								key={day}
+								onClick={() => {
+									setSelectedDay(day);
+									cancelEdit();
+								}}
+								className={`
+									w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm
+									transition-colors duration-150
+									${
+										active
+											? "bg-white/10 text-white font-medium"
+											: "text-gray-400 hover:text-white hover:bg-white/5"
+									}
+								`}
+							>
+								<span>{day}</span>
+								{count > 0 ? (
+									<span
+										className={`
+										min-w-[22px] h-[22px] flex items-center justify-center rounded-full text-xs font-semibold px-1
+										${active ? "bg-white text-[#0B0D10]" : "bg-white/10 text-gray-300"}
+									`}
+									>
+										{count}
 									</span>
-								</button>
-							);
-						})}
-					</div>
+								) : (
+									<span className="min-w-[22px] h-[22px] flex items-center justify-center rounded-full text-xs text-gray-600">
+										–
+									</span>
+								)}
+							</button>
+						);
+					})}
 				</div>
 
-				<div className="xl:col-span-9 rounded-xl border border-(--border) bg-(--surface) p-5 space-y-5">
-					<div className="p-3 rounded-xl bg-(--surface-hover) border border-(--border) space-y-3">
-						<div className="flex flex-wrap items-center justify-between gap-2">
-							<p className="text-sm font-semibold text-(--primary)">Add New Slot</p>
-							<p className="text-xs text-(--secondary)">
-								Selected day: {selectedDay} • Goes to {periodLabel(targetPeriod)}
+				{/* ── Main panel ── */}
+				<div className="xl:col-span-9 space-y-4">
+					{/* Add slot row */}
+					<div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-3">
+						<div className="flex items-center justify-between gap-2">
+							<p className="text-xs font-semibold text-white/80 uppercase tracking-wide">
+								Add New Slot
 							</p>
+							<span className="text-xs text-gray-500">
+								{selectedDay} ·{" "}
+								<span className={`${periodColors[targetPeriod]}`}>
+									{targetPeriod.charAt(0).toUpperCase() + targetPeriod.slice(1)}
+								</span>
+							</span>
 						</div>
-						<div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-							<select
-								value={selectedDay}
-								onChange={(e) => {
-									setSelectedDay(e.target.value);
-									cancelEditedSlot();
-								}}
-								className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
-							>
-								{DAYS_OF_WEEK.map((day) => (
-									<option key={day} value={day}>{day}</option>
-								))}
-							</select>
-							<select
-								value={newStart}
-								onChange={(e) => handleNewStartChange(e.target.value)}
-								className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
-							>
-								{TIME_OPTIONS.map((time) => (
-									<option key={time} value={time} disabled={toMinutes(time) >= toMinutes(newEnd)}>{formatTime(time)}</option>
-								))}
-							</select>
-							<select
-								value={newEnd}
-								onChange={(e) => handleNewEndChange(e.target.value)}
-								className="h-10 px-3 bg-(--surface) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-accent"
-							>
-								{TIME_OPTIONS.map((time) => (
-									<option key={time} value={time} disabled={toMinutes(time) <= toMinutes(newStart)}>{formatTime(time)}</option>
-								))}
-							</select>
-							<Button variant="secondary" size="sm" onClick={handleAddSlot} disabled={!isValidRange}>
-								Add Slot
-							</Button>
+
+						<div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-end">
+							{/* Day */}
+							<div className="relative">
+								<label className="block text-[10px] uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
+									Day
+								</label>
+								<div className="relative">
+									<select
+										value={selectedDay}
+										onChange={(e) => {
+											setSelectedDay(e.target.value);
+											cancelEdit();
+										}}
+										className={selectClass}
+									>
+										{DAYS_OF_WEEK.map((d) => (
+											<option key={d} value={d}>
+												{d}
+											</option>
+										))}
+									</select>
+									<svg
+										className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+										strokeWidth={2}
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											d="M19 9l-7 7-7-7"
+										/>
+									</svg>
+								</div>
+							</div>
+
+							{/* Start */}
+							<div className="relative">
+								<label className="block text-[10px] uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
+									From
+								</label>
+								<div className="relative">
+									<select
+										value={newStart}
+										onChange={(e) => handleNewStartChange(e.target.value)}
+										className={selectClass}
+									>
+										{TIME_OPTIONS.map((t) => (
+											<option
+												key={t}
+												value={t}
+												disabled={toMinutes(t) >= toMinutes(newEnd)}
+											>
+												{formatTime(t)}
+											</option>
+										))}
+									</select>
+									<svg
+										className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+										strokeWidth={2}
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											d="M19 9l-7 7-7-7"
+										/>
+									</svg>
+								</div>
+							</div>
+
+							{/* End */}
+							<div className="relative">
+								<label className="block text-[10px] uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
+									To
+								</label>
+								<div className="relative">
+									<select
+										value={newEnd}
+										onChange={(e) => handleNewEndChange(e.target.value)}
+										className={selectClass}
+									>
+										{TIME_OPTIONS.map((t) => (
+											<option
+												key={t}
+												value={t}
+												disabled={toMinutes(t) <= toMinutes(newStart)}
+											>
+												{formatTime(t)}
+											</option>
+										))}
+									</select>
+									<svg
+										className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+										strokeWidth={2}
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											d="M19 9l-7 7-7-7"
+										/>
+									</svg>
+								</div>
+							</div>
+
+							{/* CTA */}
+							<div className="flex flex-col">
+								<label className="block text-[10px] uppercase tracking-widest text-transparent mb-1.5 select-none">
+									Add
+								</label>
+								<button
+									type="button"
+									onClick={handleAddSlot}
+									disabled={!isValidRange}
+									className="
+										h-10 px-5 rounded-lg text-sm font-semibold
+										bg-white text-[#0B0D10]
+										hover:bg-white/90
+										disabled:opacity-30 disabled:cursor-not-allowed
+										transition-colors duration-150
+										flex items-center justify-center gap-1.5
+										whitespace-nowrap
+									"
+								>
+									<svg
+										className="w-3.5 h-3.5 shrink-0"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+										strokeWidth={2.5}
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											d="M12 4v16m8-8H4"
+										/>
+									</svg>
+									Add Slot
+								</button>
+							</div>
 						</div>
-						{addSplitSegments.length > 1 && (
-							<p className="text-xs text-amber-400">
-								This range spans multiple periods and will be split into {addSplitSegments.length} slots automatically.
-							</p>
+
+						{/* Duration preview + overlap error */}
+						{isValidRange && !addError && (
+							<div className="flex items-center gap-2 pt-0.5">
+								<span className="text-xs text-gray-500">Duration:</span>
+								<span className="text-xs font-medium text-white/70">
+									{getDuration(newStart, newEnd)}
+								</span>
+								{addSplits.length > 1 && (
+									<span className="text-xs text-amber-400/80 ml-1">
+										· Spans periods — will create {addSplits.length} slots
+									</span>
+								)}
+							</div>
+						)}
+						{addError && (
+							<div className="flex items-center gap-2 pt-0.5">
+								<svg
+									className="w-3.5 h-3.5 text-red-400 shrink-0"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+									strokeWidth={2}
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+									/>
+								</svg>
+								<span className="text-xs text-red-400">{addError}</span>
+							</div>
 						)}
 					</div>
 
-					{!isValidRange && (
-						<p className="text-xs text-error">End time must be after start time.</p>
-					)}
+					{/* Period columns */}
+					<div className="grid grid-cols-1 2xl:grid-cols-3 gap-3">
+						{(["morning", "afternoon", "evening"] as const).map((period) => {
+							const list = buckets[period];
+							const labels: Record<string, string> = {
+								morning: "Morning",
+								afternoon: "Afternoon",
+								evening: "Evening",
+							};
+							return (
+								<div
+									key={period}
+									className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden"
+								>
+									{/* Period header */}
+									<div className="flex items-center justify-between px-3 py-2.5 border-b border-white/8">
+										<div
+											className={`flex items-center gap-1.5 text-xs font-semibold ${periodColors[period]}`}
+										>
+											{periodIcon(period)}
+											{labels[period]}
+										</div>
+										<button
+											type="button"
+											onClick={() => handleQuickAdd(period)}
+											className="text-[11px] text-gray-500 hover:text-white transition-colors flex items-center gap-0.5"
+										>
+											<svg
+												className="w-3 h-3"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+												strokeWidth={2.5}
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													d="M12 4v16m8-8H4"
+												/>
+											</svg>
+											Quick add
+										</button>
+									</div>
 
-					<div className="grid grid-cols-1 2xl:grid-cols-3 gap-4">
-						<div className="rounded-xl border border-(--border)">
-							<div className="px-3 py-2 border-b border-(--border) flex items-center justify-between">
-								<p className="text-sm font-semibold text-(--primary)">Morning</p>
-								<button type="button" onClick={() => quickAdd('morning')} className="text-xs text-accent hover:underline">+ Add Slot</button>
-							</div>
-							<div className="p-3 flex flex-wrap gap-2">
-								{slotBuckets.morning.length === 0 ? <p className="text-xs text-(--secondary)">No morning slots</p> : slotBuckets.morning.map(renderSlotPill)}
-							</div>
-						</div>
-
-						<div className="rounded-xl border border-(--border)">
-							<div className="px-3 py-2 border-b border-(--border) flex items-center justify-between">
-								<p className="text-sm font-semibold text-(--primary)">Afternoon</p>
-								<button type="button" onClick={() => quickAdd('afternoon')} className="text-xs text-accent hover:underline">+ Add Slot</button>
-							</div>
-							<div className="p-3 flex flex-wrap gap-2">
-								{slotBuckets.afternoon.length === 0 ? <p className="text-xs text-(--secondary)">No afternoon slots</p> : slotBuckets.afternoon.map(renderSlotPill)}
-							</div>
-						</div>
-
-						<div className="rounded-xl border border-(--border)">
-							<div className="px-3 py-2 border-b border-(--border) flex items-center justify-between">
-								<p className="text-sm font-semibold text-(--primary)">Evening</p>
-								<button type="button" onClick={() => quickAdd('evening')} className="text-xs text-accent hover:underline">+ Add Slot</button>
-							</div>
-							<div className="p-3 flex flex-wrap gap-2">
-								{slotBuckets.evening.length === 0 ? <p className="text-xs text-(--secondary)">No evening slots</p> : slotBuckets.evening.map(renderSlotPill)}
-							</div>
-						</div>
+									{/* Slots */}
+									<div className="p-2.5 min-h-[80px]">
+										{list.length === 0 ? (
+											<p className="text-xs text-gray-600 py-3 text-center">
+												No {period} slots
+											</p>
+										) : (
+											<div className="space-y-1.5">
+												{list.map((slot) => {
+													const isEditing = editingIndex === slot.index;
+													return (
+														<button
+															type="button"
+															key={slot.index}
+															onClick={() =>
+																isEditing ? cancelEdit() : openEdit(slot.index)
+															}
+															className={`
+																group w-full text-left px-3 py-2.5 rounded-lg border
+																transition-all duration-150
+																${
+																	isEditing
+																		? "bg-white/8 border-white/20 ring-1 ring-white/15"
+																		: "bg-transparent border-white/8 hover:bg-white/5 hover:border-white/15"
+																}
+															`}
+														>
+															<div className="flex items-center justify-between gap-2">
+																<span
+																	className={`text-sm font-medium ${isEditing ? "text-white" : "text-gray-200"}`}
+																>
+																	{formatTime(slot.startTime)}
+																	<span className="mx-1.5 text-gray-600">
+																		→
+																	</span>
+																	{formatTime(slot.endTime)}
+																</span>
+																<span className="text-[11px] text-gray-600 shrink-0">
+																	{getDuration(slot.startTime, slot.endTime)}
+																</span>
+															</div>
+															{isEditing && (
+																<p className="text-[11px] text-gray-500 mt-0.5">
+																	Editing below ↓
+																</p>
+															)}
+														</button>
+													);
+												})}
+											</div>
+										)}
+									</div>
+								</div>
+							);
+						})}
 					</div>
 
+					{/* Edit toolbar */}
 					{editingIndex !== null && slots[editingIndex] && (
-						<div className="rounded-xl border border-(--border) bg-(--surface-hover) p-3 flex flex-wrap items-center gap-2">
-							<p className="text-xs font-medium text-(--secondary) mr-2">Edit selected slot:</p>
-							<select
-								value={editStart}
-								onChange={(e) => handleEditStartChange(e.target.value)}
-								className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
-							>
-								{TIME_OPTIONS.map((time) => (
-									<option key={time} value={time} disabled={toMinutes(time) >= toMinutes(editEnd)}>{formatTime(time)}</option>
-								))}
-							</select>
-							<span className="text-(--secondary) text-sm">to</span>
-							<select
-								value={editEnd}
-								onChange={(e) => handleEditEndChange(e.target.value)}
-								className="h-9 px-2 bg-(--surface) border border-(--border) rounded text-sm text-(--primary)"
-							>
-								{TIME_OPTIONS.map((time) => (
-									<option key={time} value={time} disabled={toMinutes(time) <= toMinutes(editStart)}>{formatTime(time)}</option>
-								))}
-							</select>
-							<Button variant="secondary" size="sm" onClick={cancelEditedSlot}>
-								Cancel
-							</Button>
-							<Button variant="primary" size="sm" onClick={saveEditedSlot} disabled={!isEditRangeValid}>
-								Save
-							</Button>
-							<button
-								type="button"
-								onClick={() => {
-									onRemove(editingIndex);
-									setEditingIndex(null);
-								}}
-								className="ml-auto px-3 h-9 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm"
-							>
-								Remove
-							</button>
+						<div className="rounded-xl border border-white/15 bg-white/[0.03] p-4 space-y-3">
+							<div className="flex items-center justify-between gap-2">
+								<p className="text-xs font-semibold text-white/80 uppercase tracking-wide">
+									Edit Slot
+								</p>
+								<span className="text-xs text-gray-500">
+									{slots[editingIndex].day}
+								</span>
+							</div>
+
+							<div className="flex flex-wrap items-end gap-2">
+								{/* Edit from */}
+								<div className="relative flex-1 min-w-[130px]">
+									<label className="block text-[10px] uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
+										From
+									</label>
+									<div className="relative">
+										<select
+											value={editStart}
+											onChange={(e) => handleEditStartChange(e.target.value)}
+											className={selectClass}
+										>
+											{TIME_OPTIONS.map((t) => (
+												<option
+													key={t}
+													value={t}
+													disabled={toMinutes(t) >= toMinutes(editEnd)}
+												>
+													{formatTime(t)}
+												</option>
+											))}
+										</select>
+										<svg
+											className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+											strokeWidth={2}
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												d="M19 9l-7 7-7-7"
+											/>
+										</svg>
+									</div>
+								</div>
+
+								<span className="text-gray-600 text-sm pb-2.5 shrink-0">→</span>
+
+								{/* Edit to */}
+								<div className="relative flex-1 min-w-[130px]">
+									<label className="block text-[10px] uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
+										To
+									</label>
+									<div className="relative">
+										<select
+											value={editEnd}
+											onChange={(e) => handleEditEndChange(e.target.value)}
+											className={selectClass}
+										>
+											{TIME_OPTIONS.map((t) => (
+												<option
+													key={t}
+													value={t}
+													disabled={toMinutes(t) <= toMinutes(editStart)}
+												>
+													{formatTime(t)}
+												</option>
+											))}
+										</select>
+										<svg
+											className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+											strokeWidth={2}
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												d="M19 9l-7 7-7-7"
+											/>
+										</svg>
+									</div>
+								</div>
+
+								{/* Duration preview */}
+								{isEditValid && (
+									<div className="pb-2.5 shrink-0">
+										<span className="text-xs text-gray-500">
+											{getDuration(editStart, editEnd)}
+										</span>
+									</div>
+								)}
+
+								{/* Actions */}
+								<div className="flex items-end gap-2 shrink-0 pb-0">
+									<button
+										type="button"
+										onClick={cancelEdit}
+										className="
+											h-10 px-4 rounded-lg border border-white/10 text-sm text-gray-400
+											hover:text-white hover:border-white/20 transition-colors
+										"
+									>
+										Cancel
+									</button>
+									<button
+										type="button"
+										onClick={saveEdit}
+										disabled={!isEditValid}
+										className="
+											h-10 px-4 rounded-lg text-sm font-semibold
+											bg-white text-[#0B0D10]
+											hover:bg-white/90
+											disabled:opacity-30 disabled:cursor-not-allowed
+											transition-colors
+										"
+									>
+										Save
+									</button>
+									<button
+										type="button"
+										onClick={() => removeSlot(editingIndex)}
+										className="
+											h-10 px-3 rounded-lg border border-red-500/25 text-red-400 text-sm
+											hover:bg-red-500/10 hover:border-red-500/40 transition-colors
+										"
+									>
+										<svg
+											className="w-4 h-4"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+											strokeWidth={2}
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+											/>
+										</svg>
+									</button>
+								</div>
+							</div>
+
+							{editSplits.length > 1 && !editError && (
+								<p className="text-xs text-amber-400/80">
+									Range spans periods — will create {editSplits.length} slots on
+									save.
+								</p>
+							)}
+							{!isEditValid && (
+								<p className="text-xs text-red-400/80">
+									End time must be after start time.
+								</p>
+							)}
+							{editError && (
+								<div className="flex items-center gap-2">
+									<svg
+										className="w-3.5 h-3.5 text-red-400 shrink-0"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+										strokeWidth={2}
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+										/>
+									</svg>
+									<span className="text-xs text-red-400">{editError}</span>
+								</div>
+							)}
 						</div>
 					)}
 
-					{editingIndex !== null && editSplitSegments.length > 1 && (
-						<p className="text-xs text-amber-400">
-							This edited range spans multiple periods and will be split into {editSplitSegments.length} slots on save.
-						</p>
-					)}
-
-					{editingIndex !== null && !isEditRangeValid && (
-						<p className="text-xs text-error">End time must be after start time before you can save.</p>
+					{/* Empty state */}
+					{slots.length === 0 && (
+						<div className="rounded-xl border border-dashed border-white/10 p-6 text-center">
+							<div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
+								<svg
+									className="w-5 h-5 text-gray-600"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+									strokeWidth={1.5}
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+									/>
+								</svg>
+							</div>
+							<p className="text-sm text-gray-500">No slots yet.</p>
+							<p className="text-xs text-gray-600 mt-0.5">
+								Use the form above to set your availability.
+							</p>
+						</div>
 					)}
 				</div>
 			</div>
-
-			{slots.length === 0 && (
-				<div className="text-center py-4 text-(--secondary)">
-					<p className="text-sm">No slots added yet. Use the controls above to build your schedule.</p>
-				</div>
-			)}
 		</div>
 	);
 }

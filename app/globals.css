@@ -400,7 +400,7 @@ select {
 /* ── Rich Text Display (public profile) ── */
 .rich-text-display {
   line-height: 1.7;
-  color: var(--primary);
+  color: inherit;
 }
 
 .rich-text-display p {
@@ -416,7 +416,7 @@ select {
   font-weight: 700;
   margin-top: 1em;
   margin-bottom: 0.5em;
-  color: var(--primary);
+  color: inherit;
 }
 
 .rich-text-display h3 {
@@ -424,7 +424,7 @@ select {
   font-weight: 600;
   margin-top: 0.75em;
   margin-bottom: 0.4em;
-  color: var(--primary);
+  color: inherit;
 }
 
 .rich-text-display ul,

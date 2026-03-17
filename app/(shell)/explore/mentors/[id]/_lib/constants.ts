@@ -39,16 +39,40 @@ export interface MentorSlot {
 	isActive: boolean;
 }
 
+function escapeHtml(input: string): string {
+	return input
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
+function sanitizeRichHtml(input: string): string {
+	return input
+		.replace(/<(script|style|iframe|object|embed)[^>]*>[\s\S]*?<\/\1>/gi, '')
+		.replace(/\son\w+=("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+		.replace(/\sstyle=("[^"]*"|'[^']*')/gi, '')
+		.replace(/\sclass=("[^"]*"|'[^']*')/gi, '')
+		.replace(/javascript:/gi, '')
+		.replace(/&nbsp;/gi, ' ')
+		.trim();
+}
+
+function toRichHtml(input: string): string {
+	const trimmed = input.trim();
+	if (!trimmed) return '';
+	const sanitized = sanitizeRichHtml(trimmed);
+	if (!sanitized) return '';
+	if (/<[a-z][\s\S]*>/i.test(sanitized)) return sanitized;
+	return `<p>${escapeHtml(sanitized)}</p>`;
+}
+
 function parseArr(v: unknown): string[] {
-	const sanitize = (input: string): string =>
-		input
-			.replace(/<[^>]*>/g, ' ')
-			.replace(/&nbsp;/g, ' ')
-			.replace(/\s+/g, ' ')
-			.trim();
+	const normalize = (input: string): string => toRichHtml(input);
 
 	if (Array.isArray(v)) {
-		return v.map((item) => sanitize(String(item))).filter(Boolean);
+		return v.map((item) => normalize(String(item))).filter(Boolean);
 	}
 
 	if (typeof v === 'string') {
@@ -58,7 +82,7 @@ function parseArr(v: unknown): string[] {
 		try {
 			const parsed = JSON.parse(raw);
 			if (Array.isArray(parsed)) {
-				return parsed.map((item) => sanitize(String(item))).filter(Boolean);
+				return parsed.map((item) => normalize(String(item))).filter(Boolean);
 			}
 		} catch {
 			// fall through to delimiter parsing
@@ -66,7 +90,7 @@ function parseArr(v: unknown): string[] {
 
 		return raw
 			.split(/\n{2,}|;+/)
-			.map((s) => sanitize(s))
+			.map((s) => normalize(s))
 			.filter(Boolean);
 	}
 
@@ -74,36 +98,38 @@ function parseArr(v: unknown): string[] {
 }
 
 function parsePackageItems(v: unknown): string[] {
+	const stripHtml = (s: string) =>
+		s.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/\s+/g, ' ').trim();
+
 	const fromObject = (obj: Record<string, unknown>): string | null => {
-		const title = typeof obj.title === 'string' ? obj.title.trim() : '';
-		const name = typeof obj.name === 'string' ? obj.name.trim() : '';
-		const sessionType = typeof obj.sessionType === 'string' ? obj.sessionType.trim() : '';
-		const duration = typeof obj.duration === 'string' ? obj.duration.trim() : '';
+		const title = typeof obj.title === 'string' ? stripHtml(obj.title) : '';
+		const name = typeof obj.name === 'string' ? stripHtml(obj.name) : '';
+		const sessionType = typeof obj.sessionType === 'string' ? stripHtml(obj.sessionType) : '';
+		const duration = typeof obj.duration === 'string' ? stripHtml(obj.duration) : '';
 		const price = typeof obj.price === 'string' || typeof obj.price === 'number' ? String(obj.price).trim() : '';
 		const perks = Array.isArray(obj.perks)
-			? obj.perks.map((item) => String(item).trim()).filter(Boolean).join(', ')
+			? obj.perks.map((item) => stripHtml(String(item))).filter(Boolean).join(', ')
 			: '';
 
 		const primary = title || name || sessionType;
 		const meta = [duration, price].filter(Boolean).join(' · ');
 		const summary = [primary, meta].filter(Boolean).join(' - ');
 
-		if (summary) return perks ? `${summary}: ${perks}` : summary;
-		if (perks) return perks;
+		if (summary) return toRichHtml(perks ? `${summary}: ${perks}` : summary);
+		if (perks) return toRichHtml(perks);
 		return null;
 	};
 
 	if (Array.isArray(v)) {
 		return v
 			.flatMap((item) => {
-				if (typeof item === 'string') return [item];
+				if (typeof item === 'string') return [toRichHtml(item)];
 				if (item && typeof item === 'object') {
 					const parsed = fromObject(item as Record<string, unknown>);
 					return parsed ? [parsed] : [];
 				}
 				return [];
 			})
-			.map((item) => item.trim())
 			.filter(Boolean);
 	}
 
@@ -120,13 +146,13 @@ function parsePackageItems(v: unknown): string[] {
 
 		const primary = raw
 			.split(/\n{1,}|;+/)
-			.map((item) => item.trim())
+			.map((item) => toRichHtml(item))
 			.filter(Boolean);
 
 		if (primary.length <= 1 && raw.includes(',')) {
 			return raw
 				.split(',')
-				.map((item) => item.trim())
+				.map((item) => toRichHtml(item))
 				.filter(Boolean);
 		}
 
@@ -220,9 +246,14 @@ function parseExpertise(v: unknown): string[] {
 }
 
 export function parseMentorData(found: Record<string, unknown>): MentorDetail {
+	const userField = found.user;
+	const nestedUserId = userField && typeof userField === 'object' && 'id' in userField
+		? String((userField as { id?: unknown }).id || '')
+		: '';
+
 	return {
 		id: found.id as string,
-		userId: (found.user as string) || null,
+		userId: nestedUserId || (found.user as string) || (found.user_id as string) || (found.userId as string) || null,
 		name: (found.user_name || found.name || 'Mentor') as string,
 		occupation: (found.occupation || found.role_title || '') as string,
 		expertise: parseExpertise(found.expertise),

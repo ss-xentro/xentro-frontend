@@ -1,111 +1,112 @@
 'use client';
 
+import RichTextDisplay from '@/components/ui/RichTextDisplay';
+
+interface PricingPlan {
+	sessionType?: string;
+	duration?: string;
+	price?: string | number;
+	perks?: string[];
+}
+
 interface MentorPackagesProps {
 	hourlyRate: number | null;
 	packages: string[];
-	pricingPlans?: Array<{
-		sessionType?: string;
-		duration?: string;
-		price?: string | number;
-		perks?: string[];
-	}>;
+	pricingPlans?: PricingPlan[];
 	connectionStatus: string | null;
 	connectBtnDisabled: boolean;
 	onConnectOrBook: () => void;
 }
 
-export default function MentorPackages({ hourlyRate, packages, pricingPlans = [], connectionStatus, connectBtnDisabled, onConnectOrBook }: MentorPackagesProps) {
-	const normalizedPricingPlans = pricingPlans.filter((plan) => {
-		return !!(plan.sessionType || plan.duration || plan.price || (plan.perks && plan.perks.length > 0));
-	});
+function formatPrice(price: string | number): string {
+	const n = Number(price);
+	if (!isNaN(n) && n === 0) return 'Free';
+	if (!isNaN(n) && n > 0) return `INR ${n.toLocaleString('en-IN')}`;
+	return String(price).trim();
+}
 
-	const shouldShowCustomPackages = normalizedPricingPlans.length > 0 || packages.length > 0;
+const CheckIcon = () => (
+	<svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+		<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+	</svg>
+);
+
+export default function MentorPackages({
+	hourlyRate,
+	packages,
+	pricingPlans = [],
+	connectionStatus,
+	connectBtnDisabled,
+	onConnectOrBook,
+}: MentorPackagesProps) {
+	const validPlans = pricingPlans.filter(
+		(p) => !!(p.sessionType || p.duration || (p.price !== undefined && p.price !== null && String(p.price).trim() !== ''))
+	);
+	const hasPricingPlans = validPlans.length > 0;
+	const hasPackages = packages.length > 0;
+
+	if (!hasPricingPlans && !hasPackages && !hourlyRate) return null;
 
 	return (
-		<div className="space-y-5">
-			{/* Free session offering */}
-			<div className="bg-white/3 border border-white/6 rounded-xl p-5">
-				<h3 className="text-sm font-semibold text-white mb-1">One-Time Session (30 min)</h3>
-				<p className="text-2xl font-bold text-white mb-4">Free</p>
-				<ul className="space-y-2 mb-5">
-					{['Quick consultation', 'Q&A session', 'General advice'].map((item) => (
-						<li key={item} className="flex items-center gap-2 text-sm text-gray-400">
-							<svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-								<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-							</svg>
-							{item}
-						</li>
-					))}
-				</ul>
-				<button onClick={onConnectOrBook} disabled={connectBtnDisabled} className="w-full py-2.5 rounded-xl text-sm font-semibold border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition-colors disabled:opacity-50 disabled:cursor-default">
-					{connectionStatus === 'accepted' ? 'Book Free Session' : 'Schedule Free Call'}
-				</button>
-			</div>
+		<div className="space-y-4">
+			{/* Structured pricing plans */}
+			{hasPricingPlans && validPlans.map((plan, i) => (
+				<div key={i} className="bg-white/3 border border-white/6 rounded-xl p-6">
+					<p className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
+						{plan.sessionType}{plan.duration ? ` · ${plan.duration}` : ''}
+					</p>
+					{plan.price !== undefined && plan.price !== null && String(plan.price).trim() !== '' && (
+						<p className="text-2xl font-bold text-white mb-5">{formatPrice(plan.price)}</p>
+					)}
+					{plan.perks && plan.perks.length > 0 && (
+						<ul className="space-y-2 mb-5">
+							{plan.perks.map((perk, pi) => (
+								<li key={pi} className="flex items-center gap-2 text-sm text-gray-400">
+									<CheckIcon />
+									{perk}
+								</li>
+							))}
+						</ul>
+					)}
+					<button
+						onClick={onConnectOrBook}
+						disabled={connectBtnDisabled}
+						className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-[#0B0D10] hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-default"
+					>
+						Book Session
+					</button>
+				</div>
+			))}
 
-			{/* Paid session */}
-			{hourlyRate && (
-				<div className="bg-white/3 border border-white/6 rounded-xl p-5">
-					<h3 className="text-sm font-semibold text-white mb-1">One-Time Session (60 min)</h3>
-					<p className="text-2xl font-bold text-white mb-1">INR {Number(hourlyRate).toLocaleString('en-IN')}</p>
-					<ul className="space-y-2 mb-5 mt-4">
-						{['Deep dive session', 'Detailed feedback', 'Action plan'].map((item) => (
-							<li key={item} className="flex items-center gap-2 text-sm text-gray-400">
-								<svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-									<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-								</svg>
-								{item}
-							</li>
-						))}
-					</ul>
-					<button onClick={onConnectOrBook} disabled={connectBtnDisabled} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-[#0B0D10] hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-default">
-						{connectionStatus === 'accepted' ? 'Book Paid Session' : 'Book Now'}
+			{/* Fallback: show hourly rate card when no structured plans exist */}
+			{!hasPricingPlans && hourlyRate !== null && hourlyRate !== undefined && (
+				<div className="bg-white/3 border border-white/6 rounded-xl p-6">
+					<p className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Hourly Rate</p>
+					<p className="text-2xl font-bold text-white mb-5">{Number(hourlyRate) === 0 ? 'Free' : `INR ${Number(hourlyRate).toLocaleString('en-IN')}`}</p>
+					<button
+						onClick={onConnectOrBook}
+						disabled={connectBtnDisabled}
+						className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-[#0B0D10] hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-default"
+					>
+						Book Session
 					</button>
 				</div>
 			)}
 
-			{/* Custom packages */}
-			{shouldShowCustomPackages && (
-				<div className="bg-white/3 border border-white/6 rounded-xl p-5">
-					<h3 className="text-sm font-semibold text-white mb-3">Mentorship Packages</h3>
-
-					{normalizedPricingPlans.length > 0 && (
-						<ul className="space-y-3 mb-4">
-							{normalizedPricingPlans.map((plan, i) => (
-								<li key={`${plan.sessionType || 'plan'}-${i}`} className="rounded-lg border border-white/8 bg-white/[0.02] px-3 py-2.5">
-									<p className="text-sm font-semibold text-white">
-										{plan.sessionType || 'Mentorship Session'}
-										{plan.duration ? ` (${plan.duration})` : ''}
-									</p>
-									{plan.price !== undefined && plan.price !== null && String(plan.price).trim() !== '' && (
-										<p className="text-xs text-emerald-300 mt-1">Price: {String(plan.price)}</p>
-									)}
-									{Array.isArray(plan.perks) && plan.perks.length > 0 && (
-										<ul className="mt-2 space-y-1">
-											{plan.perks.map((perk, perkIdx) => (
-												<li key={`${i}-perk-${perkIdx}`} className="text-xs text-gray-400 flex items-start gap-2">
-													<span className="text-violet-400">•</span>
-													<span>{perk}</span>
-												</li>
-											))}
-										</ul>
-									)}
-								</li>
-							))}
-						</ul>
-					)}
-
-					{packages.length > 0 && (
-						<ul className="space-y-2.5">
-							{packages.map((pkg, i) => (
-								<li key={i} className="flex items-start gap-2.5 text-sm text-gray-400">
-									<div className="w-5 h-5 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
-										<span className="text-[10px] font-bold text-violet-400">{i + 1}</span>
-									</div>
-									{pkg}
-								</li>
-							))}
-						</ul>
-					)}
+			{/* Plain-text package list */}
+			{hasPackages && (
+				<div className="bg-white/3 border border-white/6 rounded-xl p-6">
+					<h3 className="text-base font-semibold text-white mb-4">Highlights</h3>
+					<ul className="space-y-2.5">
+						{packages.map((pkg, i) => (
+							<li key={i} className="flex items-start gap-2.5 text-sm text-gray-400">
+								<svg className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+								</svg>
+								<RichTextDisplay html={pkg} compact className="text-sm text-gray-300" />
+							</li>
+						))}
+					</ul>
 				</div>
 			)}
 		</div>
