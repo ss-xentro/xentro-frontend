@@ -11,7 +11,7 @@ interface EventFormModalProps {
 	onClose: () => void;
 }
 
-const EVENT_TYPES = ['workshop', 'demo-day', 'networking', 'webinar', 'conference', 'meetup', 'hackathon', 'mentorship', 'other'];
+const EVENT_TYPES = ['workshop', 'meetup', 'conference', 'demo_day', 'pitch', 'networking', 'webinar', 'other'];
 const EVENT_STATUSES = ['draft', 'published', 'cancelled'] as const;
 
 export default function EventFormModal({ mode, form, saving, onFormChange, onSave, onClose }: EventFormModalProps) {
@@ -49,6 +49,8 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 			return { ...f, [field]: current.join('\n') };
 		});
 	};
+
+	const formatTypeLabel = (value: string) => value.replace(/[-_]/g, ' ');
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -89,7 +91,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 								<option value="" className="bg-gray-900">Select a type…</option>
 								{EVENT_TYPES.map((t) => (
 									<option key={t} value={t} className="bg-gray-900 capitalize">
-										{t.replace('-', ' ')}
+										{formatTypeLabel(t)}
 									</option>
 								))}
 							</select>
