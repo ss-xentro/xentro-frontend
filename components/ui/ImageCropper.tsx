@@ -27,7 +27,7 @@ export function ImageCropper({
 	const [zoom, setZoom] = useState(1);
 	const [rotation, setRotation] = useState(0); // 0 | 90 | 180 | 270
 	const [offset, setOffset] = useState({ x: 0, y: 0 }); // image-center offset from container-center (px)
-	const [dragging, setDragging] = useState(false);
+	const [isDragging, setIsDragging] = useState(false); // for UI feedback only
 
 	// layout — set once image & container are measured
 	const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
@@ -36,8 +36,10 @@ export function ImageCropper({
 	const [ready, setReady] = useState(false);
 
 	/* ─────────────────────────── drag bookkeeping ──────────────────────── */
+	const draggingRef = useRef(false); // use ref for immediate drag state updates
 	const dragOrigin = useRef({ px: 0, py: 0 }); // pointer start (clientX/Y)
 	const dragOffsetStart = useRef({ x: 0, y: 0 }); // offset at drag start
+	const currentOffset = useRef({ x: 0, y: 0 }); // track current offset in ref
 
 	/* ─────────────────────────── pinch bookkeeping ─────────────────────── */
 	const pinchDist0 = useRef(0);
@@ -86,7 +88,9 @@ export function ImageCropper({
 		setContainerSize({ w: cw, h: ch });
 		setCropSize({ w: cropW, h: cropH });
 		setBaseDisplaySize({ w: dispW, h: dispH });
-		setOffset({ x: 0, y: 0 });
+		const initialOffset = { x: 0, y: 0 };
+		setOffset(initialOffset);
+		currentOffset.current = initialOffset;
 		setZoom(1);
 		setReady(true);
 	}, [aspectRatio, cropShape]);
@@ -156,14 +160,16 @@ export function ImageCropper({
 		if (e.button !== undefined && e.button !== 0) return;
 		e.preventDefault();
 		dragOrigin.current = { px: e.clientX, py: e.clientY };
-		dragOffsetStart.current = { ...offset };
-		setDragging(true);
+		dragOffsetStart.current = { ...currentOffset.current };
+		draggingRef.current = true;
+		setIsDragging(true);
 		// pointer capture keeps events flowing even if pointer leaves the element
 		containerRef.current?.setPointerCapture(e.pointerId);
 	};
 
 	const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-		if (!dragging) return;
+		if (!draggingRef.current) return;
+		e.preventDefault();
 		const dx = e.clientX - dragOrigin.current.px;
 		const dy = e.clientY - dragOrigin.current.py;
 		const next = clampOffset(
@@ -172,10 +178,12 @@ export function ImageCropper({
 			zoom,
 		);
 		setOffset(next);
+		currentOffset.current = next;
 	};
 
 	const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-		setDragging(false);
+		draggingRef.current = false;
+		setIsDragging(false);
 		containerRef.current?.releasePointerCapture(e.pointerId);
 	};
 
@@ -346,8 +354,8 @@ export function ImageCropper({
 	const cropTop = (containerSize.h - cropSize.h) / 2;
 
 	/* image transform — translate(-50%,-50%) centres the image, then apply
-     user offset, zoom, and rotation. Order matters: offset is applied in
-     screen space (before scale) by using two translate steps. */
+		 user offset, zoom, and rotation. Order matters: offset is applied in
+		 screen space (before scale) by using two translate steps. */
 	const imgTransform = [
 		"translate(-50%, -50%)",
 		`translate(${offset.x}px, ${offset.y}px)`,
@@ -407,7 +415,7 @@ export function ImageCropper({
 					className={[
 						"relative w-full bg-[#0d0f14] overflow-hidden select-none",
 						"h-[320px] sm:h-[360px]",
-						dragging ? "cursor-grabbing" : "cursor-grab",
+						isDragging ? "cursor-grabbing" : "cursor-grab",
 					].join(" ")}
 					style={{ touchAction: "none" }}
 					onPointerDown={onPointerDown}
@@ -432,7 +440,7 @@ export function ImageCropper({
 							top: "50%",
 							transform: imgTransform,
 							transformOrigin: "center center",
-							transition: dragging ? "none" : "transform 0.06s ease-out",
+							transition: isDragging ? "none" : "transform 0.06s ease-out",
 							opacity: ready ? 1 : 0,
 						}}
 					/>
@@ -672,7 +680,9 @@ export function ImageCropper({
 							type="button"
 							onClick={() => {
 								setZoom(1);
-								setOffset({ x: 0, y: 0 });
+								const resetOffset = { x: 0, y: 0 };
+								setOffset(resetOffset);
+								currentOffset.current = resetOffset;
 								setRotation(0);
 							}}
 							className="h-9 px-3 flex items-center gap-1.5 rounded-lg border border-white/10 text-xs text-gray-400 hover:text-white hover:border-white/20 transition-colors"

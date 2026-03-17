@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Input, Button, ProgressIndicator, OnboardingNavbar, FeedbackBanner } from '@/components/ui';
+import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
 import { OnboardingFormData } from '@/lib/types';
-import { AppIcon } from '@/components/ui/AppIcon';
 
 const steps = ['Name', 'Admin', 'Email', 'Verify'];
 
@@ -38,11 +38,14 @@ export default function InstitutionOnboardingPage() {
   const [email, setEmail] = useState('');
   const [adminName, setAdminName] = useState('');
   const [adminPhone, setAdminPhone] = useState('');
-  const [magicLink, setMagicLink] = useState<string | null>(null);
-  const [verified, setVerified] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [appCreating, setAppCreating] = useState(false);
+  const [appError, setAppError] = useState<string | null>(null);
+
+  const emailVerification = useEmailVerification({
+    email,
+    name: form.name,
+    purpose: 'signup',
+  });
 
   const canProceed = () => {
     switch (step) {
@@ -53,51 +56,50 @@ export default function InstitutionOnboardingPage() {
       case 2:
         return email.trim().length > 3;
       case 3:
-        return verified;
+        return emailVerification.verified;
       default:
         return false;
     }
   };
 
-  const goNext = () => {
-    if (step < steps.length - 1 && canProceed()) setStep((s) => s + 1);
-  };
+  const goNext = async () => {
+    if (!canProceed()) return;
 
-  const goPrev = () => setStep((s) => Math.max(0, s - 1));
+    // Create institution application when moving from step 2 to step 3
+    if (step === 2) {
+      setAppCreating(true);
+      setAppError(null);
+      try {
+        const res = await fetch('/api/institution-applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: form.name,
+            email: email.trim().toLowerCase(),
+            adminName: adminName.trim(),
+            adminPhone: adminPhone.trim(),
+          }),
+        });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.message || 'Failed to create application');
 
-  const handleSendLink = async () => {
-    setSending(true);
-    setError(null);
-    setMessage(null);
-    try {
-      const res = await fetch('/api/institution-applications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email,
-          adminName,
-          adminPhone,
-        }),
-      });
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.message || 'Failed to send magic link');
-      setMagicLink(payload.magicLink as string);
-      setMessage('Magic link sent. Check your inbox or verify here.');
-      setStep(3);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setSending(false);
+        // Application created, now send magic link
+        await emailVerification.sendMagicLink();
+        setStep((s) => s + 1);
+      } catch (err) {
+        setAppError((err as Error).message);
+      } finally {
+        setAppCreating(false);
+      }
+      return;
+    }
+
+    if (step < steps.length - 1) {
+      setStep((s) => s + 1);
     }
   };
 
-  const handleVerify = async () => {
-    if (!magicLink) return;
-    // Navigate to the magic link — the backend will verify the token,
-    // issue a JWT, and redirect to the institution dashboard
-    window.location.href = magicLink;
-  };
+  const goPrev = () => setStep((s) => Math.max(0, s - 1));
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -133,7 +135,7 @@ export default function InstitutionOnboardingPage() {
                 />
                 <div className="flex justify-end pt-4">
                   <Button
-                    onClick={goNext}
+                    onClick={() => goNext()}
                     disabled={!canProceed()}
                     aria-label="Continue to admin details"
                     className="min-w-30 min-h-11"
@@ -170,7 +172,7 @@ export default function InstitutionOnboardingPage() {
                 />
                 <div className="flex flex-wrap gap-3 pt-4">
                   <Button
-                    onClick={goNext}
+                    onClick={() => goNext()}
                     disabled={!canProceed()}
                     aria-label="Continue to email verification"
                     className="min-w-30 min-h-11"
@@ -209,18 +211,18 @@ export default function InstitutionOnboardingPage() {
                 />
                 <div className="flex flex-wrap gap-3 pt-4">
                   <Button
-                    onClick={handleSendLink}
-                    disabled={sending || !email || !form.name || !adminName}
-                    isLoading={sending}
+                    onClick={goNext}
+                    disabled={appCreating || !email || !form.name || !adminName}
+                    isLoading={appCreating}
                     aria-label="Send verification link"
                     className="min-h-11"
                   >
-                    {sending ? 'Sending...' : 'Send Verification Link'}
+                    {appCreating ? 'Sending...' : 'Send Verification Link'}
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={goPrev}
-                    disabled={sending}
+                    disabled={appCreating}
                     aria-label="Go back to previous step"
                     className="min-h-11"
                   >
@@ -228,51 +230,20 @@ export default function InstitutionOnboardingPage() {
                   </Button>
                 </div>
 
-                {magicLink && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-5 animate-fadeIn" role="status" aria-live="polite">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <div className="flex-1">
-                        <p className="font-semibold text-green-900">Verification link sent!</p>
-                        <p className="text-green-800 mt-1 text-sm">
-                          Check your inbox at <strong>{email}</strong> or verify instantly below.
-                        </p>
-                        <div className="mt-4 flex flex-wrap gap-3">
-                          <Button
-                            size="sm"
-                            onClick={() => window.open(magicLink, '_blank')}
-                            aria-label="Open verification link in new tab"
-                            className="min-h-11"
-                          >
-                            Open Link
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => setStep(3)}
-                            aria-label="Verify on this page"
-                            className="min-h-11"
-                          >
-                            Verify Here
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {appError && <FeedbackBanner type="error" title="Unable to send verification" message={appError} onDismiss={() => setAppError(null)} />}
               </div>
             )}
 
             {step === 3 && (
               <div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
-                <div className="text-center space-y-2 mb-6">
-                  <h2 className="text-xl font-semibold text-(--primary)">Check your email</h2>
-                  <p className="text-(--secondary)">
-                    We&apos;ve sent a verification link to <strong>{email}</strong>. Please click the link in the email to verify your account.
-                  </p>
-                </div>
+                <EmailVerificationStep
+                  email={email}
+                  verified={emailVerification.verified}
+                  magicLinkSent={emailVerification.magicLinkSent}
+                  loading={emailVerification.loading}
+                  onSendMagicLink={emailVerification.sendMagicLink}
+                  onCheckVerification={emailVerification.checkVerification}
+                />
                 <div className="flex gap-3 pt-4">
                   <Button
                     variant="ghost"
@@ -283,17 +254,10 @@ export default function InstitutionOnboardingPage() {
                     Back
                   </Button>
                 </div>
-                {verified && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center animate-fadeIn" role="status" aria-live="polite">
-                    <p className="text-green-900 font-medium"><AppIcon name="check" className="w-4 h-4 inline mr-1" />Email verified successfully</p>
-                    <p className="text-green-800 text-sm mt-1">Redirecting to your dashboard...</p>
-                  </div>
-                )}
               </div>
             )}
 
-            {error && <FeedbackBanner type="error" title="Unable to proceed" message={error} onDismiss={() => setError(null)} />}
-            {message && !error && <FeedbackBanner type="info" message={message} />}
+            {appError && <FeedbackBanner type="error" title="Unable to proceed" message={appError} onDismiss={() => setAppError(null)} />}
           </Card>
         </div>
       </main>
