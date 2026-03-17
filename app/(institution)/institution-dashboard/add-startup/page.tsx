@@ -149,11 +149,11 @@ export default function AddStartupPage() {
     <DashboardSidebar>
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-12">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Add Startup</h1>
-          <p className="text-sm text-gray-600">Step {currentStep} of 2</p>
+          <h1 className="text-2xl font-semibold text-white mb-2">Add Startup</h1>
+          <p className="text-sm text-gray-300">Step {currentStep} of 2</p>
         </div>
 
-        <Card className="p-10 bg-white border border-gray-200 shadow-sm">
+        <Card className="p-10 bg-white/5 border border-white/10 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-12">
             {currentStep === 1 && (
               <StartupDetailsStep
@@ -170,7 +170,7 @@ export default function AddStartupPage() {
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-900" role="alert">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-300" role="alert">
                 {error}
               </div>
             )}
@@ -183,7 +183,7 @@ export default function AddStartupPage() {
                     type="button"
                     onClick={() => setCurrentStep(1)}
                     disabled={loading}
-                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
+                    className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50"
                   >
                     &larr; Back
                   </button>
@@ -193,7 +193,7 @@ export default function AddStartupPage() {
                     type="button"
                     onClick={() => router.back()}
                     disabled={loading}
-                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
+                    className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>

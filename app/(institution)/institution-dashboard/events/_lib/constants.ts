@@ -36,10 +36,9 @@ export interface EventFormData {
 	maxAttendees: string;
 	status: 'draft' | 'published' | 'cancelled';
 	coverImage: string;
-	galleryJson: string;
+	coverImageFile?: File | null;
 	speakerLineupJson: string;
 	agendaTimelineJson: string;
-	recurrenceRuleJson: string;
 	ticketTypesJson: string;
 	cancellationCutoffHours: string;
 }
@@ -48,7 +47,7 @@ export const EMPTY_FORM: EventFormData = {
 	name: '',
 	description: '',
 	location: '',
-	type: '',
+	type: 'workshop',
 	startTime: '',
 	endTime: '',
 	price: '',
@@ -56,10 +55,9 @@ export const EMPTY_FORM: EventFormData = {
 	maxAttendees: '',
 	status: 'published',
 	coverImage: '',
-	galleryJson: '[]',
+	coverImageFile: null,
 	speakerLineupJson: '[]',
 	agendaTimelineJson: '[]',
-	recurrenceRuleJson: '',
 	ticketTypesJson: '[]',
 	cancellationCutoffHours: '2',
 };
@@ -88,10 +86,9 @@ export function eventToForm(event: EventItem): EventFormData {
 		maxAttendees: event.maxAttendees != null ? String(event.maxAttendees) : '',
 		status: event.status || 'published',
 		coverImage: event.coverImage || '',
-		galleryJson: JSON.stringify(event.gallery || [], null, 2),
+		coverImageFile: null,
 		speakerLineupJson: JSON.stringify(event.speakerLineup || [], null, 2),
 		agendaTimelineJson: JSON.stringify(event.agendaTimeline || [], null, 2),
-		recurrenceRuleJson: event.recurrenceRule ? JSON.stringify(event.recurrenceRule, null, 2) : '',
 		ticketTypesJson: JSON.stringify(event.ticketTypes || [], null, 2),
 		cancellationCutoffHours: String(event.cancellationCutoffHours ?? 2),
 	};

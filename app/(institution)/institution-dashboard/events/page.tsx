@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Button, FeedbackBanner, EmptyState } from '@/components/ui';
+import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
 import { EventItem, ModalMode, EventFormData, EMPTY_FORM, eventToForm } from './_lib/constants';
 import EventCard from './_components/EventCard';
@@ -51,15 +52,15 @@ export default function InstitutionEventsPage() {
         }
         setSaving(true);
         try {
-            const parseJsonOrThrow = (label: string, value: string, fallback: unknown) => {
-                const trimmed = value.trim();
-                if (!trimmed) return fallback;
-                try {
-                    return JSON.parse(trimmed);
-                } catch {
-                    throw new Error(`${label} must be valid JSON`);
-                }
-            };
+            const parseLines = (value: string) =>
+                value
+                    .split('\n')
+                    .map((line) => line.trim())
+                    .filter(Boolean);
+
+            const speakerLineup = parseLines(form.speakerLineupJson).map((name) => ({ name }));
+            const agendaTimeline = parseLines(form.agendaTimelineJson).map((activity) => ({ activity }));
+            const ticketTypes = parseLines(form.ticketTypesJson).map((name) => ({ name }));
 
             const body: Record<string, unknown> = {
                 name: form.name,
@@ -74,11 +75,9 @@ export default function InstitutionEventsPage() {
                 status: form.status,
                 cover_image: form.coverImage || null,
                 cancellation_cutoff_hours: form.cancellationCutoffHours ? Number(form.cancellationCutoffHours) : 2,
-                gallery: parseJsonOrThrow('Gallery', form.galleryJson, []),
-                speaker_lineup: parseJsonOrThrow('Speaker lineup', form.speakerLineupJson, []),
-                agenda_timeline: parseJsonOrThrow('Agenda timeline', form.agendaTimelineJson, []),
-                recurrence_rule: parseJsonOrThrow('Recurrence rule', form.recurrenceRuleJson, null),
-                ticket_types: parseJsonOrThrow('Ticket types', form.ticketTypesJson, []),
+                speaker_lineup: speakerLineup,
+                agenda_timeline: agendaTimeline,
+                ticket_types: ticketTypes,
             };
             const url = modalMode === 'edit' && editingEvent ? `/api/events/${editingEvent.id}/` : '/api/events/';
             const method = modalMode === 'edit' ? 'PATCH' : 'POST';
@@ -114,41 +113,43 @@ export default function InstitutionEventsPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-(--primary)">Events</h1>
-                    <p className="text-sm text-(--secondary)">Create and manage events for your institution community.</p>
+        <DashboardSidebar>
+            <div className="p-8 space-y-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold text-white">Events</h1>
+                        <p className="text-sm text-gray-400">Create and manage events for your institution community.</p>
+                    </div>
+                    <Button onClick={openCreate}>+ New Event</Button>
                 </div>
-                <Button onClick={openCreate}>+ New Event</Button>
+
+                {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
+
+                {loading ? (
+                    <div className="grid gap-4 md:grid-cols-2">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="h-40 rounded-xl bg-white/5 border border-white/10 animate-pulse" />
+                        ))}
+                    </div>
+                ) : events.length === 0 ? (
+                    <EmptyState title="No events yet" description="Create your first event to engage your community." ctaLabel="Create Event" onCtaClick={openCreate} />
+                ) : (
+                    <div className="grid gap-4 md:grid-cols-2">
+                        {events.map((event) => (
+                            <EventCard key={event.id} event={event} onEdit={openEdit} onDelete={handleDelete} />
+                        ))}
+                    </div>
+                )}
+
+                <EventFormModal
+                    mode={modalMode}
+                    form={form}
+                    saving={saving}
+                    onFormChange={setForm}
+                    onSave={handleSave}
+                    onClose={() => setModalMode(null)}
+                />
             </div>
-
-            {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
-
-            {loading ? (
-                <div className="grid gap-4 md:grid-cols-2">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="h-40 rounded-xl bg-(--surface-hover) animate-pulse" />
-                    ))}
-                </div>
-            ) : events.length === 0 ? (
-                <EmptyState title="No events yet" description="Create your first event to engage your community." ctaLabel="Create Event" onCtaClick={openCreate} />
-            ) : (
-                <div className="grid gap-4 md:grid-cols-2">
-                    {events.map((event) => (
-                        <EventCard key={event.id} event={event} onEdit={openEdit} onDelete={handleDelete} />
-                    ))}
-                </div>
-            )}
-
-            <EventFormModal
-                mode={modalMode}
-                form={form}
-                saving={saving}
-                onFormChange={setForm}
-                onSave={handleSave}
-                onClose={() => setModalMode(null)}
-            />
-        </div>
+        </DashboardSidebar>
     );
 }

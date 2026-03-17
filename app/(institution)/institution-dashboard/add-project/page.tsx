@@ -64,23 +64,23 @@ export default function AddProjectPage() {
     <DashboardSidebar>
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-12">
-          <h1 className="text-2xl font-semibold text-(--primary) mb-2">Create Project</h1>
-          <p className="text-sm text-(--secondary)">Add a new research project or collaboration</p>
+          <h1 className="text-2xl font-semibold text-white mb-2">Create Project</h1>
+          <p className="text-sm text-gray-300">Add a new research project or collaboration</p>
         </div>
 
-        <Card className="p-10 bg-white border border-gray-200 shadow-sm">
+        <Card className="p-10 bg-white/5 border border-white/10 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-12">
             {/* Project Identity */}
             <div className="space-y-6">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">
+                <label className="block text-xs font-medium text-gray-400 mb-2">
                   Project Name
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors"
                   placeholder="e.g., AI for Healthcare Research Initiative"
                   required
                   aria-label="Project name"
@@ -88,7 +88,7 @@ export default function AddProjectPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">
+                <label className="block text-xs font-medium text-gray-400 mb-2">
                   Status
                 </label>
                 <Select
@@ -103,14 +103,14 @@ export default function AddProjectPage() {
 
             {/* About This Project */}
             <div className="space-y-3">
-              <label className="block text-xs font-medium text-gray-500">
+              <label className="block text-xs font-medium text-gray-400">
                 About This Project
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={5}
-                className="w-full px-4 py-4 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:border-gray-900 focus:bg-white focus:outline-none transition-all resize-none"
+                className="w-full px-4 py-4 text-sm bg-white/5 border border-white/20 rounded-lg focus:border-white/40 focus:bg-white/10 focus:outline-none transition-all resize-none"
                 placeholder="Describe the project objectives, scope, and expected outcomes"
                 aria-label="Project description"
               />
@@ -118,31 +118,31 @@ export default function AddProjectPage() {
 
             {/* Timeline */}
             <div className="space-y-6 pt-6">
-              <h3 className="text-base font-semibold text-(--primary) mb-6">Timeline</h3>
+              <h3 className="text-base font-semibold text-white mb-6">Timeline</h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-2">
+                  <label className="block text-xs font-medium text-gray-400 mb-2">
                     Start Date
                   </label>
                   <input
                     type="date"
                     value={formData.startDate}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors"
                     aria-label="Start date"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-2">
+                  <label className="block text-xs font-medium text-gray-400 mb-2">
                     End Date
                   </label>
                   <input
                     type="date"
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors"
                     aria-label="End date"
                   />
                 </div>
@@ -150,7 +150,7 @@ export default function AddProjectPage() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-900" role="alert">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-300" role="alert">
                 {error}
               </div>
             )}
@@ -160,7 +160,7 @@ export default function AddProjectPage() {
                 type="button"
                 onClick={() => router.back()}
                 disabled={loading}
-                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>

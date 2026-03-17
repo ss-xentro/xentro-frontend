@@ -18,16 +18,16 @@ interface Program {
 }
 
 const typeLabels: Record<string, { label: string; color: string }> = {
-    accelerator: { label: 'Accelerator', color: 'bg-purple-100 text-purple-800' },
-    incubator: { label: 'Incubator', color: 'bg-blue-100 text-blue-800' },
-    incubation: { label: 'Incubation', color: 'bg-blue-100 text-blue-800' },
-    acceleration: { label: 'Acceleration', color: 'bg-purple-100 text-purple-800' },
-    bootcamp: { label: 'Bootcamp', color: 'bg-orange-100 text-orange-800' },
-    fellowship: { label: 'Fellowship', color: 'bg-green-100 text-green-800' },
-    workshop: { label: 'Workshop', color: 'bg-yellow-100 text-yellow-800' },
-    mentorship: { label: 'Mentorship', color: 'bg-pink-100 text-pink-800' },
-    competition: { label: 'Competition', color: 'bg-indigo-100 text-indigo-800' },
-    other: { label: 'Other', color: 'bg-gray-100 text-gray-800' },
+    accelerator: { label: 'Accelerator', color: 'bg-purple-500/20 text-purple-200' },
+    incubator: { label: 'Incubator', color: 'bg-blue-500/20 text-blue-200' },
+    incubation: { label: 'Incubation', color: 'bg-blue-500/20 text-blue-200' },
+    acceleration: { label: 'Acceleration', color: 'bg-purple-500/20 text-purple-200' },
+    bootcamp: { label: 'Bootcamp', color: 'bg-orange-500/20 text-orange-200' },
+    fellowship: { label: 'Fellowship', color: 'bg-green-500/20 text-green-200' },
+    workshop: { label: 'Workshop', color: 'bg-yellow-500/20 text-yellow-200' },
+    mentorship: { label: 'Mentorship', color: 'bg-pink-500/20 text-pink-200' },
+    competition: { label: 'Competition', color: 'bg-indigo-500/20 text-indigo-200' },
+    other: { label: 'Other', color: 'bg-white/10 text-gray-200' },
 };
 
 export default function ProgramsPage() {
@@ -115,8 +115,8 @@ export default function ProgramsPage() {
             <div className="p-8 space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-(--primary)">Programs</h1>
-                        <p className="text-(--secondary) mt-1">Manage your institution&apos;s programs and initiatives</p>
+                        <h1 className="text-3xl font-bold text-white">Programs</h1>
+                        <p className="text-gray-400 mt-1">Manage your institution&apos;s programs and initiatives</p>
                     </div>
                     <Button onClick={() => router.push('/institution-dashboard/add-program')}>
                         Add Program
@@ -124,20 +124,20 @@ export default function ProgramsPage() {
                 </div>
 
                 {error && (
-                    <Card className="p-4 bg-red-50 border-red-200">
-                        <p className="text-red-600">{error}</p>
+                    <Card className="p-4 bg-red-500/10 border-red-500/30">
+                        <p className="text-red-300">{error}</p>
                     </Card>
                 )}
 
                 {programs.length === 0 ? (
-                    <Card className="p-12 text-center">
-                        <div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
-                            <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <Card className="p-12 text-center bg-white/5 border-white/10">
+                        <div className="w-16 h-16 rounded-full bg-white/10 mx-auto mb-4 flex items-center justify-center">
+                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
-                        <h3 className="text-lg font-semibold text-(--primary) mb-2">No programs yet</h3>
-                        <p className="text-(--secondary) mb-4">
+                        <h3 className="text-lg font-semibold text-white mb-2">No programs yet</h3>
+                        <p className="text-gray-400 mb-4">
                             Add programs to showcase your institution&apos;s offerings
                         </p>
                         <Button onClick={() => router.push('/institution-dashboard/add-program')}>
@@ -149,13 +149,13 @@ export default function ProgramsPage() {
                         {programs.map((program) => {
                             const typeInfo = typeLabels[program.type] || typeLabels.other;
                             return (
-                                <Card key={program.id} className="p-6 cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/institution-dashboard/programs/${program.id}`)}>
+                                <Card key={program.id} className="p-6 cursor-pointer bg-white/5 border-white/10 hover:border-white/20 transition-colors" onClick={() => router.push(`/institution-dashboard/programs/${program.id}`)}>
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <h3 className="font-bold text-lg text-(--primary)">{program.name}</h3>
+                                                <h3 className="font-bold text-lg text-white">{program.name}</h3>
                                                 {!program.isActive && (
-                                                    <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600">Inactive</span>
+                                                    <span className="px-2 py-0.5 rounded text-xs bg-white/10 text-gray-300">Inactive</span>
                                                 )}
                                             </div>
                                             <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${typeInfo.color}`}>
@@ -165,12 +165,12 @@ export default function ProgramsPage() {
                                     </div>
 
                                     {program.description && (
-                                        <p className="text-sm text-(--secondary) mb-3 line-clamp-2">
+                                        <p className="text-sm text-gray-400 mb-3 line-clamp-2">
                                             {program.description}
                                         </p>
                                     )}
 
-                                    <div className="flex items-center gap-4 text-sm text-(--secondary) mb-4">
+                                    <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
                                         {program.duration && (
                                             <span className="flex items-center gap-1">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +189,7 @@ export default function ProgramsPage() {
                                         )}
                                     </div>
 
-                                    <div className="flex gap-2 border-t border-(--border) pt-4">
+                                    <div className="flex gap-2 border-t border-white/10 pt-4">
                                         <Button
                                             variant="ghost"
                                             size="sm"
@@ -209,7 +209,7 @@ export default function ProgramsPage() {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                                             onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(program.id); }}
                                             disabled={deletingId === program.id}
                                         >

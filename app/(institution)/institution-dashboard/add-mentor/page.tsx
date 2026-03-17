@@ -64,14 +64,14 @@ export default function AddMentorPage() {
     <DashboardSidebar>
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-12">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Add New Mentor</h1>
-          <p className="text-sm text-gray-600">Register a new mentor and link them to your institution.</p>
+          <h1 className="text-2xl font-semibold text-white mb-2">Add New Mentor</h1>
+          <p className="text-sm text-gray-300">Register a new mentor and link them to your institution.</p>
         </div>
 
-        <Card className="p-10 bg-white border border-gray-200 shadow-sm relative overflow-hidden">
+        <Card className="p-10 bg-white/5 border border-white/10 shadow-sm relative overflow-hidden">
           <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-2">Mentor Name *</label>
+              <label className="block text-xs font-medium text-gray-400 mb-2">Mentor Name *</label>
               <Input
                 type="text"
                 value={formData.name}
@@ -81,7 +81,7 @@ export default function AddMentorPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-2">Mentor Email *</label>
+              <label className="block text-xs font-medium text-gray-400 mb-2">Mentor Email *</label>
               <Input
                 type="email"
                 value={formData.email}
@@ -110,7 +110,7 @@ export default function AddMentorPage() {
                     </p>
                   )}
                   {!emailChecking && emailResult && !emailResult.canProceed && (
-                    <p className="text-xs text-red-600 flex items-center gap-1">
+                    <p className="text-xs text-red-400 flex items-center gap-1">
                       <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
@@ -122,7 +122,7 @@ export default function AddMentorPage() {
             </div>
 
             {error && (
-              <div className="p-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
+              <div className="p-4 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg">
                 {error}
               </div>
             )}

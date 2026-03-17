@@ -104,13 +104,13 @@ export default function StartupsPage() {
             <div className="p-8 space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Startups</h1>
-                        <p className="text-gray-600 mt-1">Manage your portfolio startups</p>
+                        <h1 className="text-3xl font-bold text-white">Startups</h1>
+                        <p className="text-gray-400 mt-1">Manage your portfolio startups</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setShowEndorsements(!showEndorsements)}
-                            className="relative px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="relative px-4 py-2 bg-white/5 border border-white/10 text-gray-200 rounded-lg hover:bg-white/10 transition-colors"
                         >
                             Endorsement Requests
                             {endorsements.length > 0 && (
@@ -121,7 +121,7 @@ export default function StartupsPage() {
                         </button>
                         <button
                             onClick={() => router.push('/institution-dashboard/add-startup')}
-                            className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                            className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors flex items-center gap-2"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

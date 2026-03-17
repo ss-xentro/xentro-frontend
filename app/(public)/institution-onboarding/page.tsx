@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Input, Button, ProgressIndicator, OnboardingNavbar, FeedbackBanner } from '@/components/ui';
 import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
@@ -46,6 +46,16 @@ export default function InstitutionOnboardingPage() {
     name: form.name,
     purpose: 'signup',
   });
+
+  // Redirect to login after email verification completes
+  useEffect(() => {
+    if (emailVerification.verified) {
+      const timer = setTimeout(() => {
+        router.push('/login');
+      }, 2000); // 2 second delay to show the success message
+      return () => clearTimeout(timer);
+    }
+  }, [emailVerification.verified, router]);
 
   const canProceed = () => {
     switch (step) {

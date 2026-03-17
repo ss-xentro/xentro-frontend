@@ -205,13 +205,13 @@ export default function RecycleBinPage() {
 			<div className="p-8 space-y-6">
 				{/* Header */}
 				<div>
-					<h1 className="text-3xl font-bold text-(--primary) flex items-center gap-3">
+					<h1 className="text-3xl font-bold text-white flex items-center gap-3">
 						<svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
 						</svg>
 						Recycle Bin
 					</h1>
-					<p className="text-(--secondary) mt-1">
+					<p className="text-gray-400 mt-1">
 						Deleted items are kept for 30 days before permanent removal. {totalItems} item{totalItems !== 1 ? 's' : ''} total.
 					</p>
 				</div>
@@ -219,7 +219,7 @@ export default function RecycleBinPage() {
 				{error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
 				{/* Folder tabs */}
-				<div className="flex flex-wrap gap-2 border-b border-(--border) pb-4">
+				<div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">
 					{folders.map((folder) => {
 						const count = (data[folder.key] || []).length;
 						const isActive = activeFolder === folder.key;
@@ -228,15 +228,15 @@ export default function RecycleBinPage() {
 								key={folder.key}
 								onClick={() => setActiveFolder(folder.key)}
 								className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-									? 'bg-blue-50 text-blue-700 border border-blue-200'
-									: 'text-gray-600 hover:bg-gray-50 hover:text-gray-800 border border-transparent'
+									? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+									: 'text-gray-400 hover:bg-white/5 hover:text-gray-200 border border-transparent'
 									}`}
 							>
 								{folder.icon}
 								{folder.label}
 								{count > 0 && (
 									<span
-										className={`ml-1 px-2 py-0.5 rounded-full text-xs font-semibold ${isActive ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-600'
+										className={`ml-1 px-2 py-0.5 rounded-full text-xs font-semibold ${isActive ? 'bg-blue-500/30 text-blue-200' : 'bg-white/10 text-gray-300'
 											}`}
 									>
 										{count}
@@ -261,10 +261,10 @@ export default function RecycleBinPage() {
 				) : (
 					<div className="space-y-3">
 						{activeItems.map((item) => (
-							<Card key={item.id} className="p-4 flex items-center justify-between hover:shadow-sm transition-shadow">
+							<Card key={item.id} className="p-4 flex items-center justify-between bg-white/5 border border-white/10 hover:border-white/20 transition-colors">
 								<div className="flex-1 min-w-0">
-									<h3 className="font-semibold text-gray-900 truncate">{item.name}</h3>
-									<div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+									<h3 className="font-semibold text-white truncate">{item.name}</h3>
+									<div className="flex items-center gap-3 mt-1 text-sm text-gray-400">
 										<span>
 											Deleted {new Date(item.deletedAt).toLocaleDateString('en-US', {
 												month: 'short',
@@ -274,10 +274,10 @@ export default function RecycleBinPage() {
 										</span>
 										<span
 											className={`px-2 py-0.5 rounded-full text-xs font-medium ${item.daysRemaining <= 7
-												? 'bg-red-100 text-red-700'
+												? 'bg-red-500/20 text-red-300'
 												: item.daysRemaining <= 14
-													? 'bg-yellow-100 text-yellow-700'
-													: 'bg-green-100 text-green-700'
+													? 'bg-yellow-500/20 text-yellow-300'
+													: 'bg-green-500/20 text-green-300'
 												}`}
 										>
 											{item.daysRemaining} day{item.daysRemaining !== 1 ? 's' : ''} remaining
@@ -289,7 +289,7 @@ export default function RecycleBinPage() {
 									<Button
 										variant="ghost"
 										size="sm"
-										className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+										className="text-blue-300 hover:text-blue-200 hover:bg-blue-500/10"
 										onClick={() => handleRestore(apiType, item.id)}
 										disabled={actionLoading === `restore-${item.id}`}
 									>
@@ -305,7 +305,7 @@ export default function RecycleBinPage() {
 									<Button
 										variant="ghost"
 										size="sm"
-										className="text-red-600 hover:text-red-700 hover:bg-red-50"
+										className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
 										onClick={() => handlePermanentDelete(apiType, item.id)}
 										disabled={actionLoading === `delete-${item.id}`}
 									>

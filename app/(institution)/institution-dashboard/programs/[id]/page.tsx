@@ -20,16 +20,16 @@ interface ProgramDetail {
 }
 
 const typeLabels: Record<string, { label: string; color: string }> = {
-	accelerator: { label: 'Accelerator', color: 'bg-purple-100 text-purple-800' },
-	incubator: { label: 'Incubator', color: 'bg-blue-100 text-blue-800' },
-	incubation: { label: 'Incubation', color: 'bg-blue-100 text-blue-800' },
-	acceleration: { label: 'Acceleration', color: 'bg-purple-100 text-purple-800' },
-	bootcamp: { label: 'Bootcamp', color: 'bg-orange-100 text-orange-800' },
-	fellowship: { label: 'Fellowship', color: 'bg-green-100 text-green-800' },
-	workshop: { label: 'Workshop', color: 'bg-yellow-100 text-yellow-800' },
-	mentorship: { label: 'Mentorship', color: 'bg-pink-100 text-pink-800' },
-	competition: { label: 'Competition', color: 'bg-indigo-100 text-indigo-800' },
-	other: { label: 'Other', color: 'bg-gray-100 text-gray-800' },
+	accelerator: { label: 'Accelerator', color: 'bg-purple-500/20 text-purple-200' },
+	incubator: { label: 'Incubator', color: 'bg-blue-500/20 text-blue-200' },
+	incubation: { label: 'Incubation', color: 'bg-blue-500/20 text-blue-200' },
+	acceleration: { label: 'Acceleration', color: 'bg-purple-500/20 text-purple-200' },
+	bootcamp: { label: 'Bootcamp', color: 'bg-orange-500/20 text-orange-200' },
+	fellowship: { label: 'Fellowship', color: 'bg-green-500/20 text-green-200' },
+	workshop: { label: 'Workshop', color: 'bg-yellow-500/20 text-yellow-200' },
+	mentorship: { label: 'Mentorship', color: 'bg-pink-500/20 text-pink-200' },
+	competition: { label: 'Competition', color: 'bg-indigo-500/20 text-indigo-200' },
+	other: { label: 'Other', color: 'bg-white/10 text-gray-100' },
 };
 
 export default function ProgramDetailPage() {
@@ -86,7 +86,7 @@ export default function ProgramDetailPage() {
 	if (loading) {
 		return (
 			<DashboardSidebar>
-				<div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-gray-200 rounded w-1/4" /><div className="h-64 bg-gray-200 rounded" /></div></div>
+				<div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-white/10 rounded w-1/4" /><div className="h-64 bg-white/10 rounded" /></div></div>
 			</DashboardSidebar>
 		);
 	}
@@ -94,7 +94,7 @@ export default function ProgramDetailPage() {
 	if (error || !program) {
 		return (
 			<DashboardSidebar>
-				<div className="p-8"><Card className="p-8 text-center"><p className="text-red-600 mb-4">{error || 'Program not found'}</p><Button onClick={() => router.push('/institution-dashboard/programs')}>Back to Programs</Button></Card></div>
+				<div className="p-8"><Card className="p-8 text-center"><p className="text-red-400 mb-4">{error || 'Program not found'}</p><Button onClick={() => router.push('/institution-dashboard/programs')}>Back to Programs</Button></Card></div>
 			</DashboardSidebar>
 		);
 	}
@@ -105,56 +105,56 @@ export default function ProgramDetailPage() {
 		<DashboardSidebar>
 			<div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
 				<div className="flex items-center justify-between">
-					<button onClick={() => router.push('/institution-dashboard/programs')} className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1">
+					<button onClick={() => router.push('/institution-dashboard/programs')} className="text-sm text-gray-400 hover:text-white flex items-center gap-1">
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
 						Back to Programs
 					</button>
 					<div className="flex items-center gap-2">
 						<Button onClick={() => router.push(`/institution-dashboard/programs/${programId}/edit`)}>Edit Program</Button>
-						<Button variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDelete} disabled={deleting}>
+						<Button variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={handleDelete} disabled={deleting}>
 							{deleting ? 'Deleting...' : 'Delete'}
 						</Button>
 					</div>
 				</div>
 
-				<Card className="p-8">
+				<Card className="p-8 bg-white/5 border border-white/10">
 					<div className="flex items-center gap-3 mb-4">
-						<h1 className="text-2xl font-bold text-gray-900">{program.name}</h1>
+						<h1 className="text-2xl font-bold text-white">{program.name}</h1>
 						<span className={`px-2 py-1 rounded text-xs font-medium ${typeInfo.color}`}>{typeInfo.label}</span>
-						{!program.isActive && <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600">Inactive</span>}
+						{!program.isActive && <span className="px-2 py-0.5 rounded text-xs bg-white/10 text-gray-300">Inactive</span>}
 					</div>
 
 					{program.description && (
-						<p className="text-gray-600 mb-6 whitespace-pre-wrap">{program.description}</p>
+						<p className="text-gray-300 mb-6 whitespace-pre-wrap">{program.description}</p>
 					)}
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200 pt-6">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-white/10 pt-6">
 						{program.duration && (
 							<div>
-								<p className="text-xs font-medium text-gray-500 mb-1">Duration</p>
-								<p className="text-sm text-gray-900">{program.duration}</p>
+								<p className="text-xs font-medium text-gray-400 mb-1">Duration</p>
+								<p className="text-sm text-white">{program.duration}</p>
 							</div>
 						)}
 						{program.startDate && (
 							<div>
-								<p className="text-xs font-medium text-gray-500 mb-1">Start Date</p>
-								<p className="text-sm text-gray-900">{new Date(program.startDate).toLocaleDateString()}</p>
+								<p className="text-xs font-medium text-gray-400 mb-1">Start Date</p>
+								<p className="text-sm text-white">{new Date(program.startDate).toLocaleDateString()}</p>
 							</div>
 						)}
 						{program.endDate && (
 							<div>
-								<p className="text-xs font-medium text-gray-500 mb-1">End Date</p>
-								<p className="text-sm text-gray-900">{new Date(program.endDate).toLocaleDateString()}</p>
+								<p className="text-xs font-medium text-gray-400 mb-1">End Date</p>
+								<p className="text-sm text-white">{new Date(program.endDate).toLocaleDateString()}</p>
 							</div>
 						)}
 						<div>
-							<p className="text-xs font-medium text-gray-500 mb-1">Status</p>
-							<p className="text-sm text-gray-900">{program.isActive ? 'Active' : 'Inactive'}</p>
+							<p className="text-xs font-medium text-gray-400 mb-1">Status</p>
+							<p className="text-sm text-white">{program.isActive ? 'Active' : 'Inactive'}</p>
 						</div>
 						{program.createdAt && (
 							<div>
-								<p className="text-xs font-medium text-gray-500 mb-1">Created</p>
-								<p className="text-sm text-gray-900">{new Date(program.createdAt).toLocaleDateString()}</p>
+								<p className="text-xs font-medium text-gray-400 mb-1">Created</p>
+								<p className="text-sm text-white">{new Date(program.createdAt).toLocaleDateString()}</p>
 							</div>
 						)}
 					</div>

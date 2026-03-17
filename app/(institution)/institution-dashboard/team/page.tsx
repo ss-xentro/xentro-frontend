@@ -17,10 +17,10 @@ interface TeamMember {
 }
 
 const roleColors: Record<string, string> = {
-  admin: 'bg-purple-100 text-purple-800',
-  manager: 'bg-blue-100 text-blue-800',
-  ambassador: 'bg-green-100 text-green-800',
-  viewer: 'bg-gray-100 text-gray-800',
+  admin: 'bg-purple-500/20 text-purple-200',
+  manager: 'bg-blue-500/20 text-blue-200',
+  ambassador: 'bg-green-500/20 text-green-200',
+  viewer: 'bg-white/10 text-gray-200',
 };
 
 export default function TeamPage() {
@@ -104,8 +104,8 @@ export default function TeamPage() {
       <div className="p-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-(--primary)">Team Members</h1>
-            <p className="text-(--secondary) mt-1">Manage your institution team</p>
+            <h1 className="text-3xl font-bold text-white">Team Members</h1>
+            <p className="text-gray-400 mt-1">Manage your institution team</p>
           </div>
           <Button onClick={() => router.push('/institution-dashboard/add-team')}>
             Add Team Member
@@ -113,20 +113,20 @@ export default function TeamPage() {
         </div>
 
         {error && (
-          <Card className="p-4 bg-red-50 border-red-200">
-            <p className="text-red-600">{error}</p>
+          <Card className="p-4 bg-red-500/10 border-red-500/30">
+            <p className="text-red-300">{error}</p>
           </Card>
         )}
 
         {team.length === 0 ? (
-          <Card className="p-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
-              <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Card className="p-12 text-center bg-white/5 border-white/10">
+            <div className="w-16 h-16 rounded-full bg-white/10 mx-auto mb-4 flex items-center justify-center">
+              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-(--primary) mb-2">No team members yet</h3>
-            <p className="text-(--secondary) mb-4">
+            <h3 className="text-lg font-semibold text-white mb-2">No team members yet</h3>
+            <p className="text-gray-400 mb-4">
               Add team members to help manage your institution
             </p>
             <Button onClick={() => router.push('/institution-dashboard/add-team')}>
@@ -136,15 +136,15 @@ export default function TeamPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {team.map((member) => (
-              <Card key={member.id} className="p-6 cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/institution-dashboard/team/${member.id}`)}>
+              <Card key={member.id} className="p-6 cursor-pointer bg-white/5 border-white/10 hover:border-white/20 transition-colors" onClick={() => router.push(`/institution-dashboard/team/${member.id}`)}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-(--surface-hover) flex items-center justify-center text-xl font-bold text-(--primary)">
+                    <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center text-xl font-bold text-violet-300">
                       {member.userName?.[0]?.toUpperCase() || '?'}
                     </div>
                     <div>
-                      <h3 className="font-bold text-(--primary)">{member.userName || 'Unknown'}</h3>
-                      <p className="text-sm text-(--secondary)">{member.userEmail || ''}</p>
+                      <h3 className="font-bold text-white">{member.userName || 'Unknown'}</h3>
+                      <p className="text-sm text-gray-400">{member.userEmail || ''}</p>
                     </div>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[member.role]}`}>
@@ -152,11 +152,11 @@ export default function TeamPage() {
                   </span>
                 </div>
 
-                <div className="text-xs text-(--secondary) mb-4">
+                <div className="text-xs text-gray-400 mb-4">
                   Joined {new Date(member.createdAt).toLocaleDateString()}
                 </div>
 
-                <div className="flex gap-2 border-t border-(--border) pt-4 mt-2">
+                <div className="flex gap-2 border-t border-white/10 pt-4 mt-2">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -169,7 +169,7 @@ export default function TeamPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                       onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleRemove(member.id); }}
                     >
                       Remove

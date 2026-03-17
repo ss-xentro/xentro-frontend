@@ -34,8 +34,8 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 	if (!value) return null;
 	return (
 		<div>
-			<p className="text-xs font-medium text-gray-500 mb-1">{label}</p>
-			<p className="text-sm text-gray-900">{value}</p>
+			<p className="text-xs font-medium text-gray-400 mb-1">{label}</p>
+			<p className="text-sm text-white">{value}</p>
 		</div>
 	);
 }
@@ -132,8 +132,8 @@ export default function MentorDetailPage() {
 			<DashboardSidebar>
 				<div className="p-8">
 					<div className="animate-pulse space-y-4">
-						<div className="h-8 bg-gray-200 rounded w-1/4" />
-						<div className="h-64 bg-gray-200 rounded" />
+						<div className="h-8 bg-white/10 rounded w-1/4" />
+						<div className="h-64 bg-white/10 rounded" />
 					</div>
 				</div>
 			</DashboardSidebar>
@@ -145,7 +145,7 @@ export default function MentorDetailPage() {
 			<DashboardSidebar>
 				<div className="p-8">
 					<Card className="p-8 text-center">
-						<p className="text-red-600 mb-4">{error || 'Mentor not found'}</p>
+						<p className="text-red-400 mb-4">{error || 'Mentor not found'}</p>
 						<Button onClick={() => router.push('/institution-dashboard/mentors')}>Back to Mentors</Button>
 					</Card>
 				</div>
@@ -163,7 +163,7 @@ export default function MentorDetailPage() {
 			<div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
 				{/* Header */}
 				<div className="flex items-center justify-between">
-					<button onClick={() => router.push('/institution-dashboard/mentors')} className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1">
+					<button onClick={() => router.push('/institution-dashboard/mentors')} className="text-sm text-gray-400 hover:text-white flex items-center gap-1">
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
 						Back to Mentors
 					</button>
@@ -171,16 +171,16 @@ export default function MentorDetailPage() {
 						<Button onClick={() => router.push(`/institution-dashboard/mentors/${mentorId}/edit`)}>
 							Edit Mentor
 						</Button>
-						<Button variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDelete} disabled={deleting}>
+						<Button variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={handleDelete} disabled={deleting}>
 							{deleting ? 'Removing...' : 'Delete'}
 						</Button>
 					</div>
 				</div>
 
 				{/* Profile Card */}
-				<Card className="p-8">
+				<Card className="p-8 bg-white/5 border border-white/10">
 					<div className="flex items-start gap-6 mb-6">
-						<div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-gray-600 shrink-0 overflow-hidden">
+						<div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center text-3xl font-bold text-gray-300 shrink-0 overflow-hidden">
 							{mentor.avatar ? (
 								<img src={mentor.avatar} alt="" className="w-20 h-20 rounded-full object-cover" />
 							) : (
@@ -188,18 +188,18 @@ export default function MentorDetailPage() {
 							)}
 						</div>
 						<div className="flex-1">
-							<h1 className="text-2xl font-bold text-gray-900">{mentor.user_name || 'Unnamed Mentor'}</h1>
-							{mentor.occupation && <p className="text-gray-600 mt-1">{mentor.occupation}</p>}
+							<h1 className="text-2xl font-bold text-white">{mentor.user_name || 'Unnamed Mentor'}</h1>
+							{mentor.occupation && <p className="text-gray-300 mt-1">{mentor.occupation}</p>}
 							{mentor.user_email && <p className="text-sm text-gray-400 mt-1">{mentor.user_email}</p>}
 							<div className="flex items-center gap-3 mt-3">
-								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.verified ? 'bg-green-500/20 text-green-200' : 'bg-yellow-500/20 text-yellow-200'}`}>
 									{mentor.verified ? 'Verified' : 'Pending'}
 								</span>
-								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.status === 'approved' || mentor.status === 'active' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.status === 'approved' || mentor.status === 'active' ? 'bg-blue-500/20 text-blue-200' : 'bg-white/10 text-gray-100'}`}>
 									{mentor.status}
 								</span>
 								{mentor.profile_completed && (
-									<span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+									<span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-200">
 										Profile Complete
 									</span>
 								)}
@@ -208,7 +208,7 @@ export default function MentorDetailPage() {
 					</div>
 
 					{/* Details Grid */}
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200 pt-6">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-white/10 pt-6">
 						<InfoRow label="Institution" value={mentor.institutionName} />
 						<InfoRow label="Base Rate" value={mentor.rate ? `INR ${Number(mentor.rate).toLocaleString('en-IN')}` : null} />
 						<InfoRow label="Pricing / Hour" value={mentor.pricing_per_hour ? `INR ${Number(mentor.pricing_per_hour).toLocaleString('en-IN')}/hr` : null} />
@@ -219,11 +219,11 @@ export default function MentorDetailPage() {
 
 				{/* Expertise */}
 				{expertiseList.length > 0 && (
-					<Card className="p-6">
-						<h3 className="text-sm font-semibold text-gray-900 mb-3">Expertise Areas</h3>
+					<Card className="p-6 bg-white/5 border border-white/10">
+						<h3 className="text-sm font-semibold text-white mb-3">Expertise Areas</h3>
 						<div className="flex flex-wrap gap-2">
 							{expertiseList.map((exp, idx) => (
-								<span key={idx} className="px-3 py-1 text-sm font-medium bg-blue-50 text-blue-700 rounded-full">{exp}</span>
+								<span key={idx} className="px-3 py-1 text-sm font-medium bg-blue-500/20 text-blue-200 rounded-full">{exp}</span>
 							))}
 						</div>
 					</Card>
@@ -231,11 +231,11 @@ export default function MentorDetailPage() {
 
 				{/* Achievements */}
 				{achievementsList.length > 0 && (
-					<Card className="p-6">
-						<h3 className="text-sm font-semibold text-gray-900 mb-3">Achievements & Highlights</h3>
+					<Card className="p-6 bg-white/5 border border-white/10">
+						<h3 className="text-sm font-semibold text-white mb-3">Achievements & Highlights</h3>
 						<ul className="space-y-2">
 							{achievementsList.map((a, i) => (
-								<li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+								<li key={i} className="flex items-start gap-2 text-sm text-gray-200">
 									<span className="mt-0.5 text-amber-500 shrink-0">•</span>
 									<span>{a}</span>
 								</li>
@@ -246,15 +246,15 @@ export default function MentorDetailPage() {
 
 				{/* Availability Slots */}
 				{slotsList.length > 0 && (
-					<Card className="p-6">
-						<h3 className="text-sm font-semibold text-gray-900 mb-3">Available Slots</h3>
+					<Card className="p-6 bg-white/5 border border-white/10">
+						<h3 className="text-sm font-semibold text-white mb-3">Available Slots</h3>
 						<div className="space-y-2">
 							{slotsList.map((slot, i) => (
-								<div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg text-sm">
-									<span className="font-medium text-gray-900 min-w-25">{slot.day}</span>
-									<span className="text-gray-500">{slot.startTime}</span>
+								<div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg text-sm">
+									<span className="font-medium text-white min-w-25">{slot.day}</span>
+									<span className="text-gray-400">{slot.startTime}</span>
 									<span className="text-gray-400">—</span>
-									<span className="text-gray-500">{slot.endTime}</span>
+									<span className="text-gray-400">{slot.endTime}</span>
 								</div>
 							))}
 						</div>
@@ -263,15 +263,15 @@ export default function MentorDetailPage() {
 
 				{/* Documents */}
 				{docsList.length > 0 && (
-					<Card className="p-6">
-						<h3 className="text-sm font-semibold text-gray-900 mb-3">Documents</h3>
+					<Card className="p-6 bg-white/5 border border-white/10">
+						<h3 className="text-sm font-semibold text-white mb-3">Documents</h3>
 						<div className="space-y-2">
 							{docsList.map((doc, i) => (
-								<div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+								<div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
 									<svg className="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
 									<div className="flex-1 min-w-0">
-										<p className="text-sm font-medium text-gray-900 truncate">{doc.name}</p>
-										{doc.uploadedAt && <p className="text-xs text-gray-500">Uploaded {new Date(doc.uploadedAt).toLocaleDateString()}</p>}
+										<p className="text-sm font-medium text-white truncate">{doc.name}</p>
+										{doc.uploadedAt && <p className="text-xs text-gray-400">Uploaded {new Date(doc.uploadedAt).toLocaleDateString()}</p>}
 									</div>
 									<a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
 										View
@@ -284,9 +284,9 @@ export default function MentorDetailPage() {
 
 				{/* Packages (if any) */}
 				{mentor.packages && Array.isArray(mentor.packages) && (mentor.packages as unknown[]).length > 0 && (
-					<Card className="p-6">
-						<h3 className="text-sm font-semibold text-gray-900 mb-3">Packages</h3>
-						<pre className="text-xs text-gray-600 bg-gray-50 rounded-lg p-4 overflow-auto">{JSON.stringify(mentor.packages, null, 2)}</pre>
+					<Card className="p-6 bg-white/5 border border-white/10">
+						<h3 className="text-sm font-semibold text-white mb-3">Packages</h3>
+						<pre className="text-xs text-gray-300 bg-white/5 rounded-lg p-4 overflow-auto">{JSON.stringify(mentor.packages, null, 2)}</pre>
 					</Card>
 				)}
 			</div>

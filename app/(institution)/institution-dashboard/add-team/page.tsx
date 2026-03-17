@@ -64,23 +64,23 @@ export default function AddTeamMemberPage() {
     <DashboardSidebar>
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-12">
-          <h1 className="text-2xl font-semibold text-(--primary) mb-2">Add Team Member</h1>
-          <p className="text-sm text-(--secondary)">Invite someone to help manage your institution</p>
+          <h1 className="text-2xl font-semibold text-white mb-2">Add Team Member</h1>
+          <p className="text-sm text-gray-300">Invite someone to help manage your institution</p>
         </div>
 
-        <Card className="p-10 bg-white border border-gray-200 shadow-sm">
+        <Card className="p-10 bg-white/5 border border-white/10 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Basic Information */}
             <div className="space-y-6">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">
+                <label className="block text-xs font-medium text-gray-400 mb-2">
                   Full Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors"
                   placeholder="e.g., Jane Smith"
                   required
                   aria-label="Team member name"
@@ -88,25 +88,25 @@ export default function AddTeamMemberPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">
+                <label className="block text-xs font-medium text-gray-400 mb-2">
                   Email Address <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors"
                   placeholder="jane.smith@institution.edu"
                   required
                   aria-label="Team member email"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   They will use this email to log in and access the dashboard
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">
+                <label className="block text-xs font-medium text-gray-400 mb-2">
                   Access Level <span className="text-red-500">*</span>
                 </label>
                 <div className="space-y-3">
@@ -114,8 +114,8 @@ export default function AddTeamMemberPage() {
                     <label
                       key={option.value}
                       className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all ${formData.role === option.value
-                        ? 'border-gray-900 bg-gray-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-gray-900 bg-white/5'
+                        : 'border-white/10 hover:border-white/20'
                         }`}
                     >
                       <input
@@ -126,21 +126,21 @@ export default function AddTeamMemberPage() {
                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                         className="mt-0.5"
                       />
-                      <span className="text-sm text-(--primary)">{option.label}</span>
+                      <span className="text-sm text-white">{option.label}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">
+                <label className="block text-xs font-medium text-gray-400 mb-2">
                   Phone Number (optional)
                 </label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors"
                   placeholder="+1 (555) 123-4567"
                   aria-label="Phone number"
                 />
@@ -148,7 +148,7 @@ export default function AddTeamMemberPage() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-900" role="alert">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-300" role="alert">
                 {error}
               </div>
             )}
@@ -158,7 +158,7 @@ export default function AddTeamMemberPage() {
                 type="button"
                 onClick={() => router.back()}
                 disabled={loading}
-                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>

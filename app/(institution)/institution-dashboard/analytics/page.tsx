@@ -89,45 +89,45 @@ export default function AnalyticsPage() {
     <DashboardSidebar>
       <div className="p-8 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-(--primary)">Analytics</h1>
-          <p className="text-(--secondary) mt-1">View {data.institutionName}&apos;s performance metrics</p>
+          <h1 className="text-3xl font-bold text-white">Analytics</h1>
+          <p className="text-gray-400 mt-1">View {data.institutionName}&apos;s performance metrics</p>
         </div>
 
         {error && (
-          <Card className="p-4 bg-red-50 border-red-200">
-            <p className="text-red-600 text-sm">{error}</p>
+          <Card className="p-4 bg-red-500/10 border-red-500/30">
+            <p className="text-red-300 text-sm">{error}</p>
           </Card>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-6">
-            <p className="text-sm text-(--secondary) mb-1">Profile Views</p>
-            <p className="text-3xl font-bold text-(--primary)">{data.profileViews.toLocaleString()}</p>
+          <Card className="p-6 bg-white/5 border-white/10 border">
+            <p className="text-sm text-gray-400 mb-1">Profile Views</p>
+            <p className="text-3xl font-bold text-white">{data.profileViews.toLocaleString()}</p>
             <p className="text-xs text-green-600 mt-2">All time views</p>
           </Card>
 
-          <Card className="p-6">
-            <p className="text-sm text-(--secondary) mb-1">Total Programs</p>
-            <p className="text-3xl font-bold text-(--primary)">{data.programsCount}</p>
-            <p className="text-xs text-(--secondary) mt-2">Active programs</p>
+          <Card className="p-6 bg-white/5 border-white/10 border">
+            <p className="text-sm text-gray-400 mb-1">Total Programs</p>
+            <p className="text-3xl font-bold text-white">{data.programsCount}</p>
+            <p className="text-xs text-gray-500 mt-2">Active programs</p>
           </Card>
 
-          <Card className="p-6">
-            <p className="text-sm text-(--secondary) mb-1">Portfolio Startups</p>
-            <p className="text-3xl font-bold text-(--primary)">{data.startupsCount}</p>
-            <p className="text-xs text-(--secondary) mt-2">In portfolio</p>
+          <Card className="p-6 bg-white/5 border-white/10 border">
+            <p className="text-sm text-gray-400 mb-1">Portfolio Startups</p>
+            <p className="text-3xl font-bold text-white">{data.startupsCount}</p>
+            <p className="text-xs text-gray-500 mt-2">In portfolio</p>
           </Card>
 
-          <Card className="p-6">
-            <p className="text-sm text-(--secondary) mb-1">Team Members</p>
-            <p className="text-3xl font-bold text-(--primary)">{data.teamMembersCount}</p>
-            <p className="text-xs text-(--secondary) mt-2">Active members</p>
+          <Card className="p-6 bg-white/5 border-white/10 border">
+            <p className="text-sm text-gray-400 mb-1">Team Members</p>
+            <p className="text-3xl font-bold text-white">{data.teamMembersCount}</p>
+            <p className="text-xs text-gray-500 mt-2">Active members</p>
           </Card>
         </div>
 
-        <Card className="p-8">
-          <h3 className="font-bold text-lg mb-4">Activity Overview</h3>
-          <div className="h-64 flex items-center justify-center text-(--secondary)">
+        <Card className="p-8 bg-white/5 border-white/10 border">
+          <h3 className="font-bold text-lg text-white mb-4">Activity Overview</h3>
+          <div className="h-64 flex items-center justify-center text-gray-400">
             {data.profileViews > 0 || data.startupsCount > 0 ? (
               <div className="text-center">
                 <p className="text-lg font-medium mb-2">Your institution is growing!</p>
@@ -140,54 +140,54 @@ export default function AnalyticsPage() {
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="p-6">
-            <h3 className="font-bold mb-4">Quick Actions</h3>
+          <Card className="p-6 bg-white/5 border-white/10 border">
+            <h3 className="font-bold text-white mb-4">Quick Actions</h3>
             <div className="space-y-3">
               <button
                 onClick={() => router.push('/institution-dashboard/add-program')}
-                className="w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                className="w-full text-left px-4 py-3 rounded-lg bg-white/10 hover:bg-white/15 transition-colors"
               >
-                <span className="font-medium">Add Program</span>
-                <p className="text-xs text-(--secondary)">Create a new program or cohort</p>
+                <span className="font-medium text-white">Add Program</span>
+                <p className="text-xs text-gray-400">Create a new program or cohort</p>
               </button>
               <button
                 onClick={() => router.push('/institution-dashboard/add-startup')}
-                className="w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                className="w-full text-left px-4 py-3 rounded-lg bg-white/10 hover:bg-white/15 transition-colors"
               >
-                <span className="font-medium">Add Startup</span>
-                <p className="text-xs text-(--secondary)">Add a startup to your portfolio</p>
+                <span className="font-medium text-white">Add Startup</span>
+                <p className="text-xs text-gray-400">Add a startup to your portfolio</p>
               </button>
               <button
                 onClick={() => router.push('/institution-dashboard/add-team')}
-                className="w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                className="w-full text-left px-4 py-3 rounded-lg bg-white/10 hover:bg-white/15 transition-colors"
               >
-                <span className="font-medium">Invite Team Member</span>
-                <p className="text-xs text-(--secondary)">Add someone to manage your profile</p>
+                <span className="font-medium text-white">Invite Team Member</span>
+                <p className="text-xs text-gray-400">Add someone to manage your profile</p>
               </button>
             </div>
           </Card>
 
-          <Card className="p-6">
-            <h3 className="font-bold mb-4">Profile Completion</h3>
+          <Card className="p-6 bg-white/5 border-white/10 border">
+            <h3 className="font-bold text-white mb-4">Profile Completion</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm">Basic Info</span>
+                <span className="text-sm text-gray-200">Basic Info</span>
                 <span className="text-green-600 flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Complete</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm">Programs</span>
+                <span className="text-sm text-gray-200">Programs</span>
                 <span className={data.programsCount > 0 ? 'text-green-600' : 'text-amber-600'}>
                   {data.programsCount > 0 ? <span className="flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Added</span> : 'Add programs'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm">Startups</span>
+                <span className="text-sm text-gray-200">Startups</span>
                 <span className={data.startupsCount > 0 ? 'text-green-600' : 'text-amber-600'}>
                   {data.startupsCount > 0 ? <span className="flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Added</span> : 'Add startups'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm">Team Members</span>
+                <span className="text-sm text-gray-200">Team Members</span>
                 <span className={data.teamMembersCount > 0 ? 'text-green-600' : 'text-amber-600'}>
                   {data.teamMembersCount > 0 ? <span className="flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Added</span> : 'Invite team'}
                 </span>

@@ -159,8 +159,8 @@ export default function MentorsPage() {
       <div className="p-8 space-y-6">
         <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">Mentors</h1>
-            <p className="text-sm text-gray-600">Manage mentors associated with your institution.</p>
+            <h1 className="text-2xl font-semibold text-white mb-2">Mentors</h1>
+            <p className="text-sm text-gray-400">Manage mentors associated with your institution.</p>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/institution-dashboard/add-mentor">
@@ -186,54 +186,54 @@ export default function MentorsPage() {
         {/* Endorsement Requests Section */}
         {showEndorsements && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Pending Endorsement Requests</h2>
+            <h2 className="text-lg font-semibold text-white">Pending Endorsement Requests</h2>
             {endorsementsLoading ? (
               <div className="animate-pulse space-y-3">
-                <div className="h-20 bg-gray-100 rounded-lg"></div>
-                <div className="h-20 bg-gray-100 rounded-lg"></div>
+                <div className="h-20 bg-white/5 border border-white/10 rounded-lg"></div>
+                <div className="h-20 bg-white/5 border border-white/10 rounded-lg"></div>
               </div>
             ) : endorsements.length === 0 ? (
-              <Card className="p-6 bg-gray-50 border border-gray-200 text-center">
-                <p className="text-sm text-gray-600">No pending endorsement requests.</p>
-                <p className="text-xs text-gray-400 mt-1">Mentors and startups can request endorsement from your institution.</p>
+              <Card className="p-6 bg-white/5 border border-white/10 text-center">
+                <p className="text-sm text-gray-300">No pending endorsement requests.</p>
+                <p className="text-xs text-gray-500 mt-1">Mentors and startups can request endorsement from your institution.</p>
               </Card>
             ) : (
               <div className="space-y-3">
                 {endorsements.map((endorsement) => (
-                  <Card key={endorsement.id} className="p-5 bg-white border border-gray-200">
+                  <Card key={endorsement.id} className="p-5 bg-white/5 border border-white/10">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-semibold text-blue-700">
+                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-semibold text-blue-300">
                             {endorsement.requesterName?.charAt(0)?.toUpperCase() || '?'}
                           </span>
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-900">{endorsement.requesterName}</h4>
-                          <p className="text-xs text-gray-500">{endorsement.requesterEmail}</p>
-                          <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded capitalize">
+                          <h4 className="font-semibold text-white">{endorsement.requesterName}</h4>
+                          <p className="text-xs text-gray-400">{endorsement.requesterEmail}</p>
+                          <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-300 rounded capitalize">
                             {endorsement.entityType}
                           </span>
                           {endorsement.message && (
-                            <p className="text-sm text-gray-600 mt-2 italic">&ldquo;{endorsement.message}&rdquo;</p>
+                            <p className="text-sm text-gray-300 mt-2 italic">&ldquo;{endorsement.message}&rdquo;</p>
                           )}
                         </div>
                       </div>
-                      <p className="text-xs text-gray-400 flex-shrink-0">
+                      <p className="text-xs text-gray-500 flex-shrink-0">
                         {new Date(endorsement.createdAt).toLocaleDateString()}
                       </p>
                     </div>
 
                     {respondingId === endorsement.id ? (
-                      <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
-                        <label className="block text-xs font-medium text-gray-500">
+                      <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
+                        <label className="block text-xs font-medium text-gray-400">
                           Add a comment (optional)
                         </label>
                         <textarea
                           value={responseComment}
                           onChange={(e) => setResponseComment(e.target.value)}
                           rows={2}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                          className="w-full px-3 py-2 text-sm bg-white/10 border border-white/15 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                           placeholder="Welcome to our institution! We look forward to working with you."
                         />
                         <div className="flex gap-2">
@@ -251,17 +251,17 @@ export default function MentorsPage() {
                           </button>
                           <button
                             onClick={() => { setRespondingId(null); setResponseComment(''); }}
-                            className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                            className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors"
                           >
                             Cancel
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <div className="mt-4 flex gap-2 border-t border-gray-100 pt-4">
+                      <div className="mt-4 flex gap-2 border-t border-white/10 pt-4">
                         <button
                           onClick={() => setRespondingId(endorsement.id)}
-                          className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors"
+                          className="px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
                         >
                           Respond
                         </button>
@@ -275,54 +275,54 @@ export default function MentorsPage() {
         )}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-900">
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-300">
             {error}
           </div>
         )}
 
         {mentors.length === 0 ? (
-          <Card className="p-12 text-center bg-white border border-gray-200">
-            <div className="w-16 h-16 rounded-full bg-gray-100 mx-auto mb-4 flex items-center justify-center">
+          <Card className="p-12 text-center bg-white/5 border border-white/10">
+            <div className="w-16 h-16 rounded-full bg-white/10 mx-auto mb-4 flex items-center justify-center">
               <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5V4H2v16h5m10 0v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4m10 0H7" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No mentors yet</h3>
-            <p className="text-gray-600 mb-6">
+            <h3 className="text-lg font-semibold text-white mb-2">No mentors yet</h3>
+            <p className="text-gray-400 mb-6">
               Start building your mentor network to guide your startups
             </p>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mentors.map((mentor) => (
-              <Card key={mentor.id} className="p-6 bg-white border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/institution-dashboard/mentors/${mentor.id}`)}>
+              <Card key={mentor.id} className="p-6 bg-white/5 border border-white/10 hover:border-white/20 transition-colors cursor-pointer" onClick={() => router.push(`/institution-dashboard/mentors/${mentor.id}`)}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">{mentor.user_name || 'Unnamed Mentor'}</h3>
-                    <p className="text-sm text-gray-600">{mentor.occupation || mentor.title} {mentor.company && `at ${mentor.company}`}</p>
-                    {mentor.user_email && <p className="text-xs text-gray-400 mt-1">{mentor.user_email}</p>}
+                    <h3 className="font-bold text-lg text-white mb-1">{mentor.user_name || 'Unnamed Mentor'}</h3>
+                    <p className="text-sm text-gray-400">{mentor.occupation || mentor.title} {mentor.company && `at ${mentor.company}`}</p>
+                    {mentor.user_email && <p className="text-xs text-gray-500 mt-1">{mentor.user_email}</p>}
                   </div>
                 </div>
 
                 {mentor.expertise && mentor.expertise.length > 0 && (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {mentor.expertise.slice(0, 3).map((exp, idx) => (
-                      <span key={idx} className="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">
+                      <span key={idx} className="inline-block px-2 py-1 text-xs font-medium bg-white/10 text-gray-300 rounded">
                         {exp}
                       </span>
                     ))}
                     {mentor.expertise.length > 3 && (
-                      <span className="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">
+                      <span className="inline-block px-2 py-1 text-xs font-medium bg-white/10 text-gray-300 rounded">
                         +{mentor.expertise.length - 3} more
                       </span>
                     )}
                   </div>
                 )}
 
-                <div className="flex gap-2 border-t border-gray-200 pt-4 mt-4">
+                <div className="flex gap-2 border-t border-white/10 pt-4 mt-4">
                   <button
                     onClick={(e) => { e.stopPropagation(); router.push(`/institution-dashboard/mentors/${mentor.id}`); }}
-                    className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="flex-1 px-3 py-2 text-sm font-medium text-gray-200 bg-white/10 hover:bg-white/15 rounded-lg transition-colors"
                   >
                     View Details
                   </button>
