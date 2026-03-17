@@ -17,6 +17,25 @@ interface Mentor {
   expertise: string[];
 }
 
+type ApiMentor = Omit<Mentor, 'expertise'> & { expertise?: unknown };
+
+function normalizeExpertise(expertise: unknown): string[] {
+  if (Array.isArray(expertise)) {
+    return expertise
+      .map((item) => String(item).trim())
+      .filter(Boolean);
+  }
+
+  if (typeof expertise === 'string') {
+    return expertise
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
 interface EndorsementRequest {
   id: string;
   requesterName: string;
@@ -60,7 +79,12 @@ export default function MentorsPage() {
       });
       if (!res.ok) throw new Error('Failed to load institution data');
       const data = await res.json();
-      setMentors(data.data || []);
+      const rawMentors: ApiMentor[] = Array.isArray(data.data) ? data.data : [];
+      const normalizedMentors: Mentor[] = rawMentors.map((mentor) => ({
+        ...mentor,
+        expertise: normalizeExpertise(mentor.expertise),
+      }));
+      setMentors(normalizedMentors);
       setError(null);
     } catch (err) {
       setError((err as Error).message);

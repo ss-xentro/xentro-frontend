@@ -3,12 +3,24 @@
 interface MentorPackagesProps {
 	hourlyRate: number | null;
 	packages: string[];
+	pricingPlans?: Array<{
+		sessionType?: string;
+		duration?: string;
+		price?: string | number;
+		perks?: string[];
+	}>;
 	connectionStatus: string | null;
 	connectBtnDisabled: boolean;
 	onConnectOrBook: () => void;
 }
 
-export default function MentorPackages({ hourlyRate, packages, connectionStatus, connectBtnDisabled, onConnectOrBook }: MentorPackagesProps) {
+export default function MentorPackages({ hourlyRate, packages, pricingPlans = [], connectionStatus, connectBtnDisabled, onConnectOrBook }: MentorPackagesProps) {
+	const normalizedPricingPlans = pricingPlans.filter((plan) => {
+		return !!(plan.sessionType || plan.duration || plan.price || (plan.perks && plan.perks.length > 0));
+	});
+
+	const shouldShowCustomPackages = normalizedPricingPlans.length > 0 || packages.length > 0;
+
 	return (
 		<div className="space-y-5">
 			{/* Free session offering */}
@@ -52,19 +64,48 @@ export default function MentorPackages({ hourlyRate, packages, connectionStatus,
 			)}
 
 			{/* Custom packages */}
-			{packages.length > 0 && (
+			{shouldShowCustomPackages && (
 				<div className="bg-white/3 border border-white/6 rounded-xl p-5">
 					<h3 className="text-sm font-semibold text-white mb-3">Mentorship Packages</h3>
-					<ul className="space-y-2.5">
-						{packages.map((pkg, i) => (
-							<li key={i} className="flex items-start gap-2.5 text-sm text-gray-400">
-								<div className="w-5 h-5 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
-									<span className="text-[10px] font-bold text-violet-400">{i + 1}</span>
-								</div>
-								{pkg}
-							</li>
-						))}
-					</ul>
+
+					{normalizedPricingPlans.length > 0 && (
+						<ul className="space-y-3 mb-4">
+							{normalizedPricingPlans.map((plan, i) => (
+								<li key={`${plan.sessionType || 'plan'}-${i}`} className="rounded-lg border border-white/8 bg-white/[0.02] px-3 py-2.5">
+									<p className="text-sm font-semibold text-white">
+										{plan.sessionType || 'Mentorship Session'}
+										{plan.duration ? ` (${plan.duration})` : ''}
+									</p>
+									{plan.price !== undefined && plan.price !== null && String(plan.price).trim() !== '' && (
+										<p className="text-xs text-emerald-300 mt-1">Price: {String(plan.price)}</p>
+									)}
+									{Array.isArray(plan.perks) && plan.perks.length > 0 && (
+										<ul className="mt-2 space-y-1">
+											{plan.perks.map((perk, perkIdx) => (
+												<li key={`${i}-perk-${perkIdx}`} className="text-xs text-gray-400 flex items-start gap-2">
+													<span className="text-violet-400">•</span>
+													<span>{perk}</span>
+												</li>
+											))}
+										</ul>
+									)}
+								</li>
+							))}
+						</ul>
+					)}
+
+					{packages.length > 0 && (
+						<ul className="space-y-2.5">
+							{packages.map((pkg, i) => (
+								<li key={i} className="flex items-start gap-2.5 text-sm text-gray-400">
+									<div className="w-5 h-5 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
+										<span className="text-[10px] font-bold text-violet-400">{i + 1}</span>
+									</div>
+									{pkg}
+								</li>
+							))}
+						</ul>
+					)}
 				</div>
 			)}
 		</div>

@@ -1,5 +1,6 @@
 export interface MentorDetail {
 	id: string;
+	userId?: string | null;
 	name: string;
 	occupation: string;
 	expertise: string[];
@@ -10,6 +11,12 @@ export interface MentorDetail {
 	pricingPerHour?: number | null;
 	achievements: string[];
 	packages: string[];
+	pricingPlans?: Array<{
+		sessionType?: string;
+		duration?: string;
+		price?: string | number;
+		perks?: string[];
+	}>;
 	availability?: Record<string, string[]> | null;
 	documents?: Array<{ name?: string; url?: string; type?: string }>;
 	institutionId?: string | null;
@@ -66,6 +73,146 @@ function parseArr(v: unknown): string[] {
 	return [];
 }
 
+function parsePackageItems(v: unknown): string[] {
+	const fromObject = (obj: Record<string, unknown>): string | null => {
+		const title = typeof obj.title === 'string' ? obj.title.trim() : '';
+		const name = typeof obj.name === 'string' ? obj.name.trim() : '';
+		const sessionType = typeof obj.sessionType === 'string' ? obj.sessionType.trim() : '';
+		const duration = typeof obj.duration === 'string' ? obj.duration.trim() : '';
+		const price = typeof obj.price === 'string' || typeof obj.price === 'number' ? String(obj.price).trim() : '';
+		const perks = Array.isArray(obj.perks)
+			? obj.perks.map((item) => String(item).trim()).filter(Boolean).join(', ')
+			: '';
+
+		const primary = title || name || sessionType;
+		const meta = [duration, price].filter(Boolean).join(' · ');
+		const summary = [primary, meta].filter(Boolean).join(' - ');
+
+		if (summary) return perks ? `${summary}: ${perks}` : summary;
+		if (perks) return perks;
+		return null;
+	};
+
+	if (Array.isArray(v)) {
+		return v
+			.flatMap((item) => {
+				if (typeof item === 'string') return [item];
+				if (item && typeof item === 'object') {
+					const parsed = fromObject(item as Record<string, unknown>);
+					return parsed ? [parsed] : [];
+				}
+				return [];
+			})
+			.map((item) => item.trim())
+			.filter(Boolean);
+	}
+
+	if (typeof v === 'string') {
+		const raw = v.trim();
+		if (!raw) return [];
+
+		try {
+			const parsed = JSON.parse(raw);
+			return parsePackageItems(parsed);
+		} catch {
+			// keep text parsing fallback
+		}
+
+		const primary = raw
+			.split(/\n{1,}|;+/)
+			.map((item) => item.trim())
+			.filter(Boolean);
+
+		if (primary.length <= 1 && raw.includes(',')) {
+			return raw
+				.split(',')
+				.map((item) => item.trim())
+				.filter(Boolean);
+		}
+
+		return primary;
+	}
+
+	if (v && typeof v === 'object') {
+		const parsed = fromObject(v as Record<string, unknown>);
+		return parsed ? [parsed] : [];
+	}
+
+	return [];
+}
+
+function parseAvailability(v: unknown): Record<string, string[]> | null {
+	if (!v) return null;
+
+	if (typeof v === 'string') {
+		const raw = v.trim();
+		if (!raw) return null;
+		try {
+			const parsed = JSON.parse(raw);
+			return parseAvailability(parsed);
+		} catch {
+			return null;
+		}
+	}
+
+	if (Array.isArray(v)) {
+		const mapped: Record<string, string[]> = {};
+		for (const item of v) {
+			if (!item || typeof item !== 'object') continue;
+			const record = item as Record<string, unknown>;
+			const dayRaw = record.day || record.dayOfWeek || record.day_of_week;
+			const day = typeof dayRaw === 'string' ? dayRaw.toLowerCase().trim() : '';
+			const start = typeof record.startTime === 'string' ? record.startTime : typeof record.start_time === 'string' ? record.start_time : '';
+			const end = typeof record.endTime === 'string' ? record.endTime : typeof record.end_time === 'string' ? record.end_time : '';
+			if (!day || !start || !end) continue;
+			if (!mapped[day]) mapped[day] = [];
+			mapped[day].push(`${start}-${end}`);
+		}
+		return Object.keys(mapped).length > 0 ? mapped : null;
+	}
+
+	if (v && typeof v === 'object') {
+		const source = v as Record<string, unknown>;
+		const mapped: Record<string, string[]> = {};
+		for (const [day, slots] of Object.entries(source)) {
+			if (Array.isArray(slots)) {
+				const clean = slots.map((slot) => String(slot).trim()).filter(Boolean);
+				if (clean.length > 0) mapped[day.toLowerCase()] = clean;
+			}
+		}
+		return Object.keys(mapped).length > 0 ? mapped : null;
+	}
+
+	return null;
+}
+
+function parsePricingPlans(v: unknown): MentorDetail['pricingPlans'] {
+	if (!v) return [];
+
+	if (typeof v === 'string') {
+		const raw = v.trim();
+		if (!raw) return [];
+		try {
+			const parsed = JSON.parse(raw);
+			return parsePricingPlans(parsed);
+		} catch {
+			return [];
+		}
+	}
+
+	if (!Array.isArray(v)) return [];
+
+	return v
+		.filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+		.map((item) => ({
+			sessionType: typeof item.sessionType === 'string' ? item.sessionType : undefined,
+			duration: typeof item.duration === 'string' ? item.duration : undefined,
+			price: typeof item.price === 'string' || typeof item.price === 'number' ? item.price : undefined,
+			perks: Array.isArray(item.perks) ? item.perks.map((perk) => String(perk).trim()).filter(Boolean) : [],
+		}))
+		.filter((plan) => !!(plan.sessionType || plan.duration || plan.price || (plan.perks && plan.perks.length > 0)));
+}
+
 function parseExpertise(v: unknown): string[] {
 	if (typeof v === 'string') return v.split(',').map((s: string) => s.trim()).filter(Boolean);
 	if (Array.isArray(v)) return v as string[];
@@ -75,6 +222,7 @@ function parseExpertise(v: unknown): string[] {
 export function parseMentorData(found: Record<string, unknown>): MentorDetail {
 	return {
 		id: found.id as string,
+		userId: (found.user as string) || null,
 		name: (found.user_name || found.name || 'Mentor') as string,
 		occupation: (found.occupation || found.role_title || '') as string,
 		expertise: parseExpertise(found.expertise),
@@ -84,8 +232,9 @@ export function parseMentorData(found: Record<string, unknown>): MentorDetail {
 		rate: found.rate ? Number(found.rate) : null,
 		pricingPerHour: found.pricing_per_hour ? Number(found.pricing_per_hour) : null,
 		achievements: parseArr(found.achievements),
-		packages: parseArr(found.packages),
-		availability: (found.availability as Record<string, string[]>) || null,
+		packages: parsePackageItems(found.packages),
+		pricingPlans: parsePricingPlans(found.pricing_plans),
+		availability: parseAvailability(found.availability),
 		documents: Array.isArray(found.documents) ? found.documents as MentorDetail['documents'] : [],
 		institutionId: (found.institutionId as string) || null,
 		institutionName: (found.institutionName as string) || null,

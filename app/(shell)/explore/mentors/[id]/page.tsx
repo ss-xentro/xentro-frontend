@@ -57,9 +57,11 @@ export default function MentorDetailPage() {
 	const loadSlots = async () => {
 		const token = getSessionToken();
 		if (!token) return;
+		const mentorUserId = mentor?.userId;
+		if (!mentorUserId) return;
 		setSlotsLoading(true);
 		try {
-			const res = await fetch(`/api/mentor-slots/?mentorId=${mentorId}`, {
+			const res = await fetch(`/api/mentor-slots/?mentorId=${mentorUserId}`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			if (res.ok) {
@@ -118,15 +120,22 @@ export default function MentorDetailPage() {
 				});
 				if (!res.ok) return;
 				const json = await res.json();
-				const match = (json.data ?? []).find((r: { mentor: string }) => r.mentor === mentorId);
+				const match = (json.data ?? []).find((r: { mentor?: string | { id?: string } }) => {
+					const mentorRef = typeof r.mentor === 'string'
+						? r.mentor
+						: (r.mentor && typeof r.mentor === 'object' && typeof r.mentor.id === 'string' ? r.mentor.id : null);
+					return mentorRef === mentorId;
+				});
 				if (match) {
 					setConnectionStatus(match.status);
-					if (match.status === 'accepted') loadSlots();
+					if (match.status === 'accepted') {
+						await loadSlots();
+					}
 				}
 			} catch { /* ignore */ }
 		}
 		loadConnection();
-	}, [mentorId]);
+	}, [mentorId, mentor?.userId]);
 
 	const handleConnect = () => {
 		const token = getSessionToken();
@@ -213,7 +222,7 @@ export default function MentorDetailPage() {
 
 	if (loading) {
 		return (
-			<>
+			<div className="min-h-screen bg-[#0B0D10] text-white">
 				<StartupProfileNavbar />
 				<div className="p-6 max-w-5xl mx-auto animate-pulse space-y-5">
 					<div className="h-5 w-36 bg-white/5 rounded-lg" />
@@ -224,13 +233,13 @@ export default function MentorDetailPage() {
 						<div className="h-64 bg-white/3 border border-white/6 rounded-xl" />
 					</div>
 				</div>
-			</>
+			</div>
 		);
 	}
 
 	if (!mentor) {
 		return (
-			<>
+			<div className="min-h-screen bg-[#0B0D10] text-white">
 				<StartupProfileNavbar />
 				<div className="p-6 flex flex-col items-center justify-center py-24 text-center">
 					<div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4"><AppIcon name="brain" className="w-8 h-8 text-gray-500" /></div>
@@ -238,14 +247,14 @@ export default function MentorDetailPage() {
 					<p className="text-sm text-gray-500 mb-4">This mentor profile doesn&apos;t exist or has been removed.</p>
 					<button onClick={() => router.back()} className="text-sm text-violet-400 hover:text-violet-300">&larr; Go back</button>
 				</div>
-			</>
+			</div>
 		);
 	}
 
 	const hourlyRate = mentor.pricingPerHour || mentor.rate;
 
 	return (
-		<>
+		<div className="min-h-screen bg-[#0B0D10] text-white">
 			<StartupProfileNavbar />
 			<div className="p-6 max-w-5xl mx-auto">
 				{bookingSuccess && (
@@ -338,6 +347,7 @@ export default function MentorDetailPage() {
 						<MentorPackages
 							hourlyRate={hourlyRate ?? null}
 							packages={mentor.packages}
+							pricingPlans={mentor.pricingPlans}
 							connectionStatus={connectionStatus}
 							connectBtnDisabled={btnConfig.disabled}
 							onConnectOrBook={openSlotBookingModal}
@@ -512,6 +522,6 @@ export default function MentorDetailPage() {
 					</div>
 				)}
 			</div>
-		</>
+		</div>
 	);
 }
