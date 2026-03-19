@@ -46,8 +46,8 @@ export default function InstitutionEventsPage() {
     const handleSave = async () => {
         const token = getSessionToken();
         if (!token || !form.name.trim()) return;
-        if (modalMode === 'create' && (!form.maxAttendees || Number(form.maxAttendees) <= 0)) {
-            setError('Available slots are required when creating an event.');
+        if (form.maxAttendees && Number(form.maxAttendees) <= 0) {
+            setError('Available seats must be greater than 0 when provided.');
             return;
         }
         setSaving(true);
