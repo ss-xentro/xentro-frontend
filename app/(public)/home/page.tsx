@@ -2,13 +2,20 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function HomePage() {
   const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    router.replace('/feed');
-  }, [router]);
+    if (isLoading) return;
+    if (!isAuthenticated) {
+      router.replace('/guest');
+    } else {
+      router.replace('/feed');
+    }
+  }, [router, isAuthenticated, isLoading]);
 
   return (
     <div className="min-h-screen bg-[#0B0D10] flex items-center justify-center">

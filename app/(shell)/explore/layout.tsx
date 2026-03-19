@@ -1,8 +1,10 @@
 'use client';
 
+import AuthGuard from '@/components/auth/AuthGuard';
+
 export default function ExploreLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <AuthGuard>
       {/* Header */}
       <div className="sticky top-0 z-10 backdrop-blur-xl bg-[#0B0D10]/90 border-b border-white/10">
         <div className="px-6 pt-5 pb-3">
@@ -12,6 +14,6 @@ export default function ExploreLayout({ children }: { children: React.ReactNode 
       </div>
 
       <div className="flex-1 overflow-y-auto">{children}</div>
-    </>
+    </AuthGuard>
   );
 }
