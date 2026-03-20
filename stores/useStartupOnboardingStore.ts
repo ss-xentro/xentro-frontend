@@ -10,19 +10,23 @@ export type TeamMemberRole = 'team_member' | 'employee';
 
 
 export interface Founder {
+    id?: string;
     name: string;
     email: string;
     role: FounderRole;
     title?: string;
     avatar?: string | null;
+    bio?: string;
 }
 
 export interface TeamMember {
+    id?: string;
     name: string;
     email: string;
     role: TeamMemberRole;
     title?: string;
     avatar?: string | null;
+    bio?: string;
 }
 
 export interface StartupData {
@@ -69,7 +73,7 @@ export function createInitialStartupData(): StartupData {
         foundedDate: '',
         status: 'private',
         location: '',
-        founders: [{ name: '', email: '', role: 'founder', title: 'Founder', avatar: null }],
+        founders: [{ id: undefined, name: '', email: '', role: 'founder', title: 'Founder', avatar: null, bio: '' }],
         teamMembers: [],
         fundingRound: 'bootstrapped',
         fundsRaised: '',
@@ -117,36 +121,25 @@ export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
                 set((state) => ({
                     data: {
                         ...state.data,
-                        founders: [...state.data.founders, { name: '', email: '', role: 'co_founder', title: 'Co-Founder', avatar: null }],
+                        founders: [...state.data.founders, { id: undefined, name: '', email: '', role: 'co_founder', title: 'Co-Founder', avatar: null, bio: '' }],
                     },
                 })),
             updateFounder: (index, founder) =>
                 set((state) => {
                     const newFounders = [...state.data.founders];
                     newFounders[index] = { ...newFounders[index], ...founder };
-
-                    const newData = { ...state.data, founders: newFounders };
-                    if (index === 0 && founder.email !== undefined) {
-                        newData.primaryContactEmail = founder.email;
-                    }
-                    return { data: newData };
+                    return { data: { ...state.data, founders: newFounders } };
                 }),
             removeFounder: (index) =>
                 set((state) => {
                     const newFounders = state.data.founders.filter((_, i) => i !== index);
-                    const newData = { ...state.data, founders: newFounders };
-                    if (newFounders.length > 0) {
-                        newData.primaryContactEmail = newFounders[0].email;
-                    } else {
-                        newData.primaryContactEmail = '';
-                    }
-                    return { data: newData };
+                    return { data: { ...state.data, founders: newFounders } };
                 }),
             addTeamMember: () =>
                 set((state) => ({
                     data: {
                         ...state.data,
-                        teamMembers: [...state.data.teamMembers, { name: '', email: '', role: 'team_member', title: '', avatar: null }],
+                        teamMembers: [...state.data.teamMembers, { id: undefined, name: '', email: '', role: 'team_member', title: '', avatar: null, bio: '' }],
                     },
                 })),
             updateTeamMember: (index, member) =>

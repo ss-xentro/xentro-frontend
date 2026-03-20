@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Badge } from '@/components/ui';
 import { MediaPreview } from '@/components/ui/MediaPreview';
+import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 import type { StartupWithDetails, Founder, TeamMemberData } from './types';
 
 interface TeamTabContentProps {
@@ -19,8 +20,10 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 	interface CombinedTeamMember {
 		id: string;
 		name: string;
+		email?: string;
 		role: string;
 		title: string;
+		bio?: string | null;
 		isPrimary: boolean;
 		initial: string;
 		avatar?: string | null;
@@ -43,8 +46,10 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 			combinedTeam.push({
 				id: f.id || f.email,
 				name: f.name,
+				email: f.email,
 				role: f.role || '',
 				title: formatTitle(f.title || f.role || 'Founder'),
+				bio: f.bio,
 				isPrimary: f.isPrimary,
 				initial: f.name?.charAt(0) || 'F',
 				avatar: f.avatar,
@@ -54,8 +59,10 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 		combinedTeam.push({
 			id: startup.owner!.id,
 			name: startup.owner!.name,
+			email: undefined,
 			role: 'founder',
 			title: 'Founder',
+			bio: null,
 			isPrimary: true,
 			initial: startup.owner!.name?.charAt(0) || 'F',
 			avatar: null,
@@ -69,8 +76,10 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 				combinedTeam.push({
 					id: m.id,
 					name: m.name || m.user?.name || 'Team Member',
+					email: m.email,
 					role: m.role || '',
 					title: formatTitle(m.title || m.role || 'Member'),
+					bio: m.bio,
 					isPrimary: false,
 					initial: (m.name || m.user?.name)?.charAt(0) || 'T',
 					avatar: m.avatar,
@@ -119,16 +128,11 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 					<h3 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">Team</h3>
 					<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 						{combinedTeam.map((member) => (
-							<div key={member.id} className="rounded-2xl border border-(--border) bg-(--surface) p-5 text-center">
+							<div key={member.id} className="rounded-2xl border border-(--border) bg-linear-to-b from-(--surface) to-white p-5 text-center shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md">
 								<div className="flex justify-center mb-4">
 									<div className="h-28 w-28 rounded-full border-2 border-(--border) overflow-hidden bg-(--surface-hover)">
 										{member.avatar ? (
-											<button
-												type="button"
-												onClick={() => setSelectedMember(member)}
-												className="h-full w-full"
-												aria-label={`Open ${member.name} profile image`}
-											>
+											<button type="button" onClick={() => setSelectedMember(member)} className="h-full w-full" aria-label={`Open ${member.name} profile`}>
 												<MediaPreview
 													src={member.avatar}
 													alt={member.name}
@@ -147,6 +151,7 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 
 								<h4 className="text-base font-semibold text-(--primary) truncate">{member.name}</h4>
 								<p className="text-sm text-(--secondary) mt-1 truncate">{member.title}</p>
+								{member.bio && <p className="mt-2 text-xs text-(--secondary) line-clamp-2">Profile added</p>}
 
 								<div className="mt-4 pt-4 border-t border-(--border) flex items-center justify-center gap-2">
 									<Badge variant="outline" className="text-[10px] uppercase tracking-wider">
@@ -154,6 +159,14 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 									</Badge>
 									{member.isPrimary && <Badge variant="info" className="text-xs">Primary</Badge>}
 								</div>
+
+								<button
+									type="button"
+									onClick={() => setSelectedMember(member)}
+									className="mt-4 inline-flex items-center justify-center rounded-full border border-(--border) px-3 py-1 text-xs font-medium text-(--secondary) hover:text-(--primary) hover:border-(--secondary-light)"
+								>
+									View Profile
+								</button>
 							</div>
 						))}
 					</div>
@@ -220,38 +233,49 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 			)}
 
 			{selectedMember && selectedMember.avatar && (
-				<div
-					className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
-					onClick={() => setSelectedMember(null)}
-				>
+				{ selectedMember && (
 					<div
-						className="w-full max-w-2xl bg-(--surface) border border-(--border) rounded-2xl overflow-hidden"
-						onClick={(e) => e.stopPropagation()}
+						className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+						onClick={() => setSelectedMember(null)}
 					>
-						<div className="relative h-[65vh] min-h-[360px] bg-black">
-							<MediaPreview
-								src={selectedMember.avatar}
-								alt={selectedMember.name}
-								className="h-full w-full rounded-none border-0 bg-black"
-								mediaClassName="object-contain"
-								showControls={false}
-							/>
-							<button
-								type="button"
-								onClick={() => setSelectedMember(null)}
-								className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white hover:bg-black/80"
-								aria-label="Close profile image preview"
-							>
-								X
-							</button>
-						</div>
-						<div className="p-5 text-center">
-							<h4 className="text-lg font-semibold text-(--primary)">{selectedMember.name}</h4>
-							<p className="text-sm text-(--secondary)">{selectedMember.title}</p>
+						<div
+							className="w-full max-w-2xl bg-(--surface) border border-(--border) rounded-2xl overflow-hidden"
+							onClick={(e) => e.stopPropagation()}
+						>
+							<div className="relative h-[45vh] min-h-[260px] bg-black">
+								{selectedMember.avatar ? (
+									<MediaPreview
+										src={selectedMember.avatar}
+										alt={selectedMember.name}
+										className="h-full w-full rounded-none border-0 bg-black"
+										mediaClassName="object-contain"
+										showControls={false}
+									/>
+								) : (
+									<div className="h-full w-full flex items-center justify-center text-5xl font-semibold text-white/70">{selectedMember.initial}</div>
+								)}
+								<button
+									type="button"
+									onClick={() => setSelectedMember(null)}
+									className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white hover:bg-black/80"
+									aria-label="Close profile image preview"
+								>
+									X
+								</button>
+							</div>
+							<div className="p-5">
+								<h4 className="text-lg font-semibold text-(--primary)">{selectedMember.name}</h4>
+								<p className="text-sm text-(--secondary)">{selectedMember.title}</p>
+								{selectedMember.email && <p className="mt-1 text-xs text-(--secondary)">{selectedMember.email}</p>}
+								{selectedMember.bio ? (
+									<RichTextDisplay html={selectedMember.bio} className="mt-4" compact />
+								) : (
+									<p className="mt-4 text-sm text-(--secondary)">No additional profile details shared yet.</p>
+								)}
+							</div>
 						</div>
 					</div>
-				</div>
-			)}
+				)}
 		</div>
 	);
 }

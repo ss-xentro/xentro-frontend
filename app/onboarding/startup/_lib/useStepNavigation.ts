@@ -32,7 +32,7 @@ export function useStepNavigation({
 		}
 		if (currentStep === 1) return data.name.trim().length > 0 && data.tagline.trim().length > 0 && Boolean(data.logo);
 		if (currentStep === 2) {
-			return Boolean(data.founders[0]?.name.trim() && data.founders[0]?.email.trim())
+			return Boolean(data.founders[0]?.name.trim())
 				&& !data.founders.some(hasIncompleteMember)
 				&& !data.teamMembers.some(hasIncompleteMember)
 				&& !data.founders.some(founder => founder.email.trim() && !isValidEmail(founder.email))
@@ -67,22 +67,26 @@ export function useStepNavigation({
 				foundedDate: data.foundedDate || null,
 				pitch: data.pitch.trim(),
 				founders: data.founders
-					.filter(founder => founder.name.trim() && founder.email.trim())
+					.filter(founder => founder.name.trim())
 					.map((founder, index) => ({
+						id: founder.id,
 						name: founder.name.trim(),
 						email: founder.email.trim().toLowerCase(),
 						role: index === 0 ? 'founder' as const : 'co_founder' as const,
 						title: founder.title?.trim() || (index === 0 ? 'Founder' : 'Co-Founder'),
 						avatar: founder.avatar || null,
+						bio: founder.bio?.trim() || '',
 					})),
 				teamMembers: data.teamMembers
-					.filter(member => member.name.trim() && member.email.trim())
+					.filter(member => member.name.trim())
 					.map(member => ({
+						id: member.id,
 						name: member.name.trim(),
 						email: member.email.trim().toLowerCase(),
 						role: member.role || 'team_member',
 						title: member.title?.trim() || '',
 						avatar: member.avatar || null,
+						bio: member.bio?.trim() || '',
 					})),
 			};
 
@@ -135,9 +139,9 @@ export function useStepNavigation({
 			if (!data.logo) return 'Please upload your startup logo.';
 		}
 		if (step === 2) {
-			if (!data.founders[0]?.name.trim() || !data.founders[0]?.email.trim()) return 'Please add one founder with name and email.';
-			if (data.founders.some(hasIncompleteMember)) return 'Each founder entry needs both a name and an email.';
-			if (data.teamMembers.some(hasIncompleteMember)) return 'Each team member entry needs both a name and an email.';
+			if (!data.founders[0]?.name.trim()) return 'Please add one founder name.';
+			if (data.founders.some(hasIncompleteMember)) return 'Each founder entry needs a name.';
+			if (data.teamMembers.some(hasIncompleteMember)) return 'Each team member entry needs a name.';
 			if (data.founders.some(f => f.email.trim() && !isValidEmail(f.email))) return 'Please enter a valid email address for each founder.';
 			if (data.teamMembers.some(m => m.email.trim() && !isValidEmail(m.email))) return 'Please enter a valid email address for each team member.';
 		}

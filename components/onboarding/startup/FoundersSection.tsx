@@ -4,6 +4,7 @@ import { useStartupOnboardingStore } from '@/stores/useStartupOnboardingStore';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { FileUpload } from '@/components/ui/FileUpload';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 
 export function FoundersSection() {
     const { data, addFounder, updateFounder, removeFounder, addTeamMember, updateTeamMember, removeTeamMember } = useStartupOnboardingStore();
@@ -12,14 +13,14 @@ export function FoundersSection() {
         <div className="space-y-6 animate-fadeIn">
             <div>
                 <h3 className="text-base font-semibold text-(--primary)">Founder</h3>
-                <p className="text-sm text-(--secondary) mt-1">Add one mandatory founder. This will be shown on the public startup profile.</p>
+                <p className="text-sm text-(--secondary) mt-1">Add one mandatory founder profile. Founder and team cards are display-only on the public page.</p>
             </div>
 
             <div className="space-y-4">
                 {data.founders.map((founder, index) => (
                     <div
                         key={index}
-                        className="p-5 bg-(--surface) border border-(--border) rounded-xl relative group transition-all hover:border-(--secondary-light)"
+                        className="p-5 bg-linear-to-br from-(--surface) to-white border border-(--border) rounded-2xl relative group transition-all shadow-xs hover:shadow-md hover:border-(--secondary-light)"
                     >
                         <div className="absolute right-4 top-4">
                             {data.founders.length > 1 && (
@@ -49,12 +50,11 @@ export function FoundersSection() {
                             />
 
                             <Input
-                                label="Email Address"
+                                label="Email Address (Optional display)"
                                 placeholder="jane@example.com"
                                 type="email"
                                 value={founder.email}
                                 onChange={(e) => updateFounder(index, { email: e.target.value })}
-                                required
                             />
 
                             <Input
@@ -75,6 +75,16 @@ export function FoundersSection() {
                                     aspectRatio={1}
                                 />
                             </div>
+                        </div>
+
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium text-(--primary) mb-2">Profile Details (Optional)</label>
+                            <RichTextEditor
+                                value={founder.bio || ''}
+                                onChange={(html) => updateFounder(index, { bio: html })}
+                                placeholder="Share background, achievements, and what this founder leads..."
+                                minimal
+                            />
                         </div>
                     </div>
                 ))}
@@ -98,7 +108,7 @@ export function FoundersSection() {
                 {data.teamMembers.map((member, index) => (
                     <div
                         key={`team-${index}`}
-                        className="p-5 bg-(--surface) border border-(--border) rounded-xl relative group transition-all hover:border-(--secondary-light)"
+                        className="p-5 bg-linear-to-br from-(--surface) to-white border border-(--border) rounded-2xl relative group transition-all shadow-xs hover:shadow-md hover:border-(--secondary-light)"
                     >
                         <div className="absolute right-4 top-4">
                             <button
@@ -121,10 +131,11 @@ export function FoundersSection() {
                                 placeholder="Alex Doe"
                                 value={member.name}
                                 onChange={(e) => updateTeamMember(index, { name: e.target.value })}
+                                required
                             />
 
                             <Input
-                                label="Email Address"
+                                label="Email Address (Optional display)"
                                 placeholder="alex@example.com"
                                 type="email"
                                 value={member.email}
@@ -150,6 +161,16 @@ export function FoundersSection() {
                                 />
                             </div>
                         </div>
+
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium text-(--primary) mb-2">Profile Details (Optional)</label>
+                            <RichTextEditor
+                                value={member.bio || ''}
+                                onChange={(html) => updateTeamMember(index, { bio: html })}
+                                placeholder="Add this member's role, skills, and short story for public profile viewers..."
+                                minimal
+                            />
+                        </div>
                     </div>
                 ))}
 
@@ -166,7 +187,7 @@ export function FoundersSection() {
             <div className="bg-(--accent-subtle) border border-(--accent-light) rounded-lg p-4">
                 <h4 className="text-sm font-medium text-accent mb-1">Primary Contact</h4>
                 <p className="text-sm text-(--secondary)">
-                    We will use <strong>{data.founders[0]?.email || 'the primary founder email'}</strong> for all important communications.
+                    We will use <strong>{data.primaryContactEmail || 'your verified signup email'}</strong> for application and communication only.
                 </p>
             </div>
         </div>

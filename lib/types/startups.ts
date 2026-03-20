@@ -147,10 +147,13 @@ export interface StartupPitchData {
 export interface StartupFounder {
 	id: string;
 	startupId: string;
-	userId: string;
+	userId?: string;
 	name: string;
-	email: string;
+	email?: string;
 	role: FounderRole;
+	title?: string;
+	avatar?: string | null;
+	bio?: string | null;
 	isPrimary: boolean;
 	user?: {
 		id: string;
@@ -161,9 +164,14 @@ export interface StartupFounder {
 
 export interface StartupTeamMember {
 	id: string;
-	userId: string;
+	userId?: string;
 	startupId: string;
 	role: string;
+	name?: string;
+	email?: string;
+	title?: string;
+	avatar?: string | null;
+	bio?: string | null;
 	user?: {
 		id: string;
 		name: string;

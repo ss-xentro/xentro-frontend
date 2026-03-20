@@ -118,12 +118,12 @@ export function getWhyXentroValues(reasons: string[] = []) {
 	return reasons.map((reason) => WHY_XENTRO_LABEL_TO_VALUE[reason] ?? reason);
 }
 
-export function hasPartialMember(entry: { name?: string; email?: string; title?: string; avatar?: string | null }) {
-	return Boolean(entry.name?.trim() || entry.email?.trim() || entry.title?.trim() || entry.avatar);
+export function hasPartialMember(entry: { name?: string; email?: string; title?: string; avatar?: string | null; bio?: string }) {
+	return Boolean(entry.name?.trim() || entry.email?.trim() || entry.title?.trim() || entry.avatar || entry.bio?.trim());
 }
 
-export function hasIncompleteMember(entry: { name?: string; email?: string; title?: string; avatar?: string | null }) {
-	return hasPartialMember(entry) && (!entry.name?.trim() || !entry.email?.trim());
+export function hasIncompleteMember(entry: { name?: string; email?: string; title?: string; avatar?: string | null; bio?: string }) {
+	return hasPartialMember(entry) && !entry.name?.trim();
 }
 
 export function isValidEmail(value: string) {

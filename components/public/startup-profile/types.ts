@@ -13,10 +13,11 @@ import type {
 export interface Founder {
 	id: string;
 	name: string;
-	email: string;
+	email?: string;
 	role: string;
 	title?: string;
 	avatar?: string | null;
+	bio?: string | null;
 	isPrimary: boolean;
 }
 
@@ -27,6 +28,7 @@ export interface TeamMemberData {
 	name?: string;
 	email?: string;
 	avatar?: string | null;
+	bio?: string | null;
 	user: { id: string; name: string } | null;
 }
 

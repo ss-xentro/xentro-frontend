@@ -41,15 +41,16 @@ describe('useStartupOnboardingStore', () => {
 		expect(nextState.data).toEqual({
 			...createInitialStartupData(),
 			name: 'Acme Labs',
-			primaryContactEmail: 'jane@acme.com',
+			primaryContactEmail: 'founder@acme.com',
 		});
 	});
 
-	it('keeps the primary contact email in sync with the first founder email', () => {
+	it('keeps the primary contact email separate from founder profile emails', () => {
 		const store = useStartupOnboardingStore.getState();
+		store.updateData({ primaryContactEmail: 'contact@startup.com' });
 
 		store.updateFounder(0, { email: 'primary@startup.com' });
 
-		expect(useStartupOnboardingStore.getState().data.primaryContactEmail).toBe('primary@startup.com');
+		expect(useStartupOnboardingStore.getState().data.primaryContactEmail).toBe('contact@startup.com');
 	});
 });

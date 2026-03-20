@@ -91,27 +91,33 @@ export function useFlowInitialization() {
 					const shouldReuseLocalDraft = !localEmail || localEmail === startupEmail;
 
 					const fallbackFounders = startup.founders?.length
-						? startup.founders.map((founder: { name?: string; email?: string; role?: 'founder' | 'co_founder'; title?: string; avatar?: string | null }, index: number) => ({
+						? startup.founders.map((founder: { id?: string; name?: string; email?: string; role?: 'founder' | 'co_founder'; title?: string; avatar?: string | null; bio?: string }, index: number) => ({
+							id: founder.id,
 							name: founder.name ?? '',
 							email: founder.email ?? '',
 							role: index === 0 ? 'founder' as const : 'co_founder' as const,
 							title: founder.title ?? (index === 0 ? 'Founder' : 'Co-Founder'),
 							avatar: founder.avatar ?? null,
+							bio: founder.bio ?? '',
 						}))
 						: [{
+							id: undefined,
 							name: startup.name ?? '',
-							email: startup.primaryContactEmail ?? '',
+							email: '',
 							role: 'founder' as const,
 							title: 'Founder',
 							avatar: null,
+							bio: '',
 						}];
 
-					const fallbackTeamMembers = (startup.teamMembers ?? []).map((member: { name?: string; email?: string; title?: string; avatar?: string | null }) => ({
+					const fallbackTeamMembers = (startup.teamMembers ?? []).map((member: { id?: string; name?: string; email?: string; title?: string; avatar?: string | null; bio?: string }) => ({
+						id: member.id,
 						name: member.name ?? '',
 						email: member.email ?? '',
 						role: 'team_member' as const,
 						title: member.title ?? '',
 						avatar: member.avatar ?? null,
+						bio: member.bio ?? '',
 					}));
 
 					const hasLocalFounders = draft.founders.some(hasPartialMember);
