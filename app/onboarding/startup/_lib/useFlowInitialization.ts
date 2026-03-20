@@ -134,7 +134,7 @@ export function useFlowInitialization() {
 						whyXentro: shouldReuseLocalDraft && draft.whyXentro.length ? draft.whyXentro : whyXentro,
 						whyXentroOther: shouldReuseLocalDraft && draft.whyXentroOther.trim() ? draft.whyXentroOther : (payload.data?.whyXentroOther ?? ''),
 						primaryContactEmail: shouldReuseLocalDraft && draft.primaryContactEmail.trim() ? draft.primaryContactEmail : startup.primaryContactEmail ?? '',
-						status: shouldReuseLocalDraft && draft.status ? draft.status : (startup.status ?? 'private'),
+						status: shouldReuseLocalDraft && draft.status ? draft.status : (startup.status ?? 'public'),
 						location: shouldReuseLocalDraft && draft.location.trim() ? draft.location : startup.location ?? '',
 						fundingRound: shouldReuseLocalDraft && draft.fundingRound ? draft.fundingRound : (startup.fundingRound ?? 'bootstrapped'),
 						fundsRaised: shouldReuseLocalDraft && draft.fundsRaised ? draft.fundsRaised : (startup.fundsRaised ? String(startup.fundsRaised) : ''),

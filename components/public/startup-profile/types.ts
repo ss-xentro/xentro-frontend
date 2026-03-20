@@ -8,6 +8,8 @@ import type {
 	PitchVisionStrategyItem,
 	PitchImpactItem,
 	PitchCertificationItem,
+	PitchCustomSection,
+	PitchCustomSectionItem,
 } from '@/lib/types';
 
 export interface Founder {
@@ -48,4 +50,6 @@ export type {
 	PitchVisionStrategyItem,
 	PitchImpactItem,
 	PitchCertificationItem,
+	PitchCustomSection,
+	PitchCustomSectionItem,
 };

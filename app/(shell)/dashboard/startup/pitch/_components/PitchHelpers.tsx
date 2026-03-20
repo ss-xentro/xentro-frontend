@@ -76,7 +76,7 @@ export const SECTIONS = [
 	},
 ] as const;
 
-export type SectionKey = (typeof SECTIONS)[number]['key'];
+export type SectionKey = string;
 
 export const WRITE_ROLES = new Set(['founder', 'co_founder', 'ceo', 'cto', 'coo', 'cfo', 'cpo']);
 

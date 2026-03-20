@@ -52,7 +52,7 @@ export default function EditStartupPage() {
         pitch: s.pitch || '',
         description: s.description || '',
         stage: s.stage || 'ideation',
-        status: s.status || 'private',
+        status: s.status || 'public',
         location: s.location || '',
         city: s.city || '',
         country: s.country || '',

@@ -11,6 +11,7 @@ import {
 	PitchVisionStrategyItem,
 	PitchImpactItem,
 	PitchCertificationItem,
+	PitchCustomSection,
 } from '@/lib/types';
 import type { SectionKey } from './PitchHelpers';
 
@@ -25,6 +26,7 @@ interface PitchSectionReadOnlyProps {
 	visionStrategies: PitchVisionStrategyItem[];
 	impacts: PitchImpactItem[];
 	certifications: PitchCertificationItem[];
+	activeCustomSection: PitchCustomSection | null;
 }
 
 function EmptyContent({ text }: { text: string }) {
@@ -57,6 +59,7 @@ export default function PitchSectionReadOnly({
 	visionStrategies,
 	impacts,
 	certifications,
+	activeCustomSection,
 }: PitchSectionReadOnlyProps) {
 	if (activeSection === 'videoPitch') {
 		if (!demoVideoUrl) return <EmptyContent text="No video pitch uploaded yet." />;
@@ -218,6 +221,23 @@ export default function PitchSectionReadOnly({
 								<MediaPreview src={item.imageUrl} alt={item.title || 'Certification image'} className="h-44 w-full" mediaClassName="object-cover" />
 							</div>
 						) : null}
+					</Card>
+				))}
+			</div>
+		);
+	}
+
+	if (activeSection.startsWith('custom-')) {
+		if (!activeCustomSection || !activeCustomSection.items || activeCustomSection.items.length === 0) {
+			return <EmptyContent text="No items added in this custom step yet." />;
+		}
+
+		return (
+			<div className="space-y-4">
+				{activeCustomSection.items.map((item, idx) => (
+					<Card key={`${item.title}-${idx}`}>
+						<h3 className="mb-2 text-sm font-semibold text-(--primary)">{item.title || `Block ${idx + 1}`}</h3>
+						<MediaAndDescription imageUrl={item.imageUrl} description={item.description} />
 					</Card>
 				))}
 			</div>

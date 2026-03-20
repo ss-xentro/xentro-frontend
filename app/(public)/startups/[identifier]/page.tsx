@@ -96,7 +96,14 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
   const visionStrategies = (startup.pitchVisionStrategies || []).filter(hasValidPitchItem);
   const impacts = (startup.pitchImpacts || []).filter(hasValidPitchItem);
   const certifications = (startup.pitchCertifications || []).filter(hasValidPitchItem);
-  const hasPitchContent = (pitchAbout && (pitchAbout.about || pitchAbout.problemStatement || pitchAbout.solutionProposed)) || competitors.length > 0 || customers.length > 0 || businessModels.length > 0 || marketSizes.length > 0 || visionStrategies.length > 0 || impacts.length > 0 || certifications.length > 0;
+  const customSections = (startup.pitchCustomSections || [])
+    .map((section, index) => ({
+      ...section,
+      sectionId: `custom-section-${index}`,
+      items: (section.items || []).filter(hasValidPitchItem),
+    }))
+    .filter((section) => section.items.length > 0);
+  const hasPitchContent = (pitchAbout && (pitchAbout.about || pitchAbout.problemStatement || pitchAbout.solutionProposed)) || competitors.length > 0 || customers.length > 0 || businessModels.length > 0 || marketSizes.length > 0 || visionStrategies.length > 0 || impacts.length > 0 || certifications.length > 0 || customSections.length > 0;
 
   const hasPitchQuote = Boolean(startup.pitch);
   const hasAboutContent = Boolean(pitchAbout?.about || startup.description);
@@ -120,6 +127,10 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
     hasVisionStrategies ? { id: 'vision-strategy', label: 'Vision & Strategy' } : null,
     hasImpacts ? { id: 'impact', label: 'Impact' } : null,
     hasCertifications ? { id: 'certifications', label: 'Certifications' } : null,
+    ...customSections.map((section) => ({
+      id: section.sectionId,
+      label: section.title,
+    })),
   ].filter((section): section is AboutSidebarSection => section !== null);
 
   const tabs: { key: Tab; label: string }[] = [
@@ -297,6 +308,12 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                     <PitchCertifications certifications={certifications} />
                   </section>
                 )}
+
+                {customSections.map((section) => (
+                  <section key={section.sectionId} id={section.sectionId} className="scroll-mt-28">
+                    <PitchImageTextSection title={section.title} items={section.items} />
+                  </section>
+                ))}
 
                 {/* Empty state */}
                 {!hasPitchContent && (

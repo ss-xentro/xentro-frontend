@@ -14,8 +14,9 @@ import {
 	PitchVisionStrategyItem,
 	PitchImpactItem,
 	PitchCertificationItem,
+	PitchCustomSection,
 } from '@/lib/types';
-import { SECTIONS, WRITE_ROLES, CheckIcon } from './_components/PitchHelpers';
+import { SECTIONS, WRITE_ROLES, CheckIcon, PlusIcon } from './_components/PitchHelpers';
 import type { SectionKey } from './_components/PitchHelpers';
 import PitchSectionContent from './_components/PitchSectionContent';
 import PitchSectionReadOnly from './_components/PitchSectionReadOnly';
@@ -38,28 +39,63 @@ export default function PitchEditorPage() {
 	const [visionStrategies, setVisionStrategies] = useState<PitchVisionStrategyItem[]>([]);
 	const [impacts, setImpacts] = useState<PitchImpactItem[]>([]);
 	const [certifications, setCertifications] = useState<PitchCertificationItem[]>([]);
+	const [customSections, setCustomSections] = useState<PitchCustomSection[]>([]);
+	const [isCreatingStep, setIsCreatingStep] = useState(false);
+	const [newStepTitle, setNewStepTitle] = useState('');
+	const [newStepDescription, setNewStepDescription] = useState('');
 
 	const canEdit = WRITE_ROLES.has(myRole);
 
+	const getCustomSectionKey = useCallback((section: PitchCustomSection, index: number) => {
+		return `custom-${section.id || index}`;
+	}, []);
+
+	const allSections = useMemo(() => {
+		const custom = customSections.map((section, index) => ({
+			key: getCustomSectionKey(section, index),
+			label: section.title || `Custom Step ${index + 1}`,
+			subtitle: section.shortDescription || 'Additional pitch details',
+			icon: (
+				<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v12m6-6H6" />
+				</svg>
+			),
+		}));
+		return [...SECTIONS, ...custom];
+	}, [customSections, getCustomSectionKey]);
+
 	/* ─── Completion tracking ─── */
-	const sectionCompletion = useMemo(() => ({
-		videoPitch: !!demoVideoUrl,
-		about: hasValidPitchContent(aboutData.about) || hasValidPitchContent(aboutData.problemStatement) || hasValidPitchContent(aboutData.solutionProposed),
-		competitors: competitors.some(hasValidPitchItem),
-		customers: customers.some(hasValidPitchItem),
-		businessModels: businessModels.some(hasValidPitchItem),
-		marketSizes: marketSizes.some(hasValidPitchItem),
-		visionStrategies: visionStrategies.some(hasValidPitchItem),
-		impacts: impacts.some(hasValidPitchItem),
-		certifications: certifications.some(hasValidPitchItem),
-	}), [aboutData, competitors, customers, businessModels, marketSizes, visionStrategies, impacts, certifications, demoVideoUrl]);
+	const sectionCompletion = useMemo(() => {
+		const completion: Record<string, boolean> = {
+			videoPitch: !!demoVideoUrl,
+			about: hasValidPitchContent(aboutData.about) || hasValidPitchContent(aboutData.problemStatement) || hasValidPitchContent(aboutData.solutionProposed),
+			competitors: competitors.some(hasValidPitchItem),
+			customers: customers.some(hasValidPitchItem),
+			businessModels: businessModels.some(hasValidPitchItem),
+			marketSizes: marketSizes.some(hasValidPitchItem),
+			visionStrategies: visionStrategies.some(hasValidPitchItem),
+			impacts: impacts.some(hasValidPitchItem),
+			certifications: certifications.some(hasValidPitchItem),
+		};
+
+		customSections.forEach((section, index) => {
+			completion[getCustomSectionKey(section, index)] = (section.items || []).some(hasValidPitchItem);
+		});
+
+		return completion;
+	}, [aboutData, competitors, customers, businessModels, marketSizes, visionStrategies, impacts, certifications, demoVideoUrl, customSections, getCustomSectionKey]);
 
 	const completedCount = useMemo(() => Object.values(sectionCompletion).filter(Boolean).length, [sectionCompletion]);
-	const totalSections = SECTIONS.length;
+	const totalSections = allSections.length;
 	const progressPct = Math.round((completedCount / totalSections) * 100);
 
 	useEffect(() => { fetchStartupAndPitch(); }, []);
 	useEffect(() => { if (message) { const t = setTimeout(() => setMessage(null), 4000); return () => clearTimeout(t); } }, [message]);
+	useEffect(() => {
+		if (!allSections.some((section) => section.key === activeSection) && allSections.length > 0) {
+			setActiveSection(allSections[0].key);
+		}
+	}, [activeSection, allSections]);
 
 	const fetchStartupAndPitch = async () => {
 		try {
@@ -85,6 +121,7 @@ export default function PitchEditorPage() {
 				if (pitchData.visionStrategies) setVisionStrategies(pitchData.visionStrategies);
 				if (pitchData.impacts) setImpacts(pitchData.impacts);
 				if (pitchData.certifications) setCertifications(pitchData.certifications);
+				if (pitchData.customSections) setCustomSections(pitchData.customSections);
 			}
 		} catch (err) {
 			console.error(err);
@@ -99,7 +136,7 @@ export default function PitchEditorPage() {
 		setMessage(null);
 		try {
 			const token = getSessionToken('founder');
-			const payload: StartupPitchData = { about: aboutData, competitors, customers, businessModels, marketSizes, visionStrategies, impacts, certifications };
+			const payload: StartupPitchData = { about: aboutData, competitors, customers, businessModels, marketSizes, visionStrategies, impacts, certifications, customSections };
 			const res = await fetch(`/api/startups/${startupId}/pitch/`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -133,13 +170,41 @@ export default function PitchEditorPage() {
 	}, []);
 
 	/* ─── Navigation ─── */
-	const currentIdx = SECTIONS.findIndex(s => s.key === activeSection);
+	const currentIdx = allSections.findIndex(s => s.key === activeSection);
 	const goNext = () => {
-		if (currentIdx < SECTIONS.length - 1) setActiveSection(SECTIONS[currentIdx + 1].key);
+		if (currentIdx < allSections.length - 1) setActiveSection(allSections[currentIdx + 1].key);
 	};
 	const goPrev = () => {
-		if (currentIdx > 0) setActiveSection(SECTIONS[currentIdx - 1].key);
+		if (currentIdx > 0) setActiveSection(allSections[currentIdx - 1].key);
 	};
+
+	const handleCreateCustomStep = () => {
+		const title = newStepTitle.trim();
+		if (!title) {
+			setMessage({ type: 'error', text: 'Step title is required.' });
+			return;
+		}
+
+		const newSection: PitchCustomSection = {
+			id: `temp-${Date.now()}`,
+			title,
+			shortDescription: newStepDescription.trim(),
+			items: [],
+		};
+
+		setCustomSections((prev) => {
+			const next = [...prev, newSection];
+			setActiveSection(getCustomSectionKey(newSection, next.length - 1));
+			return next;
+		});
+
+		setNewStepTitle('');
+		setNewStepDescription('');
+		setIsCreatingStep(false);
+	};
+
+	const activeCustomSectionIndex = customSections.findIndex((section, index) => getCustomSectionKey(section, index) === activeSection);
+	const activeCustomSection = activeCustomSectionIndex >= 0 ? customSections[activeCustomSectionIndex] : null;
 
 	/* ─── Loading state ─── */
 	if (isLoading) {
@@ -175,6 +240,64 @@ export default function PitchEditorPage() {
 						<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
 					)}
 					{message.text}
+				</div>
+			)}
+
+			{isCreatingStep && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+					<button
+						type="button"
+						aria-label="Close add section dialog"
+						onClick={() => {
+							setIsCreatingStep(false);
+							setNewStepTitle('');
+							setNewStepDescription('');
+						}}
+						className="absolute inset-0 bg-black/45 backdrop-blur-sm"
+					/>
+					<div className="relative z-10 w-full max-w-xl rounded-2xl border border-(--border) bg-(--background) p-5 shadow-(--shadow-lg)">
+						<div className="mb-4">
+							<h3 className="text-lg font-semibold text-(--primary)">Add New Section</h3>
+							<p className="text-sm text-(--secondary)">Create a custom step by entering a title and short description.</p>
+						</div>
+
+						<div className="mb-4 rounded-xl border border-(--border) bg-(--surface) p-3">
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">Step Description Card</p>
+							<p className="mt-1 text-sm text-(--primary)">This step will be added to your pitch sidebar and its section will appear in the public profile About page footer.</p>
+						</div>
+
+						<div className="space-y-3">
+							<input
+								type="text"
+								value={newStepTitle}
+								onChange={(e) => setNewStepTitle(e.target.value)}
+								placeholder="Step title"
+								className="w-full rounded-lg border border-(--border) bg-(--background) px-3 py-2 text-sm text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+							/>
+							<input
+								type="text"
+								value={newStepDescription}
+								onChange={(e) => setNewStepDescription(e.target.value)}
+								placeholder="Short description for this step"
+								className="w-full rounded-lg border border-(--border) bg-(--background) px-3 py-2 text-sm text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+							/>
+						</div>
+
+						<div className="mt-5 flex items-center justify-end gap-2">
+							<Button
+								type="button"
+								variant="secondary"
+								onClick={() => {
+									setIsCreatingStep(false);
+									setNewStepTitle('');
+									setNewStepDescription('');
+								}}
+							>
+								Cancel
+							</Button>
+							<Button type="button" onClick={handleCreateCustomStep}>Create Section</Button>
+						</div>
+					</div>
 				</div>
 			)}
 
@@ -220,7 +343,7 @@ export default function PitchEditorPage() {
 				{/* Sidebar nav (desktop) */}
 				<nav className="hidden lg:block w-56 shrink-0">
 					<div className="sticky top-8 space-y-1">
-						{SECTIONS.map((s, idx) => {
+						{allSections.map((s, idx) => {
 							const isActive = activeSection === s.key;
 							const isDone = sectionCompletion[s.key];
 							return (
@@ -241,13 +364,30 @@ export default function PitchEditorPage() {
 								</button>
 							);
 						})}
+						{canEdit && isEditMode && (
+							<button
+								type="button"
+								onClick={() => setIsCreatingStep(true)}
+								className="mt-2 w-full rounded-xl border border-dashed border-gray-400/70 bg-(--surface-hover)/40 px-3 py-3 text-left transition-colors hover:bg-(--surface-hover)"
+							>
+								<div className="flex items-start gap-3">
+									<span className="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full border border-gray-400/70 text-(--secondary)">
+										<PlusIcon />
+									</span>
+									<div className="min-w-0">
+										<p className="text-sm font-medium text-(--primary)">Add New Section</p>
+										<p className="text-[11px] text-(--secondary)">Create another step for extra pitch details</p>
+									</div>
+								</div>
+							</button>
+						)}
 					</div>
 				</nav>
 
 				{/* Mobile horizontal nav */}
 				<div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-(--surface)/95 backdrop-blur-lg border-t border-(--border) px-2 py-2 overflow-x-auto">
 					<div className="flex gap-1 min-w-max">
-						{SECTIONS.map((s, idx) => {
+						{allSections.map((s, idx) => {
 							const isActive = activeSection === s.key;
 							const isDone = sectionCompletion[s.key];
 							return (
@@ -262,6 +402,16 @@ export default function PitchEditorPage() {
 								</button>
 							);
 						})}
+						{canEdit && isEditMode && (
+							<button
+								type="button"
+								onClick={() => setIsCreatingStep(true)}
+								className="flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg border border-dashed border-gray-400/70 text-(--secondary) min-w-20 hover:bg-(--surface-hover) transition-colors"
+							>
+								<PlusIcon />
+								<span className="text-[10px] font-medium">New Section</span>
+							</button>
+						)}
 					</div>
 				</div>
 
@@ -270,11 +420,11 @@ export default function PitchEditorPage() {
 					{/* Section header */}
 					<div className="flex items-center gap-3 mb-6">
 						<div className="w-10 h-10 rounded-xl bg-(--surface-hover) border border-(--border) flex items-center justify-center text-(--secondary)">
-							{SECTIONS.find(s => s.key === activeSection)?.icon}
+							{allSections.find(s => s.key === activeSection)?.icon}
 						</div>
 						<div>
-							<h2 className="text-lg font-semibold text-(--primary)">{SECTIONS.find(s => s.key === activeSection)?.label}</h2>
-							<p className="text-xs text-(--secondary)">{SECTIONS.find(s => s.key === activeSection)?.subtitle}</p>
+							<h2 className="text-lg font-semibold text-(--primary)">{allSections.find(s => s.key === activeSection)?.label}</h2>
+							<p className="text-xs text-(--secondary)">{allSections.find(s => s.key === activeSection)?.subtitle}</p>
 						</div>
 					</div>
 
@@ -300,6 +450,13 @@ export default function PitchEditorPage() {
 							setImpacts={setImpacts}
 							certifications={certifications}
 							setCertifications={setCertifications}
+							activeCustomSection={activeCustomSection}
+							onChangeCustomSection={(updater) => {
+								if (activeCustomSectionIndex < 0) return;
+								setCustomSections((prev) => prev.map((section, idx) => (
+									idx === activeCustomSectionIndex ? updater(section) : section
+								)));
+							}}
 							addItem={addItem}
 							removeItem={removeItem}
 							updateItem={updateItem}
@@ -316,6 +473,7 @@ export default function PitchEditorPage() {
 							visionStrategies={visionStrategies}
 							impacts={impacts}
 							certifications={certifications}
+							activeCustomSection={activeCustomSection}
 						/>
 					)}
 
@@ -328,16 +486,16 @@ export default function PitchEditorPage() {
 							className="inline-flex items-center gap-2 text-sm font-medium text-(--secondary) hover:text-(--primary) disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
 						>
 							<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-							{currentIdx > 0 ? SECTIONS[currentIdx - 1].label : 'Previous'}
+							{currentIdx > 0 ? allSections[currentIdx - 1].label : 'Previous'}
 						</button>
 						{canEdit && isEditMode && <Button onClick={handleSave} isLoading={isSaving} size="sm" variant="secondary">Save Draft</Button>}
 						<button
 							type="button"
 							onClick={goNext}
-							disabled={currentIdx === SECTIONS.length - 1}
+							disabled={currentIdx === allSections.length - 1}
 							className="inline-flex items-center gap-2 text-sm font-medium text-(--secondary) hover:text-(--primary) disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
 						>
-							{currentIdx < SECTIONS.length - 1 ? SECTIONS[currentIdx + 1].label : 'Next'}
+							{currentIdx < allSections.length - 1 ? allSections[currentIdx + 1].label : 'Next'}
 							<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
 						</button>
 					</div>

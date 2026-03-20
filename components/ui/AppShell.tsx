@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { ReactNode } from 'react';
-import AppShellSidebar, { NavIcon, NAV_ITEMS, DASHBOARD_PATH, getDashboardUrl } from './AppShellSidebar';
+import AppShellSidebar, { NavIcon, MOBILE_NAV_ITEMS, DASHBOARD_PATH, getDashboardUrl } from './AppShellSidebar';
 
 interface AppShellProps {
   children: ReactNode;
@@ -18,8 +18,8 @@ export default function AppShell({ children }: AppShellProps) {
   const { user, isAuthenticated } = useAuth();
 
   const navItems = isAuthenticated
-    ? [{ icon: 'dashboard', label: 'Dashboard', href: getDashboardUrl(user?.role), path: DASHBOARD_PATH }, ...NAV_ITEMS]
-    : NAV_ITEMS;
+    ? [{ icon: 'dashboard', label: 'Dashboard', href: getDashboardUrl(user?.role), path: DASHBOARD_PATH }, ...MOBILE_NAV_ITEMS]
+    : MOBILE_NAV_ITEMS;
 
   function isActive(item: typeof navItems[number]) {
     if (item.href === '/explore/institute') return pathname.startsWith('/explore');

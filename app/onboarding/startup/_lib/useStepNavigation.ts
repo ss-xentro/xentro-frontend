@@ -59,7 +59,7 @@ export function useStepNavigation({
 				whyXentroOther: data.whyXentroOther.trim(),
 				stage: data.stage,
 				primaryContactEmail: trimmedEmail,
-				status: data.status || 'private',
+				status: data.status || 'public',
 				location: data.location.trim() || null,
 				fundingRound: data.fundingRound || null,
 				fundsRaised: data.fundsRaised.trim() ? data.fundsRaised.trim() : null,
@@ -112,7 +112,7 @@ export function useStepNavigation({
 					body: JSON.stringify({
 						name: data.name.trim(),
 						primaryContactEmail: trimmedEmail,
-						status: 'private',
+						status: 'public',
 						founders: [{ name: data.name.trim(), email: trimmedEmail, role: 'founder' as const }],
 					}),
 				});

@@ -71,7 +71,7 @@ export function createInitialStartupData(): StartupData {
         primaryContactEmail: '',
         pitch: '',
         foundedDate: '',
-        status: 'private',
+        status: 'public',
         location: '',
         founders: [{ id: undefined, name: '', email: '', role: 'founder', title: 'Founder', avatar: null, bio: '' }],
         teamMembers: [],

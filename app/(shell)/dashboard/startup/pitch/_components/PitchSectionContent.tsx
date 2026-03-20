@@ -14,6 +14,8 @@ import {
 	PitchVisionStrategyItem,
 	PitchImpactItem,
 	PitchCertificationItem,
+	PitchCustomSection,
+	PitchCustomSectionItem,
 } from '@/lib/types';
 import { EmptyState, ItemCard, PlusIcon } from './PitchHelpers';
 import type { SectionKey } from './PitchHelpers';
@@ -42,6 +44,8 @@ interface PitchSectionContentProps {
 	setImpacts: React.Dispatch<React.SetStateAction<PitchImpactItem[]>>;
 	certifications: PitchCertificationItem[];
 	setCertifications: React.Dispatch<React.SetStateAction<PitchCertificationItem[]>>;
+	activeCustomSection: PitchCustomSection | null;
+	onChangeCustomSection: (updater: (section: PitchCustomSection) => PitchCustomSection) => void;
 	/* Array helpers */
 	addItem: <T>(setter: React.Dispatch<React.SetStateAction<T[]>>, template: T) => void;
 	removeItem: <T>(setter: React.Dispatch<React.SetStateAction<T[]>>, idx: number) => void;
@@ -60,6 +64,8 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 		visionStrategies, setVisionStrategies,
 		impacts, setImpacts,
 		certifications, setCertifications,
+		activeCustomSection,
+		onChangeCustomSection,
 		addItem, removeItem, updateItem,
 	} = props;
 
@@ -361,6 +367,69 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 						</>
 					),
 				)}
+			</div>
+		);
+	}
+
+	if (activeSection.startsWith('custom-') && activeCustomSection) {
+		const customItems = activeCustomSection.items || [];
+		const setCustomItems = (updater: (prev: PitchCustomSectionItem[]) => PitchCustomSectionItem[]) => {
+			onChangeCustomSection((section) => ({
+				...section,
+				items: updater(section.items || []),
+			}));
+		};
+
+		const addCustomItem = () => {
+			setCustomItems((prev) => [...prev, { title: '', description: '', imageUrl: '' }]);
+		};
+
+		const removeCustomItem = (idx: number) => {
+			setCustomItems((prev) => prev.filter((_, i) => i !== idx));
+		};
+
+		const updateCustomItem = (idx: number, updates: Partial<PitchCustomSectionItem>) => {
+			setCustomItems((prev) => prev.map((item, i) => (i === idx ? { ...item, ...updates } : item)));
+		};
+
+		if (customItems.length === 0) {
+			return (
+				<Card>
+					<EmptyState
+						icon={<svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v12m6-6H6" /></svg>}
+						title={`No items in ${activeCustomSection.title} yet`}
+						description={activeCustomSection.shortDescription || 'Add items for this custom section.'}
+						action={canEdit ? (
+							<Button variant="secondary" size="sm" onClick={addCustomItem}>
+								<PlusIcon /> <span className="ml-1.5">Add First Block</span>
+							</Button>
+						) : undefined}
+					/>
+				</Card>
+			);
+		}
+
+		return (
+			<div className="space-y-4 animate-fadeInUp">
+				{canEdit && (
+					<div className="flex justify-end">
+						<Button variant="secondary" size="sm" onClick={addCustomItem}>
+							<PlusIcon /> <span className="ml-1.5">Add Block</span>
+						</Button>
+					</div>
+				)}
+				{customItems.map((item, idx) => (
+					<ItemCard key={idx} index={idx} onRemove={() => removeCustomItem(idx)} canEdit={canEdit}>
+						<Input label="Title" value={item.title} onChange={e => updateCustomItem(idx, { title: e.target.value })} required placeholder="Block title" />
+						<div className="mt-4">
+							<RichTextEditor label="Description" value={item.description || ''} onChange={html => updateCustomItem(idx, { description: html })} placeholder="Describe this block..." minimal disabled={!canEdit} />
+						</div>
+						<div className="mt-4">
+							<label className="block text-sm font-medium text-(--primary) mb-2">Image</label>
+							<FileUpload value={item.imageUrl || ''} onChange={url => updateCustomItem(idx, { imageUrl: url })} folder="pitch-custom-sections" accept="image/*" enableCrop={true} aspectRatio={16 / 9} />
+						</div>
+					</ItemCard>
+				))}
 			</div>
 		);
 	}

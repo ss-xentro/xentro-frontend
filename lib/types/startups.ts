@@ -63,6 +63,7 @@ export interface Startup {
 	pitchVisionStrategies?: PitchVisionStrategyItem[];
 	pitchImpacts?: PitchImpactItem[];
 	pitchCertifications?: PitchCertificationItem[];
+	pitchCustomSections?: PitchCustomSection[];
 }
 
 // ── Pitch Section Types ──────────────────────────────
@@ -133,6 +134,21 @@ export interface PitchCertificationItem {
 	position?: number;
 }
 
+export interface PitchCustomSectionItem {
+	title: string;
+	description?: string | null;
+	imageUrl?: string | null;
+	position?: number;
+}
+
+export interface PitchCustomSection {
+	id?: string;
+	title: string;
+	shortDescription?: string | null;
+	items: PitchCustomSectionItem[];
+	position?: number;
+}
+
 export interface StartupPitchData {
 	about?: PitchAbout | null;
 	competitors?: PitchCompetitor[];
@@ -142,6 +158,7 @@ export interface StartupPitchData {
 	visionStrategies?: PitchVisionStrategyItem[];
 	impacts?: PitchImpactItem[];
 	certifications?: PitchCertificationItem[];
+	customSections?: PitchCustomSection[];
 }
 
 export interface StartupFounder {

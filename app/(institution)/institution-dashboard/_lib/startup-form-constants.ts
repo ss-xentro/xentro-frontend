@@ -56,7 +56,7 @@ export const EMPTY_STARTUP_FORM: StartupFormData = {
 	pitch: '',
 	description: '',
 	stage: 'ideation',
-	status: 'private',
+	status: 'public',
 	location: '',
 	city: '',
 	country: '',
