@@ -3,5 +3,5 @@
 import AccountSettings from '@/components/ui/AccountSettings';
 
 export default function FounderSettingsPage() {
-	return <AccountSettings showProfileSection={false} />;
+	return <AccountSettings showProfileSection={false} editProfileHref="/profile" />;
 }

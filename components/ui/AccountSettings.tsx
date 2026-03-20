@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { Card, Button, Input } from "@/components/ui";
 import { getSessionToken } from "@/lib/auth-utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,12 +32,15 @@ interface AccountSettingsProps {
 	contactOnly?: boolean;
 	/** When false, hides the profile/contact editing card from Settings and keeps only preferences/security sections. */
 	showProfileSection?: boolean;
+	/** Optional route to dedicated profile editor page. When provided, shows an Edit Profile action in the header. */
+	editProfileHref?: string;
 }
 
 export default function AccountSettings({
 	showPasswordSection = false,
 	contactOnly = false,
 	showProfileSection = true,
+	editProfileHref,
 }: AccountSettingsProps) {
 	const { user, setSession, token: authToken } = useAuth();
 	const [settings, setSettings] = useState<Settings | null>(null);
@@ -188,19 +192,29 @@ export default function AccountSettings({
 	return (
 		<div className="space-y-8 max-w-3xl">
 			{/* Header */}
-			<div>
-				<h1 className="text-2xl font-bold text-(--primary)">Settings</h1>
-				<p className="text-(--secondary) mt-1">
-					Manage your account preferences
-				</p>
+			<div className="flex items-start justify-between gap-3">
+				<div>
+					<h1 className="text-2xl font-bold text-(--primary)">Settings</h1>
+					<p className="text-(--secondary) mt-1">
+						Manage your account preferences
+					</p>
+				</div>
+				{editProfileHref && (
+					<Link
+						href={editProfileHref}
+						className="inline-flex min-h-11 h-11 items-center justify-center rounded-lg border border-(--border) bg-(--surface) px-4 text-sm font-medium text-(--primary) transition-colors hover:bg-(--surface-hover)"
+					>
+						Edit Profile
+					</Link>
+				)}
 			</div>
 
 			{/* Status Message */}
 			{message && (
 				<div
 					className={`px-4 py-3 rounded-lg text-sm font-medium ${message.type === "success"
-							? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
-							: "bg-red-500/15 text-red-400 border border-red-500/20"
+						? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+						: "bg-red-500/15 text-red-400 border border-red-500/20"
 						}`}
 				>
 					{message.text}
@@ -421,14 +435,14 @@ export default function AccountSettings({
 									setNotifications((prev) => ({ ...prev, [key]: !prev[key] }))
 								}
 								className={`relative inline-flex h-6 w-11 items-center rounded-full border transition-colors ${notifications[key]
-										? "bg-(--primary) border-(--primary)"
-										: "bg-(--surface-hover) border-(--border)"
+									? "bg-(--primary) border-(--primary)"
+									: "bg-(--surface-hover) border-(--border)"
 									}`}
 							>
 								<span
 									className={`inline-block h-4 w-4 rounded-full transition-transform ${notifications[key]
-											? "translate-x-6 bg-(--background)"
-											: "translate-x-1 bg-(--secondary-light)"
+										? "translate-x-6 bg-(--background)"
+										: "translate-x-1 bg-(--secondary-light)"
 										}`}
 								/>
 							</button>
