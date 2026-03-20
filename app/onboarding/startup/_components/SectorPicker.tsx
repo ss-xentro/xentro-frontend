@@ -15,25 +15,25 @@ export function SectorPicker({ selectedSectors, onSelect, expandedCategory, onTo
 	const categories = Object.entries(sectorCategoryLabels) as [SectorCategory, typeof sectorCategoryLabels[SectorCategory]][];
 
 	return (
-		<div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1 mt-4">
+		<div className="space-y-2 max-h-[46vh] overflow-y-auto pr-1 mt-4">
 			{categories.map(([catSlug, { label, icon, subSectors }]) => {
 				const isExpanded = expandedCategory === catSlug;
 				const selectedCount = subSectors.filter(s => selectedSectors.includes(s.slug)).length;
 
 				return (
-					<div key={catSlug} className="rounded-lg border border-(--border) overflow-hidden flex-shrink-0">
+					<div key={catSlug} className="rounded-lg border border-(--border) overflow-hidden flex-shrink-0 bg-white">
 						<button
 							type="button"
 							onClick={() => onToggleCategory(expandedCategory === catSlug ? null : catSlug)}
 							className={cn(
 								'w-full flex items-center gap-3 p-3 text-left transition-colors',
-								isExpanded ? 'bg-(--accent-subtle)' : 'bg-(--surface) hover:bg-(--surface-hover)',
+								isExpanded ? 'bg-slate-100' : 'bg-(--surface) hover:bg-(--surface-hover)',
 							)}
 						>
-							<AppIcon name={icon} className={cn('w-5 h-5 shrink-0', isExpanded ? 'text-accent' : 'text-(--secondary)')} />
+							<AppIcon name={icon} className={cn('w-5 h-5 shrink-0', isExpanded ? 'text-slate-900' : 'text-(--secondary)')} />
 							<span className="font-medium text-sm flex-1 text-(--primary)">{label}</span>
 							{selectedCount > 0 && (
-								<span className="w-2 h-2 rounded-full bg-accent"></span>
+								<span className="w-2 h-2 rounded-full bg-slate-700"></span>
 							)}
 							<svg
 								className={cn('w-4 h-4 text-(--secondary) transition-transform', isExpanded && 'rotate-180')}
@@ -55,13 +55,13 @@ export function SectorPicker({ selectedSectors, onSelect, expandedCategory, onTo
 											className={cn(
 												'flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-all text-left',
 												isSelected
-													? 'border-accent bg-(--accent-subtle) text-accent font-medium'
+													? 'border-slate-900 bg-slate-100 text-slate-900 font-medium'
 													: 'border-(--border) bg-(--surface) text-(--primary) hover:border-(--secondary-light)',
 											)}
 										>
 											<div className={cn(
 												'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
-												isSelected ? 'border-accent bg-accent' : 'border-(--secondary-light)',
+												isSelected ? 'border-slate-900 bg-slate-900' : 'border-(--secondary-light)',
 											)}>
 												{isSelected && (
 													<div className="w-1.5 h-1.5 rounded-full bg-white"></div>
