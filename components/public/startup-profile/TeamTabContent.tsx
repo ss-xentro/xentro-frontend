@@ -42,9 +42,9 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 	};
 
 	if (hasFounders) {
-		startup.founders!.forEach((f) => {
+		startup.founders!.forEach((f, index) => {
 			combinedTeam.push({
-				id: f.id || f.email,
+				id: f.id || f.email || `founder-${index}`,
 				name: f.name,
 				email: f.email,
 				role: f.role || '',
