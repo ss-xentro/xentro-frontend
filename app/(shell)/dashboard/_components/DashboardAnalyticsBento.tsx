@@ -76,7 +76,7 @@ function InteractiveTrendChart({
 	const activeIndex = hoveredIndex ?? safeLabels.length - 1;
 	const activeX = offsetX + Math.max(activeIndex, 0) * stepX;
 	const tooltipLeft = `${Math.min(92, Math.max(8, (activeX / width) * 100))}%`;
-	const yAxisTicks = [maxValue, Math.round(maxValue / 2), 0];
+	const yAxisTicks = Array.from(new Set([maxValue, Math.round(maxValue / 2), 0]));
 
 	const resolveIndex = (clientX: number, bounds: DOMRect) => {
 		if (safeLabels.length <= 1) return 0;
@@ -108,10 +108,10 @@ function InteractiveTrendChart({
 					}}
 					onMouseLeave={() => setHoveredIndex(null)}
 				>
-					{yAxisTicks.map((tick) => {
+					{yAxisTicks.map((tick, index) => {
 						const y = offsetY + (height - offsetY * 2) - (tick / Math.max(maxValue, 1)) * (height - offsetY * 2);
 						return (
-							<g key={tick}>
+							<g key={`${tick}-${index}`}>
 								<line x1={offsetX} y1={y} x2={width - offsetX} y2={y} stroke="var(--border)" strokeWidth="1" />
 								<text x="2" y={y + 4} fontSize="10" fill="currentColor" className="text-(--secondary)">{tick}</text>
 							</g>
