@@ -7,7 +7,6 @@ import { getSessionToken } from '@/lib/auth-utils';
 import type { DashboardData } from './_components/types';
 import { StartupInfoCard } from './_components/StartupInfoCard';
 import { DashboardAnalyticsBento } from './_components/DashboardAnalyticsBento';
-import { DashboardChecklist } from './_components/DashboardChecklist';
 import { StartupProfileCompletionBanner } from './_components/StartupProfileCompletionBanner';
 
 // Roles that have write access (can edit startup, invite members)
@@ -72,17 +71,6 @@ export default function DashboardOverviewPage() {
 
     if (!data) return null;
 
-    const hasProfile = Boolean(
-        data.startup.name?.trim()
-        && data.startup.tagline?.trim()
-        && data.startup.logo
-        && data.startup.stage
-    );
-    const hasTeamMembers = Boolean(((data.startup.founders?.length || 0) + (data.startup.teamMembers?.length || 0)) > 0);
-    const hasEmail = Boolean(data.startup.primaryContactEmail?.trim());
-    const hasFundsRaised = Boolean(Number(data.startup.fundsRaised || 0) > 0);
-    const checklistComplete = hasProfile && hasTeamMembers && hasEmail && hasFundsRaised;
-
     return (
         <div className="space-y-8 animate-fadeIn">
             <StartupProfileCompletionBanner
@@ -120,17 +108,9 @@ export default function DashboardOverviewPage() {
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-                <div className={checklistComplete ? 'xl:col-span-12' : 'xl:col-span-8'}>
+                <div className="xl:col-span-12">
                     <StartupInfoCard startup={data.startup} founderRole={data.founderRole} />
                 </div>
-                <DashboardChecklist
-                    className="xl:col-span-4"
-                    items={{
-                        profileComplete: hasProfile,
-                        emailVerified: hasEmail,
-                        fundingHistoryAdded: hasFundsRaised,
-                    }}
-                />
             </div>
 
             <DashboardAnalyticsBento

@@ -151,7 +151,6 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 
 								<h4 className="text-base font-semibold text-(--primary) truncate">{member.name}</h4>
 								<p className="text-sm text-(--secondary) mt-1 truncate">{member.title}</p>
-								{member.bio && <p className="mt-2 text-xs text-(--secondary) line-clamp-2">Profile added</p>}
 
 								<div className="mt-4 pt-4 border-t border-(--border) flex items-center justify-center gap-2">
 									<Badge variant="outline" className="text-[10px] uppercase tracking-wider">
@@ -232,50 +231,49 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 				</p>
 			)}
 
-			{selectedMember && selectedMember.avatar && (
-				{ selectedMember && (
+			{selectedMember && (
+				<div
+					className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+					onClick={() => setSelectedMember(null)}
+				>
 					<div
-						className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
-						onClick={() => setSelectedMember(null)}
+						className="w-full max-w-2xl bg-(--surface) border border-(--border) rounded-2xl overflow-hidden"
+						onClick={(e) => e.stopPropagation()}
 					>
-						<div
-							className="w-full max-w-2xl bg-(--surface) border border-(--border) rounded-2xl overflow-hidden"
-							onClick={(e) => e.stopPropagation()}
-						>
-							<div className="relative h-[45vh] min-h-[260px] bg-black">
-								{selectedMember.avatar ? (
-									<MediaPreview
-										src={selectedMember.avatar}
-										alt={selectedMember.name}
-										className="h-full w-full rounded-none border-0 bg-black"
-										mediaClassName="object-contain"
-										showControls={false}
-									/>
-								) : (
-									<div className="h-full w-full flex items-center justify-center text-5xl font-semibold text-white/70">{selectedMember.initial}</div>
-								)}
-								<button
-									type="button"
-									onClick={() => setSelectedMember(null)}
-									className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white hover:bg-black/80"
-									aria-label="Close profile image preview"
-								>
-									X
-								</button>
-							</div>
-							<div className="p-5">
-								<h4 className="text-lg font-semibold text-(--primary)">{selectedMember.name}</h4>
-								<p className="text-sm text-(--secondary)">{selectedMember.title}</p>
-								{selectedMember.email && <p className="mt-1 text-xs text-(--secondary)">{selectedMember.email}</p>}
-								{selectedMember.bio ? (
-									<RichTextDisplay html={selectedMember.bio} className="mt-4" compact />
-								) : (
-									<p className="mt-4 text-sm text-(--secondary)">No additional profile details shared yet.</p>
-								)}
-							</div>
+						<div className="relative h-[45vh] min-h-[260px] bg-black">
+							{selectedMember.avatar ? (
+								<MediaPreview
+									src={selectedMember.avatar}
+									alt={selectedMember.name}
+									className="h-full w-full rounded-none border-0 bg-black"
+									mediaClassName="object-contain"
+									showControls={false}
+								/>
+							) : (
+								<div className="h-full w-full flex items-center justify-center text-5xl font-semibold text-white/70">{selectedMember.initial}</div>
+							)}
+							<button
+								type="button"
+								onClick={() => setSelectedMember(null)}
+								className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white hover:bg-black/80"
+								aria-label="Close profile image preview"
+							>
+								X
+							</button>
+						</div>
+						<div className="p-5">
+							<h4 className="text-lg font-semibold text-(--primary)">{selectedMember.name}</h4>
+							<p className="text-sm text-(--secondary)">{selectedMember.title}</p>
+							{selectedMember.email && <p className="mt-1 text-xs text-(--secondary)">{selectedMember.email}</p>}
+							{selectedMember.bio ? (
+								<RichTextDisplay html={selectedMember.bio} className="mt-4" compact />
+							) : (
+								<p className="mt-4 text-sm text-(--secondary)">No additional profile details shared yet.</p>
+							)}
 						</div>
 					</div>
-				)}
+				</div>
+			)}
 		</div>
 	);
 }
