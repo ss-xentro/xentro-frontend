@@ -107,6 +107,34 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 
 					<div className="grid grid-cols-2 gap-4">
 						<Input
+							label="Domain"
+							placeholder="ai_ml, fintech, healthtech..."
+							value={form.domain}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('domain', e.target.value)}
+							className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						/>
+						<div>
+							<label className="block text-xs font-medium text-gray-400 mb-2">Mode</label>
+							<select
+								value={form.mode}
+								onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('mode', e.target.value)}
+								className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none"
+							>
+								<option value="online" className="bg-gray-900">Online</option>
+								<option value="offline" className="bg-gray-900">Offline</option>
+								<option value="hybrid" className="bg-gray-900">Hybrid</option>
+							</select>
+						</div>
+					</div>
+
+					<div className="grid grid-cols-3 gap-4">
+						<Input label="City" value={form.city} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('city', e.target.value)} className="bg-white/5 border-white/10 text-white placeholder-gray-500" />
+						<Input label="State" value={form.state} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('state', e.target.value)} className="bg-white/5 border-white/10 text-white placeholder-gray-500" />
+						<Input label="Country" value={form.country} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('country', e.target.value)} className="bg-white/5 border-white/10 text-white placeholder-gray-500" />
+					</div>
+
+					<div className="grid grid-cols-2 gap-4">
+						<Input
 							label="Start Date & Time"
 							type="datetime-local"
 							value={form.startTime}
@@ -140,6 +168,90 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('maxAttendees', e.target.value)}
 							className="bg-white/5 border-white/10 text-white placeholder-gray-500"
 						/>
+					</div>
+
+					<div className="grid grid-cols-2 gap-4">
+						<div>
+							<label className="block text-xs font-medium text-gray-400 mb-2">Pricing Type</label>
+							<select
+								value={form.pricingType}
+								onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('pricingType', e.target.value)}
+								className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none"
+							>
+								<option value="free" className="bg-gray-900">Free</option>
+								<option value="paid" className="bg-gray-900">Paid</option>
+								<option value="freemium" className="bg-gray-900">Freemium</option>
+								<option value="sponsored" className="bg-gray-900">Sponsored</option>
+							</select>
+						</div>
+						<div>
+							<label className="block text-xs font-medium text-gray-400 mb-2">Organizer Type</label>
+							<select
+								value={form.organizerType}
+								onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('organizerType', e.target.value)}
+								className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none"
+							>
+								<option value="institution" className="bg-gray-900">Institution</option>
+								<option value="incubator_accelerator" className="bg-gray-900">Incubator / Accelerator</option>
+								<option value="corporate" className="bg-gray-900">Corporate</option>
+								<option value="government" className="bg-gray-900">Government</option>
+								<option value="independent_mentor" className="bg-gray-900">Independent Mentor</option>
+								<option value="xentro" className="bg-gray-900">Xentro Hosted</option>
+							</select>
+						</div>
+					</div>
+
+					<div className="grid grid-cols-2 gap-4">
+						<Textarea
+							label="Audience Types (one per line)"
+							rows={3}
+							value={form.audienceTypes}
+							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('audienceTypes', e.target.value)}
+							className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						/>
+						<Textarea
+							label="Startup Stages (one per line)"
+							rows={3}
+							value={form.startupStages}
+							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('startupStages', e.target.value)}
+							className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						/>
+					</div>
+
+					<div className="grid grid-cols-2 gap-4">
+						<Textarea
+							label="Benefits / Outcomes (one per line)"
+							rows={3}
+							value={form.benefits}
+							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('benefits', e.target.value)}
+							className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						/>
+						<div className="space-y-4">
+							<div>
+								<label className="block text-xs font-medium text-gray-400 mb-2">Difficulty</label>
+								<select value={form.difficultyLevel} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('difficultyLevel', e.target.value)} className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none">
+									<option value="beginner" className="bg-gray-900">Beginner</option>
+									<option value="intermediate" className="bg-gray-900">Intermediate</option>
+									<option value="advanced" className="bg-gray-900">Advanced</option>
+								</select>
+							</div>
+							<div>
+								<label className="block text-xs font-medium text-gray-400 mb-2">Application Requirement</label>
+								<select value={form.applicationRequirement} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('applicationRequirement', e.target.value)} className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none">
+									<option value="open_entry" className="bg-gray-900">Open Entry</option>
+									<option value="application_required" className="bg-gray-900">Application Required</option>
+									<option value="invite_only" className="bg-gray-900">Invite Only</option>
+								</select>
+							</div>
+							<div>
+								<label className="block text-xs font-medium text-gray-400 mb-2">Availability</label>
+								<select value={form.availabilityStatus} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('availabilityStatus', e.target.value)} className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none">
+									<option value="open" className="bg-gray-900">Open</option>
+									<option value="limited" className="bg-gray-900">Limited Seats</option>
+									<option value="waitlist" className="bg-gray-900">Waitlist</option>
+								</select>
+							</div>
+						</div>
 					</div>
 
 					<label className="flex items-center gap-2 text-sm text-white cursor-pointer bg-white/5 p-3 rounded-lg border border-white/10">

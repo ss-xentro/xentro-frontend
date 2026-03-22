@@ -4,6 +4,20 @@ export interface EventItem {
 	description: string | null;
 	location: string | null;
 	type: string | null;
+	audienceTypes?: string[];
+	startupStages?: string[];
+	domain?: string | null;
+	mode?: string | null;
+	city?: string | null;
+	state?: string | null;
+	country?: string | null;
+	pricingType?: string | null;
+	organizerType?: string | null;
+	benefits?: string[];
+	difficultyLevel?: string | null;
+	applicationRequirement?: string | null;
+	availabilityStatus?: string | null;
+	averageRating?: number | null;
 	startTime: string | null;
 	endTime: string | null;
 	price: number | null;
@@ -29,6 +43,20 @@ export interface EventFormData {
 	description: string;
 	location: string;
 	type: string;
+	audienceTypes: string;
+	startupStages: string;
+	domain: string;
+	mode: string;
+	city: string;
+	state: string;
+	country: string;
+	pricingType: string;
+	organizerType: string;
+	benefits: string;
+	difficultyLevel: string;
+	applicationRequirement: string;
+	availabilityStatus: string;
+	averageRating: string;
 	startTime: string;
 	endTime: string;
 	price: string;
@@ -48,6 +76,20 @@ export const EMPTY_FORM: EventFormData = {
 	description: '',
 	location: '',
 	type: 'workshop',
+	audienceTypes: '',
+	startupStages: '',
+	domain: '',
+	mode: 'offline',
+	city: '',
+	state: '',
+	country: '',
+	pricingType: 'free',
+	organizerType: 'institution',
+	benefits: '',
+	difficultyLevel: 'beginner',
+	applicationRequirement: 'open_entry',
+	availabilityStatus: 'open',
+	averageRating: '',
 	startTime: '',
 	endTime: '',
 	price: '',
@@ -79,6 +121,20 @@ export function eventToForm(event: EventItem): EventFormData {
 		description: event.description || '',
 		location: event.location || '',
 		type: event.type || '',
+		audienceTypes: (event.audienceTypes || []).join('\n'),
+		startupStages: (event.startupStages || []).join('\n'),
+		domain: event.domain || '',
+		mode: event.mode || '',
+		city: event.city || '',
+		state: event.state || '',
+		country: event.country || '',
+		pricingType: event.pricingType || 'free',
+		organizerType: event.organizerType || 'institution',
+		benefits: (event.benefits || []).join('\n'),
+		difficultyLevel: event.difficultyLevel || 'beginner',
+		applicationRequirement: event.applicationRequirement || 'open_entry',
+		availabilityStatus: event.availabilityStatus || 'open',
+		averageRating: event.averageRating != null ? String(event.averageRating) : '',
 		startTime: event.startTime ? event.startTime.slice(0, 16) : '',
 		endTime: event.endTime ? event.endTime.slice(0, 16) : '',
 		price: event.price != null ? String(event.price) : '',

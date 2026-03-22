@@ -12,6 +12,16 @@ interface EventDetail {
 	description: string | null;
 	location: string | null;
 	type: string | null;
+	audienceTypes?: string[];
+	startupStages?: string[];
+	domain?: string | null;
+	mode?: string | null;
+	pricingType?: string | null;
+	organizerType?: string | null;
+	benefits?: string[];
+	difficultyLevel?: string | null;
+	applicationRequirement?: string | null;
+	availabilityStatus?: string | null;
 	startTime: string | null;
 	endTime: string | null;
 	isVirtual: boolean;
@@ -21,12 +31,12 @@ interface EventDetail {
 	institutionName: string | null;
 	organizerName: string | null;
 	currentUserRsvp:
-		| "going"
-		| "maybe"
-		| "not_going"
-		| "waitlist"
-		| "cancelled"
-		| null;
+	| "going"
+	| "maybe"
+	| "not_going"
+	| "waitlist"
+	| "cancelled"
+	| null;
 	approved: boolean;
 }
 
@@ -54,6 +64,11 @@ function formatDateTime(value: string | null): string {
 		hour: "2-digit",
 		minute: "2-digit",
 	});
+}
+
+function pretty(value: string | null | undefined): string {
+	if (!value) return 'Not specified';
+	return value.replaceAll('_', ' ').replace(/\b\w/g, (m) => m.toUpperCase());
 }
 
 export default function EventDetailPage() {
@@ -310,29 +325,22 @@ export default function EventDetailPage() {
 		eventData.remainingSlots !== null && eventData.remainingSlots <= 0;
 
 	return (
-		<div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-			<div className="rounded-3xl overflow-hidden border border-white/10 bg-[#0d1117] text-white p-8 md:p-10">
-				<p className="text-xs uppercase tracking-[0.2em] text-white/80">
-					{eventData.type || "Event"} ·{" "}
-					{eventData.isVirtual ? "Online" : "Offline"}
+		<div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+			<div className="rounded-3xl overflow-hidden border border-white/10 bg-[linear-gradient(140deg,#111827,#1f2937_45%,#4c1d35)] text-white p-8 md:p-10">
+				<p className="text-xs uppercase tracking-[0.2em] text-[#fecaca]">
+					{pretty(eventData.type || 'event')} · {pretty(eventData.mode || (eventData.isVirtual ? 'online' : 'offline'))}
 				</p>
-				<h1 className="text-3xl md:text-4xl font-bold mt-3">
+				<h1 className="text-3xl md:text-5xl font-bold mt-3 max-w-4xl">
 					{eventData.name}
 				</h1>
-				<p className="mt-3 text-white/90 max-w-3xl">
+				<p className="mt-4 text-white/90 max-w-3xl text-sm md:text-base">
 					{eventData.description || "No event description provided."}
 				</p>
-				<div className="mt-5 flex flex-wrap gap-3 text-xs">
-					<span className="px-3 py-1 rounded-full bg-white/20">
-						{formatDateTime(eventData.startTime)}
-					</span>
-					<span className="px-3 py-1 rounded-full bg-white/20">
-						{eventData.location ||
-							(eventData.isVirtual ? "Online event" : "Venue TBA")}
-					</span>
-					<span className="px-3 py-1 rounded-full bg-white/20">
-						Organized by {eventData.organizerName || "Xentro"}
-					</span>
+				<div className="mt-6 flex flex-wrap gap-3 text-xs">
+					<span className="px-3 py-1 rounded-full bg-white/15">{formatDateTime(eventData.startTime)}</span>
+					<span className="px-3 py-1 rounded-full bg-white/15">{eventData.location || (eventData.isVirtual ? "Online event" : "Venue TBA")}</span>
+					<span className="px-3 py-1 rounded-full bg-white/15">Organizer: {pretty(eventData.organizerType || eventData.organizerName || 'xentro')}</span>
+					<span className="px-3 py-1 rounded-full bg-white/15">Pricing: {pretty(eventData.pricingType || 'free')}</span>
 				</div>
 			</div>
 
@@ -352,39 +360,85 @@ export default function EventDetailPage() {
 			)}
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-				<Card className="lg:col-span-2 p-6 space-y-4 bg-(--surface)">
-					<h2 className="text-xl font-semibold text-(--primary)">
-						Event Details
-					</h2>
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-						<div>
-							<p className="text-(--secondary)">Start</p>
-							<p className="font-medium text-(--primary)">
-								{formatDateTime(eventData.startTime)}
-							</p>
+				<div className="lg:col-span-2 space-y-6">
+					<Card className="p-6 space-y-4 bg-(--surface)">
+						<h2 className="text-xl font-semibold text-(--primary)">
+							Event Details
+						</h2>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+							<div>
+								<p className="text-(--secondary)">Start</p>
+								<p className="font-medium text-(--primary)">
+									{formatDateTime(eventData.startTime)}
+								</p>
+							</div>
+							<div>
+								<p className="text-(--secondary)">End</p>
+								<p className="font-medium text-(--primary)">
+									{formatDateTime(eventData.endTime)}
+								</p>
+							</div>
+							<div>
+								<p className="text-(--secondary)">Mode</p>
+								<p className="font-medium text-(--primary)">
+									{eventData.isVirtual ? "Online Event" : "In-Person Event"}
+								</p>
+							</div>
+							<div>
+								<p className="text-(--secondary)">Organizer</p>
+								<p className="font-medium text-(--primary)">
+									{eventData.organizerName ||
+										eventData.institutionName ||
+										"Xentro Admin"}
+								</p>
+							</div>
 						</div>
-						<div>
-							<p className="text-(--secondary)">End</p>
-							<p className="font-medium text-(--primary)">
-								{formatDateTime(eventData.endTime)}
-							</p>
+					</Card>
+
+					<Card className="p-6 bg-(--surface) space-y-4">
+						<h3 className="text-lg font-semibold text-(--primary)">Startup Fit</h3>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+							<div>
+								<p className="text-(--secondary)">Domain</p>
+								<p className="font-medium text-(--primary)">{pretty(eventData.domain)}</p>
+							</div>
+							<div>
+								<p className="text-(--secondary)">Difficulty</p>
+								<p className="font-medium text-(--primary)">{pretty(eventData.difficultyLevel)}</p>
+							</div>
+							<div>
+								<p className="text-(--secondary)">Application</p>
+								<p className="font-medium text-(--primary)">{pretty(eventData.applicationRequirement)}</p>
+							</div>
+							<div>
+								<p className="text-(--secondary)">Availability</p>
+								<p className="font-medium text-(--primary)">{pretty(eventData.availabilityStatus)}</p>
+							</div>
 						</div>
-						<div>
-							<p className="text-(--secondary)">Mode</p>
-							<p className="font-medium text-(--primary)">
-								{eventData.isVirtual ? "Online Event" : "In-Person Event"}
-							</p>
-						</div>
-						<div>
-							<p className="text-(--secondary)">Organizer</p>
-							<p className="font-medium text-(--primary)">
-								{eventData.organizerName ||
-									eventData.institutionName ||
-									"Xentro Admin"}
-							</p>
-						</div>
-					</div>
-				</Card>
+
+						{(eventData.startupStages || []).length > 0 && (
+							<div>
+								<p className="text-sm text-(--secondary) mb-2">Startup Stages</p>
+								<div className="flex flex-wrap gap-2">
+									{(eventData.startupStages || []).map((stage) => (
+										<span key={stage} className="px-2 py-1 rounded-full text-xs bg-amber-500/10 text-amber-300 border border-amber-500/20">{pretty(stage)}</span>
+									))}
+								</div>
+							</div>
+						)}
+
+						{(eventData.benefits || []).length > 0 && (
+							<div>
+								<p className="text-sm text-(--secondary) mb-2">Benefits</p>
+								<div className="flex flex-wrap gap-2">
+									{(eventData.benefits || []).map((benefit) => (
+										<span key={benefit} className="px-2 py-1 rounded-full text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">{pretty(benefit)}</span>
+									))}
+								</div>
+							</div>
+						)}
+					</Card>
+				</div>
 
 				<Card className="p-6 bg-(--surface) space-y-4 sticky top-6">
 					<h3 className="text-lg font-semibold text-(--primary)">

@@ -61,12 +61,29 @@ export default function InstitutionEventsPage() {
             const speakerLineup = parseLines(form.speakerLineupJson).map((name) => ({ name }));
             const agendaTimeline = parseLines(form.agendaTimelineJson).map((activity) => ({ activity }));
             const ticketTypes = parseLines(form.ticketTypesJson).map((name) => ({ name }));
+            const audienceTypes = parseLines(form.audienceTypes);
+            const startupStages = parseLines(form.startupStages);
+            const benefits = parseLines(form.benefits);
 
             const body: Record<string, unknown> = {
                 name: form.name,
                 description: form.description || null,
                 location: form.location || null,
                 type: form.type || null,
+                audience_types: audienceTypes,
+                startup_stages: startupStages,
+                domain: form.domain || null,
+                mode: form.mode || null,
+                city: form.city || null,
+                state: form.state || null,
+                country: form.country || null,
+                pricing_type: form.pricingType || null,
+                organizer_type: form.organizerType || null,
+                benefits: benefits,
+                difficulty_level: form.difficultyLevel || null,
+                application_requirement: form.applicationRequirement || null,
+                availability_status: form.availabilityStatus || null,
+                average_rating: form.averageRating ? Number(form.averageRating) : null,
                 start_time: form.startTime || null,
                 end_time: form.endTime || null,
                 price: form.price ? Number(form.price) : null,

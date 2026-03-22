@@ -10,6 +10,20 @@ type EventItem = {
 	description: string | null;
 	location: string | null;
 	type: string | null;
+	audienceTypes?: string[];
+	startupStages?: string[];
+	domain?: string | null;
+	mode?: string | null;
+	city?: string | null;
+	state?: string | null;
+	country?: string | null;
+	pricingType?: string | null;
+	organizerType?: string | null;
+	benefits?: string[];
+	difficultyLevel?: string | null;
+	applicationRequirement?: string | null;
+	availabilityStatus?: string | null;
+	averageRating?: number | null;
 	startTime: string | null;
 	endTime: string | null;
 	isVirtual: boolean;
@@ -32,6 +46,20 @@ type EventForm = {
 	description: string;
 	location: string;
 	type: string;
+	audienceTypes: string;
+	startupStages: string;
+	domain: string;
+	mode: string;
+	city: string;
+	state: string;
+	country: string;
+	pricingType: string;
+	organizerType: string;
+	benefits: string;
+	difficultyLevel: string;
+	applicationRequirement: string;
+	availabilityStatus: string;
+	averageRating: string;
 	startTime: string;
 	endTime: string;
 	price: string;
@@ -52,6 +80,20 @@ const EMPTY_FORM: EventForm = {
 	description: '',
 	location: '',
 	type: '',
+	audienceTypes: '',
+	startupStages: '',
+	domain: '',
+	mode: 'offline',
+	city: '',
+	state: '',
+	country: '',
+	pricingType: 'free',
+	organizerType: 'xentro',
+	benefits: '',
+	difficultyLevel: 'beginner',
+	applicationRequirement: 'open_entry',
+	availabilityStatus: 'open',
+	averageRating: '',
 	startTime: '',
 	endTime: '',
 	price: '',
@@ -73,6 +115,20 @@ function toForm(event: EventItem): EventForm {
 		description: event.description || '',
 		location: event.location || '',
 		type: event.type || '',
+		audienceTypes: (event.audienceTypes || []).join('\n'),
+		startupStages: (event.startupStages || []).join('\n'),
+		domain: event.domain || '',
+		mode: event.mode || 'offline',
+		city: event.city || '',
+		state: event.state || '',
+		country: event.country || '',
+		pricingType: event.pricingType || 'free',
+		organizerType: event.organizerType || 'xentro',
+		benefits: (event.benefits || []).join('\n'),
+		difficultyLevel: event.difficultyLevel || 'beginner',
+		applicationRequirement: event.applicationRequirement || 'open_entry',
+		availabilityStatus: event.availabilityStatus || 'open',
+		averageRating: event.averageRating != null ? String(event.averageRating) : '',
 		startTime: event.startTime ? event.startTime.slice(0, 16) : '',
 		endTime: event.endTime ? event.endTime.slice(0, 16) : '',
 		price: '',
@@ -147,6 +203,7 @@ export default function AdminEventsPage() {
 		setError(null);
 
 		try {
+			const parseLines = (value: string) => value.split('\n').map((x) => x.trim()).filter(Boolean);
 			const parseJsonOrThrow = (label: string, value: string, fallback: unknown) => {
 				const trimmed = value.trim();
 				if (!trimmed) return fallback;
@@ -162,6 +219,20 @@ export default function AdminEventsPage() {
 				description: form.description || null,
 				location: form.location || null,
 				type: form.type || null,
+				audience_types: parseLines(form.audienceTypes),
+				startup_stages: parseLines(form.startupStages),
+				domain: form.domain || null,
+				mode: form.mode || null,
+				city: form.city || null,
+				state: form.state || null,
+				country: form.country || null,
+				pricing_type: form.pricingType || null,
+				organizer_type: form.organizerType || null,
+				benefits: parseLines(form.benefits),
+				difficulty_level: form.difficultyLevel || null,
+				application_requirement: form.applicationRequirement || null,
+				availability_status: form.availabilityStatus || null,
+				average_rating: form.averageRating ? Number(form.averageRating) : null,
 				start_time: form.startTime || null,
 				end_time: form.endTime || null,
 				price: form.price ? Number(form.price) : null,
@@ -287,6 +358,45 @@ export default function AdminEventsPage() {
 								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} />
 								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Location" value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} />
 							</div>
+							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Domain" value={form.domain} onChange={(e) => setForm((f) => ({ ...f, domain: e.target.value }))} />
+								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.mode} onChange={(e) => setForm((f) => ({ ...f, mode: e.target.value }))}>
+									<option value="online">Online</option>
+									<option value="offline">Offline</option>
+									<option value="hybrid">Hybrid</option>
+								</select>
+								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.pricingType} onChange={(e) => setForm((f) => ({ ...f, pricingType: e.target.value }))}>
+									<option value="free">Free</option>
+									<option value="paid">Paid</option>
+									<option value="freemium">Freemium</option>
+									<option value="sponsored">Sponsored</option>
+								</select>
+							</div>
+							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="City" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
+								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="State" value={form.state} onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} />
+								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Country" value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
+							</div>
+							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Audience types (one per line)" value={form.audienceTypes} onChange={(e) => setForm((f) => ({ ...f, audienceTypes: e.target.value }))} />
+							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Startup stages (one per line)" value={form.startupStages} onChange={(e) => setForm((f) => ({ ...f, startupStages: e.target.value }))} />
+							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Benefits / outcomes (one per line)" value={form.benefits} onChange={(e) => setForm((f) => ({ ...f, benefits: e.target.value }))} />
+							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.difficultyLevel} onChange={(e) => setForm((f) => ({ ...f, difficultyLevel: e.target.value }))}>
+									<option value="beginner">Beginner</option>
+									<option value="intermediate">Intermediate</option>
+									<option value="advanced">Advanced</option>
+								</select>
+								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.applicationRequirement} onChange={(e) => setForm((f) => ({ ...f, applicationRequirement: e.target.value }))}>
+									<option value="open_entry">Open Entry</option>
+									<option value="application_required">Application Required</option>
+									<option value="invite_only">Invite Only</option>
+								</select>
+								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.availabilityStatus} onChange={(e) => setForm((f) => ({ ...f, availabilityStatus: e.target.value }))}>
+									<option value="open">Open</option>
+									<option value="limited">Limited Seats</option>
+									<option value="waitlist">Waitlist</option>
+								</select>
+							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<input type="datetime-local" className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.startTime} onChange={(e) => setForm((f) => ({ ...f, startTime: e.target.value }))} />
 								<input type="datetime-local" className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.endTime} onChange={(e) => setForm((f) => ({ ...f, endTime: e.target.value }))} />
@@ -298,6 +408,17 @@ export default function AdminEventsPage() {
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Status: draft/published/cancelled" value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as EventForm['status'] }))} />
 								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Cover image URL" value={form.coverImage} onChange={(e) => setForm((f) => ({ ...f, coverImage: e.target.value }))} />
+							</div>
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.organizerType} onChange={(e) => setForm((f) => ({ ...f, organizerType: e.target.value }))}>
+									<option value="institution">Institution</option>
+									<option value="incubator_accelerator">Incubator / Accelerator</option>
+									<option value="corporate">Corporate</option>
+									<option value="government">Government</option>
+									<option value="independent_mentor">Independent Mentor</option>
+									<option value="xentro">Xentro Hosted</option>
+								</select>
+								<input type="number" min="0" max="5" step="0.1" className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Average rating (0-5)" value={form.averageRating} onChange={(e) => setForm((f) => ({ ...f, averageRating: e.target.value }))} />
 							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<input type="number" min="0" className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Cancellation cutoff hours" value={form.cancellationCutoffHours} onChange={(e) => setForm((f) => ({ ...f, cancellationCutoffHours: e.target.value }))} />
