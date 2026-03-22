@@ -54,11 +54,18 @@ interface EventOccurrence {
 	status: string;
 }
 
+interface BookingConstraintPayload {
+	message?: string;
+	teamSize?: number;
+	availableSeats?: number;
+	maxBookableSeats?: number;
+}
+
 function normalizeEventDetailResponse(payload: unknown): EventDetail | null {
 	if (!payload || typeof payload !== "object") return null;
 
 	const record = payload as Record<string, unknown>;
-	if (record.id) return record as EventDetail;
+	if (record.id) return record as unknown as EventDetail;
 	if (record.data && typeof record.data === "object") return record.data as EventDetail;
 	if (record.event && typeof record.event === "object") return record.event as EventDetail;
 
@@ -80,6 +87,16 @@ function formatDateTime(value: string | null): string {
 function pretty(value: string | null | undefined): string {
 	if (!value) return 'Not specified';
 	return value.replaceAll('_', ' ').replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+function formatBookingConstraintError(payload: BookingConstraintPayload, fallback: string): string {
+	if (typeof payload.maxBookableSeats === "number") {
+		const base = payload.message || fallback;
+		return `${base} You can book up to ${payload.maxBookableSeats} seat${payload.maxBookableSeats === 1 ? "" : "s"}.`;
+	}
+
+	if (payload.message) return payload.message;
+	return fallback;
 }
 
 export default function EventDetailPage() {
@@ -183,6 +200,33 @@ export default function EventDetailPage() {
 	}, [eventData]);
 
 	const isUnlimitedSeats = useMemo(() => eventData?.remainingSlots == null, [eventData]);
+	const maxSelectableSeats = useMemo(() => {
+		if (!eventData) return 1;
+		if (eventData.remainingSlots == null) return 99;
+		return Math.max(1, eventData.remainingSlots);
+	}, [eventData]);
+
+	useEffect(() => {
+		setQuantity((prev) => Math.min(Math.max(prev, 1), maxSelectableSeats));
+	}, [maxSelectableSeats]);
+
+	const handleQuantityChange = (rawValue: string) => {
+		if (!rawValue) {
+			setQuantity(1);
+			return;
+		}
+		const parsed = Number(rawValue);
+		if (!Number.isFinite(parsed)) return;
+		setQuantity(Math.min(Math.max(Math.floor(parsed), 1), maxSelectableSeats));
+	};
+
+	const decrementQuantity = () => {
+		setQuantity((prev) => Math.max(1, prev - 1));
+	};
+
+	const incrementQuantity = () => {
+		setQuantity((prev) => Math.min(maxSelectableSeats, prev + 1));
+	};
 
 	const refreshEvent = async () => {
 		if (!eventData) return;
@@ -219,7 +263,7 @@ export default function EventDetailPage() {
 			});
 			const payload = await res.json().catch(() => ({}));
 			if (!res.ok) {
-				throw new Error(payload.message || "Seat hold failed");
+				throw new Error(formatBookingConstraintError(payload, "Seat hold failed"));
 			}
 
 			setHoldId(payload.holdId || null);
@@ -260,7 +304,7 @@ export default function EventDetailPage() {
 
 			const payload = await res.json().catch(() => ({}));
 			if (!res.ok) {
-				throw new Error(payload.message || "Booking failed");
+				throw new Error(formatBookingConstraintError(payload, "Booking failed"));
 			}
 
 			setCalendarLinks(payload.calendarLinks || null);
@@ -306,7 +350,7 @@ export default function EventDetailPage() {
 			});
 			const payload = await res.json().catch(() => ({}));
 			if (!res.ok) {
-				throw new Error(payload.message || "Booking confirmation failed");
+				throw new Error(formatBookingConstraintError(payload, "Booking confirmation failed"));
 			}
 
 			setCalendarLinks(payload.calendarLinks || null);
@@ -340,17 +384,28 @@ export default function EventDetailPage() {
 		setSuccess(null);
 
 		try {
-			const res = await fetch(`/api/events/${eventData.id}/cancel/`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({
-					occurrenceId: selectedOccurrenceId || undefined,
-				}),
-			});
-			const payload = await res.json().catch(() => ({}));
+			const cancelRequest = async (occurrenceId?: string) => {
+				const res = await fetch(`/api/events/${eventData.id}/cancel/`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ occurrenceId: occurrenceId || undefined }),
+				});
+				const payload = await res.json().catch(() => ({}));
+				return { res, payload };
+			};
+
+			let { res, payload } = await cancelRequest(selectedOccurrenceId || undefined);
+			if (
+				!res.ok &&
+				selectedOccurrenceId &&
+				(payload?.message === "No active booking found" || payload?.message === "Invalid occurrence")
+			) {
+				({ res, payload } = await cancelRequest(undefined));
+			}
+
 			if (!res.ok) {
 				throw new Error(payload.message || "Cancellation failed");
 			}
@@ -513,17 +568,36 @@ export default function EventDetailPage() {
 
 					<div className="space-y-1 text-sm">
 						<p className="text-(--secondary)">Seats</p>
-						<input
-							type="number"
-							min={1}
-							max={10}
-							value={quantity}
-							onChange={(e) =>
-								setQuantity(Math.max(1, Number(e.target.value || 1)))
-							}
-							disabled={hasBooked}
-							className="w-full rounded-lg border border-(--border) bg-(--surface-hover) px-3 py-2 text-sm text-(--primary)"
-						/>
+						<div className="flex items-center rounded-lg border border-(--border) bg-(--surface-hover)">
+							<button
+								type="button"
+								onClick={decrementQuantity}
+								disabled={hasBooked || quantity <= 1}
+								className="px-3 py-2 text-(--primary) hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
+								aria-label="Decrease seats"
+							>
+								-
+							</button>
+							<input
+								type="number"
+								min={1}
+								max={maxSelectableSeats}
+								value={quantity}
+								onChange={(e) => handleQuantityChange(e.target.value)}
+								onBlur={(e) => handleQuantityChange(e.target.value)}
+								disabled={hasBooked}
+								className="w-full bg-transparent px-2 py-2 text-center text-sm text-(--primary) [appearance:textfield] focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+							/>
+							<button
+								type="button"
+								onClick={incrementQuantity}
+								disabled={hasBooked || quantity >= maxSelectableSeats}
+								className="px-3 py-2 text-(--primary) hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
+								aria-label="Increase seats"
+							>
+								+
+							</button>
+						</div>
 					</div>
 
 					{occurrences.length > 0 && (
