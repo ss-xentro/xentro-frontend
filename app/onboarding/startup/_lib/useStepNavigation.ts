@@ -113,7 +113,6 @@ export function useStepNavigation({
 						name: data.name.trim(),
 						primaryContactEmail: trimmedEmail,
 						status: 'public',
-						founders: [{ name: data.name.trim(), email: trimmedEmail, role: 'founder' as const }],
 					}),
 				});
 			}
