@@ -15,29 +15,10 @@ interface WhyXentroStepProps {
 export function WhyXentroStep({ selectedValues, otherText, onToggle, onOtherChange }: WhyXentroStepProps) {
 	return (
 		<div className="p-6 md:p-8 space-y-7 md:space-y-8 animate-fadeIn">
-			<div className="rounded-2xl border border-slate-300 bg-white p-5 md:p-6">
-				<div className="grid grid-cols-1 lg:grid-cols-7 gap-5 md:gap-6 items-start">
-					<div className="lg:col-span-4">
-						<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">Chapter 04 · Intent</p>
-						<h2 className="text-2xl md:text-3xl font-semibold tracking-tight mt-2 text-slate-900">Why are you joining Xentro?</h2>
-						<p className="text-sm md:text-base text-slate-700 mt-2 leading-relaxed">Select all that apply. Your goals help us personalize recommendations and opportunities.</p>
-					</div>
-
-					<div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2.5">
-						<div className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5">
-							<p className="text-[11px] font-semibold uppercase tracking-wide text-slate-700">Selection</p>
-							<p className="text-xs mt-1 text-slate-900">Choose one or more goals</p>
-						</div>
-						<div className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5">
-							<p className="text-[11px] font-semibold uppercase tracking-wide text-slate-700">Required</p>
-							<p className="text-xs mt-1 text-slate-900">At least one reason</p>
-						</div>
-						<div className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5">
-							<p className="text-[11px] font-semibold uppercase tracking-wide text-slate-700">Tip</p>
-							<p className="text-xs mt-1 text-slate-900">Be specific if you choose Other</p>
-						</div>
-					</div>
-				</div>
+			<div>
+				<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">Intent</p>
+				<h2 className="text-xl md:text-2xl font-semibold tracking-tight mt-1 text-slate-900">Why are you joining Xentro?</h2>
+				<p className="text-sm text-slate-700 mt-1.5">Select one or more goals to personalize recommendations.</p>
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-3">

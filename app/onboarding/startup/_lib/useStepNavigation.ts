@@ -25,6 +25,64 @@ export function useStepNavigation({
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [signupRedirectAt, setSignupRedirectAt] = useState<number | null>(null);
+	const [signupRedirectSecondsLeft, setSignupRedirectSecondsLeft] = useState<number>(0);
+	const [signupCompleted, setSignupCompleted] = useState(false);
+
+	const SIGNUP_REDIRECT_DELAY_MS = 5000;
+	const SIGNUP_REDIRECT_KEY = 'xentro_signup_redirect_at';
+
+	const scheduleSignupRedirect = () => {
+		const redirectAt = Date.now() + SIGNUP_REDIRECT_DELAY_MS;
+		setSignupCompleted(true);
+		setSignupRedirectAt(redirectAt);
+		setSignupRedirectSecondsLeft(Math.ceil(SIGNUP_REDIRECT_DELAY_MS / 1000));
+		if (typeof window !== 'undefined') {
+			sessionStorage.setItem(SIGNUP_REDIRECT_KEY, String(redirectAt));
+		}
+
+		const finishRedirect = () => {
+			if (typeof window !== 'undefined') {
+				sessionStorage.removeItem(SIGNUP_REDIRECT_KEY);
+			}
+			reset();
+			router.push('/login');
+		};
+
+		const checkDeadline = () => {
+			const msLeft = redirectAt - Date.now();
+			if (msLeft <= 0) {
+				finishRedirect();
+				return true;
+			}
+			setSignupRedirectSecondsLeft(Math.ceil(msLeft / 1000));
+			return false;
+		};
+
+		const interval = window.setInterval(() => {
+			checkDeadline();
+		}, 500);
+
+		const timeout = window.setTimeout(() => {
+			checkDeadline();
+		}, SIGNUP_REDIRECT_DELAY_MS + 50);
+
+		const visibilityHandler = () => {
+			checkDeadline();
+		};
+
+		window.addEventListener('visibilitychange', visibilityHandler);
+		window.addEventListener('focus', visibilityHandler);
+		window.addEventListener('pageshow', visibilityHandler);
+
+		window.setTimeout(() => {
+			window.clearInterval(interval);
+			window.clearTimeout(timeout);
+			window.removeEventListener('visibilitychange', visibilityHandler);
+			window.removeEventListener('focus', visibilityHandler);
+			window.removeEventListener('pageshow', visibilityHandler);
+		}, SIGNUP_REDIRECT_DELAY_MS + 3000);
+	};
 
 	const canContinue = () => {
 		if (!isCompletionFlow) {
@@ -44,6 +102,7 @@ export function useStepNavigation({
 	};
 
 	const handleSubmit = async () => {
+		if (isSubmitting) return;
 		setIsSubmitting(true);
 		setError(null);
 		try {
@@ -120,10 +179,18 @@ export function useStepNavigation({
 			const result = await response.json();
 			if (!response.ok) throw new Error(result.message || 'Failed to save startup');
 
-			reset();
 			// Clear onboarding guard cache so it re-verifies next session
-			sessionStorage.removeItem('xentro_onboarding_ok');
-			router.push(isCompletionFlow ? '/dashboard' : '/login');
+			if (typeof window !== 'undefined') {
+				sessionStorage.removeItem('xentro_onboarding_ok');
+			}
+
+			if (isCompletionFlow) {
+				reset();
+				router.push('/dashboard');
+				return;
+			}
+
+			scheduleSignupRedirect();
 		} catch (err: unknown) {
 			setError(err instanceof Error ? err.message : 'Something went wrong.');
 		} finally {
@@ -156,6 +223,7 @@ export function useStepNavigation({
 	};
 
 	const handleNext = () => {
+		if (isSubmitting || signupCompleted) return;
 		setError(null);
 		setFeedback(null);
 
@@ -191,10 +259,15 @@ export function useStepNavigation({
 
 	return {
 		currentStep,
+		setStep,
+		handleSubmit,
 		data,
 		updateData,
 		toggleWhyXentro,
 		isSubmitting,
+		signupCompleted,
+		signupRedirectSecondsLeft,
+		signupRedirectAt,
 		error,
 		setError,
 		canContinue,

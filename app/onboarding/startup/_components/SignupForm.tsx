@@ -14,6 +14,8 @@ interface SignupFormProps {
 	magicLinkSent: boolean;
 	emailVerified: boolean;
 	emailLoading: boolean;
+	isAutoCreating: boolean;
+	redirectSecondsLeft: number;
 	onSendMagicLink: () => void;
 	onCheckVerification: () => void;
 }
@@ -28,6 +30,8 @@ export function SignupForm({
 	magicLinkSent,
 	emailVerified,
 	emailLoading,
+	isAutoCreating,
+	redirectSecondsLeft,
 	onSendMagicLink,
 	onCheckVerification,
 }: SignupFormProps) {
@@ -93,7 +97,11 @@ export function SignupForm({
 				{emailVerified ? (
 					<div>
 						<h3 className="text-lg font-semibold text-green-700 mb-1">Email verified!</h3>
-						<p className="text-sm text-(--secondary)">Continue to create your account, then log in to finish onboarding.</p>
+						<p className="text-sm text-(--secondary)">
+							{isAutoCreating
+								? `Creating your account now. Redirecting to login in ${Math.max(redirectSecondsLeft, 0)}s...`
+								: 'Creating your account automatically...'}
+						</p>
 					</div>
 				) : magicLinkSent ? (
 					<div>
@@ -118,7 +126,7 @@ export function SignupForm({
 					<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 					</svg>
-					Verified
+					{isAutoCreating ? 'Verified - Account setup in progress' : 'Verified'}
 				</div>
 			) : !magicLinkSent ? (
 				<Button

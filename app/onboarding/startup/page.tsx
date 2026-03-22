@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
 import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { COMPLETION_STEPS } from './_lib/constants';
 import { useFlowInitialization } from './_lib/useFlowInitialization';
 import { useEmailVerification } from './_lib/useEmailVerification';
@@ -12,10 +13,49 @@ import { SignupForm } from './_components/SignupForm';
 import { StepProgressBar } from './_components/StepProgressBar';
 import { CompletionStepContent } from './_components/CompletionStepContent';
 
+const STEP_GUIDANCE: Record<number, { title: string; intro: string; checklist: string[] }> = {
+    1: {
+        title: 'Identity Guidelines',
+        intro: 'Set the public brand basics for your startup profile.',
+        checklist: [
+            'Use your exact registered or commonly used startup name.',
+            'Keep the tagline short and specific to your core value.',
+            'Upload a square logo for clean display across cards and profiles.',
+        ],
+    },
+    2: {
+        title: 'Team Guidelines',
+        intro: 'Build credibility with clear founder and team representation.',
+        checklist: [
+            'Primary founder name is required to continue.',
+            'Only add co-founders/team members you want visible publicly.',
+            'Use valid emails when provided and concise role titles.',
+        ],
+    },
+    3: {
+        title: 'Market Position Guidelines',
+        intro: 'Choose how investors, mentors, and institutions discover you.',
+        checklist: [
+            'Select the sector that best matches your current product.',
+            'Pick your real current stage, not aspirational stage.',
+            'These fields influence recommendations and partner matching.',
+        ],
+    },
+    4: {
+        title: 'Intent Guidelines',
+        intro: 'Tell Xentro what outcomes matter most for your startup.',
+        checklist: [
+            'Select one or more reasons that reflect immediate goals.',
+            'If you choose Other, add concrete context.',
+            'These preferences personalize opportunities and outreach.',
+        ],
+    },
+};
+
 
 export default function StartupOnboardingPage() {
     const {
-        flowMode, existingStartupId, isInitializingFlow, isMounted,
+        existingStartupId, isInitializingFlow, isMounted,
         isCompletionFlow, setResetVerificationCallback,
     } = useFlowInitialization();
 
@@ -27,13 +67,36 @@ export default function StartupOnboardingPage() {
         emailVerified: email.emailVerified,
         setFeedback: email.setFeedback,
     });
+    const {
+        handleNext,
+        isSubmitting,
+        signupCompleted,
+        signupRedirectSecondsLeft,
+    } = nav;
 
-    const containerWidthClass = isCompletionFlow ? 'max-w-[1400px]' : 'max-w-2xl';
+    const [mobilePanel, setMobilePanel] = useState<'form' | 'guide'>('form');
+    const autoCreateTriggeredRef = useRef(false);
+
+    const containerWidthClass = isCompletionFlow ? 'max-w-[1480px]' : 'max-w-2xl';
+    const currentGuide = useMemo(() => STEP_GUIDANCE[nav.currentStep], [nav.currentStep]);
 
     // Wire up the reset callback so flow init can clear email state
     useEffect(() => {
         setResetVerificationCallback(email.resetVerificationState);
     }, [setResetVerificationCallback, email.resetVerificationState]);
+
+    useEffect(() => {
+        if (isCompletionFlow) return;
+
+        if (!email.emailVerified) {
+            autoCreateTriggeredRef.current = false;
+            return;
+        }
+
+        if (autoCreateTriggeredRef.current || isSubmitting || signupCompleted) return;
+        autoCreateTriggeredRef.current = true;
+        handleNext();
+    }, [isCompletionFlow, email.emailVerified, isSubmitting, signupCompleted, handleNext]);
 
     if (!isMounted) return null;
     if (isInitializingFlow) {
@@ -48,25 +111,25 @@ export default function StartupOnboardingPage() {
         <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100/70 flex flex-col">
             <OnboardingNavbar showLogout={isCompletionFlow} />
 
-            <div className="flex-1 py-8 px-4 sm:px-6 lg:px-8 xl:px-10">
+            <div className="flex-1 py-5 sm:py-7 px-3 sm:px-6 lg:px-8 xl:px-10">
                 <div className={`${containerWidthClass} mx-auto w-full`}>
                     {/* Header */}
-                    <div className="mb-6 sm:mb-8 rounded-2xl border border-(--border) bg-white px-5 py-5 sm:px-6 sm:py-6 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+                    <div className="mb-4 sm:mb-6 rounded-2xl border border-(--border) bg-white px-4 py-4 sm:px-6 sm:py-5 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                             <div className="max-w-3xl">
                                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--secondary)">Startup Onboarding</p>
-                                <h1 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-semibold text-(--primary) tracking-tight leading-tight">
+                                <h1 className="mt-1.5 text-xl sm:text-3xl lg:text-4xl font-semibold text-(--primary) tracking-tight leading-tight">
                                     {isCompletionFlow ? 'Complete your Startup Profile' : 'Create your Startup Account'}
                                 </h1>
-                                <p className="mt-2 text-sm sm:text-base text-(--secondary)">
+                                <p className="mt-2 text-xs sm:text-base text-(--secondary)">
                                     {isCompletionFlow
-                                        ? 'Finish the remaining onboarding steps after login.'
+                                        ? 'Work in a focused form panel while keeping guidance separate and easy to reference.'
                                         : 'Start with your startup name and email verification. You can finish the rest after login.'}
                                 </p>
                             </div>
 
                             {isCompletionFlow && (
-                                <div className="inline-flex items-center gap-2 self-start rounded-full border border-slate-300 bg-slate-100 px-3.5 py-1.5">
+                                <div className="inline-flex items-center gap-2 self-start rounded-full border border-slate-300 bg-slate-100 px-3 py-1.5">
                                     <span className="h-2 w-2 rounded-full bg-slate-700" />
                                     <span className="text-xs font-semibold text-slate-800">Step {nav.currentStep} of {COMPLETION_STEPS.length}</span>
                                 </div>
@@ -80,9 +143,8 @@ export default function StartupOnboardingPage() {
                         )}
                     </div>
 
-                    {/* Card Content */}
-                    <div className="bg-white border border-(--border) rounded-2xl shadow-[0_14px_40px_rgba(15,23,42,0.08)] overflow-hidden">
-                        {!isCompletionFlow && (
+                    {!isCompletionFlow && (
+                        <div className="bg-white border border-(--border) rounded-2xl shadow-[0_14px_40px_rgba(15,23,42,0.08)] overflow-hidden">
                             <SignupForm
                                 name={nav.data.name}
                                 email={nav.data.primaryContactEmail}
@@ -93,53 +155,191 @@ export default function StartupOnboardingPage() {
                                 magicLinkSent={email.magicLinkSent}
                                 emailVerified={email.emailVerified}
                                 emailLoading={email.emailLoading}
+                                isAutoCreating={isSubmitting || signupCompleted}
+                                redirectSecondsLeft={signupRedirectSecondsLeft}
                                 onSendMagicLink={email.handleSendMagicLink}
                                 onCheckVerification={email.handleCheckVerification}
                             />
-                        )}
 
-                        {isCompletionFlow && (
-                            <CompletionStepContent
-                                currentStep={nav.currentStep}
-                                data={nav.data}
-                                updateData={nav.updateData}
-                                toggleWhyXentro={nav.toggleWhyXentro}
-                            />
-                        )}
+                            {(nav.error || email.feedback) && (
+                                <div className="px-6 md:px-8 pb-4 border-t border-(--border) bg-rose-50/40">
+                                    {nav.error && <FeedbackBanner type="error" message={nav.error} onDismiss={() => nav.setError(null)} />}
+                                    {email.feedback && !nav.error && (
+                                        <FeedbackBanner type={email.feedback.type} message={email.feedback.message} onDismiss={() => email.setFeedback(null)} />
+                                    )}
+                                </div>
+                            )}
 
-                        {/* Error / Feedback */}
-                        {(nav.error || email.feedback) && (
-                            <div className="px-6 md:px-8 pb-4 border-t border-(--border) bg-rose-50/40">
-                                {nav.error && <FeedbackBanner type="error" message={nav.error} onDismiss={() => nav.setError(null)} />}
-                                {email.feedback && !nav.error && (
-                                    <FeedbackBanner type={email.feedback.type} message={email.feedback.message} onDismiss={() => email.setFeedback(null)} />
-                                )}
-                            </div>
-                        )}
-
-                        {/* Navigation */}
-                        <div className="px-6 md:px-8 py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-slate-50/65">
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                onClick={nav.handleBack}
-                                disabled={!isCompletionFlow || nav.currentStep === 1 || nav.isSubmitting}
-                            >
-                                Back
-                            </Button>
-
-                            {(!isCompletionFlow || nav.currentStep !== COMPLETION_STEPS.length || nav.canContinue()) && (
+                            <div className="px-6 md:px-8 py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-slate-50/65">
                                 <Button
                                     type="button"
                                     onClick={nav.handleNext}
-                                    disabled={nav.isSubmitting || !nav.canContinue()}
-                                    isLoading={nav.isSubmitting}
+                                    disabled={isSubmitting || signupCompleted || !nav.canContinue()}
+                                    isLoading={isSubmitting}
                                 >
-                                    {!isCompletionFlow ? 'Continue to Login' : nav.currentStep === COMPLETION_STEPS.length ? 'Finish Setup' : 'Continue'}
+                                    {signupCompleted ? `Redirecting in ${Math.max(signupRedirectSecondsLeft, 0)}s` : 'Continue to Login'}
                                 </Button>
-                            )}
+                            </div>
                         </div>
-                    </div>
+                    )}
+
+                    {isCompletionFlow && (
+                        <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-4 sm:gap-6 items-start">
+                            <aside className="hidden lg:block sticky top-20 space-y-4">
+                                <div className="rounded-2xl border border-(--border) bg-white p-3.5">
+                                    <p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary) px-1 pb-2">Steps</p>
+                                    <div className="space-y-2">
+                                        {COMPLETION_STEPS.map((step) => {
+                                            const isActive = step.id === nav.currentStep;
+                                            const isDone = step.id < nav.currentStep;
+                                            return (
+                                                <button
+                                                    key={step.id}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setMobilePanel('form');
+                                                        nav.setStep(step.id);
+                                                    }}
+                                                    className={`w-full rounded-xl border px-3 py-2.5 text-left transition ${isActive
+                                                        ? 'border-slate-900 bg-slate-100 shadow-[0_6px_16px_rgba(15,23,42,0.08)]'
+                                                        : 'border-(--border) bg-white hover:border-slate-300 hover:bg-slate-50'
+                                                        }`}
+                                                >
+                                                    <div className="flex items-start gap-2.5">
+                                                        <div className={`mt-0.5 h-6 w-6 rounded-full flex items-center justify-center text-xs font-semibold ${isActive || isDone ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                                                            {isDone ? <AppIcon name="check" className="h-3.5 w-3.5" /> : step.id}
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <p className="text-sm font-semibold text-slate-900">{step.title}</p>
+                                                            <p className="text-xs text-slate-600 mt-0.5 line-clamp-2">{step.subtitle}</p>
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="rounded-2xl border border-(--border) bg-white p-4">
+                                    <p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Guidelines</p>
+                                    <h3 className="mt-1 text-base font-semibold text-slate-900">{currentGuide.title}</h3>
+                                    <p className="mt-1.5 text-sm text-slate-600">{currentGuide.intro}</p>
+                                    <ul className="mt-3 space-y-2.5">
+                                        {currentGuide.checklist.map((item) => (
+                                            <li key={item} className="flex items-start gap-2 text-sm text-slate-700">
+                                                <AppIcon name="check" className="h-4 w-4 text-emerald-600 mt-0.5" />
+                                                <span>{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </aside>
+
+                            <div className="space-y-4">
+                                <div className="lg:hidden rounded-2xl border border-(--border) bg-white p-2">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setMobilePanel('form')}
+                                            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${mobilePanel === 'form' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}`}
+                                        >
+                                            Form
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setMobilePanel('guide')}
+                                            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${mobilePanel === 'guide' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}`}
+                                        >
+                                            Guidelines
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {mobilePanel === 'guide' && (
+                                    <div className="lg:hidden rounded-2xl border border-(--border) bg-white p-4">
+                                        <p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Guidelines</p>
+                                        <h3 className="mt-1 text-base font-semibold text-slate-900">{currentGuide.title}</h3>
+                                        <p className="mt-1.5 text-sm text-slate-600">{currentGuide.intro}</p>
+                                        <ul className="mt-3 space-y-2.5">
+                                            {currentGuide.checklist.map((item) => (
+                                                <li key={item} className="flex items-start gap-2 text-sm text-slate-700">
+                                                    <AppIcon name="check" className="h-4 w-4 text-emerald-600 mt-0.5" />
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {mobilePanel === 'form' && (
+                                    <>
+                                        <div className="bg-white border border-(--border) rounded-2xl shadow-[0_14px_40px_rgba(15,23,42,0.08)] overflow-hidden">
+                                            <CompletionStepContent
+                                                currentStep={nav.currentStep}
+                                                data={nav.data}
+                                                updateData={nav.updateData}
+                                                toggleWhyXentro={nav.toggleWhyXentro}
+                                            />
+
+                                            {(nav.error || email.feedback) && (
+                                                <div className="px-4 sm:px-6 md:px-8 pb-4 border-t border-(--border) bg-rose-50/40">
+                                                    {nav.error && <FeedbackBanner type="error" message={nav.error} onDismiss={() => nav.setError(null)} />}
+                                                    {email.feedback && !nav.error && (
+                                                        <FeedbackBanner type={email.feedback.type} message={email.feedback.message} onDismiss={() => email.setFeedback(null)} />
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-slate-50/65">
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    onClick={() => {
+                                                        setMobilePanel('form');
+                                                        nav.handleBack();
+                                                    }}
+                                                    disabled={nav.currentStep === 1 || nav.isSubmitting}
+                                                >
+                                                    Back
+                                                </Button>
+
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setMobilePanel('form');
+                                                        nav.handleNext();
+                                                    }}
+                                                    disabled={nav.isSubmitting || !nav.canContinue()}
+                                                    isLoading={nav.isSubmitting}
+                                                >
+                                                    {nav.currentStep === COMPLETION_STEPS.length ? 'Finish Setup' : 'Continue'}
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        <div className="lg:hidden rounded-2xl border border-(--border) bg-white p-3">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {COMPLETION_STEPS.map((step) => (
+                                                    <button
+                                                        key={step.id}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setMobilePanel('form');
+                                                            nav.setStep(step.id);
+                                                        }}
+                                                        className={`rounded-lg border px-2.5 py-2 text-left transition ${step.id === nav.currentStep ? 'border-slate-900 bg-slate-100' : 'border-(--border) bg-white'}`}
+                                                    >
+                                                        <p className="text-xs font-semibold text-slate-900">{step.title}</p>
+                                                        <p className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">{step.subtitle}</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     <p className="text-center text-xs text-(--secondary) mt-6 sm:mt-7">
                         Your progress is automatically saved.
