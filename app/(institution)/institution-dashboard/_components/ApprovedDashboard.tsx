@@ -18,6 +18,7 @@ interface ApprovedDashboardProps {
 	institution: Institution | null;
 	stats: DashboardStats;
 	onEditProfile: () => void;
+	onNudgeVerification: () => void;
 }
 
 function StatCard({ icon, bg, label, value }: { icon: string; bg: string; label: string; value: number | string }) {
@@ -43,10 +44,33 @@ const QUICK_ACTIONS = [
 	{ href: '/institution-dashboard/analytics', icon: 'trending-up', title: 'View Analytics', desc: 'Track your impact' },
 ];
 
-export default function ApprovedDashboard({ application, institution, stats, onEditProfile }: ApprovedDashboardProps) {
+export default function ApprovedDashboard({ application, institution, stats, onEditProfile, onNudgeVerification }: ApprovedDashboardProps) {
 	return (
 		<DashboardSidebar>
 			<div className="p-8 space-y-6 animate-fadeIn">
+				{institution && !institution.verified && (
+					<Card className="p-4 border border-amber-200 bg-amber-50">
+						<div className="flex items-start justify-between gap-3">
+							<div>
+								<p className="text-sm font-semibold text-amber-900">Verified badge review</p>
+								<p className="text-sm text-amber-800 mt-1">
+									{application.status === 'rejected'
+										? 'Your verified badge request was denied. Update your profile and nudge admin again when ready.'
+										: 'Your institution is live. Verified badge review is pending with admin.'}
+								</p>
+								{application.remark && (
+									<p className="text-sm text-amber-900 mt-2">
+										Admin message: {application.remark}
+									</p>
+								)}
+							</div>
+							<Button variant="secondary" onClick={onNudgeVerification}>
+								Nudge Admin
+							</Button>
+						</div>
+					</Card>
+				)}
+
 				{/* Header */}
 				<div>
 					<h1 className="text-3xl font-bold text-(--primary) mb-2">Welcome back!</h1>
@@ -68,7 +92,14 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 							<h2 className="text-xl font-bold text-(--primary) mb-1">Institution Profile</h2>
 							<p className="text-sm text-(--secondary)">Your institution is live on the platform</p>
 						</div>
-						<span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Published</span>
+						<div className="flex items-center gap-2">
+							<span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Published</span>
+							{institution?.verified && (
+								<span className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium flex items-center gap-1">
+									<AppIcon name="check" className="w-3.5 h-3.5" /> Verified Badge
+								</span>
+							)}
+						</div>
 					</div>
 
 					<div className="grid md:grid-cols-2 gap-6">

@@ -36,6 +36,19 @@ interface OnboardingWizardProps {
 	onApplicationUpdate: (app: InstitutionApplication) => void;
 }
 
+function pickLatestApplication(apps: InstitutionApplication[]): InstitutionApplication | null {
+	if (!apps.length) return null;
+
+	const byUpdated = [...apps].sort((a, b) => {
+		const aTime = new Date(a.updatedAt ?? a.createdAt ?? 0).getTime();
+		const bTime = new Date(b.updatedAt ?? b.createdAt ?? 0).getTime();
+		return bTime - aTime;
+	});
+
+	const latestVerified = byUpdated.find((app) => app.verified);
+	return latestVerified ?? byUpdated[0] ?? null;
+}
+
 export default function OnboardingWizard({
 	application,
 	formData,
@@ -173,7 +186,7 @@ export default function OnboardingWizard({
 			if (reload.ok) {
 				const payload = await reload.json();
 				const apps = (payload.data ?? []) as InstitutionApplication[];
-				const latest = apps.filter((a) => a.verified).slice(-1)[0] ?? null;
+				const latest = pickLatestApplication(apps);
 				if (latest) onApplicationUpdate(latest);
 			}
 
@@ -185,8 +198,8 @@ export default function OnboardingWizard({
 		}
 	};
 
-	const canProceed = (): boolean => {
-		switch (currentStep) {
+	const canProceed = (step = currentStep): boolean => {
+		switch (step) {
 			case 1: return formData.type !== null;
 			case 2: return formData.name.trim().length > 0;
 			case 3: return formData.tagline.trim().length > 0;
@@ -340,7 +353,7 @@ export default function OnboardingWizard({
 								setDirection(step > currentStep ? 'forward' : 'backward');
 								setCurrentStep(step);
 							}}
-							isStepComplete={canProceed}
+							isStepComplete={(step) => step < currentStep && canProceed(step)}
 							collapsed={showPreview}
 						/>
 						<Button

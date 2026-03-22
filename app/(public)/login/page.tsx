@@ -20,7 +20,7 @@ const DASHBOARD_MAP: Record<string, string> = {
     startup: '/dashboard',
     founder: '/dashboard',
     mentor: '/feed',
-    institution: '/feed',
+    institution: '/institution-dashboard',
     investor: '/feed',
     admin: '/admin/dashboard',
     explorer: '/feed',

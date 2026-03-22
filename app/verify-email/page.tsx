@@ -8,16 +8,13 @@ type VerifyState = 'loading' | 'success' | 'already-used' | 'expired' | 'invalid
 
 function VerifyEmailContent() {
 	const searchParams = useSearchParams();
+	const session = searchParams.get('session');
+	const code = searchParams.get('code');
 	const [state, setState] = useState<VerifyState>('loading');
 	const [errorMessage, setErrorMessage] = useState('');
 
 	useEffect(() => {
-		const session = searchParams.get('session');
-		const code = searchParams.get('code');
-
 		if (!session || !code) {
-			setState('invalid');
-			setErrorMessage('This verification link is incomplete or malformed. Please request a new one.');
 			return;
 		}
 
@@ -51,7 +48,24 @@ function VerifyEmailContent() {
 		};
 
 		verifyEmail();
-	}, [searchParams]);
+	}, [session, code]);
+
+	if (!session || !code) {
+		return (
+			<div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+				<div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-12 max-w-md w-full text-center">
+					<div className="flex items-center justify-center gap-1 mb-8">
+						<img src="/xentro-logo.png" alt="" className="h-7 w-auto" />
+						<span className="text-lg font-bold tracking-tight text-gray-900">entro</span>
+					</div>
+					<ErrorView
+						title="Invalid Link"
+						message="This verification link is incomplete or malformed. Please request a new one."
+					/>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -92,21 +106,54 @@ function SuccessView() {
 	const [countdown, setCountdown] = useState(5);
 
 	useEffect(() => {
-		const timer = setInterval(() => {
-			setCountdown((prev) => {
-				if (prev <= 1) {
-					clearInterval(timer);
-					try {
-						window.close();
-					} catch {
-						window.location.href = '/login';
-					}
-					return 0;
+		const CLOSE_AFTER_MS = 5000;
+		const deadline = Date.now() + CLOSE_AFTER_MS;
+		let closed = false;
+
+		const attemptClose = () => {
+			if (closed) return;
+			closed = true;
+			try {
+				window.close();
+			} catch {
+				window.location.href = '/login';
+				return;
+			}
+
+			// Some browsers block close() unless tab was script-opened.
+			window.setTimeout(() => {
+				if (!window.closed) {
+					window.location.href = '/login';
 				}
-				return prev - 1;
-			});
-		}, 1000);
-		return () => clearInterval(timer);
+			}, 150);
+		};
+
+		const syncWithDeadline = () => {
+			const msLeft = deadline - Date.now();
+			if (msLeft <= 0) {
+				setCountdown(0);
+				attemptClose();
+				return;
+			}
+			setCountdown(Math.ceil(msLeft / 1000));
+		};
+
+		syncWithDeadline();
+
+		const interval = window.setInterval(syncWithDeadline, 500);
+		const timeout = window.setTimeout(syncWithDeadline, CLOSE_AFTER_MS + 30);
+
+		window.addEventListener('visibilitychange', syncWithDeadline);
+		window.addEventListener('focus', syncWithDeadline);
+		window.addEventListener('pageshow', syncWithDeadline);
+
+		return () => {
+			window.clearInterval(interval);
+			window.clearTimeout(timeout);
+			window.removeEventListener('visibilitychange', syncWithDeadline);
+			window.removeEventListener('focus', syncWithDeadline);
+			window.removeEventListener('pageshow', syncWithDeadline);
+		};
 	}, []);
 
 	return (

@@ -4,7 +4,6 @@ import {
     Button,
     Card,
     Badge,
-    VerifiedBadge,
     SDGBadge
 } from '@/components/ui';
 import { AppIcon } from '@/components/ui/AppIcon';
@@ -42,7 +41,7 @@ export default function ReviewPublishSlide({
                     Ready to publish?
                 </h2>
                 <p className="text-(--secondary)">
-                    Review the details below before making them public.
+                    Review the details below before publishing. You can request the verified badge after publish.
                 </p>
             </div>
 
@@ -67,7 +66,7 @@ export default function ReviewPublishSlide({
                         <div>
                             <div className="flex items-center gap-2 mb-1">
                                 <h3 className="text-xl font-bold text-(--primary)">{formData.name}</h3>
-                                <VerifiedBadge />
+                                <Badge variant="secondary">Verification Optional</Badge>
                             </div>
                             <p className="text-(--secondary) mb-2">{formData.tagline}</p>
                             <div className="flex flex-wrap gap-2">
@@ -155,7 +154,7 @@ export default function ReviewPublishSlide({
                     Save as Draft
                 </Button>
                 <Button size="lg" onClick={onPublish} className="bg-success hover:bg-[#059669] shadow-(--shadow-lg)">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Get Approval (Cmd+Enter)
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Publish & Request Verification (Cmd+Enter)
                 </Button>
             </div>
         </div>

@@ -8,6 +8,19 @@ import OnboardingWizard from './_components/OnboardingWizard';
 import ApprovedDashboard from './_components/ApprovedDashboard';
 import PendingApplicationView from './_components/PendingApplicationView';
 
+function pickLatestApplication(apps: InstitutionApplication[]): InstitutionApplication | null {
+  if (!apps.length) return null;
+
+  const byUpdated = [...apps].sort((a, b) => {
+    const aTime = new Date(a.updatedAt ?? a.createdAt ?? 0).getTime();
+    const bTime = new Date(b.updatedAt ?? b.createdAt ?? 0).getTime();
+    return bTime - aTime;
+  });
+
+  const latestVerified = byUpdated.find((app) => app.verified);
+  return latestVerified ?? byUpdated[0] ?? null;
+}
+
 /** Normalize legal_documents from DB – may be string[] (old) or {url,name}[] (new) */
 function normalizeLegalDocs(raw: unknown): LegalDocument[] {
   if (!Array.isArray(raw)) return [];
@@ -66,6 +79,32 @@ export default function InstitutionDashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
 
+  const handleNudgeVerification = async () => {
+    if (!application) return;
+    const token = getSessionToken('institution');
+    if (!token) return;
+
+    try {
+      const res = await fetch(`/api/institution-applications/${application.id}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: 'pending', remark: '' }),
+      });
+
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(payload.message || 'Failed to submit verification request');
+      }
+      setApplication(payload.data ?? payload);
+      setError(null);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
   // Pick up token from URL query string (magic-link redirect)
   useEffect(() => {
     const urlToken = searchParams.get('token');
@@ -113,7 +152,7 @@ export default function InstitutionDashboardPage() {
         }
         const payload = await res.json();
         const apps = (payload.data ?? []) as InstitutionApplication[];
-        const latest = apps.filter((a) => a.verified).slice(-1)[0] ?? null;
+        const latest = pickLatestApplication(apps);
         setApplication(latest);
 
         if (latest) {
@@ -166,7 +205,7 @@ export default function InstitutionDashboardPage() {
             legalDocuments: normalizeLegalDocs(latest.legalDocuments),
           });
 
-          if (latest.status === 'approved') {
+          if (latest.institutionId) {
             const token = getSessionToken('institution');
             if (token) {
               const [startupsRes, teamRes, programsRes, instRes] = await Promise.all([
@@ -218,14 +257,15 @@ export default function InstitutionDashboardPage() {
     );
   }
 
-  // ── Render: Approved dashboard ──
-  if (application?.status === 'approved' && !showOnboarding) {
+  // ── Render: Active institution dashboard ──
+  if (application?.institutionId && !showOnboarding) {
     return (
       <ApprovedDashboard
         application={application}
         institution={institution}
         stats={stats}
         onEditProfile={() => setShowOnboarding(true)}
+        onNudgeVerification={handleNudgeVerification}
       />
     );
   }

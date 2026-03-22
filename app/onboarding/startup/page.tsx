@@ -186,40 +186,6 @@ export default function StartupOnboardingPage() {
                     {isCompletionFlow && (
                         <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-4 sm:gap-6 items-start">
                             <aside className="hidden lg:block sticky top-20 space-y-4">
-                                <div className="rounded-2xl border border-(--border) bg-white p-3.5">
-                                    <p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary) px-1 pb-2">Steps</p>
-                                    <div className="space-y-2">
-                                        {COMPLETION_STEPS.map((step) => {
-                                            const isActive = step.id === nav.currentStep;
-                                            const isDone = step.id < nav.currentStep;
-                                            return (
-                                                <button
-                                                    key={step.id}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setMobilePanel('form');
-                                                        nav.setStep(step.id);
-                                                    }}
-                                                    className={`w-full rounded-xl border px-3 py-2.5 text-left transition ${isActive
-                                                        ? 'border-slate-900 bg-slate-100 shadow-[0_6px_16px_rgba(15,23,42,0.08)]'
-                                                        : 'border-(--border) bg-white hover:border-slate-300 hover:bg-slate-50'
-                                                        }`}
-                                                >
-                                                    <div className="flex items-start gap-2.5">
-                                                        <div className={`mt-0.5 h-6 w-6 rounded-full flex items-center justify-center text-xs font-semibold ${isActive || isDone ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}`}>
-                                                            {isDone ? <AppIcon name="check" className="h-3.5 w-3.5" /> : step.id}
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <p className="text-sm font-semibold text-slate-900">{step.title}</p>
-                                                            <p className="text-xs text-slate-600 mt-0.5 line-clamp-2">{step.subtitle}</p>
-                                                        </div>
-                                                    </div>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
                                 <div className="rounded-2xl border border-(--border) bg-white p-4">
                                     <p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Guidelines</p>
                                     <h3 className="mt-1 text-base font-semibold text-slate-900">{currentGuide.title}</h3>
@@ -317,24 +283,6 @@ export default function StartupOnboardingPage() {
                                             </div>
                                         </div>
 
-                                        <div className="lg:hidden rounded-2xl border border-(--border) bg-white p-3">
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {COMPLETION_STEPS.map((step) => (
-                                                    <button
-                                                        key={step.id}
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setMobilePanel('form');
-                                                            nav.setStep(step.id);
-                                                        }}
-                                                        className={`rounded-lg border px-2.5 py-2 text-left transition ${step.id === nav.currentStep ? 'border-slate-900 bg-slate-100' : 'border-(--border) bg-white'}`}
-                                                    >
-                                                        <p className="text-xs font-semibold text-slate-900">{step.title}</p>
-                                                        <p className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">{step.subtitle}</p>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
                                     </>
                                 )}
                             </div>

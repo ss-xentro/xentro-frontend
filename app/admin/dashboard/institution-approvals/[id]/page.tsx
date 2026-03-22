@@ -63,6 +63,10 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
 
   const handleAction = async (action: 'approved' | 'rejected') => {
     if (!app) return;
+    if (!remark.trim()) {
+      setError('Please add a message before approving or denying verification.');
+      return;
+    }
     try {
       setSubmitting(true);
       const authToken = getAuthToken();
@@ -79,7 +83,7 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.message || payload.error || 'Update failed');
-      alert(`Institution ${action === 'approved' ? 'approved' : 'rejected'} successfully!`);
+      alert(`Verification ${action === 'approved' ? 'approved' : 'denied'} successfully.`);
       router.push('/admin/dashboard/institution-approvals');
     } catch (err) {
       setError((err as Error).message);
@@ -122,8 +126,8 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-(--primary)">Application Details: {app.name}</h1>
-          <p className="text-(--secondary)">Review the full submitted profile below.</p>
+          <h1 className="text-2xl font-bold text-(--primary)">Verification Request: {app.name}</h1>
+          <p className="text-(--secondary)">Review institution details and decide verified badge status.</p>
         </div>
         <div className="ml-auto">
           <span className={`px-3 py-1 rounded-full text-sm font-semibold ${statusColors[app.status] ?? 'bg-(--surface-hover) text-(--primary)'}`}>
@@ -172,13 +176,13 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
 
         <div className="md:col-span-1">
           <Card className="p-6 sticky top-24">
-            <h3 className="text-lg font-bold border-b border-(--border) pb-4 mb-4">Action</h3>
+            <h3 className="text-lg font-bold border-b border-(--border) pb-4 mb-4">Verification Decision</h3>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-(--primary) mb-2">Administrator Remarks (Optional)</label>
+                <label className="block text-sm font-semibold text-(--primary) mb-2">Admin Message (Required)</label>
                 <Textarea
-                  placeholder="Notes for the institution on why they were approved/rejected..."
+                  placeholder="Message shown to the institution for this decision..."
                   value={remark}
                   onChange={(e) => setRemark(e.target.value)}
                   className="w-full min-h-[120px]"
@@ -193,7 +197,7 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
                     disabled={!app.verified || submitting}
                     onClick={() => handleAction('approved')}
                   >
-                    {submitting ? 'Processing...' : 'Approve Institution'}
+                    {submitting ? 'Processing...' : 'Approve Verified Badge'}
                   </Button>
                   <Button
                     variant="ghost"
@@ -201,7 +205,7 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
                     disabled={submitting}
                     onClick={() => handleAction('rejected')}
                   >
-                    Reject Application
+                    Deny Verified Badge
                   </Button>
                   {!app.verified && (
                     <p className="text-xs flex text-red-500 text-center mt-2">

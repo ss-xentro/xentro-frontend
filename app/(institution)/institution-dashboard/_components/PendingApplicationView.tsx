@@ -27,8 +27,25 @@ export default function PendingApplicationView({
 				<div>
 					<p className="text-accent font-semibold text-sm uppercase tracking-wide flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Phase 1 Complete</p>
 					<h1 className="text-3xl font-bold text-(--primary)">Institution Dashboard</h1>
-					<p className="text-(--secondary)">Your email is verified. Complete Phase 2 by filling in all institution details and submitting for admin approval.</p>
+					<p className="text-(--secondary)">Your email is verified. Complete Phase 2 to publish your institution. Verified badge review is optional.</p>
 				</div>
+
+				{application && !application.description && (
+					<div className="rounded-lg border border-amber-200 bg-amber-50 p-4" role="status">
+						<div className="flex items-start gap-3">
+							<div className="mt-0.5">
+								<AppIcon name="hourglass" className="w-4 h-4 text-amber-700" />
+							</div>
+							<div className="flex-1">
+								<p className="text-sm font-semibold text-amber-900">Complete profile</p>
+								<p className="text-sm text-amber-800 mt-1">Finish Phase 2 onboarding to complete your institution profile.</p>
+							</div>
+							<Button onClick={onStartOnboarding} className="min-h-10" size="sm">
+								Complete Profile
+							</Button>
+						</div>
+					</div>
+				)}
 
 				{loading && <p className="text-(--secondary)">Loading your application…</p>}
 				{error && (
@@ -68,12 +85,12 @@ export default function PendingApplicationView({
 									<svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
 										<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
 									</svg>
-									Complete Phase 2 onboarding to submit your application for admin review.
+									Complete Phase 2 onboarding to publish your institution profile.
 								</span>
 							)}
-							{application.status === 'pending' && application.description && "Your application has been submitted and is being reviewed by our team. You'll be notified once a decision is made."}
+							{application.status === 'pending' && application.description && "Your institution details are submitted. Admin review is in progress for the verified badge."}
 							{application.status === 'approved' && 'Congratulations! Your institution has been approved and is now published on the platform.'}
-							{application.status === 'rejected' && 'Your application needs updates. Please review the admin feedback above and resubmit.'}
+							{application.status === 'rejected' && 'Your verified badge request was denied. You can update details and nudge admin again.'}
 						</p>
 
 						{application.logo && (
@@ -119,8 +136,8 @@ export default function PendingApplicationView({
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
 								</svg>
 							</div>
-							<h3 className="text-lg font-semibold text-(--primary) mb-2">No verified application found</h3>
-							<p className="text-(--secondary)">Please complete Phase 1 by verifying your email. If you just verified, try refreshing the page.</p>
+							<h3 className="text-lg font-semibold text-(--primary) mb-2">No institution application found</h3>
+							<p className="text-(--secondary)">Please start institution onboarding first, then return to complete your profile.</p>
 						</div>
 					</Card>
 				)}

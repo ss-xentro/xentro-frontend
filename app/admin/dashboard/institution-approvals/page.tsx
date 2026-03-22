@@ -43,8 +43,7 @@ export default function InstitutionApprovalsPage() {
     load();
   }, []);
 
-  // Filter to show only pending applications that completed Phase 2 (have description filled)
-  // Phase 1 applications only have name/email but no description
+  // Show verification requests submitted from completed Phase 2 profiles.
   const filteredApplications = filter === 'pending'
     ? applications.filter(app => app.status === 'pending' && app.verified && app.description)
     : applications;
@@ -75,8 +74,8 @@ export default function InstitutionApprovalsPage() {
     <div className="space-y-6 relative">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-(--primary)">Institution Approvals</h1>
-          <p className="text-(--secondary)">Review submitted applications from Phase 2 onboarding.</p>
+          <h1 className="text-2xl font-bold text-(--primary)">Institution Verification Requests</h1>
+          <p className="text-(--secondary)">Institutions are already live after Phase 2. Review verified badge requests here.</p>
         </div>
         <div className="flex gap-2">
           <select
@@ -107,8 +106,8 @@ export default function InstitutionApprovalsPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-(--primary) mb-2">No pending applications</h3>
-            <p className="text-(--secondary)">All applications have been reviewed. New submissions will appear here.</p>
+            <h3 className="text-lg font-semibold text-(--primary) mb-2">No pending verification requests</h3>
+            <p className="text-(--secondary)">All verification requests are processed. New requests will appear here.</p>
           </div>
         </Card>
       )}
@@ -123,7 +122,7 @@ export default function InstitutionApprovalsPage() {
                 <p className="text-sm text-(--secondary)">{app.type}</p>
               </div>
               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[app.status] ?? 'bg-(--surface-hover) text-(--primary)'}`}>
-                {app.status}
+                {app.status === 'approved' ? 'verified' : app.status}
               </span>
             </div>
 
