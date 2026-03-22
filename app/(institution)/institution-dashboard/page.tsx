@@ -79,7 +79,7 @@ export default function InstitutionDashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
 
-  const handleNudgeVerification = async () => {
+  const handleNudgeVerification = async (message: string) => {
     if (!application) return;
     const token = getSessionToken('institution');
     if (!token) return;
@@ -91,7 +91,7 @@ export default function InstitutionDashboardPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ status: 'pending', remark: '' }),
+        body: JSON.stringify({ status: 'pending', remark: message?.trim() ?? '' }),
       });
 
       const payload = await res.json().catch(() => ({}));
@@ -102,6 +102,7 @@ export default function InstitutionDashboardPage() {
       setError(null);
     } catch (err) {
       setError((err as Error).message);
+      throw err;
     }
   };
 
@@ -205,31 +206,29 @@ export default function InstitutionDashboardPage() {
             legalDocuments: normalizeLegalDocs(latest.legalDocuments),
           });
 
-          if (latest.institutionId) {
-            const token = getSessionToken('institution');
-            if (token) {
-              const [startupsRes, teamRes, programsRes, instRes] = await Promise.all([
-                fetch('/api/startups', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('/api/institution-team', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('/api/programs', { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch('/api/auth/me/', { headers: { 'Authorization': `Bearer ${token}` } }),
-              ]);
+          const token = getSessionToken('institution');
+          if (token) {
+            const [startupsRes, teamRes, programsRes, instRes] = await Promise.all([
+              fetch('/api/startups', { headers: { 'Authorization': `Bearer ${token}` } }),
+              fetch('/api/institution-team', { headers: { 'Authorization': `Bearer ${token}` } }),
+              fetch('/api/programs', { headers: { 'Authorization': `Bearer ${token}` } }),
+              fetch('/api/auth/me/', { headers: { 'Authorization': `Bearer ${token}` } }),
+            ]);
 
-              const startups = startupsRes.ok ? await startupsRes.json() : { data: [] };
-              const team = teamRes.ok ? await teamRes.json() : { data: [] };
-              const programs = programsRes.ok ? await programsRes.json() : { data: [] };
-              const inst = instRes.ok ? await instRes.json() : { institution: null };
+            const startups = startupsRes.ok ? await startupsRes.json() : { data: [] };
+            const team = teamRes.ok ? await teamRes.json() : { data: [] };
+            const programs = programsRes.ok ? await programsRes.json() : { data: [] };
+            const inst = instRes.ok ? await instRes.json() : { institution: null };
 
-              setStats({
-                startupsCount: startups.data?.length || 0,
-                teamCount: team.data?.length || 0,
-                programsCount: programs.data?.length || 0,
-                profileViews: inst.institution?.profileViews || 0,
-              });
+            setStats({
+              startupsCount: startups.data?.length || 0,
+              teamCount: team.data?.length || 0,
+              programsCount: programs.data?.length || 0,
+              profileViews: inst.institution?.profileViews || 0,
+            });
 
-              if (inst.institution) {
-                setInstitution(inst.institution);
-              }
+            if (inst.institution) {
+              setInstitution(inst.institution);
             }
           }
         }
@@ -258,7 +257,7 @@ export default function InstitutionDashboardPage() {
   }
 
   // ── Render: Active institution dashboard ──
-  if (application?.institutionId && !showOnboarding) {
+  if (application && (application.institutionId || institution?.id) && !showOnboarding) {
     return (
       <ApprovedDashboard
         application={application}

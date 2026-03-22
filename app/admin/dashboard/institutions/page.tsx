@@ -10,7 +10,7 @@ import { DeleteConfirmDialog } from './_components/DeleteConfirmDialog';
 import { InstitutionTable } from './_components/InstitutionTable';
 
 function getAuthToken(token: string | null): string | null {
-    if (token) return token;
+    if (token && token !== 'httponly') return token;
     // Fallback: read from cookie-based session
     const { getSessionToken } = require('@/lib/auth-utils');
     return getSessionToken('admin');
@@ -94,14 +94,21 @@ export default function InstitutionsPage() {
                     <h2 className="text-2xl font-bold text-(--primary)">Institutions</h2>
                     <p className="text-(--secondary) mt-1">Manage and monitor all onboarded institutions</p>
                 </div>
-                <Link href="/admin/dashboard/add-institution">
-                    <Button>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        Add Institution
-                    </Button>
-                </Link>
+                <div className="flex items-center gap-3">
+                    <a href="/admin/dashboard/institutions/verification-requests" target="_blank" rel="noopener noreferrer">
+                        <Button variant="secondary">
+                            Verification Requests
+                        </Button>
+                    </a>
+                    <Link href="/admin/dashboard/add-institution">
+                        <Button>
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Add Institution
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {/* Filters */}

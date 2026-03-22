@@ -99,16 +99,6 @@ const navItems = [
         ),
     },
     {
-        label: 'Institution Approvals',
-        href: '/admin/dashboard/institution-approvals',
-        icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m-2-5h3a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h3" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 9a3 3 0 100-6 3 3 0 000 6z" />
-            </svg>
-        ),
-    },
-    {
         label: 'Mentor Verification',
         href: '/admin/dashboard/approvals/mentors',
         icon: (

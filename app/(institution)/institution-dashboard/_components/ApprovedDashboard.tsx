@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, Textarea } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { InstitutionApplication, Institution } from '@/lib/types';
 import { AppIcon } from '@/components/ui/AppIcon';
@@ -18,7 +19,7 @@ interface ApprovedDashboardProps {
 	institution: Institution | null;
 	stats: DashboardStats;
 	onEditProfile: () => void;
-	onNudgeVerification: () => void;
+	onNudgeVerification: (message: string) => Promise<void>;
 }
 
 function StatCard({ icon, bg, label, value }: { icon: string; bg: string; label: string; value: number | string }) {
@@ -45,6 +46,22 @@ const QUICK_ACTIONS = [
 ];
 
 export default function ApprovedDashboard({ application, institution, stats, onEditProfile, onNudgeVerification }: ApprovedDashboardProps) {
+	const [requestModalOpen, setRequestModalOpen] = useState(false);
+	const [requestMessage, setRequestMessage] = useState('');
+	const [submittingRequest, setSubmittingRequest] = useState(false);
+	const institutionPublicId = application.institutionId || institution?.id || '';
+
+	const handleSubmitVerificationRequest = async () => {
+		try {
+			setSubmittingRequest(true);
+			await onNudgeVerification(requestMessage);
+			setRequestModalOpen(false);
+			setRequestMessage('');
+		} finally {
+			setSubmittingRequest(false);
+		}
+	};
+
 	return (
 		<DashboardSidebar>
 			<div className="p-8 space-y-6 animate-fadeIn">
@@ -64,8 +81,8 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 									</p>
 								)}
 							</div>
-							<Button variant="secondary" onClick={onNudgeVerification}>
-								Nudge Admin
+							<Button variant="secondary" onClick={() => setRequestModalOpen(true)}>
+								Request Verification
 							</Button>
 						</div>
 					</Card>
@@ -142,9 +159,9 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 						<Link href="/institution-edit">
 							<Button>Edit Profile</Button>
 						</Link>
-						{(institution?.slug || application.institutionId) && (
+						{(institution?.slug || institutionPublicId) && (
 							<>
-								<Link href={`/institution-preview/${application.institutionId}`}>
+								<Link href={`/institution-preview/${institutionPublicId}`}>
 									<Button>
 										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -153,7 +170,7 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 										Preview & Edit
 									</Button>
 								</Link>
-								<a href={`/institutions/${institution?.slug || application.institutionId}`} target="_blank" rel="noopener noreferrer">
+								<a href={`/institutions/${institution?.slug || institutionPublicId}`} target="_blank" rel="noopener noreferrer">
 									<Button variant="ghost">
 										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -183,6 +200,44 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 						))}
 					</div>
 				</Card>
+
+				{requestModalOpen && (
+					<div className="fixed inset-0 z-[110] flex items-center justify-center px-4">
+						<div
+							className="absolute inset-0 bg-black/45 backdrop-blur-sm"
+							onClick={() => !submittingRequest && setRequestModalOpen(false)}
+						/>
+						<Card className="relative w-full max-w-lg p-6 space-y-4">
+							<div>
+								<h3 className="text-lg font-bold text-(--primary)">Request Verified Badge</h3>
+								<p className="text-sm text-(--secondary) mt-1">
+									Send an optional note to admin. They can approve or deny your blue tick request.
+								</p>
+							</div>
+
+							<Textarea
+								label="Message to admin (optional)"
+								placeholder="Add context about your institution, traction, or why this should be verified."
+								value={requestMessage}
+								onChange={(e) => setRequestMessage(e.target.value)}
+								rows={5}
+							/>
+
+							<div className="flex items-center justify-end gap-3 pt-2">
+								<Button
+									variant="ghost"
+									onClick={() => setRequestModalOpen(false)}
+									disabled={submittingRequest}
+								>
+									Cancel
+								</Button>
+								<Button onClick={handleSubmitVerificationRequest} disabled={submittingRequest}>
+									{submittingRequest ? 'Submitting...' : 'Send Request'}
+								</Button>
+							</div>
+						</Card>
+					</div>
+				)}
 			</div>
 		</DashboardSidebar>
 	);

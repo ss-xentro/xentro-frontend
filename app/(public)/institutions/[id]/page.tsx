@@ -13,6 +13,13 @@ type Program = any;
 type Event = any;
 type Startup = any;
 
+function normalizeStringList(value: unknown): string[] {
+    if (!Array.isArray(value)) return [];
+    return value
+        .map((item) => (typeof item === 'string' ? item.trim() : ''))
+        .filter(Boolean);
+}
+
 export default function InstitutionProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const [identifier, setIdentifier] = useState<string>('');
@@ -73,6 +80,12 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
     }
     const typeInfo = institutionTypeLabels[institution.type] ?? { label: institution.type, icon: 'building', description: '' };
     const modeInfo = institution.operatingMode ? operatingModeLabels[institution.operatingMode as keyof typeof operatingModeLabels] : undefined;
+    const rawSdgValues = normalizeStringList(
+        institution.sdgFocus ?? institution.sdg_focus ?? institution.sdgs
+    );
+    const rawSectorValues = normalizeStringList(
+        institution.sectorFocus ?? institution.sector_focus ?? institution.sectors
+    );
 
     return (
         <div className="animate-fadeIn min-h-screen bg-[#0B0D10] text-white">
@@ -202,24 +215,60 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
                             <div className="mb-6">
                                 <p className="text-sm text-gray-400 mb-2 uppercase tracking-wider font-semibold">SDGs</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {(institution.sdgFocus ?? []).map((sdg: string) => {
-                                        const sdgInfo = sdgLabels[sdg as keyof typeof sdgLabels];
-                                        return sdgInfo ? <SDGBadge key={sdg} sdg={sdgInfo.label} color={sdgInfo.color} /> : null;
-                                    })}
+                                    {rawSdgValues.length > 0 ? (
+                                        rawSdgValues.map((sdg: string) => {
+                                            const keyMatch = sdgLabels[sdg as keyof typeof sdgLabels];
+                                            const nameMatch = Object.values(sdgLabels).find(
+                                                (item) =>
+                                                    item.label.toLowerCase() === sdg.toLowerCase() ||
+                                                    item.fullName.toLowerCase() === sdg.toLowerCase()
+                                            );
+                                            const sdgInfo = keyMatch ?? nameMatch;
+
+                                            if (sdgInfo) {
+                                                return (
+                                                    <span
+                                                        key={`sdg-${sdg}`}
+                                                        className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-(--radius-full) text-white"
+                                                        style={{ backgroundColor: sdgInfo.color }}
+                                                    >
+                                                        SDG {sdgInfo.label}: {sdgInfo.fullName}
+                                                    </span>
+                                                );
+                                            }
+
+                                            return (
+                                                <Badge key={`sdg-${sdg}`} variant="secondary" className="bg-white/10 text-gray-300 border-white/20">
+                                                    {sdg}
+                                                </Badge>
+                                            );
+                                        })
+                                    ) : (
+                                        <p className="text-sm text-gray-500">No SDGs specified</p>
+                                    )}
                                 </div>
                             </div>
 
                             <div>
                                 <p className="text-sm text-gray-400 mb-2 uppercase tracking-wider font-semibold">Sectors</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {(institution.sectorFocus ?? []).map((sector: string) => {
-                                        const sectorInfo = sectorLabels[sector as keyof typeof sectorLabels];
-                                        return sectorInfo ? (
-                                            <Badge key={sector} variant="secondary" className="bg-white/10 text-gray-300 border-white/20">
-                                                {sectorInfo.label}
-                                            </Badge>
-                                        ) : null;
-                                    })}
+                                    {rawSectorValues.length > 0 ? (
+                                        rawSectorValues.map((sector: string) => {
+                                            const keyMatch = sectorLabels[sector as keyof typeof sectorLabels];
+                                            const nameMatch = Object.values(sectorLabels).find(
+                                                (item) => item.label.toLowerCase() === sector.toLowerCase()
+                                            );
+                                            const sectorInfo = keyMatch ?? nameMatch;
+
+                                            return (
+                                                <Badge key={`sector-${sector}`} variant="secondary" className="bg-white/10 text-gray-300 border-white/20">
+                                                    {sectorInfo?.label ?? sector}
+                                                </Badge>
+                                            );
+                                        })
+                                    ) : (
+                                        <p className="text-sm text-gray-500">No sectors specified</p>
+                                    )}
                                 </div>
                             </div>
                         </Card>

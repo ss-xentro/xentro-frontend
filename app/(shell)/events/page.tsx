@@ -38,6 +38,21 @@ interface EventItem {
 	createdAt: string;
 }
 
+function normalizeEventListResponse(payload: unknown): EventItem[] {
+	if (Array.isArray(payload)) return payload as EventItem[];
+	if (!payload || typeof payload !== 'object') return [];
+
+	const record = payload as Record<string, unknown>;
+	const candidates = [record.events, record.data, record.results];
+	for (const candidate of candidates) {
+		if (Array.isArray(candidate)) {
+			return candidate as EventItem[];
+		}
+	}
+
+	return [];
+}
+
 type FilterState = {
 	eventType: string[];
 	audienceType: string[];
@@ -153,7 +168,7 @@ export default function PublicEventsPage() {
 			const res = await fetch(`/api/events/${query ? `?${query}` : ''}`, { headers });
 			if (!res.ok) throw new Error('Failed to fetch events');
 			const data = await res.json();
-			setEvents(data.events || data.data || []);
+			setEvents(normalizeEventListResponse(data));
 		} catch {
 			setEvents([]);
 		} finally {
@@ -291,6 +306,8 @@ export default function PublicEventsPage() {
 												const start = formatDate(event.startTime);
 												const organizer = event.organizerName || event.institutionName || 'Xentro';
 												const isBooked = event.currentUserRsvp === 'going';
+												const isOpenCapacity = event.remainingSlots == null;
+												const capacityLabel = isOpenCapacity ? 'Open' : `${event.remainingSlots} seats left`;
 												return (
 													<Link key={event.id} href={`/events/${event.id}`} className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f87171]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1220]">
 														<Card className="group h-full rounded-2xl border border-white/10 bg-[#0f172a]/95 p-3.5 sm:p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#ef4444]/45 hover:bg-[#111827] hover:shadow-[0_8px_24px_rgba(2,6,23,0.35)] active:scale-[0.99]">
@@ -310,10 +327,13 @@ export default function PublicEventsPage() {
 																<span className="rounded-full border border-white/15 px-2 py-1 text-white/70">{labelize(event.mode || (event.isVirtual ? 'online' : 'offline'))}</span>
 																<span className="rounded-full border border-white/15 px-2 py-1 text-white/70">{labelize(event.pricingType || 'free')}</span>
 																<span className="rounded-full border border-white/15 px-2 py-1 text-white/70">{labelize(event.difficultyLevel || 'beginner')}</span>
+																<span className={`rounded-full px-2 py-1 ${isOpenCapacity ? 'border border-emerald-400/45 bg-emerald-400/15 text-emerald-200' : 'border border-white/15 text-white/70'}`}>
+																	{capacityLabel}
+																</span>
 															</div>
 															<div className="mt-3 sm:mt-4 border-t border-white/10 pt-3 text-xs text-white/70">
 																<p>{organizer}</p>
-																<p className="mt-1">{event.remainingSlots != null ? `${event.remainingSlots} seats left` : 'Unlimited seats'}</p>
+																<p className="mt-1">{capacityLabel}</p>
 															</div>
 														</Card>
 													</Link>
@@ -332,7 +352,6 @@ export default function PublicEventsPage() {
 													<Card className="h-full rounded-xl border border-white/10 bg-white/5 p-3 opacity-80 transition duration-200 hover:opacity-100 active:scale-[0.99]">
 														<p className="text-xs uppercase tracking-wide text-white/55">{labelize(event.type || 'event')}</p>
 														<h4 className="mt-1 line-clamp-2 text-sm font-semibold text-white">{event.name}</h4>
-														<p className="mt-2 text-xs text-white/65">{event.attendeeCount} attendees</p>
 													</Card>
 												</Link>
 											))}

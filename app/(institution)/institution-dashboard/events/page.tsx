@@ -1,21 +1,33 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button, FeedbackBanner, EmptyState } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
-import { EventItem, ModalMode, EventFormData, EMPTY_FORM, eventToForm } from './_lib/constants';
+import { EventItem } from './_lib/constants';
 import EventCard from './_components/EventCard';
-import EventFormModal from './_components/EventFormModal';
+
+function normalizeEventListResponse(payload: unknown): EventItem[] {
+    if (Array.isArray(payload)) return payload as EventItem[];
+    if (!payload || typeof payload !== 'object') return [];
+
+    const record = payload as Record<string, unknown>;
+    const candidates = [record.events, record.data, record.results];
+    for (const candidate of candidates) {
+        if (Array.isArray(candidate)) {
+            return candidate as EventItem[];
+        }
+    }
+
+    return [];
+}
 
 export default function InstitutionEventsPage() {
+    const router = useRouter();
     const [events, setEvents] = useState<EventItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [modalMode, setModalMode] = useState<ModalMode>(null);
-    const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
-    const [saving, setSaving] = useState(false);
-    const [form, setForm] = useState<EventFormData>(EMPTY_FORM);
 
     const fetchEvents = useCallback(async () => {
         const token = getSessionToken();
@@ -25,7 +37,7 @@ export default function InstitutionEventsPage() {
             const res = await fetch('/api/events/', { headers: { Authorization: `Bearer ${token}` } });
             if (!res.ok) throw new Error('Failed to fetch events');
             const data = await res.json();
-            setEvents(data.events || data.data || []);
+            setEvents(normalizeEventListResponse(data));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load events');
         } finally {
@@ -35,85 +47,12 @@ export default function InstitutionEventsPage() {
 
     useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
-    const openCreate = () => { setForm(EMPTY_FORM); setEditingEvent(null); setModalMode('create'); };
-
-    const openEdit = (event: EventItem) => {
-        setEditingEvent(event);
-        setForm(eventToForm(event));
-        setModalMode('edit');
+    const goToCreatePage = () => {
+        router.push('/institution-dashboard/add-event');
     };
 
-    const handleSave = async () => {
-        const token = getSessionToken();
-        if (!token || !form.name.trim()) return;
-        if (form.maxAttendees && Number(form.maxAttendees) <= 0) {
-            setError('Available seats must be greater than 0 when provided.');
-            return;
-        }
-        setSaving(true);
-        try {
-            const parseLines = (value: string) =>
-                value
-                    .split('\n')
-                    .map((line) => line.trim())
-                    .filter(Boolean);
-
-            const speakerLineup = parseLines(form.speakerLineupJson).map((name) => ({ name }));
-            const agendaTimeline = parseLines(form.agendaTimelineJson).map((activity) => ({ activity }));
-            const ticketTypes = parseLines(form.ticketTypesJson).map((name) => ({ name }));
-            const audienceTypes = parseLines(form.audienceTypes);
-            const startupStages = parseLines(form.startupStages);
-            const benefits = parseLines(form.benefits);
-
-            const body: Record<string, unknown> = {
-                name: form.name,
-                description: form.description || null,
-                location: form.location || null,
-                type: form.type || null,
-                audience_types: audienceTypes,
-                startup_stages: startupStages,
-                domain: form.domain || null,
-                mode: form.mode || null,
-                city: form.city || null,
-                state: form.state || null,
-                country: form.country || null,
-                pricing_type: form.pricingType || null,
-                organizer_type: form.organizerType || null,
-                benefits: benefits,
-                difficulty_level: form.difficultyLevel || null,
-                application_requirement: form.applicationRequirement || null,
-                availability_status: form.availabilityStatus || null,
-                average_rating: form.averageRating ? Number(form.averageRating) : null,
-                start_time: form.startTime || null,
-                end_time: form.endTime || null,
-                price: form.price ? Number(form.price) : null,
-                is_virtual: form.isVirtual,
-                max_attendees: form.maxAttendees ? Number(form.maxAttendees) : null,
-                status: form.status,
-                cover_image: form.coverImage || null,
-                cancellation_cutoff_hours: form.cancellationCutoffHours ? Number(form.cancellationCutoffHours) : 2,
-                speaker_lineup: speakerLineup,
-                agenda_timeline: agendaTimeline,
-                ticket_types: ticketTypes,
-            };
-            const url = modalMode === 'edit' && editingEvent ? `/api/events/${editingEvent.id}/` : '/api/events/';
-            const method = modalMode === 'edit' ? 'PATCH' : 'POST';
-            const res = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify(body),
-            });
-            if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                throw new Error(data.message || data.detail || 'Save failed');
-            }
-            setModalMode(null);
-            fetchEvents();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Save failed');
-        } finally {
-            setSaving(false);
-        }
+    const openEdit = (event: EventItem) => {
+        router.push(`/institution-dashboard/events/${event.id}/edit`);
     };
 
     const handleDelete = async (id: string) => {
@@ -137,7 +76,7 @@ export default function InstitutionEventsPage() {
                         <h1 className="text-3xl font-bold text-white">Events</h1>
                         <p className="text-sm text-gray-400">Create and manage events for your institution community.</p>
                     </div>
-                    <Button onClick={openCreate}>+ New Event</Button>
+                    <Button onClick={goToCreatePage}>+ New Event</Button>
                 </div>
 
                 {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
@@ -149,7 +88,7 @@ export default function InstitutionEventsPage() {
                         ))}
                     </div>
                 ) : events.length === 0 ? (
-                    <EmptyState title="No events yet" description="Create your first event to engage your community." ctaLabel="Create Event" onCtaClick={openCreate} />
+                    <EmptyState title="No events yet" description="Create your first event to engage your community." ctaLabel="Create Event" onCtaClick={goToCreatePage} />
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
                         {events.map((event) => (
@@ -158,14 +97,6 @@ export default function InstitutionEventsPage() {
                     </div>
                 )}
 
-                <EventFormModal
-                    mode={modalMode}
-                    form={form}
-                    saving={saving}
-                    onFormChange={setForm}
-                    onSave={handleSave}
-                    onClose={() => setModalMode(null)}
-                />
             </div>
         </DashboardSidebar>
     );

@@ -54,6 +54,17 @@ interface EventOccurrence {
 	status: string;
 }
 
+function normalizeEventDetailResponse(payload: unknown): EventDetail | null {
+	if (!payload || typeof payload !== "object") return null;
+
+	const record = payload as Record<string, unknown>;
+	if (record.id) return record as EventDetail;
+	if (record.data && typeof record.data === "object") return record.data as EventDetail;
+	if (record.event && typeof record.event === "object") return record.event as EventDetail;
+
+	return null;
+}
+
 function formatDateTime(value: string | null): string {
 	if (!value) return "TBA";
 	return new Date(value).toLocaleString("en-US", {
@@ -79,6 +90,7 @@ export default function EventDetailPage() {
 	const [eventData, setEventData] = useState<EventDetail | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [holding, setHolding] = useState(false);
+	const [booking, setBooking] = useState(false);
 	const [confirming, setConfirming] = useState(false);
 	const [cancelling, setCancelling] = useState(false);
 	const [quantity, setQuantity] = useState(1);
@@ -105,7 +117,7 @@ export default function EventDetailPage() {
 			})
 			.then((data) => {
 				if (!mounted) return;
-				setEventData(data);
+				setEventData(normalizeEventDetailResponse(data));
 			})
 			.catch((err) => {
 				if (!mounted) return;
@@ -166,15 +178,18 @@ export default function EventDetailPage() {
 
 	const seatsLabel = useMemo(() => {
 		if (!eventData) return "—";
-		if (eventData.remainingSlots == null) return "Unlimited slots";
+		if (eventData.remainingSlots == null) return "Open";
 		return `${eventData.remainingSlots} slots left`;
 	}, [eventData]);
+
+	const isUnlimitedSeats = useMemo(() => eventData?.remainingSlots == null, [eventData]);
 
 	const refreshEvent = async () => {
 		if (!eventData) return;
 		const res = await fetch(`/api/events/${eventData.id}/`);
 		if (res.ok) {
-			setEventData(await res.json());
+			const payload = await res.json();
+			setEventData(normalizeEventDetailResponse(payload));
 		}
 	};
 
@@ -214,6 +229,57 @@ export default function EventDetailPage() {
 			setError(err instanceof Error ? err.message : "Seat hold failed");
 		} finally {
 			setHolding(false);
+		}
+	};
+
+	const handleBook = async () => {
+		if (!eventData) return;
+		const token = getSessionToken();
+		if (!token) {
+			router.push("/login");
+			return;
+		}
+
+		setBooking(true);
+		setError(null);
+		setSuccess(null);
+
+		try {
+			const res = await fetch(`/api/events/${eventData.id}/rsvp/`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					status: "going",
+					quantity,
+					occurrenceId: selectedOccurrenceId || undefined,
+				}),
+			});
+
+			const payload = await res.json().catch(() => ({}));
+			if (!res.ok) {
+				throw new Error(payload.message || "Booking failed");
+			}
+
+			setCalendarLinks(payload.calendarLinks || null);
+			setHoldId(null);
+			setHoldExpiresAt(null);
+			if (payload.waitlisted) {
+				setSuccess(payload.message || "Event is full, you have been added to waitlist.");
+			} else {
+				setSuccess(
+					eventData.isVirtual
+						? "Booking confirmed. Confirmation details were sent to your email."
+						: "Booking confirmed. Check your email for the entry QR code.",
+				);
+			}
+			await refreshEvent();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Booking failed");
+		} finally {
+			setBooking(false);
 		}
 	};
 
@@ -482,17 +548,20 @@ export default function EventDetailPage() {
 						<p className="font-medium text-(--primary)">{seatsLabel}</p>
 					</div>
 
-					<div className="space-y-1 text-sm">
-						<p className="text-(--secondary)">Attendees</p>
-						<p className="font-medium text-(--primary)">
-							{eventData.attendeeCount}
-						</p>
-					</div>
+					{!hasBooked && !isSoldOut && !holdId && (
+						<Button
+							onClick={handleBook}
+							disabled={booking}
+							className="w-full"
+						>
+							{booking ? "Booking…" : "Book Event"}
+						</Button>
+					)}
 
-					{!holdId && (
+					{!holdId && !isUnlimitedSeats && (
 						<Button
 							onClick={handleHold}
-							disabled={holding || hasBooked || isSoldOut}
+							disabled={holding || booking || hasBooked || isSoldOut}
 							className="w-full"
 						>
 							{hasBooked

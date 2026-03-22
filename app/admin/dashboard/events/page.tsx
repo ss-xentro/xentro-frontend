@@ -145,6 +145,21 @@ function toForm(event: EventItem): EventForm {
 	};
 }
 
+function normalizeEventListResponse(payload: unknown): EventItem[] {
+	if (Array.isArray(payload)) return payload as EventItem[];
+	if (!payload || typeof payload !== 'object') return [];
+
+	const record = payload as Record<string, unknown>;
+	const candidates = [record.events, record.data, record.results];
+	for (const candidate of candidates) {
+		if (Array.isArray(candidate)) {
+			return candidate as EventItem[];
+		}
+	}
+
+	return [];
+}
+
 export default function AdminEventsPage() {
 	const [events, setEvents] = useState<EventItem[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -165,7 +180,7 @@ export default function AdminEventsPage() {
 			});
 			if (!res.ok) throw new Error('Failed to load events');
 			const data = await res.json();
-			setEvents(data.events || data.data || []);
+			setEvents(normalizeEventListResponse(data));
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'Failed to load events');
 		} finally {

@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { PublicNavbar, Footer } from '@/components/public/Layout';
+import { getAuthCookie } from '@/lib/auth-utils';
 
 export default function PublicLayout({
     children,
@@ -9,6 +10,7 @@ export default function PublicLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const isExistingUser = !!getAuthCookie()?.role;
     // Pages that render their own navbar
     const hasOwnNavbar = pathname === '/login'
         || pathname === '/mentor-signup'
@@ -19,11 +21,11 @@ export default function PublicLayout({
 
     return (
         <div className="min-h-screen bg-white flex flex-col">
-            {!hasOwnNavbar && <PublicNavbar />}
+            {!hasOwnNavbar && !isExistingUser && <PublicNavbar />}
             <main className="flex-1">
                 {children}
             </main>
-            {!hasOwnNavbar && <Footer />}
+            {!hasOwnNavbar && !isExistingUser && <Footer />}
         </div>
     );
 }

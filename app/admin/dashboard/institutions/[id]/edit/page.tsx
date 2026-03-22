@@ -13,7 +13,7 @@ const statusOptions = [
 ];
 
 function getAuthToken(token: string | null): string | null {
-  if (token) return token;
+  if (token && token !== 'httponly') return token;
   // Fallback: read from cookie-based session
   const { getSessionToken } = require('@/lib/auth-utils');
   return getSessionToken('admin');

@@ -55,7 +55,7 @@ export const ROLE_META: Record<DetectedRole, {
 		dashboardHref: '/admin/dashboard',
 		loginHref: '/admin/login',
 		quickActions: [
-			{ label: 'Review Approvals', href: '/admin/dashboard/institution-approvals', icon: 'clipboard-list' },
+			{ label: 'Review Approvals', href: '/admin/dashboard/institutions/verification-requests', icon: 'clipboard-list' },
 			{ label: 'Manage Institutions', href: '/admin/dashboard', icon: 'landmark' },
 			{ label: 'Browse Feed', href: '/feed', icon: 'newspaper' },
 			{ label: 'Explore', href: '/explore/institute', icon: 'search' },
