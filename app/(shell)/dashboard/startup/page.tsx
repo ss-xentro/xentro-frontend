@@ -227,8 +227,9 @@ export default function StartupSettingsPage() {
                                         <label className="block text-sm font-medium text-(--primary) mb-2">Cover Photo</label>
                                         <div className="flex flex-col gap-3">
                                             {data.coverImage && (
-                                                <div className="w-full h-32 sm:h-40 rounded-xl bg-(--surface-hover) border border-(--border) overflow-hidden shrink-0">
+                                                <div className="relative w-full h-32 sm:h-40 rounded-xl bg-(--surface-hover) border border-(--border) overflow-hidden shrink-0">
                                                     <MediaPreview src={data.coverImage} alt="Cover" className="h-full w-full rounded-none border-0" mediaClassName="object-cover" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent pointer-events-none" />
                                                 </div>
                                             )}
                                             <FileUpload
@@ -293,7 +294,10 @@ export default function StartupSettingsPage() {
                                         <div>
                                             <p className="text-xs text-(--secondary) uppercase tracking-wide mb-2">Cover Photo</p>
                                             {data.coverImage ? (
-                                                <MediaPreview src={data.coverImage} alt="Startup cover" className="h-24 w-full" mediaClassName="object-cover" />
+                                                <div className="relative h-24 w-full rounded-xl overflow-hidden border border-(--border)">
+                                                    <MediaPreview src={data.coverImage} alt="Startup cover" className="h-full w-full rounded-none border-0" mediaClassName="object-cover" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                                                </div>
                                             ) : (
                                                 <p className="text-sm text-(--secondary)">Not set</p>
                                             )}

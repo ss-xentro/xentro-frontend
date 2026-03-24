@@ -339,14 +339,34 @@ export default function AdminEventsPage() {
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					{events.map((event) => (
 						<Card key={event.id} className="p-5 space-y-3">
+							{event.coverImage && (
+								<div className="relative -mx-5 -mt-5 h-36 overflow-hidden rounded-t-xl border-b border-gray-200">
+									<img src={event.coverImage} alt="" className="w-full h-full object-cover" />
+									<div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/5" />
+									<div className="absolute inset-x-0 bottom-0 p-3">
+										<div className="flex items-start justify-between gap-3">
+											<div>
+												<h3 className="font-semibold text-white">{event.name}</h3>
+												<p className="text-xs text-white/80 mt-1">by {event.organizerName || 'Xentro'}</p>
+											</div>
+											<span className={`text-xs px-2 py-1 rounded border ${event.approved ? 'bg-green-500/25 text-green-100 border-green-300/30' : 'bg-yellow-500/25 text-yellow-100 border-yellow-300/30'}`}>
+												{event.approved ? 'Approved' : 'Pending'}
+											</span>
+										</div>
+									</div>
+								</div>
+							)}
+
 							<div className="flex items-start justify-between gap-3">
 								<div>
-									<h3 className="font-semibold text-gray-900">{event.name}</h3>
-									<p className="text-xs text-gray-500 mt-1">by {event.organizerName || 'Xentro'}</p>
+									{!event.coverImage && <h3 className="font-semibold text-gray-900">{event.name}</h3>}
+									{!event.coverImage && <p className="text-xs text-gray-500 mt-1">by {event.organizerName || 'Xentro'}</p>}
 								</div>
-								<span className={`text-xs px-2 py-1 rounded ${event.approved ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-									{event.approved ? 'Approved' : 'Pending'}
-								</span>
+								{!event.coverImage && (
+									<span className={`text-xs px-2 py-1 rounded ${event.approved ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+										{event.approved ? 'Approved' : 'Pending'}
+									</span>
+								)}
 							</div>
 							<p className="text-sm text-gray-600 line-clamp-2">{event.description || 'No description'}</p>
 							<div className="text-xs text-gray-600 space-y-1">
