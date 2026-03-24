@@ -69,21 +69,22 @@ export default function ProfileView({
 	return (
 		<div className="space-y-5">
 			<div className="relative">
-				<div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden bg-gradient-to-br from-slate-700/40 via-slate-600/30 to-slate-500/20 border border-(--border)">
+				<div className="relative w-full h-36 sm:h-46 md:h-56 rounded-xl overflow-hidden bg-gradient-to-br from-slate-700/40 via-slate-600/30 to-slate-500/20 border border-(--border)">
 					{profileData.cover_photo && (
 						<img src={profileData.cover_photo} alt="Cover" className="w-full h-full object-cover" />
 					)}
-					<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/5" />
+					<div className="absolute inset-0 bg-gradient-to-t from-black/62 via-black/28 to-black/8" />
+					<div className="absolute inset-0 bg-gradient-to-r from-black/12 via-transparent to-black/18" />
 				</div>
 
-				<div className="relative -mt-12 px-3 sm:px-5">
-					<div className="border border-(--border) rounded-xl p-4 sm:p-6 bg-(--surface) shadow-(--shadow-md)">
-						<div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
-							<div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-(--surface) bg-gradient-to-br from-violet-500/20 to-indigo-500/20 flex items-center justify-center overflow-hidden shadow-lg shrink-0">
+				<div className="relative -mt-12 sm:-mt-14 px-2 sm:px-4 md:px-5">
+					<div className="border border-(--border) rounded-xl p-3.5 sm:p-5 md:p-6 bg-(--surface) shadow-(--shadow-md)">
+						<div className="flex flex-col md:flex-row md:items-start lg:items-center gap-3.5 sm:gap-5 lg:gap-6">
+							<div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full border-4 border-(--surface) bg-gradient-to-br from-violet-500/20 to-indigo-500/20 flex items-center justify-center overflow-hidden shadow-lg shrink-0">
 								{profileData.avatar ? (
 									<img src={profileData.avatar} alt={mentorDisplayName} className="w-full h-full object-cover" />
 								) : (
-									<span className="text-2xl sm:text-3xl font-bold text-(--secondary)">
+									<span className="text-xl sm:text-2xl md:text-3xl font-bold text-(--secondary)">
 										{mentorDisplayName.charAt(0).toUpperCase()}
 									</span>
 								)}
@@ -117,10 +118,10 @@ export default function ProfileView({
 								<p className="text-xs text-(--secondary) mt-0.5 truncate">{profileData.user_email}</p>
 							</div>
 
-							<div className="flex flex-wrap items-center gap-2 sm:justify-end">
+							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-2 w-full md:w-auto md:min-w-[280px] md:self-start lg:self-auto">
 								<button
 									onClick={onEditClick}
-									className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-white bg-white text-slate-900 text-sm font-semibold hover:bg-white/90 transition-colors shadow-sm"
+									className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-white bg-white text-slate-900 text-sm font-semibold hover:bg-white/90 transition-colors shadow-sm min-h-10"
 								>
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -129,7 +130,7 @@ export default function ProfileView({
 								</button>
 								<button
 									onClick={onViewPublicProfile}
-									className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-(--border) bg-(--surface-hover) text-(--primary) text-sm font-semibold hover:bg-(--surface) transition-colors"
+									className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-(--border) bg-(--surface-hover) text-(--primary) text-sm font-semibold hover:bg-(--surface) transition-colors min-h-10"
 								>
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
