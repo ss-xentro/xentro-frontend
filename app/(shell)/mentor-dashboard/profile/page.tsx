@@ -124,10 +124,6 @@ export default function MentorProfilePage() {
 					// availability might be plain text
 				}
 			}
-			// Auto-enter edit mode when profile has never been completed
-			if (!data.profile_completed) {
-				setIsEditMode(true);
-			}
 		} catch {
 			setError("Could not load your profile. Please try again.");
 		} finally {
@@ -292,9 +288,9 @@ export default function MentorProfilePage() {
 			prev.map((p, i) =>
 				i === planIdx
 					? {
-							...p,
-							perks: p.perks.map((pk, j) => (j === perkIdx ? value : pk)),
-						}
+						...p,
+						perks: p.perks.map((pk, j) => (j === perkIdx ? value : pk)),
+					}
 					: p,
 			),
 		);
