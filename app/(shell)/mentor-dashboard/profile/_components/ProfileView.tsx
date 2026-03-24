@@ -69,7 +69,7 @@ export default function ProfileView({
 	return (
 		<div className="space-y-5">
 			<div className="relative">
-				<div className="relative w-full h-36 sm:h-46 md:h-56 rounded-xl overflow-hidden bg-gradient-to-br from-slate-700/40 via-slate-600/30 to-slate-500/20 border border-(--border)">
+				<div className="relative w-full h-36 sm:h-44 md:h-56 rounded-xl overflow-hidden bg-gradient-to-br from-slate-700/40 via-slate-600/30 to-slate-500/20 border border-(--border)">
 					{profileData.cover_photo && (
 						<img src={profileData.cover_photo} alt="Cover" className="w-full h-full object-cover" />
 					)}
@@ -77,7 +77,7 @@ export default function ProfileView({
 					<div className="absolute inset-0 bg-gradient-to-r from-black/12 via-transparent to-black/18" />
 				</div>
 
-				<div className="relative -mt-12 sm:-mt-14 px-2 sm:px-4 md:px-5">
+				<div className="relative -mt-10 sm:-mt-12 px-2 sm:px-4 md:px-5">
 					<div className="border border-(--border) rounded-xl p-3.5 sm:p-5 md:p-6 bg-(--surface) shadow-(--shadow-md)">
 						<div className="flex flex-col md:flex-row md:items-start lg:items-center gap-3.5 sm:gap-5 lg:gap-6">
 							<div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full border-4 border-(--surface) bg-gradient-to-br from-violet-500/20 to-indigo-500/20 flex items-center justify-center overflow-hidden shadow-lg shrink-0">
