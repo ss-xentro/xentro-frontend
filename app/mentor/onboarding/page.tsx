@@ -140,8 +140,8 @@ export default function MentorOnboardingPage() {
 		setFeedback(null);
 
 		try {
-			const fullName = (authUser?.name || '').trim();
-			const nameParts = fullName ? fullName.split(/\s+/) : [];
+			const displayName = (authUser?.name || '').trim();
+			const nameParts = displayName ? displayName.split(/\s+/) : [];
 			const firstName = nameParts[0] || '';
 			const lastName = nameParts.slice(1).join(' ');
 
@@ -153,6 +153,7 @@ export default function MentorOnboardingPage() {
 				},
 				body: JSON.stringify({
 					email: authUser?.email || '',
+					display_name: displayName,
 					firstName,
 					lastName,
 					currentRole: occupation.trim(),

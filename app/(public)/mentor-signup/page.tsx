@@ -65,6 +65,7 @@ export default function MentorSignupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: form.email,
+          display_name: form.name.trim(),
           firstName,
           lastName,
         }),

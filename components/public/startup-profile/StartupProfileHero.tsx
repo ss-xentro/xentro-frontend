@@ -32,10 +32,11 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 		<section className="border-b border-(--border)">
 			{/* Cover Photo */}
 			{startup.coverImage && (
-				<div className="w-full h-48 sm:h-64 md:h-80 bg-(--surface-hover) relative">
+				<div className="w-full h-48 sm:h-64 md:h-80 bg-(--surface-hover) relative overflow-hidden">
 					<img src={startup.coverImage} alt="Cover" className="w-full h-full object-cover" />
-					{/* Optional gradient overlay for better contrast if elements overlap it */}
-					<div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
+					{/* Stronger layered scrim keeps foreground readable on very bright covers */}
+					<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/5 pointer-events-none" />
+					<div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/10 pointer-events-none" />
 				</div>
 			)}
 			<div className={cn("max-w-5xl mx-auto px-4 sm:px-6 pb-8", startup.coverImage ? "" : "pt-10")}>
@@ -45,6 +46,7 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 					<div className="flex justify-between items-end">
 						<div className={cn(
 							"w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-(--surface) bg-(--surface) shadow-(--shadow-sm) flex items-center justify-center overflow-hidden shrink-0",
+							startup.coverImage ? "ring-2 ring-white/70 shadow-(--shadow-lg)" : "",
 							startup.coverImage ? "-mt-12 sm:-mt-16 z-10" : ""
 						)}>
 							{startup.logo ? (

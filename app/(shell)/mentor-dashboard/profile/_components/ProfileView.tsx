@@ -44,6 +44,8 @@ export default function ProfileView({
 	onEditClick,
 	onViewPublicProfile,
 }: ProfileViewProps) {
+	const mentorDisplayName = profileData.user_name || 'Mentor';
+
 	const expertiseList = Array.isArray(profileData.expertise)
 		? profileData.expertise
 		: String(profileData.expertise || '')
@@ -66,84 +68,83 @@ export default function ProfileView({
 
 	return (
 		<div className="space-y-5">
-			{/* Cover photo */}
-			<div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden bg-gradient-to-br from-violet-500/20 via-indigo-500/15 to-purple-500/10 border border-(--border)">
+			{/* Cover photo + protected text layer for readability */}
+			<div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden bg-gradient-to-br from-slate-700/40 via-slate-600/30 to-slate-500/20 border border-(--border)">
 				{profileData.cover_photo && (
 					<img src={profileData.cover_photo} alt="Cover" className="w-full h-full object-cover" />
 				)}
+				<div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/45 to-black/10" />
+				<div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
+					<div className="flex flex-col gap-2 max-w-3xl">
+						<div className="flex items-center gap-2 flex-wrap">
+							<h2 className="text-xl sm:text-2xl font-bold text-white">{mentorDisplayName}</h2>
+							{profileData.verified && (
+								<span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-100 border border-emerald-300/40">
+									<svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+										<path fillRule="evenodd" d="M16.403 12.652a3 3 0 010-5.304 3 3 0 00-1.06-1.06 3 3 0 01-5.304 0 3 3 0 00-1.06 1.06 3 3 0 010 5.304 3 3 0 001.06 1.06 3 3 0 015.304 0 3 3 0 001.06-1.06zM13.28 8.72a.75.75 0 010 1.06l-3 3a.75.75 0 01-1.06 0l-1.5-1.5a.75.75 0 111.06-1.06l.97.97 2.47-2.47a.75.75 0 011.06 0z" clipRule="evenodd" />
+									</svg>
+									Verified
+								</span>
+							)}
+							{!profileData.verified && profileData.status === 'approved' && (
+								<span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/25 text-blue-100 border border-blue-300/40">
+									Approved
+								</span>
+							)}
+							{profileData.status === 'pending' && (
+								<span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/25 text-amber-100 border border-amber-300/45">
+									Pending Review
+								</span>
+							)}
+						</div>
+						{profileData.occupation && (
+							<p className="text-sm text-white/90">{profileData.occupation}</p>
+						)}
+						<p className="text-xs text-white/80">{profileData.user_email}</p>
+					</div>
+				</div>
 			</div>
 
 			{/* Hero card */}
-			<div className="border border-(--border) rounded-xl p-5 sm:p-6 bg-(--surface) -mt-10 pt-0">
-				<div className="flex flex-col sm:flex-row sm:items-end gap-4 -translate-y-10 mb-0">
+			<div className="border border-(--border) rounded-xl p-5 sm:p-6 bg-(--surface)">
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-0">
 					{/* Avatar */}
 					<div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-(--surface) bg-gradient-to-br from-violet-500/20 to-indigo-500/20 flex items-center justify-center overflow-hidden shadow-lg shrink-0">
 						{profileData.avatar ? (
-							<img src={profileData.avatar} alt={profileData.user_name} className="w-full h-full object-cover" />
+							<img src={profileData.avatar} alt={mentorDisplayName} className="w-full h-full object-cover" />
 						) : (
 							<span className="text-2xl sm:text-3xl font-bold text-(--secondary)">
-								{profileData.user_name.charAt(0).toUpperCase()}
+								{mentorDisplayName.charAt(0).toUpperCase()}
 							</span>
 						)}
 					</div>
 
-					<div className="flex-1 sm:pb-2">
-						<div className="flex flex-col gap-3">
-							<div>
-								<div className="flex items-center gap-2 flex-wrap">
-									<h2 className="text-xl sm:text-2xl font-bold text-(--primary)">{profileData.user_name}</h2>
-									{profileData.verified && (
-										<span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
-											<svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
-												<path fillRule="evenodd" d="M16.403 12.652a3 3 0 010-5.304 3 3 0 00-1.06-1.06 3 3 0 01-5.304 0 3 3 0 00-1.06 1.06 3 3 0 010 5.304 3 3 0 001.06 1.06 3 3 0 015.304 0 3 3 0 001.06-1.06zM13.28 8.72a.75.75 0 010 1.06l-3 3a.75.75 0 01-1.06 0l-1.5-1.5a.75.75 0 111.06-1.06l.97.97 2.47-2.47a.75.75 0 011.06 0z" clipRule="evenodd" />
-											</svg>
-											Verified
-										</span>
-									)}
-									{!profileData.verified && profileData.status === 'approved' && (
-										<span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-600 border border-blue-500/30">
-											Approved
-										</span>
-									)}
-									{profileData.status === 'pending' && (
-										<span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600 border border-amber-500/30">
-											Pending Review
-										</span>
-									)}
-								</div>
-								{profileData.occupation && (
-									<p className="text-sm text-(--secondary) mt-0.5">{profileData.occupation}</p>
-								)}
-								<p className="text-xs text-(--secondary) mt-0.5">{profileData.user_email}</p>
-							</div>
-						</div>
-						<div className="flex flex-wrap items-center justify-center gap-2 sm:justify-center">
-							<button
-								onClick={onEditClick}
-								className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-white bg-white text-slate-900 text-sm font-semibold hover:bg-white/90 transition-colors shadow-sm"
-							>
-								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-								</svg>
-								Edit Profile
-							</button>
-							<button
-								onClick={onViewPublicProfile}
-								className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-(--border) bg-(--surface-hover) text-(--primary) text-sm font-semibold hover:bg-(--surface) transition-colors"
-							>
-								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z" />
-								</svg>
-								View Public Profile
-							</button>
-						</div>
+					<div className="flex flex-wrap items-center gap-2 sm:justify-end">
+						<button
+							onClick={onEditClick}
+							className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-white bg-white text-slate-900 text-sm font-semibold hover:bg-white/90 transition-colors shadow-sm"
+						>
+							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+							</svg>
+							Edit Profile
+						</button>
+						<button
+							onClick={onViewPublicProfile}
+							className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-(--border) bg-(--surface-hover) text-(--primary) text-sm font-semibold hover:bg-(--surface) transition-colors"
+						>
+							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z" />
+							</svg>
+							View Public Profile
+						</button>
 					</div>
 				</div>
 
 				{/* Expertise */}
 				{expertiseList.length > 0 && (
-					<div className="flex flex-wrap gap-2 -mt-6">
+					<div className="flex flex-wrap gap-2 mt-4">
 						{expertiseList.map((tag, i) => (
 							<ExpertiseTag key={i} label={tag} />
 						))}

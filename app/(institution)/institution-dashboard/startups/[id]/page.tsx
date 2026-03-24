@@ -157,8 +157,9 @@ export default function StartupDetailPage() {
 
 				{/* Cover image */}
 				{startup.coverImage && (
-					<div className="w-full h-48 rounded-xl overflow-hidden bg-white/10">
+					<div className="relative w-full h-48 rounded-xl overflow-hidden bg-white/10">
 						<img src={startup.coverImage} alt="Cover" className="w-full h-full object-cover" />
+						<div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent pointer-events-none" />
 					</div>
 				)}
 
