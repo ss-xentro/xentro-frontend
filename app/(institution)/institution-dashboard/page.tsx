@@ -8,6 +8,23 @@ import OnboardingWizard from './_components/OnboardingWizard';
 import ApprovedDashboard from './_components/ApprovedDashboard';
 import PendingApplicationView from './_components/PendingApplicationView';
 
+type RawInstitutionApplication = InstitutionApplication & {
+  institution?: string | null;
+  applicantUser?: string | null;
+};
+
+function normalizeApplication(app: RawInstitutionApplication): InstitutionApplication {
+  return {
+    ...app,
+    institutionId: app.institutionId ?? app.institution ?? null,
+    applicantUserId: app.applicantUserId ?? app.applicantUser ?? null,
+  };
+}
+
+function isPhase2Complete(app: InstitutionApplication): boolean {
+  return Boolean(app.description?.trim());
+}
+
 function pickLatestApplication(apps: InstitutionApplication[]): InstitutionApplication | null {
   if (!apps.length) return null;
 
@@ -16,6 +33,20 @@ function pickLatestApplication(apps: InstitutionApplication[]): InstitutionAppli
     const bTime = new Date(b.updatedAt ?? b.createdAt ?? 0).getTime();
     return bTime - aTime;
   });
+
+  const withInstitution = byUpdated.filter((app) => Boolean(app.institutionId));
+
+  const latestApprovedWithInstitution = withInstitution.find((app) => app.status === 'approved');
+  if (latestApprovedWithInstitution) return latestApprovedWithInstitution;
+
+  const latestCompletedWithInstitution = withInstitution.find((app) => isPhase2Complete(app));
+  if (latestCompletedWithInstitution) return latestCompletedWithInstitution;
+
+  const latestVerifiedWithInstitution = withInstitution.find((app) => app.verified);
+  if (latestVerifiedWithInstitution) return latestVerifiedWithInstitution;
+
+  const latestCompleted = byUpdated.find((app) => isPhase2Complete(app));
+  if (latestCompleted) return latestCompleted;
 
   const latestVerified = byUpdated.find((app) => app.verified);
   return latestVerified ?? byUpdated[0] ?? null;
@@ -152,7 +183,7 @@ export default function InstitutionDashboardPage() {
           throw new Error(error.message || 'Failed to load your application');
         }
         const payload = await res.json();
-        const apps = (payload.data ?? []) as InstitutionApplication[];
+        const apps = ((payload.data ?? []) as RawInstitutionApplication[]).map(normalizeApplication);
         const latest = pickLatestApplication(apps);
         setApplication(latest);
 
@@ -207,7 +238,8 @@ export default function InstitutionDashboardPage() {
           });
 
           const token = getSessionToken('institution');
-          if (token) {
+          const canLoadDashboardData = Boolean(latest.institutionId) || latest.status === 'approved';
+          if (token && canLoadDashboardData) {
             const [startupsRes, teamRes, programsRes, instRes] = await Promise.all([
               fetch('/api/startups', { headers: { 'Authorization': `Bearer ${token}` } }),
               fetch('/api/institution-team', { headers: { 'Authorization': `Bearer ${token}` } }),
