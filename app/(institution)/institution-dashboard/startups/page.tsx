@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { FeedbackBanner, PageSkeleton, EmptyState } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 import { Startup, EndorsementRequest } from './_lib/constants';
 import EndorsementPanel from './_components/EndorsementPanel';
 import StartupCard from './_components/StartupCard';
@@ -29,7 +30,7 @@ export default function StartupsPage() {
             const token = getSessionToken('institution');
             if (!token) { router.push('/institution-login'); return; }
             const res = await fetch('/api/startups', { headers: { Authorization: `Bearer ${token}` } });
-            if (!res.ok) throw new Error('Failed to load startups');
+            if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load startups'));
             const data = await res.json();
             setStartups(data.data || []);
             setError(null);
@@ -67,8 +68,7 @@ export default function StartupsPage() {
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ action, comment }),
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Failed to respond');
+            if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to respond'));
             loadEndorsements();
             if (action === 'accepted') loadStartups();
         } catch (err) {
@@ -84,8 +84,7 @@ export default function StartupsPage() {
             if (!token) throw new Error('Authentication required. Please log in again.');
             const res = await fetch(`/api/startups/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
             if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                throw new Error(data.error || data.message || 'Failed to delete startup');
+                throw new Error(await readApiErrorMessage(res, 'Failed to delete startup'));
             }
             setStartups((prev) => prev.filter((s) => s.id !== id));
         } catch (err) {

@@ -11,6 +11,7 @@ import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { clearAllRoleTokens, syncAuthCookie, setRoleToken, setTokenCookie, normalizeUser } from '@/lib/auth-utils';
+import { getApiErrorMessageFromPayload } from '@/lib/error-utils';
 import { isStartupOnboardingComplete } from '@/lib/startup-onboarding';
 import { isMentorOnboardingComplete } from '@/lib/mentor-onboarding';
 import type { User } from '@/lib/types/user';
@@ -163,7 +164,7 @@ export default function UnifiedLoginPage() {
                     setError(data.error || 'Access restricted. Only startup founders, mentors, investors, institutions, and admins can log in.');
                     return;
                 }
-                throw new Error(data.error || data.message || 'Failed to send OTP');
+                throw new Error(getApiErrorMessageFromPayload(data, 'Failed to send OTP'));
             }
 
             setSessionId(data.sessionId);
@@ -197,7 +198,7 @@ export default function UnifiedLoginPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || data.message || 'Invalid OTP');
+                throw new Error(getApiErrorMessageFromPayload(data, 'Invalid OTP'));
             }
 
             const role = storeSession(data);
@@ -247,7 +248,7 @@ export default function UnifiedLoginPage() {
                     setError(data.error || 'Access restricted. Only startup founders, mentors, investors, institutions, and admins can log in.');
                     return;
                 }
-                throw new Error(data.error || data.message || 'Google login failed');
+                throw new Error(getApiErrorMessageFromPayload(data, 'Google login failed'));
             }
 
             const role = storeSession(data);

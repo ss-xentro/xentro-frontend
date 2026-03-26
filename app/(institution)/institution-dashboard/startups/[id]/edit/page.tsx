@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 import { BackButton } from '@/components/ui/BackButton';
 import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { PageSkeleton } from '@/components/ui/PageSkeleton';
@@ -39,7 +40,7 @@ export default function EditStartupPage() {
       const res = await fetch(`/api/startups/${startupId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Failed to load startup');
+      if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load startup'));
 
       const json = await res.json();
       const s = json.data;
@@ -106,8 +107,7 @@ export default function EditStartupPage() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || data.message || 'Failed to update startup');
+      if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to update startup'));
 
       setSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });

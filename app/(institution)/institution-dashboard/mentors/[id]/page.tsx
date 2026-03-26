@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 
 interface SlotEntry { day: string; startTime: string; endTime: string; }
 interface DocumentEntry { name: string; url: string; uploadedAt: string; }
@@ -62,7 +63,7 @@ export default function MentorDetailPage() {
 			const res = await fetch(`/api/mentors/${mentorId}/`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
-			if (!res.ok) throw new Error('Failed to load mentor');
+			if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load mentor'));
 			const data = await res.json();
 			setMentor(data.data);
 		} catch (err) {
@@ -83,12 +84,11 @@ export default function MentorDetailPage() {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.error || 'Failed to remove mentor');
+				throw new Error(await readApiErrorMessage(res, 'Failed to remove mentor'));
 			}
 			router.push('/institution-dashboard/mentors');
 		} catch (err) {
-			alert((err as Error).message);
+			setError((err as Error).message);
 		} finally {
 			setDeleting(false);
 		}

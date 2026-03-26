@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, Button, Input, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 
 // Roles that can be assigned to team members (owner is reserved)
 const roleOptions = [
@@ -46,10 +47,8 @@ export default function AddTeamMemberPage() {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.error || data.message || 'Failed to add team member');
+        throw new Error(await readApiErrorMessage(res, 'Failed to add team member'));
       }
 
       router.push('/institution-dashboard/team');

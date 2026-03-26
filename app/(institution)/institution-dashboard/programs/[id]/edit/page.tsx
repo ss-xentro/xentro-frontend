@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 
 const programTypeOptions = [
 	{ value: 'incubation', label: 'Incubation Program' },
@@ -44,7 +45,7 @@ export default function EditProgramPage() {
 			const res = await fetch(`/api/programs/${programId}/`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
-			if (!res.ok) throw new Error('Failed to load program');
+			if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load program'));
 			const data = await res.json();
 			setFormData({
 				name: data.name || '',
@@ -75,8 +76,7 @@ export default function EditProgramPage() {
 				body: JSON.stringify(formData),
 			});
 			if (!res.ok) {
-				const data = await res.json().catch(() => ({}));
-				throw new Error(data.error || data.message || 'Failed to update program');
+				throw new Error(await readApiErrorMessage(res, 'Failed to update program'));
 			}
 			router.push(`/institution-dashboard/programs/${programId}`);
 		} catch (err) {

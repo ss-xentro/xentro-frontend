@@ -52,9 +52,7 @@ export default function ProjectsPage() {
     if (!token) return;
 
     const success = await deleteProject(token, id);
-    if (!success) {
-      alert('Failed to delete project');
-    }
+    if (!success) return;
   };
 
   if (loading) {

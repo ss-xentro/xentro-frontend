@@ -3,6 +3,7 @@
  * and response parsing. All frontend API calls should use this.
  */
 import { getSessionToken } from '@/lib/auth-utils';
+import { getApiErrorMessageFromPayload } from '@/lib/error-utils';
 
 // ── Types ──────────────────────────────────────────
 
@@ -97,11 +98,16 @@ async function request<T = unknown>(
 	}
 
 	if (!res.ok) {
-		const errMsg =
-			(data as Record<string, unknown>)?.message as string
-			|| (data as Record<string, unknown>)?.error as string
-			|| (data as Record<string, unknown>)?.detail as string
-			|| `Request failed with status ${res.status}`;
+		let errMsg = `Request failed with status ${res.status}`;
+
+		if (data) {
+			errMsg = getApiErrorMessageFromPayload(data, errMsg);
+		} else {
+			const textBody = await res.text().catch(() => '');
+			if (textBody?.trim()) {
+				errMsg = textBody.trim();
+			}
+		}
 		throw new ApiError(errMsg, res.status, data as Record<string, unknown> | null);
 	}
 

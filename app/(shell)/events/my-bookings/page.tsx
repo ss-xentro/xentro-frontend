@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button, Card, FeedbackBanner } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 
 type BookingEvent = {
 	id: string;
@@ -92,8 +93,7 @@ export default function EventBookingsPage() {
 		})
 			.then(async (res) => {
 				if (!res.ok) {
-					const data = await res.json().catch(() => ({}));
-					throw new Error(data.error || data.message || 'Failed to load bookings');
+					throw new Error(await readApiErrorMessage(res, 'Failed to load bookings'));
 				}
 				return res.json();
 			})

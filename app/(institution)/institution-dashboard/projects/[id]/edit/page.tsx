@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 
 const statusOptions = [
 	{ value: 'planning', label: 'Planning' },
@@ -39,7 +40,7 @@ export default function EditProjectPage() {
 			const res = await fetch(`/api/projects/${projectId}/`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
-			if (!res.ok) throw new Error('Failed to load project');
+			if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load project'));
 			const data = await res.json();
 			setFormData({
 				name: data.name || '',
@@ -68,8 +69,7 @@ export default function EditProjectPage() {
 				body: JSON.stringify(formData),
 			});
 			if (!res.ok) {
-				const data = await res.json().catch(() => ({}));
-				throw new Error(data.error || data.message || 'Failed to update project');
+				throw new Error(await readApiErrorMessage(res, 'Failed to update project'));
 			}
 			router.push(`/institution-dashboard/projects/${projectId}`);
 		} catch (err) {

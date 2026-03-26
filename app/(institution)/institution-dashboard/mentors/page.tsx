@@ -6,6 +6,7 @@ import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 
 interface Mentor {
   id: string;
@@ -77,7 +78,7 @@ export default function MentorsPage() {
       const res = await fetch('/api/mentors/', {
         headers: { 'Authorization': `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Failed to load institution data');
+      if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load mentors'));
       const data = await res.json();
       const rawMentors: ApiMentor[] = Array.isArray(data.data) ? data.data : [];
       const normalizedMentors: Mentor[] = rawMentors.map((mentor) => ({
@@ -126,8 +127,7 @@ export default function MentorsPage() {
         body: JSON.stringify({ action, comment: responseComment }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to respond');
+      if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to respond'));
 
       // Reload both lists
       setRespondingId(null);
@@ -135,7 +135,7 @@ export default function MentorsPage() {
       loadEndorsements();
       if (action === 'accepted') loadMentors();
     } catch (err) {
-      alert((err as Error).message);
+      setError((err as Error).message);
     }
   };
 

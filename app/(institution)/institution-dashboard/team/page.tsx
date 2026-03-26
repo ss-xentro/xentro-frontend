@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, Badge } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 
 interface TeamMember {
   id: string;
@@ -46,7 +47,7 @@ export default function TeamPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to load team');
+        throw new Error(await readApiErrorMessage(res, 'Failed to load team'));
       }
 
       const data = await res.json();
@@ -71,13 +72,12 @@ export default function TeamPage() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Failed to remove team member');
+        throw new Error(await readApiErrorMessage(res, 'Failed to remove team member'));
       }
 
       setTeam((prev) => prev.filter(m => m.id !== id));
     } catch (err) {
-      alert((err as Error).message);
+      setError((err as Error).message);
     }
   };
 

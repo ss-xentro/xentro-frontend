@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, FeedbackBanner, PageSkeleton, EmptyState, Spinner } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 
 interface RecycleBinItem {
 	id: string;
@@ -140,8 +141,7 @@ export default function RecycleBinPage() {
 			});
 
 			if (!res.ok) {
-				const json = await res.json();
-				throw new Error(json.error || 'Failed to restore item');
+				throw new Error(await readApiErrorMessage(res, 'Failed to restore item'));
 			}
 
 			// Remove from local state
@@ -150,7 +150,7 @@ export default function RecycleBinPage() {
 				[activeFolder]: prev[activeFolder].filter((item) => item.id !== id),
 			}));
 		} catch (err) {
-			alert((err as Error).message);
+			setError((err as Error).message);
 		} finally {
 			setActionLoading(null);
 		}
@@ -171,8 +171,7 @@ export default function RecycleBinPage() {
 			});
 
 			if (!res.ok) {
-				const json = await res.json();
-				throw new Error(json.error || 'Failed to delete item');
+				throw new Error(await readApiErrorMessage(res, 'Failed to delete item'));
 			}
 
 			setData((prev) => ({
@@ -180,7 +179,7 @@ export default function RecycleBinPage() {
 				[activeFolder]: prev[activeFolder].filter((item) => item.id !== id),
 			}));
 		} catch (err) {
-			alert((err as Error).message);
+			setError((err as Error).message);
 		} finally {
 			setActionLoading(null);
 		}

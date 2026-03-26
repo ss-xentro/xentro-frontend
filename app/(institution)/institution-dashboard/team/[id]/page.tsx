@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 
 interface TeamMemberDetail {
 	id: string;
@@ -44,7 +45,7 @@ export default function TeamMemberDetailPage() {
 			const res = await fetch('/api/institution-team/', {
 				headers: { Authorization: `Bearer ${token}` },
 			});
-			if (!res.ok) throw new Error('Failed to load team');
+			if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load team'));
 			const data = await res.json();
 			const found = (data.data || []).find((m: TeamMemberDetail) => m.id === memberId);
 			if (!found) throw new Error('Team member not found');
@@ -67,8 +68,7 @@ export default function TeamMemberDetailPage() {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.error || data.message || 'Failed to remove member');
+				throw new Error(await readApiErrorMessage(res, 'Failed to remove member'));
 			}
 			router.push('/institution-dashboard/team');
 		} catch (err) {

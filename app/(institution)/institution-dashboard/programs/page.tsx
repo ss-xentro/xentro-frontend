@@ -21,6 +21,7 @@ const typeLabels: Record<string, { label: string; color: string }> = {
     accelerator: { label: 'Accelerator', color: 'bg-purple-500/20 text-purple-200' },
     incubator: { label: 'Incubator', color: 'bg-blue-500/20 text-blue-200' },
     incubation: { label: 'Incubation', color: 'bg-blue-500/20 text-blue-200' },
+    import { readApiErrorMessage } from '@/lib/error-utils';
     acceleration: { label: 'Acceleration', color: 'bg-purple-500/20 text-purple-200' },
     bootcamp: { label: 'Bootcamp', color: 'bg-orange-500/20 text-orange-200' },
     fellowship: { label: 'Fellowship', color: 'bg-green-500/20 text-green-200' },
@@ -34,6 +35,9 @@ export default function ProgramsPage() {
     const router = useRouter();
     const [programs, setPrograms] = useState<Program[]>([]);
     const [loading, setLoading] = useState(true);
+    if (!res.ok) {
+        throw new Error(await readApiErrorMessage(res, 'Failed to load programs'));
+    }
     const [error, setError] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -58,8 +62,7 @@ export default function ProgramsPage() {
             }
 
             const data = await res.json();
-            setPrograms(data.data || []);
-            setError(null);
+            throw new Error(await readApiErrorMessage(res, 'Failed to delete program'));
         } catch (err) {
             setError((err as Error).message);
         } finally {
@@ -80,8 +83,7 @@ export default function ProgramsPage() {
             });
 
             if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || data.message || 'Failed to delete program');
+                throw new Error(await readApiErrorMessage(res, 'Failed to delete program'));
             }
 
             setPrograms(programs.filter(p => p.id !== id));
