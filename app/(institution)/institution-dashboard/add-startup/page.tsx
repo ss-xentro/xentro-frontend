@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 import { StartupDetailsStep } from './_components/StartupDetailsStep';
 import { FoundersStep } from './_components/FoundersStep';
 
@@ -76,28 +77,6 @@ export default function AddStartupPage() {
   const canProceedToStep2 = () => formData.name.trim() && formData.city.trim() && formData.country.trim();
   const canSubmit = () => founders.some(f => f.name.trim() && f.email.trim() && f.phone.trim());
 
-  const readErrorMessage = async (res: Response, fallback: string) => {
-    const contentType = res.headers.get('content-type') || '';
-    if (contentType.includes('application/json')) {
-      const payload = await res.json().catch(() => ({}));
-      const candidate =
-        payload.error ||
-        payload.message ||
-        payload.detail ||
-        (typeof payload === 'object' && payload !== null
-          ? Object.entries(payload)
-            .filter(([, value]) => Array.isArray(value) || typeof value === 'string')
-            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
-            .join(' | ')
-          : '');
-
-      return candidate ? String(candidate) : fallback;
-    }
-
-    const rawText = await res.text().catch(() => '');
-    return rawText?.trim() || fallback;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -157,7 +136,7 @@ export default function AddStartupPage() {
       }
 
       if (!res.ok) {
-        const message = await readErrorMessage(res, `Failed to add startup (HTTP ${res.status})`);
+        const message = await readApiErrorMessage(res, `Failed to add startup (HTTP ${res.status})`);
         throw new Error(message);
       }
 

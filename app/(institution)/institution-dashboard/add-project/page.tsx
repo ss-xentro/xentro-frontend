@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 
 const projectStatusOptions = [
   { value: 'planning', label: 'Planning' },
@@ -25,28 +26,6 @@ export default function AddProjectPage() {
     startDate: '',
     endDate: '',
   });
-
-  const readErrorMessage = async (res: Response, fallback: string) => {
-    const contentType = res.headers.get('content-type') || '';
-    if (contentType.includes('application/json')) {
-      const payload = await res.json().catch(() => ({}));
-      const candidate =
-        payload.error ||
-        payload.message ||
-        payload.detail ||
-        (typeof payload === 'object' && payload !== null
-          ? Object.entries(payload)
-            .filter(([, value]) => Array.isArray(value) || typeof value === 'string')
-            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
-            .join(' | ')
-          : '');
-
-      return candidate ? String(candidate) : fallback;
-    }
-
-    const rawText = await res.text().catch(() => '');
-    return rawText?.trim() || fallback;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +48,7 @@ export default function AddProjectPage() {
       });
 
       if (!res.ok) {
-        const message = await readErrorMessage(res, `Failed to create project (HTTP ${res.status})`);
+        const message = await readApiErrorMessage(res, `Failed to create project (HTTP ${res.status})`);
         throw new Error(message);
       }
 

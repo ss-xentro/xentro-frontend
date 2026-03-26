@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, Button, Input } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
 import { useEmailCheck } from '@/lib/useEmailCheck';
 
 export default function AddMentorPage() {
@@ -22,28 +23,6 @@ export default function AddMentorPage() {
 
   const canSubmit = () => {
     return formData.name.trim() && formData.email.trim() && formData.phone.trim() && (!emailResult || emailResult.canProceed) && !emailChecking;
-  };
-
-  const readErrorMessage = async (res: Response, fallback: string) => {
-    const contentType = res.headers.get('content-type') || '';
-    if (contentType.includes('application/json')) {
-      const payload = await res.json().catch(() => ({}));
-      const candidate =
-        payload.error ||
-        payload.message ||
-        payload.detail ||
-        (typeof payload === 'object' && payload !== null
-          ? Object.entries(payload)
-            .filter(([, value]) => Array.isArray(value) || typeof value === 'string')
-            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
-            .join(' | ')
-          : '');
-
-      return candidate ? String(candidate) : fallback;
-    }
-
-    const rawText = await res.text().catch(() => '');
-    return rawText?.trim() || fallback;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,7 +50,7 @@ export default function AddMentorPage() {
       });
 
       if (!res.ok) {
-        const message = await readErrorMessage(res, `Failed to create mentor (HTTP ${res.status})`);
+        const message = await readApiErrorMessage(res, `Failed to create mentor (HTTP ${res.status})`);
         throw new Error(message);
       }
 
@@ -114,6 +93,17 @@ export default function AddMentorPage() {
               />
               {/* Email uniqueness indicator */}
               {formData.email.includes('@') && (
+
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-2">Mentor Phone *</label>
+              <Input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+1 555 123 4567"
+                required
+              />
+            </div>
                 <div className="mt-2">
                   {emailChecking && (
                     <p className="text-xs text-gray-400 flex items-center gap-1">
@@ -164,15 +154,3 @@ export default function AddMentorPage() {
     </DashboardSidebar>
   );
 }
-
-
-<div>
-  <label className="block text-xs font-medium text-gray-400 mb-2">Mentor Phone *</label>
-  <Input
-    type="tel"
-    value={formData.phone}
-    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-    placeholder="+1 555 123 4567"
-    required
-  />
-</div>
