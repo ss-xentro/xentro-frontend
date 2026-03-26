@@ -26,6 +26,28 @@ export default function AddProjectPage() {
     endDate: '',
   });
 
+  const readErrorMessage = async (res: Response, fallback: string) => {
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const payload = await res.json().catch(() => ({}));
+      const candidate =
+        payload.error ||
+        payload.message ||
+        payload.detail ||
+        (typeof payload === 'object' && payload !== null
+          ? Object.entries(payload)
+            .filter(([, value]) => Array.isArray(value) || typeof value === 'string')
+            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+            .join(' | ')
+          : '');
+
+      return candidate ? String(candidate) : fallback;
+    }
+
+    const rawText = await res.text().catch(() => '');
+    return rawText?.trim() || fallback;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -37,7 +59,7 @@ export default function AddProjectPage() {
         throw new Error('Authentication required. Please log in again.');
       }
 
-      const res = await fetch('/api/projects', {
+      const res = await fetch('/api/projects/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,10 +68,9 @@ export default function AddProjectPage() {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to create project');
+        const message = await readErrorMessage(res, `Failed to create project (HTTP ${res.status})`);
+        throw new Error(message);
       }
 
       router.push('/institution-dashboard/projects');

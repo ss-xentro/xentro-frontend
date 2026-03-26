@@ -12,6 +12,7 @@ interface Founder {
   id: string;
   name: string;
   email: string;
+  phone: string;
 }
 
 interface ProgramOption {
@@ -41,7 +42,7 @@ export default function AddStartupPage() {
   });
 
   const [founders, setFounders] = useState<Founder[]>([
-    { id: '1', name: '', email: '' }
+    { id: '1', name: '', email: '', phone: '' }
   ]);
 
   // Programs for this institution
@@ -73,7 +74,29 @@ export default function AddStartupPage() {
   }, []);
 
   const canProceedToStep2 = () => formData.name.trim() && formData.city.trim() && formData.country.trim();
-  const canSubmit = () => founders.some(f => f.name.trim() && f.email.trim());
+  const canSubmit = () => founders.some(f => f.name.trim() && f.email.trim() && f.phone.trim());
+
+  const readErrorMessage = async (res: Response, fallback: string) => {
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const payload = await res.json().catch(() => ({}));
+      const candidate =
+        payload.error ||
+        payload.message ||
+        payload.detail ||
+        (typeof payload === 'object' && payload !== null
+          ? Object.entries(payload)
+            .filter(([, value]) => Array.isArray(value) || typeof value === 'string')
+            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+            .join(' | ')
+          : '');
+
+      return candidate ? String(candidate) : fallback;
+    }
+
+    const rawText = await res.text().catch(() => '');
+    return rawText?.trim() || fallback;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,10 +109,10 @@ export default function AddStartupPage() {
         throw new Error('Authentication required. Please log in again.');
       }
 
-      const validFounders = founders.filter(f => f.name.trim() && f.email.trim());
+      const validFounders = founders.filter(f => f.name.trim() && f.email.trim() && f.phone.trim());
 
       if (validFounders.length === 0) {
-        throw new Error('At least one founder is required');
+        throw new Error('At least one founder with name, email, and phone is required');
       }
 
       // Submit each founder's startup (or submit as array if backend supports)
@@ -106,7 +129,9 @@ export default function AddStartupPage() {
         logo: formData.logo,
         founder_name: primaryFounder.name,
         founder_email: primaryFounder.email,
+        founder_phone: primaryFounder.phone,
         primary_contact_email: primaryFounder.email,
+        primary_contact_phone: primaryFounder.phone,
         additional_founders: validFounders.slice(1),
         ...(formData.programId ? { program_id: formData.programId } : {}),
       };
@@ -131,10 +156,9 @@ export default function AddStartupPage() {
         });
       }
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.error || data.message || 'Failed to add startup');
+        const message = await readErrorMessage(res, `Failed to add startup (HTTP ${res.status})`);
+        throw new Error(message);
       }
 
       router.push('/institution-dashboard/startups');

@@ -6,6 +6,7 @@ interface Founder {
 	id: string;
 	name: string;
 	email: string;
+	phone: string;
 }
 
 interface FoundersStepProps {
@@ -15,7 +16,7 @@ interface FoundersStepProps {
 
 export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 	const addFounder = () => {
-		setFounders([...founders, { id: Date.now().toString(), name: '', email: '' }]);
+		setFounders([...founders, { id: Date.now().toString(), name: '', email: '', phone: '' }]);
 	};
 
 	const removeFounder = (id: string) => {
@@ -24,7 +25,7 @@ export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 		}
 	};
 
-	const updateFounder = (id: string, field: 'name' | 'email', value: string) => {
+	const updateFounder = (id: string, field: 'name' | 'email' | 'phone', value: string) => {
 		setFounders(founders.map(f => f.id === id ? { ...f, [field]: value } : f));
 	};
 
@@ -81,6 +82,18 @@ export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 							aria-label="Founder email"
 						/>
 						<FounderEmailCheck email={founder.email} />
+					</div>
+
+					<div>
+						<label className="block text-xs font-medium text-gray-500 mb-2">Phone *</label>
+						<input
+							type="tel"
+							value={founder.phone}
+							onChange={(e) => updateFounder(founder.id, 'phone', e.target.value)}
+							className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+							placeholder="+1 555 123 4567"
+							aria-label="Founder phone"
+						/>
 					</div>
 				</div>
 			))}

@@ -15,12 +15,35 @@ export default function AddMentorPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
   });
 
   const { checking: emailChecking, result: emailResult } = useEmailCheck(formData.email, 'create_user');
 
   const canSubmit = () => {
-    return formData.name.trim() && formData.email.trim() && (!emailResult || emailResult.canProceed) && !emailChecking;
+    return formData.name.trim() && formData.email.trim() && formData.phone.trim() && (!emailResult || emailResult.canProceed) && !emailChecking;
+  };
+
+  const readErrorMessage = async (res: Response, fallback: string) => {
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const payload = await res.json().catch(() => ({}));
+      const candidate =
+        payload.error ||
+        payload.message ||
+        payload.detail ||
+        (typeof payload === 'object' && payload !== null
+          ? Object.entries(payload)
+            .filter(([, value]) => Array.isArray(value) || typeof value === 'string')
+            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+            .join(' | ')
+          : '');
+
+      return candidate ? String(candidate) : fallback;
+    }
+
+    const rawText = await res.text().catch(() => '');
+    return rawText?.trim() || fallback;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,13 +66,13 @@ export default function AddMentorPage() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          phone: formData.phone,
         }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.error || data.message || 'Failed to create mentor');
+        const message = await readErrorMessage(res, `Failed to create mentor (HTTP ${res.status})`);
+        throw new Error(message);
       }
 
       router.push('/institution-dashboard/mentors');
@@ -141,3 +164,15 @@ export default function AddMentorPage() {
     </DashboardSidebar>
   );
 }
+
+
+<div>
+  <label className="block text-xs font-medium text-gray-400 mb-2">Mentor Phone *</label>
+  <Input
+    type="tel"
+    value={formData.phone}
+    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+    placeholder="+1 555 123 4567"
+    required
+  />
+</div>
