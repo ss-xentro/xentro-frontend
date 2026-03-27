@@ -238,16 +238,15 @@ export function getUnlockedContexts(): string[] {
 }
 
 /**
- * getSessionToken — returns null; tokens are stored in the HttpOnly
- * xentro_token cookie which client JS cannot read.
- *
- * The /api/[...proxy] route reads xentro_token server-side and injects it as
- * an Authorization header when forwarding requests to Django, so API calls
- * work without the client ever touching the raw JWT.
+ * getSessionToken — the real JWT lives in the HttpOnly xentro_token cookie
+ * and cannot be read by client JS. Returns a non-null placeholder when the
+ * user has a valid session so callers' truthiness checks (`if (!token)`)
+ * work correctly. The /api/[...proxy] route injects the real JWT server-side.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getSessionToken(_expectedRole?: string): string | null {
-    return null;
+    const session = getAuthCookie();
+    return session?.role ? 'httponly' : null;
 }
 
 /* ─── Cleanup ─── */

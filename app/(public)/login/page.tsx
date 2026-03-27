@@ -98,7 +98,7 @@ async function resolveMentorLandingPath(rawUser: Record<string, unknown>, token:
     }
 }
 
-function storeSession(data: { user: Record<string, unknown>; token: string; startupId?: string }) {
+async function storeSession(data: { user: Record<string, unknown>; token: string; startupId?: string }) {
     // Clear ALL previous role tokens to prevent stale cross-role access
     clearAllRoleTokens();
 
@@ -108,8 +108,8 @@ function storeSession(data: { user: Record<string, unknown>; token: string; star
     // Store role-specific token in cookie
     setRoleToken(role, data.token);
 
-    // Store JWT in HttpOnly cookie (fire and forget)
-    setTokenCookie(data.token);
+    // Store JWT in HttpOnly cookie — must complete before navigation
+    await setTokenCookie(data.token);
 
     // Store user metadata in readable cookie
     syncAuthCookie(data.user);
@@ -198,10 +198,10 @@ export default function UnifiedLoginPage() {
                 throw new Error(getApiErrorMessageFromPayload(data, 'Invalid OTP'));
             }
 
-            const role = storeSession(data);
+            const role = await storeSession(data);
             // Build a proper User object for AuthContext
             const norm = normalizeUser(data.user);
-            setSession({ id: norm.id || '', email: norm.email || '', name: norm.name || '', avatar: norm.avatar || '', role: (norm.role || role) as User['role'], unlockedContexts: norm.contexts }, data.token);
+            await setSession({ id: norm.id || '', email: norm.email || '', name: norm.name || '', avatar: norm.avatar || '', role: (norm.role || role) as User['role'], unlockedContexts: norm.contexts }, data.token);
 
             if (role === 'startup' || role === 'founder') {
                 const startupLandingPath = await resolveStartupLandingPath(data.user, data.token);
@@ -247,9 +247,9 @@ export default function UnifiedLoginPage() {
                 throw new Error(getApiErrorMessageFromPayload(data, 'Google login failed'));
             }
 
-            const role = storeSession(data);
+            const role = await storeSession(data);
             const norm2 = normalizeUser(data.user);
-            setSession({ id: norm2.id || '', email: norm2.email || '', name: norm2.name || '', avatar: norm2.avatar || '', role: (norm2.role || role) as User['role'], unlockedContexts: norm2.contexts }, data.token);
+            await setSession({ id: norm2.id || '', email: norm2.email || '', name: norm2.name || '', avatar: norm2.avatar || '', role: (norm2.role || role) as User['role'], unlockedContexts: norm2.contexts }, data.token);
 
             if (role === 'startup' || role === 'founder') {
                 const startupLandingPath = await resolveStartupLandingPath(data.user, data.token);

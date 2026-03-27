@@ -48,13 +48,13 @@ async function handleProxy(request: NextRequest) {
   headers.delete('proxy-authorization');
   headers.delete('proxy-connection');
 
-  // If the client didn't send an Authorization header, inject the JWT
-  // from the HttpOnly xentro_token cookie so Django gets authenticated requests.
-  if (!headers.get('authorization')) {
-    const tokenCookie = request.cookies.get('xentro_token')?.value;
-    if (tokenCookie) {
-      headers.set('authorization', `Bearer ${tokenCookie}`);
-    }
+  // Always prefer the HttpOnly xentro_token cookie over client-provided
+  // Authorization headers. Client components use getSessionToken() which
+  // returns a placeholder (not the actual JWT). The cookie is the
+  // authoritative token source.
+  const tokenCookie = request.cookies.get('xentro_token')?.value;
+  if (tokenCookie) {
+    headers.set('authorization', `Bearer ${tokenCookie}`);
   }
 
   // Extract body for mutation requests

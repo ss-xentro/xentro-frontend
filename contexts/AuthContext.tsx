@@ -13,7 +13,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-    setSession: (user: User, token: string) => void;
+    setSession: (user: User, token: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    const setSession = useCallback((newUser: User, newToken: string) => {
+    const setSession = useCallback(async (newUser: User, newToken: string) => {
         setUser(newUser);
         setToken(newToken);
         // Store user metadata cookie
@@ -107,8 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             ...(existing ?? {}),
             ...(newUser as unknown as Record<string, unknown>),
         });
-        // Store token in HttpOnly cookie (fire and forget)
-        setTokenCookie(newToken);
+        // Store token in HttpOnly cookie
+        await setTokenCookie(newToken);
     }, []);
 
     const logout = useCallback(async () => {

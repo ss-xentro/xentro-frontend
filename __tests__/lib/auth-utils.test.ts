@@ -151,40 +151,18 @@ describe("getUnlockedContexts", () => {
 // ── getSessionToken ─────────────────────────────────────
 
 describe("getSessionToken", () => {
-	it("returns null when no session exists", () => {
+	it("returns null when no auth cookie exists", () => {
 		expect(getSessionToken()).toBeNull();
 	});
 
-	it("returns token from role cookie for expected role", () => {
-		setRoleToken("mentor", "mentor-cookie-token");
-
-		expect(getSessionToken("mentor")).toBe("mentor-cookie-token");
+	it("returns placeholder when auth cookie has a role", () => {
+		syncAuthCookie({ role: "startup", email: "a@b.com" });
+		expect(getSessionToken()).toBe("httponly");
+		expect(getSessionToken("founder")).toBe("httponly");
 	});
 
-	it("returns token from valid session", () => {
-		localStorageMock.setItem(
-			"xentro_session",
-			JSON.stringify({
-				token: "jwt-token-123",
-				expiresAt: Date.now() + 3600000,
-			})
-		);
-		expect(getSessionToken()).toBe("jwt-token-123");
-	});
-
-	it("falls back to role-specific token", () => {
-		localStorageMock.setItem("mentor_token", "mentor-fallback");
-		expect(getSessionToken("mentor")).toBe("mentor-fallback");
-	});
-
-	it("returns null for expired session without role fallback", () => {
-		localStorageMock.setItem(
-			"xentro_session",
-			JSON.stringify({
-				token: "expired",
-				expiresAt: Date.now() - 10000,
-			})
-		);
+	it("returns null when auth cookie has no role", () => {
+		syncAuthCookie({ email: "a@b.com" });
 		expect(getSessionToken()).toBeNull();
 	});
 });
