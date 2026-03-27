@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
-import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
+import { toast } from 'sonner';
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { clearAllRoleTokens, syncAuthCookie, setRoleToken, setTokenCookie, normalizeUser } from '@/lib/auth-utils';
@@ -126,7 +126,6 @@ export default function UnifiedLoginPage() {
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [sessionId, setSessionId] = useState<string | null>(null);
     const [otpCooldown, setOtpCooldown] = useState(0);
     const otpSendInFlightRef = useRef(false);
@@ -144,7 +143,6 @@ export default function UnifiedLoginPage() {
         if (otpCooldown > 0) return;
         otpSendInFlightRef.current = true;
         setLoading(true);
-        setError(null);
 
         try {
             const res = await fetch('/api/auth/otp/send/', {
@@ -171,7 +169,7 @@ export default function UnifiedLoginPage() {
             setStep('otp');
             setOtpCooldown(OTP_RESEND_COOLDOWN_SECONDS);
         } catch (err) {
-            setError((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             otpSendInFlightRef.current = false;
             setLoading(false);
@@ -186,7 +184,6 @@ export default function UnifiedLoginPage() {
     const handleVerifyOTP = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError(null);
 
         try {
             const res = await fetch('/api/auth/otp/verify/', {
@@ -220,7 +217,7 @@ export default function UnifiedLoginPage() {
 
             router.push(DASHBOARD_MAP[role] || '/feed');
         } catch (err) {
-            setError((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setLoading(false);
         }
@@ -228,7 +225,6 @@ export default function UnifiedLoginPage() {
 
     const handleGoogleLogin = async (idToken: string) => {
         setGoogleLoading(true);
-        setError(null);
 
         try {
             const res = await fetch('/api/auth/google/', {
@@ -241,11 +237,11 @@ export default function UnifiedLoginPage() {
 
             if (!res.ok) {
                 if (data.code === 'USER_NOT_FOUND') {
-                    setError('No account found with this email. Please sign up first.');
+                    toast.error('No account found with this email. Please sign up first.');
                     return;
                 }
                 if (data.code === 'ACCESS_DENIED') {
-                    setError(data.error || 'Access restricted. Only startup founders, mentors, investors, institutions, and admins can log in.');
+                    toast.error(data.error || 'Access restricted. Only startup founders, mentors, investors, institutions, and admins can log in.');
                     return;
                 }
                 throw new Error(getApiErrorMessageFromPayload(data, 'Google login failed'));
@@ -269,7 +265,7 @@ export default function UnifiedLoginPage() {
 
             router.push(DASHBOARD_MAP[role] || '/feed');
         } catch (err) {
-            setError((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setGoogleLoading(false);
         }
@@ -294,7 +290,7 @@ export default function UnifiedLoginPage() {
                                 {/* Google Sign-In */}
                                 <GoogleLoginButton
                                     onSuccess={handleGoogleLogin}
-                                    onError={(err) => setError(err)}
+                                    onError={(err) => toast.error(err)}
                                     isLoading={googleLoading}
                                 />
 
@@ -317,8 +313,6 @@ export default function UnifiedLoginPage() {
                                         required
                                         autoFocus
                                     />
-
-                                    {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
                                     <Button
                                         type="submit"
@@ -357,8 +351,6 @@ export default function UnifiedLoginPage() {
                                     maxLength={6}
                                 />
 
-                                {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
-
                                 <div className="flex gap-3">
                                     <Button
                                         type="submit"
@@ -374,7 +366,6 @@ export default function UnifiedLoginPage() {
                                         onClick={() => {
                                             setStep('email');
                                             setOtp('');
-                                            setError(null);
                                         }}
                                     >
                                         Back

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Input, Button, ProgressIndicator, OnboardingNavbar, FeedbackBanner } from '@/components/ui';
+import { Card, Input, Button, ProgressIndicator, OnboardingNavbar } from '@/components/ui';
+import { toast } from 'sonner';
 import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
 import { OnboardingFormData } from '@/lib/types';
 
@@ -39,7 +40,6 @@ export default function InstitutionOnboardingPage() {
   const [adminName, setAdminName] = useState('');
   const [adminPhone, setAdminPhone] = useState('');
   const [appCreating, setAppCreating] = useState(false);
-  const [appError, setAppError] = useState<string | null>(null);
 
   const emailVerification = useEmailVerification({
     email,
@@ -78,7 +78,6 @@ export default function InstitutionOnboardingPage() {
     // Create institution application when moving from step 2 to step 3
     if (step === 2) {
       setAppCreating(true);
-      setAppError(null);
       try {
         const res = await fetch('/api/institution-applications', {
           method: 'POST',
@@ -97,7 +96,7 @@ export default function InstitutionOnboardingPage() {
         await emailVerification.sendMagicLink();
         setStep((s) => s + 1);
       } catch (err) {
-        setAppError((err as Error).message);
+        toast.error((err as Error).message);
       } finally {
         setAppCreating(false);
       }
@@ -240,7 +239,6 @@ export default function InstitutionOnboardingPage() {
                   </Button>
                 </div>
 
-                {appError && <FeedbackBanner type="error" title="Unable to send verification" message={appError} onDismiss={() => setAppError(null)} />}
               </div>
             )}
 
@@ -267,7 +265,6 @@ export default function InstitutionOnboardingPage() {
               </div>
             )}
 
-            {appError && <FeedbackBanner type="error" title="Unable to proceed" message={appError} onDismiss={() => setAppError(null)} />}
           </Card>
         </div>
       </main>

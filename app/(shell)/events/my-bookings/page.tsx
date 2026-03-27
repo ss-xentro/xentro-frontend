@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button, Card, FeedbackBanner } from '@/components/ui';
+import { Button, Card } from '@/components/ui';
+import { toast } from 'sonner';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
 
@@ -45,7 +46,6 @@ export default function EventBookingsPage() {
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
 	const [bookings, setBookings] = useState<BookingEvent[]>([]);
-	const [error, setError] = useState<string | null>(null);
 	const [downloadingRef, setDownloadingRef] = useState<string | null>(null);
 
 	const downloadDocument = async (url: string | undefined, fallbackName: string) => {
@@ -75,7 +75,7 @@ export default function EventBookingsPage() {
 			anchor.remove();
 			window.URL.revokeObjectURL(href);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Download failed');
+			toast.error(err instanceof Error ? err.message : 'Download failed');
 		} finally {
 			setDownloadingRef(null);
 		}
@@ -101,7 +101,7 @@ export default function EventBookingsPage() {
 				setBookings(data.data || data.events || []);
 			})
 			.catch((err) => {
-				setError(err instanceof Error ? err.message : 'Failed to load bookings');
+				toast.error(err instanceof Error ? err.message : 'Failed to load bookings');
 			})
 			.finally(() => setLoading(false));
 	}, [router]);
@@ -120,8 +120,6 @@ export default function EventBookingsPage() {
 					<Button variant="ghost">Browse Events</Button>
 				</Link>
 			</div>
-
-			{error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
 			{loading ? (
 				<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

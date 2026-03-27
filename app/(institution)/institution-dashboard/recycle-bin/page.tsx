@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { Card, Button, FeedbackBanner, PageSkeleton, EmptyState, Spinner } from '@/components/ui';
+import { Card, Button, PageSkeleton, EmptyState, Spinner } from '@/components/ui';
+import { toast } from 'sonner';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
 
@@ -92,7 +93,6 @@ export default function RecycleBinPage() {
 	});
 	const [activeFolder, setActiveFolder] = useState<FolderKey>('startups');
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [actionLoading, setActionLoading] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -121,9 +121,8 @@ export default function RecycleBinPage() {
 				mentors: [],
 				team: [],
 			});
-			setError(null);
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setLoading(false);
 		}
@@ -150,7 +149,7 @@ export default function RecycleBinPage() {
 				[activeFolder]: prev[activeFolder].filter((item) => item.id !== id),
 			}));
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setActionLoading(null);
 		}
@@ -179,7 +178,7 @@ export default function RecycleBinPage() {
 				[activeFolder]: prev[activeFolder].filter((item) => item.id !== id),
 			}));
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setActionLoading(null);
 		}
@@ -215,7 +214,6 @@ export default function RecycleBinPage() {
 					</p>
 				</div>
 
-				{error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
 				{/* Folder tabs */}
 				<div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">

@@ -186,19 +186,27 @@ const ROLE_COOKIE_MAP: Record<string, string> = {
 };
 
 /**
- * setRoleToken — stores a role-specific token in a cookie.
+ * setRoleToken — DEPRECATED. Role tokens are now stored exclusively in the
+ * HttpOnly xentro_token cookie via setTokenCookie(). This function is a no-op
+ * kept for call-site compatibility. All callers already call setTokenCookie()
+ * alongside this; remove these call sites in a follow-up.
  */
-export function setRoleToken(role: string, token: string) {
-    const cookieName = ROLE_COOKIE_MAP[role] || `xentro_role_${role}`;
-    setCookie(cookieName, token);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function setRoleToken(_role: string, _token: string): void {
+    // No-op: writing JWTs to JS-readable cookies creates an XSS exfiltration
+    // vector. The HttpOnly xentro_token set via setTokenCookie() is used instead,
+    // and the /api/[...proxy] route injects it as an Authorization header
+    // server-side so client JS never needs to read it.
 }
 
 /**
- * getRoleToken — reads a role-specific token from cookie.
+ * getRoleToken — DEPRECATED. Role tokens are stored in HttpOnly cookies and
+ * cannot be read from client-side JavaScript. Returns null always.
+ * The /api/[...proxy] route injects the Authorization header automatically.
  */
-export function getRoleToken(role: string): string | null {
-    const cookieName = ROLE_COOKIE_MAP[role] || `xentro_role_${role}`;
-    return getCookie(cookieName);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getRoleToken(_role: string): string | null {
+    return null;
 }
 
 /* ─── Convenience readers (backward-compatible API) ─── */
@@ -230,35 +238,15 @@ export function getUnlockedContexts(): string[] {
 }
 
 /**
- * getSessionToken — reads the unified token from cookie, or falls back to role tokens.
+ * getSessionToken — returns null; tokens are stored in the HttpOnly
+ * xentro_token cookie which client JS cannot read.
+ *
+ * The /api/[...proxy] route reads xentro_token server-side and injects it as
+ * an Authorization header when forwarding requests to Django, so API calls
+ * work without the client ever touching the raw JWT.
  */
-export function getSessionToken(expectedRole?: string): string | null {
-    // Try role-specific cookie tokens
-    if (expectedRole) {
-        const t = getRoleToken(expectedRole);
-        if (t) return t;
-
-        if (typeof window !== 'undefined') {
-            try {
-                const legacyRoleToken = localStorage.getItem(`${expectedRole}_token`);
-                if (legacyRoleToken) return legacyRoleToken;
-            } catch { /* ignore */ }
-        }
-    }
-
-    // Try all role cookies as last resort
-    if (!expectedRole) {
-        for (const cookieName of Object.values(ROLE_COOKIE_MAP)) {
-            const t = getCookie(cookieName);
-            if (t) return t;
-        }
-    }
-
-    // Legacy localStorage fallback (will be removed after migration)
-    if (typeof window === 'undefined') return null;
-    const legacySession = getLegacySession() as { token?: string } | null;
-    if (legacySession?.token) return legacySession.token;
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getSessionToken(_expectedRole?: string): string | null {
     return null;
 }
 

@@ -12,12 +12,25 @@ const securityHeaders = {
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
 };
 
-// Rate limiting store (in production, use Redis)
+// Defense-in-depth rate limiting (per Next.js process).
+// IMPORTANT: This is an early-return optimisation, NOT the authoritative rate limit.
+// For multi-instance deployments this store is per-process — an attacker hitting
+// different instances sees independent counters.
+// Authoritative rate limits for security-critical paths are enforced at the Django
+// layer (see apps/core/middleware/throttle.py and @rate_limit decorators on auth views).
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
 function getRateLimitKey(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
+  // Prefer IPs set server-side at the network/proxy layer (not spoofable by clients).
+  // request.ip — populated by Next.js/Vercel from the actual TCP connection.
+  // x-real-ip  — set by nginx's real_ip module from the connection, not from headers.
+  // x-forwarded-for last entry — appended by our own reverse proxy (nginx), not the client.
+  const xForwardedFor = request.headers.get('x-forwarded-for') ?? '';
+  const ip =
+    request.ip ??
+    request.headers.get('x-real-ip') ??
+    (xForwardedFor ? xForwardedFor.split(',').pop()?.trim() : undefined) ??
+    'unknown';
   return `${ip}:${request.nextUrl.pathname}`;
 }
 

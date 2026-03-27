@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Card, FeedbackBanner, Input, Textarea } from '@/components/ui';
+import { Button, Card, Input, Textarea } from '@/components/ui';
+import { toast } from 'sonner';
 import { EventFormData } from '../_lib/constants';
 
 const EVENT_TYPES = ['workshop', 'meetup', 'conference', 'demo_day', 'pitch', 'networking', 'webinar', 'other'];
@@ -58,8 +59,6 @@ export default function EventWizardForm({
 	const [step, setStep] = useState(0);
 	const [form, setForm] = useState<EventFormData>(initialForm);
 	const [saving, setSaving] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [restoreNote, setRestoreNote] = useState<string | null>(null);
 
 	useEffect(() => {
 		const fallbackForm = { ...initialForm };
@@ -87,14 +86,13 @@ export default function EventWizardForm({
 
 			if (parsed.savedAt) {
 				const when = new Date(parsed.savedAt).toLocaleString();
-				setRestoreNote(`Restored autosaved draft from ${when}.`);
+				toast.info(`Restored autosaved draft from ${when}.`);
 			} else {
-				setRestoreNote('Restored autosaved draft.');
+				toast.info('Restored autosaved draft.');
 			}
 		} catch {
 			setForm(fallbackForm);
 			setStep(0);
-			setRestoreNote(null);
 		}
 	}, [autosaveKey, initialForm]);
 
@@ -115,30 +113,27 @@ export default function EventWizardForm({
 	const progress = useMemo(() => ((step + 1) / STEP_TITLES.length) * 100, [step]);
 
 	const setField = (field: keyof EventFormData, value: string | boolean) => {
-		setError(null);
 		setForm((prev) => ({ ...prev, [field]: value }));
 	};
 
 	const next = () => {
 		const message = validateStep(step, form);
 		if (message) {
-			setError(message);
+			toast.error(message);
 			return;
 		}
 
-		setError(null);
 		setStep((prev) => Math.min(prev + 1, STEP_TITLES.length - 1));
 	};
 
 	const previous = () => {
-		setError(null);
 		setStep((prev) => Math.max(prev - 1, 0));
 	};
 
 	const submit = async () => {
 		const message = validateBeforeSubmit(form);
 		if (message) {
-			setError(message);
+			toast.error(message);
 			if (!form.name.trim() || !form.type.trim()) {
 				setStep(0);
 			} else {
@@ -148,13 +143,12 @@ export default function EventWizardForm({
 		}
 
 		setSaving(true);
-		setError(null);
 
 		try {
 			await onSubmit(form);
 			localStorage.removeItem(autosaveKey);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Unable to save event.');
+			toast.error(err instanceof Error ? err.message : 'Unable to save event.');
 		} finally {
 			setSaving(false);
 		}
@@ -172,8 +166,6 @@ export default function EventWizardForm({
 				</div>
 			</Card>
 
-			{restoreNote && <FeedbackBanner type="info" message={restoreNote} onDismiss={() => setRestoreNote(null)} />}
-			{error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
 			<Card className="p-6 bg-white/5 border-white/10 space-y-6">
 				{step === 0 && (

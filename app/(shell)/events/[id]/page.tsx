@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, FeedbackBanner } from "@/components/ui";
+import { Button, Card } from "@/components/ui";
+import { toast } from "sonner";
 import { getSessionToken } from "@/lib/auth-utils";
 
 interface EventDetail {
@@ -119,8 +120,6 @@ export default function EventDetailPage() {
 	);
 	const [occurrences, setOccurrences] = useState<EventOccurrence[]>([]);
 	const [selectedOccurrenceId, setSelectedOccurrenceId] = useState<string>("");
-	const [error, setError] = useState<string | null>(null);
-	const [success, setSuccess] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!eventId) return;
@@ -138,7 +137,7 @@ export default function EventDetailPage() {
 			})
 			.catch((err) => {
 				if (!mounted) return;
-				setError(
+				toast.error(
 					err instanceof Error ? err.message : "Failed to load event details",
 				);
 			})
@@ -246,8 +245,6 @@ export default function EventDetailPage() {
 		}
 
 		setHolding(true);
-		setError(null);
-		setSuccess(null);
 
 		try {
 			const res = await fetch(`/api/events/${eventData.id}/hold/`, {
@@ -268,9 +265,9 @@ export default function EventDetailPage() {
 
 			setHoldId(payload.holdId || null);
 			setHoldExpiresAt(payload.expiresAt || null);
-			setSuccess("Seats reserved. Complete checkout before the hold expires.");
+			toast.success("Seats reserved. Complete checkout before the hold expires.");
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Seat hold failed");
+			toast.error(err instanceof Error ? err.message : "Seat hold failed");
 		} finally {
 			setHolding(false);
 		}
@@ -285,8 +282,6 @@ export default function EventDetailPage() {
 		}
 
 		setBooking(true);
-		setError(null);
-		setSuccess(null);
 
 		try {
 			const res = await fetch(`/api/events/${eventData.id}/rsvp/`, {
@@ -311,9 +306,9 @@ export default function EventDetailPage() {
 			setHoldId(null);
 			setHoldExpiresAt(null);
 			if (payload.waitlisted) {
-				setSuccess(payload.message || "Event is full, you have been added to waitlist.");
+				toast.info(payload.message || "Event is full, you have been added to waitlist.");
 			} else {
-				setSuccess(
+				toast.success(
 					eventData.isVirtual
 						? "Booking confirmed. Confirmation details were sent to your email."
 						: "Booking confirmed. Check your email for the entry QR code.",
@@ -321,7 +316,7 @@ export default function EventDetailPage() {
 			}
 			await refreshEvent();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Booking failed");
+			toast.error(err instanceof Error ? err.message : "Booking failed");
 		} finally {
 			setBooking(false);
 		}
@@ -336,8 +331,6 @@ export default function EventDetailPage() {
 		}
 
 		setConfirming(true);
-		setError(null);
-		setSuccess(null);
 
 		try {
 			const res = await fetch(`/api/events/${eventData.id}/confirm-hold/`, {
@@ -356,14 +349,14 @@ export default function EventDetailPage() {
 			setCalendarLinks(payload.calendarLinks || null);
 			setHoldId(null);
 			setHoldExpiresAt(null);
-			setSuccess(
+			toast.success(
 				eventData.isVirtual
 					? "Booking confirmed. Confirmation details were sent to your email."
 					: "Booking confirmed. Check your email for the entry QR code.",
 			);
 			await refreshEvent();
 		} catch (err) {
-			setError(
+			toast.error(
 				err instanceof Error ? err.message : "Booking confirmation failed",
 			);
 		} finally {
@@ -380,8 +373,6 @@ export default function EventDetailPage() {
 		}
 
 		setCancelling(true);
-		setError(null);
-		setSuccess(null);
 
 		try {
 			const cancelRequest = async (occurrenceId?: string) => {
@@ -410,11 +401,11 @@ export default function EventDetailPage() {
 				throw new Error(payload.message || "Cancellation failed");
 			}
 
-			setSuccess(payload.message || "Booking cancelled");
+			toast.success(payload.message || "Booking cancelled");
 			setCalendarLinks(null);
 			await refreshEvent();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Cancellation failed");
+			toast.error(err instanceof Error ? err.message : "Cancellation failed");
 		} finally {
 			setCancelling(false);
 		}
@@ -431,7 +422,7 @@ export default function EventDetailPage() {
 	if (!eventData) {
 		return (
 			<div className="max-w-5xl mx-auto px-4 py-10">
-				<FeedbackBanner type="error" message={error || "Event not found"} />
+				<p className="text-red-400">Event not found.</p>
 				<div className="mt-4">
 					<Link href="/events" className="text-sm text-accent hover:underline">
 						Back to Events
@@ -464,21 +455,6 @@ export default function EventDetailPage() {
 					<span className="px-3 py-1 rounded-full bg-white/15">Pricing: {pretty(eventData.pricingType || 'free')}</span>
 				</div>
 			</div>
-
-			{error && (
-				<FeedbackBanner
-					type="error"
-					message={error}
-					onDismiss={() => setError(null)}
-				/>
-			)}
-			{success && (
-				<FeedbackBanner
-					type="success"
-					message={success}
-					onDismiss={() => setSuccess(null)}
-				/>
-			)}
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 				<div className="lg:col-span-2 space-y-6">

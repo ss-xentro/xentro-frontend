@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FeedbackBanner, PageSkeleton, EmptyState } from '@/components/ui';
+import { PageSkeleton, EmptyState } from '@/components/ui';
+import { toast } from 'sonner';
 import { getSessionToken } from '@/lib/auth-utils';
 import { RecycleBinUser, accountTypeLabels } from './_lib/constants';
 import RecycleBinCard from './_components/RecycleBinCard';
@@ -11,8 +12,6 @@ export default function AdminRecycleBinPage() {
     const router = useRouter();
     const [users, setUsers] = useState<RecycleBinUser[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [search, setSearch] = useState('');
 
@@ -34,9 +33,8 @@ export default function AdminRecycleBinPage() {
             if (!res.ok) throw new Error('Failed to load recycle bin');
             const json = await res.json();
             setUsers(json.data || []);
-            setError(null);
         } catch (err) {
-            setError((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setLoading(false);
         }
@@ -44,14 +42,13 @@ export default function AdminRecycleBinPage() {
 
     const handleRestore = async (userId: string, userName: string) => {
         setActionLoading(`restore-${userId}`);
-        setSuccess(null);
         try {
             const res = await fetch(`/api/admin/recycle-bin/${userId}/restore/`, { method: 'POST', headers: getHeaders() });
             if (!res.ok) { const json = await res.json(); throw new Error(json.error || 'Failed to restore user'); }
             setUsers((prev) => prev.filter((u) => u.id !== userId));
-            setSuccess(`"${userName}" has been restored successfully.`);
+            toast.success(`"${userName}" has been restored successfully.`);
         } catch (err) {
-            setError((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setActionLoading(null);
         }
@@ -60,16 +57,15 @@ export default function AdminRecycleBinPage() {
     const handlePermanentDelete = async (userId: string, userName: string) => {
         if (!confirm(`This will PERMANENTLY delete "${userName}" and ALL related data including uploaded files.\n\nThis action cannot be undone. Continue?`)) return;
         setActionLoading(`delete-${userId}`);
-        setSuccess(null);
         try {
             const res = await fetch(`/api/admin/recycle-bin/${userId}/`, { method: 'DELETE', headers: getHeaders() });
             if (!res.ok) { const json = await res.json(); throw new Error(json.error || 'Failed to delete user'); }
             const json = await res.json();
             const r2Info = json.cleanup?.r2FilesDeleted ? ` (${json.cleanup.r2FilesDeleted} files cleaned from storage)` : '';
             setUsers((prev) => prev.filter((u) => u.id !== userId));
-            setSuccess(`"${userName}" has been permanently deleted${r2Info}.`);
+            toast.success(`"${userName}" has been permanently deleted${r2Info}.`);
         } catch (err) {
-            setError((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setActionLoading(null);
         }
@@ -97,10 +93,6 @@ export default function AdminRecycleBinPage() {
                     Deleted users are kept for 30 days before automatic removal. {users.length} user{users.length !== 1 ? 's' : ''} in recycle bin.
                 </p>
             </div>
-
-            {/* Feedback */}
-            {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
-            {success && <FeedbackBanner type="success" message={success} onDismiss={() => setSuccess(null)} />}
 
             {/* Search */}
             {users.length > 0 && (

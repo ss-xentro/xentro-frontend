@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { FeedbackBanner, PageSkeleton, EmptyState } from '@/components/ui';
+import { PageSkeleton, EmptyState } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
 import { Startup, EndorsementRequest } from './_lib/constants';
@@ -14,7 +15,6 @@ export default function StartupsPage() {
     const router = useRouter();
     const [startups, setStartups] = useState<Startup[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [endorsements, setEndorsements] = useState<EndorsementRequest[]>([]);
     const [endorsementsLoading, setEndorsementsLoading] = useState(true);
@@ -33,9 +33,8 @@ export default function StartupsPage() {
             if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load startups'));
             const data = await res.json();
             setStartups(data.data || []);
-            setError(null);
         } catch (err) {
-            setError((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setLoading(false);
         }
@@ -72,7 +71,7 @@ export default function StartupsPage() {
             loadEndorsements();
             if (action === 'accepted') loadStartups();
         } catch (err) {
-            alert((err as Error).message);
+            toast.error((err as Error).message);
         }
     };
 
@@ -88,7 +87,7 @@ export default function StartupsPage() {
             }
             setStartups((prev) => prev.filter((s) => s.id !== id));
         } catch (err) {
-            alert((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setDeletingId(null);
         }
@@ -137,8 +136,6 @@ export default function StartupsPage() {
                         onRespond={handleRespondEndorsement}
                     />
                 )}
-
-                {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
                 {startups.length === 0 ? (
                     <EmptyState

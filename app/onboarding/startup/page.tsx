@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
-import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
+import { toast } from 'sonner';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { COMPLETION_STEPS } from './_lib/constants';
 import { useFlowInitialization } from './_lib/useFlowInitialization';
@@ -86,8 +86,21 @@ export default function StartupOnboardingPage() {
     }, [setResetVerificationCallback, email.resetVerificationState]);
 
     useEffect(() => {
-        if (isCompletionFlow) return;
+        if (nav.error) {
+            toast.error(nav.error);
+            nav.setError(null);
+        }
+    }, [nav.error]);
 
+    useEffect(() => {
+        if (email.feedback) {
+            if (email.feedback.type === 'success') toast.success(email.feedback.message);
+            else toast.error(email.feedback.message);
+            email.setFeedback(null);
+        }
+    }, [email.feedback]);
+
+    useEffect(() => {
         if (!email.emailVerified) {
             autoCreateTriggeredRef.current = false;
             return;
@@ -161,14 +174,6 @@ export default function StartupOnboardingPage() {
                                 onCheckVerification={email.handleCheckVerification}
                             />
 
-                            {(nav.error || email.feedback) && (
-                                <div className="px-6 md:px-8 pb-4 border-t border-(--border) bg-rose-50/40">
-                                    {nav.error && <FeedbackBanner type="error" message={nav.error} onDismiss={() => nav.setError(null)} />}
-                                    {email.feedback && !nav.error && (
-                                        <FeedbackBanner type={email.feedback.type} message={email.feedback.message} onDismiss={() => email.setFeedback(null)} />
-                                    )}
-                                </div>
-                            )}
 
                             <div className="px-6 md:px-8 py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-slate-50/65">
                                 <Button
@@ -246,15 +251,6 @@ export default function StartupOnboardingPage() {
                                                 updateData={nav.updateData}
                                                 toggleWhyXentro={nav.toggleWhyXentro}
                                             />
-
-                                            {(nav.error || email.feedback) && (
-                                                <div className="px-4 sm:px-6 md:px-8 pb-4 border-t border-(--border) bg-rose-50/40">
-                                                    {nav.error && <FeedbackBanner type="error" message={nav.error} onDismiss={() => nav.setError(null)} />}
-                                                    {email.feedback && !nav.error && (
-                                                        <FeedbackBanner type={email.feedback.type} message={email.feedback.message} onDismiss={() => email.setFeedback(null)} />
-                                                    )}
-                                                </div>
-                                            )}
 
                                             <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-slate-50/65">
                                                 <Button

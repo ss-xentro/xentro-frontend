@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, FeedbackBanner, EmptyState } from '@/components/ui';
+import { Button, EmptyState } from '@/components/ui';
+import { toast } from 'sonner';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
 import { EventItem } from './_lib/constants';
@@ -27,7 +28,6 @@ export default function InstitutionEventsPage() {
     const router = useRouter();
     const [events, setEvents] = useState<EventItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     const fetchEvents = useCallback(async () => {
         const token = getSessionToken();
@@ -39,7 +39,7 @@ export default function InstitutionEventsPage() {
             const data = await res.json();
             setEvents(normalizeEventListResponse(data));
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load events');
+            toast.error(err instanceof Error ? err.message : 'Failed to load events');
         } finally {
             setLoading(false);
         }
@@ -64,7 +64,7 @@ export default function InstitutionEventsPage() {
             if (!res.ok) throw new Error('Delete failed');
             setEvents((prev) => prev.filter((e) => e.id !== id));
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Delete failed');
+            toast.error(err instanceof Error ? err.message : 'Delete failed');
         }
     };
 
@@ -78,8 +78,6 @@ export default function InstitutionEventsPage() {
                     </div>
                     <Button onClick={goToCreatePage}>+ New Event</Button>
                 </div>
-
-                {error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
                 {loading ? (
                     <div className="grid gap-4 md:grid-cols-2">

@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
 import { BackButton } from '@/components/ui/BackButton';
-import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { PageSkeleton } from '@/components/ui/PageSkeleton';
 import { EMPTY_STARTUP_FORM } from '../../../_lib/startup-form-constants';
 import type { StartupFormData } from '../../../_lib/startup-form-constants';
@@ -22,8 +22,6 @@ export default function EditStartupPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'funding' | 'links'>('details');
   const [locationSearch, setLocationSearch] = useState('');
   const [formData, setFormData] = useState<StartupFormData>({ ...EMPTY_STARTUP_FORM });
@@ -72,9 +70,8 @@ export default function EditStartupPage() {
         primaryContactEmail: s.primaryContactEmail || '',
       });
       setLocationSearch(s.location || '');
-      setError(null);
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -88,8 +85,6 @@ export default function EditStartupPage() {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setSaving(true);
-    setError(null);
-    setSuccess(false);
 
     try {
       const token = getSessionToken('institution');
@@ -109,10 +104,10 @@ export default function EditStartupPage() {
 
       if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to update startup'));
 
-      setSuccess(true);
+      toast.success('Changes saved successfully!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setSaving(false);
     }
@@ -140,14 +135,11 @@ export default function EditStartupPage() {
             <p className="text-sm text-gray-300 mt-1">Update all startup details — same fields as the startup owner sees</p>
           </div>
           <Button onClick={() => handleSubmit()} disabled={saving || !formData.name}>
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving…' : 'Save Changes'}
           </Button>
         </div>
 
-        {success && <FeedbackBanner type="success" message="Changes saved successfully!" />}
-        {error && <FeedbackBanner type="error" message={error} />}
-
-        <div className="border-b border-white/10 flex space-x-6">
+        <div className="flex gap-6 border-b border-gray-700">
           {(['details', 'funding', 'links'] as const).map((tab) => (
             <button
               key={tab}

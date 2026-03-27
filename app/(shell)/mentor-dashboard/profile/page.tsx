@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { getSessionToken } from "@/lib/auth-utils";
-import { FeedbackBanner } from "@/components/ui/FeedbackBanner";
+import { toast } from "sonner";
 import { BackButton } from "@/components/ui/BackButton";
 import { FormSkeleton } from "@/components/ui/PageSkeleton";
 import {
@@ -27,8 +27,6 @@ export default function MentorProfilePage() {
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [isEditMode, setIsEditMode] = useState(false);
-	const [success, setSuccess] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 
 	// Photo state (uploaded immediately, saved with form submit)
 	const [name, setName] = useState("");
@@ -125,7 +123,7 @@ export default function MentorProfilePage() {
 				}
 			}
 		} catch {
-			setError("Could not load your profile. Please try again.");
+			toast.error("Could not load your profile. Please try again.");
 		} finally {
 			setLoading(false);
 		}
@@ -299,25 +297,23 @@ export default function MentorProfilePage() {
 	// -- Submit --
 	const handleSubmit = async () => {
 		if (achievements.length === 0) {
-			setError("Please add at least one achievement");
+			toast.error("Please add at least one achievement");
 			return;
 		}
 		if (highlights.length === 0) {
-			setError("Please add at least one highlight");
+			toast.error("Please add at least one highlight");
 			return;
 		}
 		if (slots.length === 0) {
-			setError("Please add at least one available slot");
+			toast.error("Please add at least one available slot");
 			return;
 		}
 		if (pricingPlans.length === 0) {
-			setError("Please add at least one pricing plan");
+			toast.error("Please add at least one pricing plan");
 			return;
 		}
 
-		setError(null);
 		setSaving(true);
-		setSuccess(false);
 
 		const token = getSessionToken("mentor");
 		if (!token) {
@@ -351,7 +347,7 @@ export default function MentorProfilePage() {
 
 			const data = await res.json();
 			setProfileData(data);
-			setSuccess(true);
+			toast.success("Profile updated successfully!");
 			setIsEditMode(false);
 			// Sync updated name/avatar into the auth session so the sidebar reflects changes
 			if (user && authToken) {
@@ -359,7 +355,7 @@ export default function MentorProfilePage() {
 			}
 			window.scrollTo({ top: 0, behavior: "smooth" });
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setSaving(false);
 		}
@@ -373,13 +369,6 @@ export default function MentorProfilePage() {
 	if (!isEditMode && profileData) {
 		return (
 			<div className="space-y-4 animate-fadeIn">
-				{success && (
-					<FeedbackBanner
-						type="success"
-						title="Profile Updated Successfully!"
-						message="Your mentor profile is now live and discoverable."
-					/>
-				)}
 				<ProfileView
 					profileData={{ ...profileData, avatar, cover_photo: coverPhoto }}
 					achievements={achievements}
@@ -388,7 +377,6 @@ export default function MentorProfilePage() {
 					documents={documents}
 					slots={slots}
 					onEditClick={() => {
-						setSuccess(false);
 						setIsEditMode(true);
 					}}
 					onViewPublicProfile={() => router.push(`/mentors/${profileData.id}`)}
@@ -419,11 +407,8 @@ export default function MentorProfilePage() {
 				</h1>
 			</div>
 
-			{error && <FeedbackBanner type="error" title="Error" message={error} />}
-
-			{/* Profile section merged with Settings-style basics */}
-			<Card className="p-6 space-y-5">
-				<div className="flex items-start justify-between gap-4">
+			<Card className="p-6">
+				<div className="flex items-center justify-between">
 					<div>
 						<h2 className="text-lg font-semibold text-(--primary)">Profile</h2>
 						<p className="text-sm text-(--secondary) mt-0.5">
@@ -478,7 +463,7 @@ export default function MentorProfilePage() {
 						</div>
 					</div>
 				</div>
-			</Card>
+			</Card >
 
 			<div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
 				{/* Section 1: Achievements */}
@@ -773,6 +758,6 @@ export default function MentorProfilePage() {
 					</div>
 				</div>
 			</div>
-		</div>
+		</div >
 	);
 }

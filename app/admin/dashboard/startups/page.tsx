@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, Button, Input, Badge, FeedbackBanner, Spinner, EmptyState, ViewModeToggle } from '@/components/ui';
+import { Card, Button, Input, Badge, Spinner, EmptyState, ViewModeToggle } from '@/components/ui';
+import { toast } from 'sonner';
 import { Startup, startupStageLabels, startupStatusLabels, fundingRoundLabels } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import Link from 'next/link';
@@ -14,7 +15,6 @@ export default function StartupsAdminPage() {
     const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
     const [startups, setStartups] = useState<Startup[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -30,10 +30,9 @@ export default function StartupsAdminPage() {
 
                 const json = await response.json();
                 setStartups(json.startups || json.data || []);
-                setError(null);
             } catch (err) {
                 if ((err as Error).name !== 'AbortError') {
-                    setError((err as Error).message);
+                    toast.error((err as Error).message);
                 }
             } finally {
                 setLoading(false);
@@ -116,13 +115,8 @@ export default function StartupsAdminPage() {
                 </div>
             )}
 
-            {/* Error State */}
-            {error && !loading && (
-                <FeedbackBanner type="error" message={error} />
-            )}
-
             {/* Empty State */}
-            {!loading && !error && filteredStartups.length === 0 && (
+            {!loading && filteredStartups.length === 0 && (
                 <EmptyState
                     icon={<AppIcon name="rocket" className="w-10 h-10 text-gray-400" />}
                     title="No startups found"
@@ -135,7 +129,7 @@ export default function StartupsAdminPage() {
             )}
 
             {/* Cards View */}
-            {!loading && !error && viewMode === 'cards' && filteredStartups.length > 0 && (
+            {!loading && viewMode === 'cards' && filteredStartups.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredStartups.map((startup) => {
                         const stageInfo = startup.stage ? startupStageLabels[startup.stage] : null;
@@ -218,7 +212,7 @@ export default function StartupsAdminPage() {
             )}
 
             {/* Table View */}
-            {!loading && !error && viewMode === 'table' && filteredStartups.length > 0 && (
+            {!loading && viewMode === 'table' && filteredStartups.length > 0 && (
                 <Card padding="none">
                     <div className="overflow-x-auto">
                         <table className="w-full">

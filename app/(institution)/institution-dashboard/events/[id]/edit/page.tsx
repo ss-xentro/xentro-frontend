@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { FeedbackBanner } from '@/components/ui';
+import { toast } from 'sonner';
 import { getSessionToken } from '@/lib/auth-utils';
 import EventWizardForm from '../../_components/EventWizardForm';
 import { buildEventPayload, EMPTY_FORM, EventFormData, EventItem, eventToForm } from '../../_lib/constants';
@@ -14,12 +14,11 @@ export default function EditEventPage() {
 	const eventId = params?.id;
 
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [initialForm, setInitialForm] = useState<EventFormData | null>(null);
 
 	useEffect(() => {
 		if (!eventId) {
-			setError('Event ID is missing.');
+			toast.error('Event ID is missing.');
 			setLoading(false);
 			return;
 		}
@@ -27,13 +26,12 @@ export default function EditEventPage() {
 		const fetchEvent = async () => {
 			const token = getSessionToken('institution') || getSessionToken();
 			if (!token) {
-				setError('Authentication required. Please log in again.');
+				toast.error('Authentication required. Please log in again.');
 				setLoading(false);
 				return;
 			}
 
 			setLoading(true);
-			setError(null);
 
 			try {
 				const res = await fetch(`/api/events/${eventId}/`, {
@@ -54,7 +52,7 @@ export default function EditEventPage() {
 
 				setInitialForm(eventToForm(event));
 			} catch (err) {
-				setError(err instanceof Error ? err.message : 'Failed to load event');
+				toast.error(err instanceof Error ? err.message : 'Failed to load event');
 			} finally {
 				setLoading(false);
 			}
@@ -100,8 +98,6 @@ export default function EditEventPage() {
 					<h1 className="text-3xl font-bold text-white">Edit Event</h1>
 					<p className="text-sm text-gray-400">Update event details in a guided three-step flow.</p>
 				</div>
-
-				{error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
 
 				{loading ? (
 					<div className="space-y-4">

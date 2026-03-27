@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { Card, Button, BackButton, FeedbackBanner, PageSkeleton } from '@/components/ui';
+import { Card, Button, BackButton, PageSkeleton } from '@/components/ui';
+import { toast } from 'sonner';
 import TagInput from '@/components/ui/TagInput';
 import { getSessionToken } from '@/lib/auth-utils';
 import type { SlotEntry, DocumentEntry } from './_components/constants';
@@ -18,8 +19,7 @@ export default function EditMentorPage() {
 
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [success, setSuccess] = useState(false);
+	const [loadError, setLoadError] = useState<string | null>(null);
 
 	// Read-only profile info
 	const [userName, setUserName] = useState('');
@@ -61,40 +61,19 @@ export default function EditMentorPage() {
 			setStatus(m.status || '');
 			setVerified(m.verified || false);
 
-			// Expertise
-			if (m.expertise) {
-				if (Array.isArray(m.expertise)) setExpertise(m.expertise.filter(Boolean));
-				else if (typeof m.expertise === 'string') setExpertise(m.expertise.split(',').map((s: string) => s.trim()).filter(Boolean));
-			}
-
-			// Achievements
-			if (m.achievements) {
-				if (Array.isArray(m.achievements)) setAchievements(m.achievements.filter(Boolean));
-				else if (typeof m.achievements === 'string') {
-					setAchievements(m.achievements.split(/[\n;]+/).map((s: string) => s.replace(/^[-•*]\s*/, '').trim()).filter(Boolean));
-				}
-			}
-
-			// Pricing
+			if (m.expertise) setExpertise(Array.isArray(m.expertise) ? m.expertise : []);
+			if (m.achievements) setAchievements(Array.isArray(m.achievements) ? m.achievements : []);
 			if (m.pricing_per_hour) setPricingPerHour(String(m.pricing_per_hour));
 			if (m.rate) setRate(String(m.rate));
-
-			// Availability / slots
 			if (m.availability) {
 				try {
 					const parsed = typeof m.availability === 'string' ? JSON.parse(m.availability) : m.availability;
-					if (Array.isArray(parsed) && parsed.length > 0) setSlots(parsed);
-				} catch { /* ignore */ }
+					if (Array.isArray(parsed)) setSlots(parsed);
+				} catch { /* ignore parse errors */ }
 			}
-
-			// Documents
-			if (m.documents && Array.isArray(m.documents) && m.documents.length > 0) {
-				setDocuments(m.documents);
-			}
-
-			setError(null);
+			if (m.documents) setDocuments(Array.isArray(m.documents) ? m.documents : []);
 		} catch (err) {
-			setError((err as Error).message);
+			setLoadError((err as Error).message);
 		} finally {
 			setLoading(false);
 		}
@@ -102,8 +81,6 @@ export default function EditMentorPage() {
 
 	// Submit
 	const handleSubmit = async () => {
-		setError(null);
-		setSuccess(false);
 		setSaving(true);
 
 		try {
@@ -134,10 +111,10 @@ export default function EditMentorPage() {
 				throw new Error(data.error || 'Failed to update mentor');
 			}
 
-			setSuccess(true);
+			toast.success('Changes saved successfully!');
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setSaving(false);
 		}
@@ -153,10 +130,10 @@ export default function EditMentorPage() {
 		);
 	}
 
-	if (error && !userName) {
+	if (loadError && !userName) {
 		return (
 			<DashboardSidebar>
-				<div className="p-8"><Card className="p-8 text-center"><p className="text-red-400 mb-4">{error}</p><Button onClick={() => router.push('/institution-dashboard/mentors')}>Back to Mentors</Button></Card></div>
+				<div className="p-8"><Card className="p-8 text-center"><p className="text-red-400 mb-4">{loadError}</p><Button onClick={() => router.push('/institution-dashboard/mentors')}>Back to Mentors</Button></Card></div>
 			</DashboardSidebar>
 		);
 	}
@@ -176,8 +153,7 @@ export default function EditMentorPage() {
 					</Button>
 				</div>
 
-				{success && <FeedbackBanner type="success" message="Changes saved successfully!" onDismiss={() => setSuccess(false)} />}
-				{error && <FeedbackBanner type="error" message={error} onDismiss={() => setError(null)} />}
+
 
 				{/* Profile Overview (read-only) */}
 				<Card className="p-6 bg-white/5 border border-white/10">

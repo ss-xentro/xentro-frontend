@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, Button, Input, FeedbackBanner, CardListSkeleton, EmptyState, ViewModeToggle } from '@/components/ui';
+import { Card, Button, Input, CardListSkeleton, EmptyState, ViewModeToggle } from '@/components/ui';
+import { toast } from 'sonner';
 import { Institution } from '@/lib/types';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,7 +24,6 @@ export default function InstitutionsPage() {
     const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
     const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
     const [deleting, setDeleting] = useState(false);
     const { token } = useAuth();
@@ -41,10 +41,9 @@ export default function InstitutionsPage() {
 
                 const { data } = await response.json();
                 setInstitutions(data ?? []);
-                setError(null);
             } catch (err) {
                 if ((err as Error).name !== 'AbortError') {
-                    setError((err as Error).message);
+                    toast.error((err as Error).message);
                 }
             } finally {
                 setLoading(false);
@@ -72,7 +71,7 @@ export default function InstitutionsPage() {
             setInstitutions((prev) => prev.filter((inst) => inst.id !== id));
             setDeleteConfirm(null);
         } catch (err) {
-            alert((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setDeleting(false);
         }
@@ -151,10 +150,6 @@ export default function InstitutionsPage() {
                     <ViewModeToggle mode={viewMode} onChange={setViewMode} />
                 </div>
             </Card>
-
-            {error && (
-                <FeedbackBanner type="error" title="Unable to load institutions" message={error} />
-            )}
 
             {loading && <CardListSkeleton count={3} />}
 
