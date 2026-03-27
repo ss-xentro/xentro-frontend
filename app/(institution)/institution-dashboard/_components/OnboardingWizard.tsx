@@ -60,7 +60,6 @@ export default function OnboardingWizard({
 	const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
 	const [submitting, setSubmitting] = useState(false);
 	const [savingDraft, setSavingDraft] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 	const [showPreview, setShowPreview] = useState(false);
 	const { success: toastSuccess, error: toastError } = useToast();
 
@@ -146,7 +145,6 @@ export default function OnboardingWizard({
 		} catch (err) {
 			const msg = (err as Error).message || 'Failed to save draft';
 			toastError(msg);
-			setError(msg);
 		} finally {
 			setSavingDraft(false);
 		}
@@ -167,7 +165,7 @@ export default function OnboardingWizard({
 		if (!formData.description.trim()) errors.push('Description is required');
 
 		if (errors.length) {
-			setError(errors.join(', '));
+			toastError(errors.join(', '));
 			setSubmitting(false);
 			return;
 		}
@@ -192,7 +190,7 @@ export default function OnboardingWizard({
 
 			onBack();
 		} catch (err) {
-			setError((err as Error).message);
+			toastError((err as Error).message);
 		} finally {
 			setSubmitting(false);
 		}
@@ -311,12 +309,6 @@ export default function OnboardingWizard({
 						← Back to Dashboard
 					</Button>
 				</div>
-
-				{error && (
-					<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900 mb-4" role="alert">
-						{error}
-					</div>
-				)}
 
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 					{/* Main Form Area */}

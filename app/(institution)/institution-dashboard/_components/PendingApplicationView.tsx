@@ -9,14 +9,12 @@ import { AppIcon } from '@/components/ui/AppIcon';
 interface PendingApplicationViewProps {
 	application: InstitutionApplication | null;
 	loading: boolean;
-	error: string | null;
 	onStartOnboarding: () => void;
 }
 
 export default function PendingApplicationView({
 	application,
 	loading,
-	error,
 	onStartOnboarding,
 }: PendingApplicationViewProps) {
 	const router = useRouter();
@@ -48,11 +46,6 @@ export default function PendingApplicationView({
 				)}
 
 				{loading && <p className="text-(--secondary)">Loading your application…</p>}
-				{error && (
-					<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900" role="alert">
-						{error}
-					</div>
-				)}
 
 				{application && (
 					<Card className="p-6 space-y-4">

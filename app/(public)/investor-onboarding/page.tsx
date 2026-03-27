@@ -6,8 +6,7 @@ import { Input, Textarea } from '@/components/ui';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
 import { OnboardingWizardLayout } from '@/components/ui/OnboardingWizardLayout';
 import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
-
-type Feedback = { type: 'success' | 'error'; message: string } | null;
+import { toast } from 'sonner';
 
 const TOTAL_STEPS = 5;
 
@@ -15,7 +14,6 @@ export default function InvestorOnboardingPage() {
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [feedback, setFeedback] = useState<Feedback>(null);
     const [submitted, setSubmitted] = useState(false);
     const [countdown, setCountdown] = useState<number | null>(null);
     const countdownRef = useRef<NodeJS.Timeout | null>(null);
@@ -36,7 +34,6 @@ export default function InvestorOnboardingPage() {
 
     const updateField = (key: keyof typeof form, value: string) => {
         setForm((prev) => ({ ...prev, [key]: value }));
-        setFeedback(null);
     };
 
     const emailVerification = useEmailVerification({
@@ -91,7 +88,7 @@ export default function InvestorOnboardingPage() {
                 if (!res.ok) throw new Error(data.message || 'Registration failed');
 
                 setSubmitted(true);
-                setFeedback({ type: 'success', message: 'Application submitted! Redirecting to login…' });
+                toast.success('Application submitted! Redirecting to login…');
 
                 // Start countdown after successful submission
                 setCountdown(5);
@@ -106,7 +103,7 @@ export default function InvestorOnboardingPage() {
                     });
                 }, 1000);
             } catch (error) {
-                setFeedback({ type: 'error', message: (error as Error).message });
+                toast.error((error as Error).message);
             }
         };
 
@@ -133,19 +130,17 @@ export default function InvestorOnboardingPage() {
 
     const handleNext = async () => {
         if (!canProceed()) {
-            setFeedback({ type: 'error', message: 'Please complete the required fields to continue.' });
+            toast.error('Please complete the required fields to continue.');
             return;
         }
 
         if (step < TOTAL_STEPS) {
             setStep((prev) => prev + 1);
-            setFeedback(null);
             return;
         }
     };
 
     const handleBack = () => {
-        setFeedback(null);
         setStep((prev) => Math.max(1, prev - 1));
     };
 
@@ -290,7 +285,7 @@ export default function InvestorOnboardingPage() {
         ? (emailVerification.verified ? (loading ? 'Submitting…' : 'Submit for review') : '')
         : 'Continue';
 
-    const combinedFeedback = emailVerification.feedback || feedback;
+    const combinedFeedback = emailVerification.feedback || null;
 
     return (
         <div className="min-h-screen bg-(--surface) flex flex-col">

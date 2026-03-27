@@ -7,9 +7,9 @@ import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
 import { OnboardingWizardLayout } from '@/components/ui/OnboardingWizardLayout';
 import TagInput from '@/components/ui/TagInput';
 import { getAuthCookie, getSessionToken, syncAuthCookie } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 import { isMentorOnboardingComplete } from '@/lib/mentor-onboarding';
 
-type Feedback = { type: 'success' | 'error'; message: string } | null;
 
 const TOTAL_STEPS = 2;
 
@@ -60,7 +60,6 @@ export default function MentorOnboardingPage() {
 	const [isBootstrapping, setIsBootstrapping] = useState(true);
 	const [step, setStep] = useState(1);
 	const [loading, setLoading] = useState(false);
-	const [feedback, setFeedback] = useState<Feedback>(null);
 
 	const [occupation, setOccupation] = useState('');
 	const [focusTags, setFocusTags] = useState<string[]>([]);
@@ -90,7 +89,7 @@ export default function MentorOnboardingPage() {
 				}
 
 				if (!res.ok) {
-					setFeedback({ type: 'error', message: 'Could not load mentor onboarding details.' });
+					toast.error('Could not load mentor onboarding details.');
 					setIsBootstrapping(false);
 					return;
 				}
@@ -105,7 +104,7 @@ export default function MentorOnboardingPage() {
 				setFocusTags(toTagArray(data.expertise));
 			} catch {
 				if (!isActive) return;
-				setFeedback({ type: 'error', message: 'Could not load mentor onboarding details.' });
+				toast.error('Could not load mentor onboarding details.');
 			} finally {
 				if (isActive) setIsBootstrapping(false);
 			}
@@ -125,7 +124,6 @@ export default function MentorOnboardingPage() {
 	};
 
 	const handleBack = () => {
-		setFeedback(null);
 		setStep((prev) => Math.max(1, prev - 1));
 	};
 
@@ -137,7 +135,6 @@ export default function MentorOnboardingPage() {
 		}
 
 		setLoading(true);
-		setFeedback(null);
 
 		try {
 			const displayName = (authUser?.name || '').trim();
@@ -173,10 +170,10 @@ export default function MentorOnboardingPage() {
 			});
 			sessionStorage.setItem('xentro_mentor_onboarding_ok', 'true');
 
-			setFeedback({ type: 'success', message: 'Mentor onboarding saved. Redirecting...' });
+			toast.success('Mentor onboarding saved. Redirecting...');
 			setTimeout(() => router.push('/mentor-dashboard'), 1200);
 		} catch (error) {
-			setFeedback({ type: 'error', message: (error as Error).message });
+			toast.error((error as Error).message);
 		} finally {
 			setLoading(false);
 		}
@@ -184,13 +181,12 @@ export default function MentorOnboardingPage() {
 
 	const handleNext = async () => {
 		if (!canProceed()) {
-			setFeedback({ type: 'error', message: 'Please complete this step before continuing.' });
+			toast.error('Please complete this step before continuing.');
 			return;
 		}
 
 		if (step < TOTAL_STEPS) {
 			setStep((prev) => prev + 1);
-			setFeedback(null);
 			return;
 		}
 
@@ -216,7 +212,6 @@ export default function MentorOnboardingPage() {
 				subtitle={stepTitles[step - 1]}
 				currentStep={step}
 				totalSteps={TOTAL_STEPS}
-				feedback={feedback}
 				onBack={handleBack}
 				onNext={handleNext}
 				primaryLabel={step === TOTAL_STEPS ? (loading ? 'Saving...' : 'Finish onboarding') : 'Continue'}
@@ -230,7 +225,6 @@ export default function MentorOnboardingPage() {
 						value={occupation}
 						onChange={(e) => {
 							setOccupation(e.target.value);
-							setFeedback(null);
 						}}
 						autoFocus
 						required
@@ -241,7 +235,6 @@ export default function MentorOnboardingPage() {
 						tags={focusTags}
 						onChange={(tags) => {
 							setFocusTags(tags);
-							setFeedback(null);
 						}}
 						placeholder="Type a focus area and press Enter..."
 						suggestions={FOCUS_SUGGESTIONS}

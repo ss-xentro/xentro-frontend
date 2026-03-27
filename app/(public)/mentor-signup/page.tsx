@@ -6,8 +6,7 @@ import { Input } from '@/components/ui';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
 import { OnboardingWizardLayout } from '@/components/ui/OnboardingWizardLayout';
 import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
-
-type Feedback = { type: 'success' | 'error'; message: string } | null;
+import { toast } from 'sonner';
 
 const TOTAL_STEPS = 2;
 
@@ -15,7 +14,6 @@ export default function MentorSignupPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [feedback, setFeedback] = useState<Feedback>(null);
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -29,7 +27,6 @@ export default function MentorSignupPage() {
 
   const updateField = (key: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-    setFeedback(null);
   };
 
   const canProceed = () => {
@@ -42,19 +39,17 @@ export default function MentorSignupPage() {
 
   const handleNext = async () => {
     if (!canProceed()) {
-      setFeedback({ type: 'error', message: 'Please complete this step before continuing.' });
+      toast.error('Please complete this step before continuing.');
       return;
     }
 
     if (step === 1) {
       setStep((prev) => prev + 1);
-      setFeedback(null);
       return;
     }
 
     // Step 2 complete: create mentor account with minimal identity fields.
     setLoading(true);
-    setFeedback(null);
     try {
       const nameParts = form.name.trim().split(/\s+/);
       const firstName = nameParts[0] || '';
@@ -73,17 +68,16 @@ export default function MentorSignupPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Application failed');
 
-      setFeedback({ type: 'success', message: 'Account created. Continue to login to finish mentor onboarding.' });
+      toast.success('Account created. Continue to login to finish mentor onboarding.');
       setTimeout(() => router.push('/login'), 2000);
     } catch (error) {
-      setFeedback({ type: 'error', message: (error as Error).message });
+      toast.error((error as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleBack = () => {
-    setFeedback(null);
     setStep((prev) => Math.max(1, prev - 1));
   };
 
@@ -139,7 +133,7 @@ export default function MentorSignupPage() {
     ? (loading ? 'Creating account...' : 'Continue to login')
     : 'Continue';
 
-  const combinedFeedback = emailVerification.feedback || feedback;
+  const combinedFeedback = emailVerification.feedback || null;
 
   return (
     <div className="min-h-screen bg-(--surface) flex flex-col">

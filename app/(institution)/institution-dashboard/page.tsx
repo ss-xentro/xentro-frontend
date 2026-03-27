@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus, Institution, LegalDocument, operatingModeLabels, sdgLabels, sectorLabels } from '@/lib/types';
 import { getSessionToken, syncAuthCookie, setRoleToken, setTokenCookie } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 import OnboardingWizard from './_components/OnboardingWizard';
 import ApprovedDashboard from './_components/ApprovedDashboard';
 import PendingApplicationView from './_components/PendingApplicationView';
@@ -105,7 +106,6 @@ export default function InstitutionDashboardPage() {
   const [institution, setInstitution] = useState<Institution | null>(null);
   const [stats, setStats] = useState<DashboardStats>({ programsCount: 0, teamCount: 0, startupsCount: 0, profileViews: 0 });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
@@ -130,9 +130,8 @@ export default function InstitutionDashboardPage() {
         throw new Error(payload.message || 'Failed to submit verification request');
       }
       setApplication(payload.data ?? payload);
-      setError(null);
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
       throw err;
     }
   };
@@ -264,9 +263,8 @@ export default function InstitutionDashboardPage() {
             }
           }
         }
-        setError(null);
       } catch (err) {
-        setError((err as Error).message);
+        toast.error((err as Error).message);
       } finally {
         setLoading(false);
       }
@@ -306,7 +304,6 @@ export default function InstitutionDashboardPage() {
     <PendingApplicationView
       application={application}
       loading={loading}
-      error={error}
       onStartOnboarding={() => setShowOnboarding(true)}
     />
   );

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
 import { getSessionToken } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import {
 	StartupPitchData,
@@ -27,7 +28,7 @@ export default function PitchEditorPage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isEditMode, setIsEditMode] = useState(false);
-	const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
 	const [activeSection, setActiveSection] = useState<SectionKey>('videoPitch');
 
 	const [demoVideoUrl, setDemoVideoUrl] = useState<string | null>(null);
@@ -90,7 +91,7 @@ export default function PitchEditorPage() {
 	const progressPct = Math.round((completedCount / totalSections) * 100);
 
 	useEffect(() => { fetchStartupAndPitch(); }, []);
-	useEffect(() => { if (message) { const t = setTimeout(() => setMessage(null), 4000); return () => clearTimeout(t); } }, [message]);
+
 	useEffect(() => {
 		if (!allSections.some((section) => section.key === activeSection) && allSections.length > 0) {
 			setActiveSection(allSections[0].key);
@@ -133,7 +134,6 @@ export default function PitchEditorPage() {
 	const handleSave = async () => {
 		if (!startupId) return;
 		setIsSaving(true);
-		setMessage(null);
 		try {
 			const token = getSessionToken('founder');
 			const payload: StartupPitchData = { about: aboutData, competitors, customers, businessModels, marketSizes, visionStrategies, impacts, certifications, customSections };
@@ -149,10 +149,10 @@ export default function PitchEditorPage() {
 				body: JSON.stringify({ demoVideoUrl }),
 			});
 			if (!startupRes.ok) throw new Error('Failed to save video pitch');
-			setMessage({ type: 'success', text: 'All changes saved successfully.' });
+			toast.success('All changes saved successfully.');
 			setIsEditMode(false);
 		} catch {
-			setMessage({ type: 'error', text: 'Failed to save. Please try again.' });
+			toast.error('Failed to save. Please try again.');
 		} finally {
 			setIsSaving(false);
 		}
@@ -181,7 +181,7 @@ export default function PitchEditorPage() {
 	const handleCreateCustomStep = () => {
 		const title = newStepTitle.trim();
 		if (!title) {
-			setMessage({ type: 'error', text: 'Step title is required.' });
+			toast.error('Step title is required.');
 			return;
 		}
 
@@ -232,17 +232,6 @@ export default function PitchEditorPage() {
 
 	return (
 		<div className="animate-fadeIn">
-			{/* Toast */}
-			{message && (
-				<div className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-(--shadow-lg) text-sm font-medium transition-all duration-300 animate-slideInRight ${message.type === 'success' ? 'bg-(--surface) border border-success/30 text-success' : 'bg-(--surface) border border-error/30 text-error'
-					}`}>
-					{message.type === 'success' ? <CheckIcon className="w-4 h-4" /> : (
-						<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-					)}
-					{message.text}
-				</div>
-			)}
-
 			{isCreatingStep && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
 					<button

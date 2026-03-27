@@ -10,6 +10,7 @@ import { FileUpload } from '@/components/ui/FileUpload';
 import { Badge } from '@/components/ui/Badge';
 import { MediaPreview } from '@/components/ui/MediaPreview';
 import { getSessionToken } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 
 // Reusing options from onboarding (should be shared constants)
 const stages = [
@@ -47,7 +48,7 @@ export default function StartupSettingsPage() {
     const [isEditMode, setIsEditMode] = useState(false);
     const [data, setData] = useState<any>(null);
     const [myRole, setMyRole] = useState<string>('');
-    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
     const canEdit = WRITE_ROLES.has(myRole);
     const hasPendingUploads = isLogoUploading || isCoverUploading;
 
@@ -90,11 +91,10 @@ export default function StartupSettingsPage() {
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         if (hasPendingUploads) {
-            setMessage({ type: 'error', text: 'Please wait for image uploads to finish before saving.' });
+            toast.error('Please wait for image uploads to finish before saving.');
             return;
         }
         setIsSaving(true);
-        setMessage(null);
 
         try {
             const token = getSessionToken('founder');
@@ -115,13 +115,13 @@ export default function StartupSettingsPage() {
                 setData(json);
             }
 
-            setMessage({ type: 'success', text: 'Changes saved successfully.' });
+            toast.success('Changes saved successfully.');
             setIsEditMode(false);
 
             // Update local storage if name/logo changed? Optional.
 
         } catch (err) {
-            setMessage({ type: 'error', text: 'Failed to save changes.' });
+            toast.error('Failed to save changes.');
         } finally {
             setIsSaving(false);
         }
@@ -153,11 +153,7 @@ export default function StartupSettingsPage() {
                 )}
             </div>
 
-            {message && (
-                <div className={`p-4 rounded-lg text-sm ${message.type === 'success' ? 'bg-success/10 text-success' : 'bg-error/10 text-error'}`}>
-                    {message.text}
-                </div>
-            )}
+
 
             {/* Tabs */}
             <div className="border-b border-(--border) flex space-x-6">

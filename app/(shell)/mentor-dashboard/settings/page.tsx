@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import AccountSettings from '@/components/ui/AccountSettings';
 import { Card, Button } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -17,7 +18,6 @@ export default function MentorSettingsPage() {
 	const [verification, setVerification] = useState<MentorVerificationState | null>(null);
 	const [loadingVerification, setLoadingVerification] = useState(true);
 	const [requesting, setRequesting] = useState(false);
-	const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
 	const loadVerificationState = async () => {
 		try {
@@ -40,7 +40,7 @@ export default function MentorSettingsPage() {
 				profile_completed: Boolean(data.profile_completed),
 			});
 		} catch {
-			setMessage({ type: 'error', text: 'Could not load verification status.' });
+			toast.error('Could not load verification status.');
 		} finally {
 			setLoadingVerification(false);
 		}
@@ -53,7 +53,6 @@ export default function MentorSettingsPage() {
 	const handleRequestVerification = async () => {
 		try {
 			setRequesting(true);
-			setMessage(null);
 			const token = getSessionToken('mentor') || getSessionToken();
 			if (!token) throw new Error('Authentication required');
 
@@ -72,9 +71,9 @@ export default function MentorSettingsPage() {
 					profile_completed: Boolean(payload.data.profile_completed),
 				});
 			}
-			setMessage({ type: 'success', text: payload.message || 'Verification request submitted.' });
+			toast.success(payload.message || 'Verification request submitted.');
 		} catch (err) {
-			setMessage({ type: 'error', text: err instanceof Error ? err.message : 'Failed to submit request' });
+			toast.error(err instanceof Error ? err.message : 'Failed to submit request');
 		} finally {
 			setRequesting(false);
 		}
@@ -129,11 +128,6 @@ export default function MentorSettingsPage() {
 					</div>
 				)}
 
-				{message && (
-					<p className={`text-sm ${message.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
-						{message.text}
-					</p>
-				)}
 			</Card>
 		</div>
 	);

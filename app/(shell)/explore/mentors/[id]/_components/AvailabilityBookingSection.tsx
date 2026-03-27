@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getSessionToken } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 import { Section, ORDERED_DAYS, DAY_LABELS, FULL_DAY, formatTime, formatTimeSlot, getNextDateForDay } from './MentorProfileHelpers';
 
 interface MentorSlot {
@@ -33,14 +34,12 @@ export default function AvailabilityBookingSection({
 	const [selectedDate, setSelectedDate] = useState('');
 	const [bookingNotes, setBookingNotes] = useState('');
 	const [bookingSubmitting, setBookingSubmitting] = useState(false);
-	const [bookingError, setBookingError] = useState('');
 	const [bookingSuccess, setBookingSuccess] = useState(false);
 
 	const handleBookSession = async () => {
 		const token = getSessionToken();
 		if (!token || !selectedSlot || !selectedDate) return;
 		setBookingSubmitting(true);
-		setBookingError('');
 		try {
 			const res = await fetch('/api/mentor-bookings/', {
 				method: 'POST',
@@ -59,10 +58,10 @@ export default function AvailabilityBookingSection({
 				setBookingSuccess(true);
 			} else {
 				const data = await res.json();
-				setBookingError(data.error || 'Failed to book session');
+				toast.error(data.error || 'Failed to book session');
 			}
 		} catch {
-			setBookingError('Failed to book session');
+			toast.error('Failed to book session');
 		} finally {
 			setBookingSubmitting(false);
 		}
@@ -111,7 +110,6 @@ export default function AvailabilityBookingSection({
 														onClick={() => {
 															setSelectedSlot(slot);
 															setSelectedDate(getNextDateForDay(slot.dayOfWeek));
-															setBookingError('');
 															setBookingSuccess(false);
 															setBookingNotes('');
 														}}
@@ -155,10 +153,6 @@ export default function AvailabilityBookingSection({
 												<input type="text" value={bookingNotes} onChange={(e) => setBookingNotes(e.target.value)} placeholder="Topic to discuss..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 transition-colors" maxLength={500} />
 											</div>
 										</div>
-
-										{bookingError && (
-											<div className="mb-3 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-300">{bookingError}</div>
-										)}
 
 										<button onClick={handleBookSession} disabled={bookingSubmitting || !selectedDate} className="w-full py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:bg-violet-600/40 disabled:cursor-not-allowed text-sm font-semibold text-white transition-colors flex items-center justify-center gap-2">
 											{bookingSubmitting ? (

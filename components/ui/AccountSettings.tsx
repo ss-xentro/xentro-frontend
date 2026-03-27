@@ -6,6 +6,7 @@ import { Card, Button, Input } from "@/components/ui";
 import { getSessionToken } from "@/lib/auth-utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppIcon } from "@/components/ui/AppIcon";
+import { toast } from "sonner";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -46,10 +47,7 @@ export default function AccountSettings({
 	const [settings, setSettings] = useState<Settings | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
-	const [message, setMessage] = useState<{
-		type: "success" | "error";
-		text: string;
-	} | null>(null);
+
 
 	// Editable fields
 	const [name, setName] = useState("");
@@ -86,7 +84,7 @@ export default function AccountSettings({
 			setAvatar(d.avatar || "");
 			setNotifications(d.notifications);
 		} catch {
-			setMessage({ type: "error", text: "Failed to load settings" });
+			toast.error("Failed to load settings");
 		} finally {
 			setLoading(false);
 		}
@@ -98,7 +96,6 @@ export default function AccountSettings({
 
 	const handleSave = async () => {
 		setSaving(true);
-		setMessage(null);
 		const token = getSessionToken();
 		if (!token) return;
 
@@ -115,7 +112,7 @@ export default function AccountSettings({
 			if (!res.ok) throw new Error(json.error || "Failed to save");
 
 			setSettings(json.data);
-			setMessage({ type: "success", text: "Settings saved successfully" });
+			toast.success("Settings saved successfully");
 
 			// Sync updated name/avatar to auth cookie + context so sidebar updates
 			if (user && authToken) {
@@ -123,10 +120,7 @@ export default function AccountSettings({
 				setSession(updatedUser, authToken);
 			}
 		} catch (err: any) {
-			setMessage({
-				type: "error",
-				text: err.message || "Failed to save settings",
-			});
+			toast.error(err.message || "Failed to save settings");
 		} finally {
 			setSaving(false);
 		}
@@ -134,19 +128,15 @@ export default function AccountSettings({
 
 	const handlePasswordChange = async () => {
 		if (newPassword !== confirmPassword) {
-			setMessage({ type: "error", text: "Passwords do not match" });
+			toast.error("Passwords do not match");
 			return;
 		}
 		if (newPassword.length < 8) {
-			setMessage({
-				type: "error",
-				text: "Password must be at least 8 characters",
-			});
+			toast.error("Password must be at least 8 characters");
 			return;
 		}
 
 		setPasswordSaving(true);
-		setMessage(null);
 		const token = getSessionToken();
 		if (!token) return;
 
@@ -162,16 +152,13 @@ export default function AccountSettings({
 			const json = await res.json();
 			if (!res.ok) throw new Error(json.error || "Failed to change password");
 
-			setMessage({ type: "success", text: "Password changed successfully" });
+			toast.success("Password changed successfully");
 			setCurrentPassword("");
 			setNewPassword("");
 			setConfirmPassword("");
 			setShowPasswordForm(false);
 		} catch (err: any) {
-			setMessage({
-				type: "error",
-				text: err.message || "Failed to change password",
-			});
+			toast.error(err.message || "Failed to change password");
 		} finally {
 			setPasswordSaving(false);
 		}
@@ -209,18 +196,6 @@ export default function AccountSettings({
 				)}
 			</div>
 
-			{/* Status Message */}
-			{message && (
-				<div
-					className={`px-4 py-3 rounded-lg text-sm font-medium ${message.type === "success"
-						? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
-						: "bg-red-500/15 text-red-400 border border-red-500/20"
-						}`}
-				>
-					{message.text}
-				</div>
-			)}
-
 			{/* Profile Completion Banner */}
 			{profileIncomplete && (
 				<div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
@@ -248,151 +223,151 @@ export default function AccountSettings({
 						</p>
 					</div>
 				</div>
-			)}
+			)
+			}
 
 			{/* Profile / Contact Information Section */}
-			{showProfileSection && (
-				<Card className="p-6 space-y-5">
-					<div className="flex items-center justify-between">
-						<h2 className="text-lg font-semibold text-(--primary)">
-							{contactOnly ? "Contact Information" : "Profile"}
-						</h2>
-					</div>
+			{
+				showProfileSection && (
+					<Card className="p-6 space-y-5">
+						<div className="flex items-center justify-between">
+							<h2 className="text-lg font-semibold text-(--primary)">
+								{contactOnly ? "Contact Information" : "Profile"}
+							</h2>
+						</div>
 
-					{/* Avatar — hidden in contactOnly mode (managed on Profile page) */}
-					{!contactOnly && (
-						<div className="flex items-center gap-5">
-							<div className="w-20 h-20 rounded-full border-2 border-(--border) flex items-center justify-center overflow-hidden shrink-0 bg-(--surface-hover)">
-								{avatar ? (
-									<img
-										src={avatar}
-										alt="Avatar"
-										className="w-full h-full object-cover"
-										referrerPolicy="no-referrer"
-									/>
-								) : (
-									<span className="text-2xl font-bold text-(--secondary)">
-										{name ? name.charAt(0).toUpperCase() : "?"}
-									</span>
-								)}
-							</div>
-							<div className="flex flex-col gap-2">
-								<label className="block text-sm font-medium text-(--secondary)">
-									Profile Photo
-								</label>
-								<div className="flex items-center gap-2">
-									<label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-(--surface-hover) border border-(--border) text-(--primary) hover:bg-(--surface-pressed) transition-colors">
-										<svg
-											className="w-4 h-4"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-											strokeWidth={2}
-										>
-											<path
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-											/>
-										</svg>
-										Upload
-										<input
-											type="file"
-											accept="image/*"
-											className="hidden"
-											onChange={(e) => {
-												const file = e.target.files?.[0];
-												if (!file) return;
-												setAvatarUploading(true);
-												const formData = new FormData();
-												formData.append("file", file);
-												formData.append("folder", "avatars");
-												const uploadToken = getSessionToken();
-												fetch("/api/media", {
-													method: "POST",
-													body: formData,
-													headers: uploadToken
-														? { Authorization: `Bearer ${uploadToken}` }
-														: {},
-												})
-													.then((r) => r.json())
-													.then((json) => {
-														if (json.data?.url) setAvatar(json.data.url);
-													})
-													.catch(() =>
-														setMessage({
-															type: "error",
-															text: "Failed to upload avatar",
-														}),
-													)
-													.finally(() => setAvatarUploading(false));
-											}}
+						{/* Avatar — hidden in contactOnly mode (managed on Profile page) */}
+						{!contactOnly && (
+							<div className="flex items-center gap-5">
+								<div className="w-20 h-20 rounded-full border-2 border-(--border) flex items-center justify-center overflow-hidden shrink-0 bg-(--surface-hover)">
+									{avatar ? (
+										<img
+											src={avatar}
+											alt="Avatar"
+											className="w-full h-full object-cover"
+											referrerPolicy="no-referrer"
 										/>
-									</label>
-									{avatar && (
-										<button
-											type="button"
-											onClick={() => setAvatar("")}
-											className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
-										>
-											Remove
-										</button>
-									)}
-									{avatarUploading && (
-										<span className="text-xs text-(--secondary)">
-											Uploading...
+									) : (
+										<span className="text-2xl font-bold text-(--secondary)">
+											{name ? name.charAt(0).toUpperCase() : "?"}
 										</span>
 									)}
 								</div>
-								<p className="text-xs text-(--secondary)">
-									JPG, PNG or SVG. Max 5MB.
-								</p>
-							</div>
-						</div>
-					)}
-
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-						{/* Name — hidden in contactOnly mode (managed on Profile page) */}
-						{!contactOnly && (
-							<div>
-								<label className="block text-sm font-medium text-(--secondary) mb-1">
-									Name
-								</label>
-								<Input
-									value={name}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-										setName(e.target.value)
-									}
-									placeholder="Your full name"
-								/>
+								<div className="flex flex-col gap-2">
+									<label className="block text-sm font-medium text-(--secondary)">
+										Profile Photo
+									</label>
+									<div className="flex items-center gap-2">
+										<label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-(--surface-hover) border border-(--border) text-(--primary) hover:bg-(--surface-pressed) transition-colors">
+											<svg
+												className="w-4 h-4"
+												fill="none"
+												viewBox="0 0 24 24"
+												stroke="currentColor"
+												strokeWidth={2}
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+												/>
+											</svg>
+											Upload
+											<input
+												type="file"
+												accept="image/*"
+												className="hidden"
+												onChange={(e) => {
+													const file = e.target.files?.[0];
+													if (!file) return;
+													setAvatarUploading(true);
+													const formData = new FormData();
+													formData.append("file", file);
+													formData.append("folder", "avatars");
+													const uploadToken = getSessionToken();
+													fetch("/api/media", {
+														method: "POST",
+														body: formData,
+														headers: uploadToken
+															? { Authorization: `Bearer ${uploadToken}` }
+															: {},
+													})
+														.then((r) => r.json())
+														.then((json) => {
+															if (json.data?.url) setAvatar(json.data.url);
+														})
+														.catch(() =>
+															toast.error("Failed to upload avatar"),
+														)
+														.finally(() => setAvatarUploading(false));
+												}}
+											/>
+										</label>
+										{avatar && (
+											<button
+												type="button"
+												onClick={() => setAvatar("")}
+												className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+											>
+												Remove
+											</button>
+										)}
+										{avatarUploading && (
+											<span className="text-xs text-(--secondary)">
+												Uploading...
+											</span>
+										)}
+									</div>
+									<p className="text-xs text-(--secondary)">
+										JPG, PNG or SVG. Max 5MB.
+									</p>
+								</div>
 							</div>
 						)}
-						<div>
-							<label className="block text-sm font-medium text-(--secondary) mb-1">
-								Email
-							</label>
-							<Input value={settings?.email || ""} disabled />
-							{settings?.emailVerified && (
-								<span className="text-xs text-emerald-400 mt-1 inline-flex items-center gap-1">
-									<AppIcon name="check" className="w-3 h-3" /> Verified
-								</span>
+
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							{/* Name — hidden in contactOnly mode (managed on Profile page) */}
+							{!contactOnly && (
+								<div>
+									<label className="block text-sm font-medium text-(--secondary) mb-1">
+										Name
+									</label>
+									<Input
+										value={name}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setName(e.target.value)
+										}
+										placeholder="Your full name"
+									/>
+								</div>
 							)}
+							<div>
+								<label className="block text-sm font-medium text-(--secondary) mb-1">
+									Email
+								</label>
+								<Input value={settings?.email || ""} disabled />
+								{settings?.emailVerified && (
+									<span className="text-xs text-emerald-400 mt-1 inline-flex items-center gap-1">
+										<AppIcon name="check" className="w-3 h-3" /> Verified
+									</span>
+								)}
+							</div>
+							<div>
+								<label className="block text-sm font-medium text-(--secondary) mb-1">
+									Phone
+								</label>
+								<Input
+									value={phone}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setPhone(e.target.value)
+									}
+									placeholder="+1 (555) 000-0000"
+								/>
+							</div>
 						</div>
-						<div>
-							<label className="block text-sm font-medium text-(--secondary) mb-1">
-								Phone
-							</label>
-							<Input
-								value={phone}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-									setPhone(e.target.value)
-								}
-								placeholder="+1 (555) 000-0000"
-							/>
-						</div>
-					</div>
-				</Card>
-			)}
+					</Card>
+				)
+			}
 
 			{/* Notifications Section */}
 			<Card className="p-6 space-y-4">
@@ -452,77 +427,79 @@ export default function AccountSettings({
 			</Card>
 
 			{/* Security Section — admin only */}
-			{showPasswordSection && (
-				<Card className="p-6 space-y-4">
-					<h2 className="text-lg font-semibold text-(--primary)">Security</h2>
-					{!showPasswordForm ? (
-						<Button
-							variant="secondary"
-							onClick={() => setShowPasswordForm(true)}
-						>
-							Change Password
-						</Button>
-					) : (
-						<div className="space-y-3 max-w-sm">
-							<div>
-								<label className="block text-sm font-medium text-(--secondary) mb-1">
-									Current Password
-								</label>
-								<Input
-									type="password"
-									value={currentPassword}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-										setCurrentPassword(e.target.value)
-									}
-								/>
+			{
+				showPasswordSection && (
+					<Card className="p-6 space-y-4">
+						<h2 className="text-lg font-semibold text-(--primary)">Security</h2>
+						{!showPasswordForm ? (
+							<Button
+								variant="secondary"
+								onClick={() => setShowPasswordForm(true)}
+							>
+								Change Password
+							</Button>
+						) : (
+							<div className="space-y-3 max-w-sm">
+								<div>
+									<label className="block text-sm font-medium text-(--secondary) mb-1">
+										Current Password
+									</label>
+									<Input
+										type="password"
+										value={currentPassword}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setCurrentPassword(e.target.value)
+										}
+									/>
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-(--secondary) mb-1">
+										New Password
+									</label>
+									<Input
+										type="password"
+										value={newPassword}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setNewPassword(e.target.value)
+										}
+									/>
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-(--secondary) mb-1">
+										Confirm New Password
+									</label>
+									<Input
+										type="password"
+										value={confirmPassword}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setConfirmPassword(e.target.value)
+										}
+									/>
+								</div>
+								<div className="flex gap-2 pt-1">
+									<Button
+										onClick={handlePasswordChange}
+										disabled={passwordSaving}
+									>
+										{passwordSaving ? "Saving..." : "Update Password"}
+									</Button>
+									<Button
+										variant="secondary"
+										onClick={() => {
+											setShowPasswordForm(false);
+											setCurrentPassword("");
+											setNewPassword("");
+											setConfirmPassword("");
+										}}
+									>
+										Cancel
+									</Button>
+								</div>
 							</div>
-							<div>
-								<label className="block text-sm font-medium text-(--secondary) mb-1">
-									New Password
-								</label>
-								<Input
-									type="password"
-									value={newPassword}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-										setNewPassword(e.target.value)
-									}
-								/>
-							</div>
-							<div>
-								<label className="block text-sm font-medium text-(--secondary) mb-1">
-									Confirm New Password
-								</label>
-								<Input
-									type="password"
-									value={confirmPassword}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-										setConfirmPassword(e.target.value)
-									}
-								/>
-							</div>
-							<div className="flex gap-2 pt-1">
-								<Button
-									onClick={handlePasswordChange}
-									disabled={passwordSaving}
-								>
-									{passwordSaving ? "Saving..." : "Update Password"}
-								</Button>
-								<Button
-									variant="secondary"
-									onClick={() => {
-										setShowPasswordForm(false);
-										setCurrentPassword("");
-										setNewPassword("");
-										setConfirmPassword("");
-									}}
-								>
-									Cancel
-								</Button>
-							</div>
-						</div>
-					)}
-				</Card>
-			)}
+						)}
+					</Card>
+				)
+			}
 
 			{/* Save Button */}
 			<div className="flex justify-end">
@@ -530,6 +507,6 @@ export default function AccountSettings({
 					{saving ? "Saving..." : "Save Settings"}
 				</Button>
 			</div>
-		</div>
+		</div >
 	);
 }

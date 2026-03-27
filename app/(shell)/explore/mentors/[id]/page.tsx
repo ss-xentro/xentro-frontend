@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSessionToken } from "@/lib/auth-utils";
+import { toast } from "sonner";
 import { AppIcon } from "@/components/ui/AppIcon";
 import RichTextDisplay from "@/components/ui/RichTextDisplay";
 import { StartupProfileNavbar } from "@/components/public/StartupProfileNavbar";
@@ -36,7 +37,6 @@ export default function MentorDetailPage() {
 	const [selectedDate, setSelectedDate] = useState("");
 	const [requestMessage, setRequestMessage] = useState("");
 	const [bookingSubmitting, setBookingSubmitting] = useState(false);
-	const [bookingError, setBookingError] = useState<string | null>(null);
 	const [bookingSuccess, setBookingSuccess] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -139,8 +139,8 @@ export default function MentorDetailPage() {
 							typeof r.mentor === "string"
 								? r.mentor
 								: r.mentor &&
-									  typeof r.mentor === "object" &&
-									  typeof r.mentor.id === "string"
+									typeof r.mentor === "object" &&
+									typeof r.mentor.id === "string"
 									? r.mentor.id
 									: null;
 						return mentorRef === mentorId;
@@ -186,7 +186,6 @@ export default function MentorDetailPage() {
 	const btnConfig = getConnectBtnConfig(connectionStatus);
 
 	const openSlotBookingModal = async () => {
-		setBookingError(null);
 		setBookingSuccess(null);
 		await loadSlots();
 		setShowSlotsModal(true);
@@ -196,7 +195,6 @@ export default function MentorDetailPage() {
 		setSelectedSlot(slot);
 		setSelectedDate(getNextDateForDay(slot.dayOfWeek));
 		setRequestMessage("");
-		setBookingError(null);
 		setShowSlotsModal(false);
 		setShowRequestModal(true);
 	};
@@ -207,14 +205,13 @@ export default function MentorDetailPage() {
 		const uuidRegex =
 			/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 		if (!uuidRegex.test(selectedSlot.id)) {
-			setBookingError(
+			toast.error(
 				"Selected slot is invalid. Please refresh and choose an available slot again.",
 			);
 			return;
 		}
 
 		setBookingSubmitting(true);
-		setBookingError(null);
 		try {
 			const res = await fetch("/api/mentor-bookings/", {
 				method: "POST",
@@ -238,7 +235,7 @@ export default function MentorDetailPage() {
 				"Booking request sent. Mentor can review and accept it from their dashboard.",
 			);
 		} catch (err) {
-			setBookingError(
+			toast.error(
 				err instanceof Error ? err.message : "Failed to send booking request",
 			);
 		} finally {
@@ -428,22 +425,20 @@ export default function MentorDetailPage() {
 						<button
 							type="button"
 							onClick={() => setActiveTab("overview")}
-							className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-								activeTab === "overview"
+							className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "overview"
 									? "bg-white text-[#0B0D10]"
 									: "text-gray-300 hover:text-white"
-							}`}
+								}`}
 						>
 							Overview
 						</button>
 						<button
 							type="button"
 							onClick={() => setActiveTab("mentoredStartups")}
-							className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-								activeTab === "mentoredStartups"
+							className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "mentoredStartups"
 									? "bg-white text-[#0B0D10]"
 									: "text-gray-300 hover:text-white"
-							}`}
+								}`}
 						>
 							Previously Mentored Startups
 						</button>
@@ -782,37 +777,31 @@ export default function MentorDetailPage() {
 									/>
 								</div>
 
-								{bookingError && (
-									<div className="text-xs text-red-300 border border-red-500/20 bg-red-500/10 rounded-lg px-3 py-2">
-										{bookingError}
-									</div>
-								)}
-							</div>
 
-							<div className="mt-4 flex items-center gap-2">
-								<button
-									onClick={() =>
-										!bookingSubmitting && setShowRequestModal(false)
-									}
-									className="flex-1 px-4 py-2.5 rounded-lg border border-white/10 text-sm text-gray-300 hover:text-white"
-									disabled={bookingSubmitting}
-								>
-									Cancel
-								</button>
-								<button
-									onClick={handleSubmitBookingRequest}
-									className="flex-1 px-4 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-sm font-medium text-white disabled:bg-violet-600/50"
-									disabled={
-										bookingSubmitting || !selectedDate || !requestMessage.trim()
-									}
-								>
-									{bookingSubmitting ? "Sending..." : "Send Request"}
-								</button>
+								<div className="mt-4 flex items-center gap-2">
+									<button
+										onClick={() =>
+											!bookingSubmitting && setShowRequestModal(false)
+										}
+										className="flex-1 px-4 py-2.5 rounded-lg border border-white/10 text-sm text-gray-300 hover:text-white"
+										disabled={bookingSubmitting}
+									>
+										Cancel
+									</button>
+									<button
+										onClick={handleSubmitBookingRequest}
+										className="flex-1 px-4 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-sm font-medium text-white disabled:bg-violet-600/50"
+										disabled={
+											bookingSubmitting || !selectedDate || !requestMessage.trim()
+										}
+									>
+										{bookingSubmitting ? "Sending..." : "Send Request"}
+									</button>
+								</div>
 							</div>
 						</div>
-					</div>
 				)}
-			</div>
+					</div>
 		</div>
-	);
+			);
 }
