@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, Badge } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { readApiErrorMessage } from '@/lib/error-utils';
+import { toast } from 'sonner';
 
 interface Program {
     id: string;
@@ -21,7 +23,6 @@ const typeLabels: Record<string, { label: string; color: string }> = {
     accelerator: { label: 'Accelerator', color: 'bg-purple-500/20 text-purple-200' },
     incubator: { label: 'Incubator', color: 'bg-blue-500/20 text-blue-200' },
     incubation: { label: 'Incubation', color: 'bg-blue-500/20 text-blue-200' },
-    import { readApiErrorMessage } from '@/lib/error-utils';
     acceleration: { label: 'Acceleration', color: 'bg-purple-500/20 text-purple-200' },
     bootcamp: { label: 'Bootcamp', color: 'bg-orange-500/20 text-orange-200' },
     fellowship: { label: 'Fellowship', color: 'bg-green-500/20 text-green-200' },
@@ -35,9 +36,6 @@ export default function ProgramsPage() {
     const router = useRouter();
     const [programs, setPrograms] = useState<Program[]>([]);
     const [loading, setLoading] = useState(true);
-    if (!res.ok) {
-        throw new Error(await readApiErrorMessage(res, 'Failed to load programs'));
-    }
     const [error, setError] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -58,11 +56,11 @@ export default function ProgramsPage() {
             });
 
             if (!res.ok) {
-                throw new Error('Failed to load programs');
+                throw new Error(await readApiErrorMessage(res, 'Failed to load programs'));
             }
 
             const data = await res.json();
-            throw new Error(await readApiErrorMessage(res, 'Failed to delete program'));
+            setPrograms(data);
         } catch (err) {
             setError((err as Error).message);
         } finally {
@@ -88,7 +86,7 @@ export default function ProgramsPage() {
 
             setPrograms(programs.filter(p => p.id !== id));
         } catch (err) {
-            alert((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setDeletingId(null);
         }

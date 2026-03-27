@@ -27,7 +27,7 @@ function getRateLimitKey(request: NextRequest): string {
   // x-forwarded-for last entry — appended by our own reverse proxy (nginx), not the client.
   const xForwardedFor = request.headers.get('x-forwarded-for') ?? '';
   const ip =
-    request.ip ??
+    (request as NextRequest & { ip?: string }).ip ??
     request.headers.get('x-real-ip') ??
     (xForwardedFor ? xForwardedFor.split(',').pop()?.trim() : undefined) ??
     'unknown';

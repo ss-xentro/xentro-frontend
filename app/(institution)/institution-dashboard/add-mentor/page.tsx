@@ -93,17 +93,6 @@ export default function AddMentorPage() {
               />
               {/* Email uniqueness indicator */}
               {formData.email.includes('@') && (
-
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-2">Mentor Phone *</label>
-              <Input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+1 555 123 4567"
-                required
-              />
-            </div>
                 <div className="mt-2">
                   {emailChecking && (
                     <p className="text-xs text-gray-400 flex items-center gap-1">
@@ -132,6 +121,17 @@ export default function AddMentorPage() {
                   )}
                 </div>
               )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-2">Mentor Phone *</label>
+              <Input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+1 555 123 4567"
+                required
+              />
             </div>
 
             {error && (

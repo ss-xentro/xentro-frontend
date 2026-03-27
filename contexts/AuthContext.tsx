@@ -41,12 +41,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     unlockedContexts: session.contexts,
                 };
                 setUser(hydratedUser);
-                // Token is in HttpOnly cookie — we don't have access client-side
-                // but we keep a flag so components know we're authenticated
-                setToken('httponly');
+                // Token lives in an HttpOnly cookie; the client can't read it.
+                // Set to null — use getSessionToken() from auth-utils for API calls.
+                setToken(null);
             }
         } catch (err) {
-            console.warn('Failed to restore session', err);
             clearAuthCookie();
         } finally {
             setIsLoading(false);
@@ -94,7 +93,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsLoading(false);
             return { success: true };
         } catch (err) {
-            console.error('Login failed', err);
             setIsLoading(false);
             return { success: false, error: 'Login failed. Please try again.' };
         }

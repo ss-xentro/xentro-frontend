@@ -155,11 +155,11 @@ export default function UnifiedLoginPage() {
 
             if (!res.ok) {
                 if (data.code === 'USER_NOT_FOUND') {
-                    setError('No account found with this email. Please sign up first.');
+                    toast.error('No account found with this email. Please sign up first.');
                     return;
                 }
                 if (data.code === 'ACCESS_DENIED') {
-                    setError(data.error || 'Access restricted. Only startup founders, mentors, investors, institutions, and admins can log in.');
+                    toast.error(data.error || 'Access restricted. Only startup founders, mentors, investors, institutions, and admins can log in.');
                     return;
                 }
                 throw new Error(getApiErrorMessageFromPayload(data, 'Failed to send OTP'));

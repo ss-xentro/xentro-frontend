@@ -68,7 +68,6 @@ export default function EventWizardForm({
 			if (!raw) {
 				setForm(fallbackForm);
 				setStep(0);
-				setRestoreNote(null);
 				return;
 			}
 
