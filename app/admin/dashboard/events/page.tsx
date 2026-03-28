@@ -365,9 +365,9 @@ export default function AdminEventsPage() {
 								<p>Slots: {event.attendeeCount} booked / {event.maxAttendees ?? 'unlimited'}</p>
 								<p>{event.isVirtual ? 'Online event' : (event.location || 'Offline event')}</p>
 							</div>
-							<div className="flex items-center gap-3 border-t border-gray-200 pt-3">
-								<button className="text-sm text-blue-600 hover:underline" onClick={() => openEdit(event)}>Edit</button>
-								<button className="text-sm text-red-600 hover:underline" onClick={() => deleteEvent(event.id)}>Delete</button>
+							<div className="flex items-center gap-2 border-t border-gray-200 pt-3">
+								<Button variant="ghost" size="sm" onClick={() => openEdit(event)}>Edit</Button>
+								<Button variant="danger" size="sm" onClick={() => deleteEvent(event.id)}>Delete</Button>
 							</div>
 						</Card>
 					))}

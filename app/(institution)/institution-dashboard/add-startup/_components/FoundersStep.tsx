@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui';
 import { FounderEmailCheck } from './FounderEmailCheck';
 
 interface Founder {
@@ -33,13 +34,14 @@ export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
 				<h3 className="text-base font-semibold text-gray-900">Founders</h3>
-				<button
+				<Button
+					variant="ghost"
+					size="sm"
 					type="button"
 					onClick={addFounder}
-					className="text-sm text-blue-600 hover:text-blue-700 font-medium"
 				>
 					+ Add Another Founder
-				</button>
+				</Button>
 			</div>
 
 			{founders.map((founder, index) => (

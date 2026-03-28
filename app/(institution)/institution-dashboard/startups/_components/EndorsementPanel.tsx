@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from '@/components/ui';
+import { Button, Card } from '@/components/ui';
 import { EndorsementRequest } from '../_lib/constants';
 
 interface EndorsementPanelProps {
@@ -50,13 +50,13 @@ export default function EndorsementPanel({ endorsements, loading, onRespond }: E
 											className="w-full px-3 py-2 text-sm bg-white/10 border border-white/15 text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 resize-none"
 										/>
 										<div className="flex gap-2">
-											<button onClick={() => handleRespond(e.id, 'accepted')} className="px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700">Accept</button>
-											<button onClick={() => handleRespond(e.id, 'rejected')} className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700">Reject</button>
-											<button onClick={() => { setRespondingId(null); setResponseComment(''); }} className="px-3 py-1.5 text-xs bg-white/10 text-gray-300 rounded-lg hover:bg-white/15">Cancel</button>
+												<Button variant="primary" size="sm" onClick={() => handleRespond(e.id, 'accepted')}>Accept</Button>
+												<Button variant="danger" size="sm" onClick={() => handleRespond(e.id, 'rejected')}>Reject</Button>
+												<Button variant="ghost" size="sm" onClick={() => { setRespondingId(null); setResponseComment(''); }}>Cancel</Button>
 										</div>
 									</div>
 								) : (
-									<button onClick={() => setRespondingId(e.id)} className="px-3 py-1.5 text-xs bg-violet-600 text-white rounded-lg hover:bg-violet-700">Respond</button>
+									<Button variant="secondary" size="sm" onClick={() => setRespondingId(e.id)}>Respond</Button>
 								)}
 							</div>
 						</div>

@@ -1,4 +1,4 @@
-import { Card } from '@/components/ui';
+import { Button, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { EventItem, formatDate } from '../_lib/constants';
 
@@ -69,8 +69,8 @@ export default function EventCard({ event, onEdit, onDelete }: EventCardProps) {
 			</div>
 
 			<div className="flex items-center gap-2 pt-1 border-t border-white/10">
-				<button onClick={() => onEdit(event)} className="text-xs text-violet-300 hover:underline">Edit</button>
-				<button onClick={() => onDelete(event.id)} className="text-xs text-red-400 hover:underline">Delete</button>
+				<Button variant="ghost" size="sm" onClick={() => onEdit(event)}>Edit</Button>
+				<Button variant="danger" size="sm" onClick={() => onDelete(event.id)}>Delete</Button>
 			</div>
 		</Card>
 	);
