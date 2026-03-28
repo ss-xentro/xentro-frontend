@@ -292,7 +292,7 @@ export function FoundersSection() {
 					</div>
 				</div>
 
-				<div className="bg-white border border-(--border) rounded-xl p-4">
+				<div className="bg-(--surface) border border-(--border) rounded-xl p-4">
 					<h4 className="text-sm font-medium text-accent mb-1">Primary Contact</h4>
 					<p className="text-sm text-(--secondary)">
 						We will use <strong>{data.primaryContactEmail || 'your verified signup email'}</strong> for application and communication only.
