@@ -305,13 +305,13 @@ export default function AdminEventsPage() {
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
 				<div>
-					<h1 className="text-2xl font-bold text-gray-900">Events</h1>
-					<p className="text-sm text-gray-600">Manage Xentro and institution events, slots, and details.</p>
+					<h1 className="text-2xl font-bold text-(--primary)">Events</h1>
+					<p className="text-sm text-(--secondary)">Manage Xentro and institution events, slots, and details.</p>
 				</div>
 				<button
 					type="button"
 					onClick={openCreate}
-					className="px-4 py-2 rounded-md bg-gray-900 text-white text-sm font-medium hover:bg-gray-800"
+					className="px-4 py-2 rounded-md bg-(--primary) text-white text-sm font-medium hover:bg-(--primary-light)"
 				>
 					+ New Event
 				</button>
@@ -320,19 +320,19 @@ export default function AdminEventsPage() {
 			{loading ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					{[1, 2, 3].map((i) => (
-						<div key={i} className="h-44 rounded-xl bg-gray-100 animate-pulse" />
+						<div key={i} className="h-44 rounded-xl bg-(--surface-pressed) animate-pulse" />
 					))}
 				</div>
 			) : events.length === 0 ? (
 				<Card className="p-8 text-center">
-					<p className="text-gray-600">No events yet.</p>
+					<p className="text-(--secondary)">No events yet.</p>
 				</Card>
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					{events.map((event) => (
 						<Card key={event.id} className="p-5 space-y-3">
 							{event.coverImage && (
-								<div className="relative -mx-5 -mt-5 h-36 overflow-hidden rounded-t-xl border-b border-gray-200">
+								<div className="relative -mx-5 -mt-5 h-36 overflow-hidden rounded-t-xl border-b border-(--border)">
 									<img src={event.coverImage} alt="" className="w-full h-full object-cover" />
 									<div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/5" />
 									<div className="absolute inset-x-0 bottom-0 p-3">
@@ -351,8 +351,8 @@ export default function AdminEventsPage() {
 
 							<div className="flex items-start justify-between gap-3">
 								<div>
-									{!event.coverImage && <h3 className="font-semibold text-gray-900">{event.name}</h3>}
-									{!event.coverImage && <p className="text-xs text-gray-500 mt-1">by {event.organizerName || 'Xentro'}</p>}
+									{!event.coverImage && <h3 className="font-semibold text-(--primary)">{event.name}</h3>}
+									{!event.coverImage && <p className="text-xs text-(--secondary) mt-1">by {event.organizerName || 'Xentro'}</p>}
 								</div>
 								{!event.coverImage && (
 									<span className={`text-xs px-2 py-1 rounded ${event.approved ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
@@ -360,12 +360,12 @@ export default function AdminEventsPage() {
 									</span>
 								)}
 							</div>
-							<p className="text-sm text-gray-600 line-clamp-2">{event.description || 'No description'}</p>
-							<div className="text-xs text-gray-600 space-y-1">
+							<p className="text-sm text-(--secondary) line-clamp-2">{event.description || 'No description'}</p>
+							<div className="text-xs text-(--secondary) space-y-1">
 								<p>Slots: {event.attendeeCount} booked / {event.maxAttendees ?? 'unlimited'}</p>
 								<p>{event.isVirtual ? 'Online event' : (event.location || 'Offline event')}</p>
 							</div>
-							<div className="flex items-center gap-2 border-t border-gray-200 pt-3">
+							<div className="flex items-center gap-2 border-t border-(--border) pt-3">
 								<Button variant="ghost" size="sm" onClick={() => openEdit(event)}>Edit</Button>
 								<Button variant="danger" size="sm" onClick={() => deleteEvent(event.id)}>Delete</Button>
 							</div>
@@ -377,22 +377,22 @@ export default function AdminEventsPage() {
 			{showModal && (
 				<div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4">
 					<Card className="w-full max-w-xl p-6 space-y-4">
-						<h2 className="text-xl font-semibold text-gray-900">{editingId ? 'Edit Event' : 'New Event'}</h2>
+						<h2 className="text-xl font-semibold text-(--primary)">{editingId ? 'Edit Event' : 'New Event'}</h2>
 						<div className="grid grid-cols-1 gap-4">
-							<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Event name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[92px]" placeholder="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+							<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Event name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[92px]" placeholder="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} />
-								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Location" value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} />
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} />
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Location" value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} />
 							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Domain" value={form.domain} onChange={(e) => setForm((f) => ({ ...f, domain: e.target.value }))} />
-								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.mode} onChange={(e) => setForm((f) => ({ ...f, mode: e.target.value }))}>
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Domain" value={form.domain} onChange={(e) => setForm((f) => ({ ...f, domain: e.target.value }))} />
+								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.mode} onChange={(e) => setForm((f) => ({ ...f, mode: e.target.value }))}>
 									<option value="online">Online</option>
 									<option value="offline">Offline</option>
 									<option value="hybrid">Hybrid</option>
 								</select>
-								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.pricingType} onChange={(e) => setForm((f) => ({ ...f, pricingType: e.target.value }))}>
+								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.pricingType} onChange={(e) => setForm((f) => ({ ...f, pricingType: e.target.value }))}>
 									<option value="free">Free</option>
 									<option value="paid">Paid</option>
 									<option value="freemium">Freemium</option>
@@ -400,44 +400,44 @@ export default function AdminEventsPage() {
 								</select>
 							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="City" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
-								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="State" value={form.state} onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} />
-								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Country" value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="City" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="State" value={form.state} onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} />
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Country" value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
 							</div>
-							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Audience types (one per line)" value={form.audienceTypes} onChange={(e) => setForm((f) => ({ ...f, audienceTypes: e.target.value }))} />
-							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Startup stages (one per line)" value={form.startupStages} onChange={(e) => setForm((f) => ({ ...f, startupStages: e.target.value }))} />
-							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Benefits / outcomes (one per line)" value={form.benefits} onChange={(e) => setForm((f) => ({ ...f, benefits: e.target.value }))} />
+							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Audience types (one per line)" value={form.audienceTypes} onChange={(e) => setForm((f) => ({ ...f, audienceTypes: e.target.value }))} />
+							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Startup stages (one per line)" value={form.startupStages} onChange={(e) => setForm((f) => ({ ...f, startupStages: e.target.value }))} />
+							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Benefits / outcomes (one per line)" value={form.benefits} onChange={(e) => setForm((f) => ({ ...f, benefits: e.target.value }))} />
 							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.difficultyLevel} onChange={(e) => setForm((f) => ({ ...f, difficultyLevel: e.target.value }))}>
+								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.difficultyLevel} onChange={(e) => setForm((f) => ({ ...f, difficultyLevel: e.target.value }))}>
 									<option value="beginner">Beginner</option>
 									<option value="intermediate">Intermediate</option>
 									<option value="advanced">Advanced</option>
 								</select>
-								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.applicationRequirement} onChange={(e) => setForm((f) => ({ ...f, applicationRequirement: e.target.value }))}>
+								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.applicationRequirement} onChange={(e) => setForm((f) => ({ ...f, applicationRequirement: e.target.value }))}>
 									<option value="open_entry">Open Entry</option>
 									<option value="application_required">Application Required</option>
 									<option value="invite_only">Invite Only</option>
 								</select>
-								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.availabilityStatus} onChange={(e) => setForm((f) => ({ ...f, availabilityStatus: e.target.value }))}>
+								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.availabilityStatus} onChange={(e) => setForm((f) => ({ ...f, availabilityStatus: e.target.value }))}>
 									<option value="open">Open</option>
 									<option value="limited">Limited Seats</option>
 									<option value="waitlist">Waitlist</option>
 								</select>
 							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input type="datetime-local" className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.startTime} onChange={(e) => setForm((f) => ({ ...f, startTime: e.target.value }))} />
-								<input type="datetime-local" className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.endTime} onChange={(e) => setForm((f) => ({ ...f, endTime: e.target.value }))} />
+								<input type="datetime-local" className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.startTime} onChange={(e) => setForm((f) => ({ ...f, startTime: e.target.value }))} />
+								<input type="datetime-local" className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.endTime} onChange={(e) => setForm((f) => ({ ...f, endTime: e.target.value }))} />
 							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input type="number" min="0" className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Price" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
-								<input type="number" min="1" className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Available slots" value={form.maxAttendees} onChange={(e) => setForm((f) => ({ ...f, maxAttendees: e.target.value }))} />
+								<input type="number" min="0" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Price" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
+								<input type="number" min="1" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Available slots" value={form.maxAttendees} onChange={(e) => setForm((f) => ({ ...f, maxAttendees: e.target.value }))} />
 							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Status: draft/published/cancelled" value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as EventForm['status'] }))} />
-								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Cover image URL" value={form.coverImage} onChange={(e) => setForm((f) => ({ ...f, coverImage: e.target.value }))} />
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Status: draft/published/cancelled" value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as EventForm['status'] }))} />
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Cover image URL" value={form.coverImage} onChange={(e) => setForm((f) => ({ ...f, coverImage: e.target.value }))} />
 							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<select className="border border-gray-300 rounded-md px-3 py-2 text-sm" value={form.organizerType} onChange={(e) => setForm((f) => ({ ...f, organizerType: e.target.value }))}>
+								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.organizerType} onChange={(e) => setForm((f) => ({ ...f, organizerType: e.target.value }))}>
 									<option value="institution">Institution</option>
 									<option value="incubator_accelerator">Incubator / Accelerator</option>
 									<option value="corporate">Corporate</option>
@@ -445,17 +445,17 @@ export default function AdminEventsPage() {
 									<option value="independent_mentor">Independent Mentor</option>
 									<option value="xentro">Xentro Hosted</option>
 								</select>
-								<input type="number" min="0" max="5" step="0.1" className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Average rating (0-5)" value={form.averageRating} onChange={(e) => setForm((f) => ({ ...f, averageRating: e.target.value }))} />
+								<input type="number" min="0" max="5" step="0.1" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Average rating (0-5)" value={form.averageRating} onChange={(e) => setForm((f) => ({ ...f, averageRating: e.target.value }))} />
 							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input type="number" min="0" className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Cancellation cutoff hours" value={form.cancellationCutoffHours} onChange={(e) => setForm((f) => ({ ...f, cancellationCutoffHours: e.target.value }))} />
-								<input className="border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder='Recurrence JSON e.g. {"frequency":"weekly"}' value={form.recurrenceRuleJson} onChange={(e) => setForm((f) => ({ ...f, recurrenceRuleJson: e.target.value }))} />
+								<input type="number" min="0" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Cancellation cutoff hours" value={form.cancellationCutoffHours} onChange={(e) => setForm((f) => ({ ...f, cancellationCutoffHours: e.target.value }))} />
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder='Recurrence JSON e.g. {"frequency":"weekly"}' value={form.recurrenceRuleJson} onChange={(e) => setForm((f) => ({ ...f, recurrenceRuleJson: e.target.value }))} />
 							</div>
-							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Gallery JSON array" value={form.galleryJson} onChange={(e) => setForm((f) => ({ ...f, galleryJson: e.target.value }))} />
-							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Speaker lineup JSON array" value={form.speakerLineupJson} onChange={(e) => setForm((f) => ({ ...f, speakerLineupJson: e.target.value }))} />
-							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Agenda timeline JSON array" value={form.agendaTimelineJson} onChange={(e) => setForm((f) => ({ ...f, agendaTimelineJson: e.target.value }))} />
-							<textarea className="border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Ticket types JSON array" value={form.ticketTypesJson} onChange={(e) => setForm((f) => ({ ...f, ticketTypesJson: e.target.value }))} />
-							<label className="text-sm text-gray-700 flex items-center gap-2">
+							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Gallery JSON array" value={form.galleryJson} onChange={(e) => setForm((f) => ({ ...f, galleryJson: e.target.value }))} />
+							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Speaker lineup JSON array" value={form.speakerLineupJson} onChange={(e) => setForm((f) => ({ ...f, speakerLineupJson: e.target.value }))} />
+							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Agenda timeline JSON array" value={form.agendaTimelineJson} onChange={(e) => setForm((f) => ({ ...f, agendaTimelineJson: e.target.value }))} />
+							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Ticket types JSON array" value={form.ticketTypesJson} onChange={(e) => setForm((f) => ({ ...f, ticketTypesJson: e.target.value }))} />
+							<label className="text-sm text-(--primary-light) flex items-center gap-2">
 								<input type="checkbox" checked={form.isVirtual} onChange={(e) => setForm((f) => ({ ...f, isVirtual: e.target.checked }))} />
 								Online event
 							</label>

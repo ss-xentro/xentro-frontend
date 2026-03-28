@@ -264,10 +264,10 @@ function StartupsContent() {
                                         {startup.fundingRound && <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>}
                                     </div>
                                 </Card>
-                            </Link>
+                            </Link> 
                         ))}
                     </div>
-                )}
+                ) }
             </div>
         </div>
     );

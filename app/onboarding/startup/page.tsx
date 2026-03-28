@@ -114,14 +114,14 @@ export default function StartupOnboardingPage() {
     if (!isMounted) return null;
     if (isInitializingFlow) {
         return (
-            <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-cyan-50/40 flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-(--surface-hover) via-white to-cyan-50/40 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100/70 flex flex-col">
+        <div className="min-h-screen bg-linear-to-br from-(--surface-hover) via-white to-(--surface-pressed)/70 flex flex-col">
             <OnboardingNavbar showLogout={isCompletionFlow} />
 
             <div className="flex-1 py-5 sm:py-7 px-3 sm:px-6 lg:px-8 xl:px-10">
@@ -142,9 +142,9 @@ export default function StartupOnboardingPage() {
                             </div>
 
                             {isCompletionFlow && (
-                                <div className="inline-flex items-center gap-2 self-start rounded-full border border-slate-300 bg-slate-100 px-3 py-1.5">
-                                    <span className="h-2 w-2 rounded-full bg-slate-700" />
-                                    <span className="text-xs font-semibold text-slate-800">Step {nav.currentStep} of {COMPLETION_STEPS.length}</span>
+                                <div className="inline-flex items-center gap-2 self-start rounded-full border border-(--border) bg-(--surface-pressed) px-3 py-1.5">
+                                    <span className="h-2 w-2 rounded-full bg-(--primary-light)" />
+                                    <span className="text-xs font-semibold text-(--primary)">Step {nav.currentStep} of {COMPLETION_STEPS.length}</span>
                                 </div>
                             )}
                         </div>
@@ -175,7 +175,7 @@ export default function StartupOnboardingPage() {
                             />
 
 
-                            <div className="px-6 md:px-8 py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-slate-50/65">
+                            <div className="px-6 md:px-8 py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-(--surface-hover)/65">
                                 <Button
                                     type="button"
                                     onClick={nav.handleNext}
@@ -193,11 +193,11 @@ export default function StartupOnboardingPage() {
                             <aside className="hidden lg:block sticky top-20 space-y-4">
                                 <div className="rounded-2xl border border-(--border) bg-white p-4">
                                     <p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Guidelines</p>
-                                    <h3 className="mt-1 text-base font-semibold text-slate-900">{currentGuide.title}</h3>
-                                    <p className="mt-1.5 text-sm text-slate-600">{currentGuide.intro}</p>
+                                    <h3 className="mt-1 text-base font-semibold text-(--primary)">{currentGuide.title}</h3>
+                                    <p className="mt-1.5 text-sm text-(--secondary)">{currentGuide.intro}</p>
                                     <ul className="mt-3 space-y-2.5">
                                         {currentGuide.checklist.map((item) => (
-                                            <li key={item} className="flex items-start gap-2 text-sm text-slate-700">
+                                            <li key={item} className="flex items-start gap-2 text-sm text-(--primary-light)">
                                                 <AppIcon name="check" className="h-4 w-4 text-emerald-600 mt-0.5" />
                                                 <span>{item}</span>
                                             </li>
@@ -212,14 +212,14 @@ export default function StartupOnboardingPage() {
                                         <button
                                             type="button"
                                             onClick={() => setMobilePanel('form')}
-                                            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${mobilePanel === 'form' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}`}
+                                            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${mobilePanel === 'form' ? 'bg-(--primary) text-white' : 'bg-(--surface-pressed) text-(--primary-light)'}`}
                                         >
                                             Form
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setMobilePanel('guide')}
-                                            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${mobilePanel === 'guide' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}`}
+                                            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${mobilePanel === 'guide' ? 'bg-(--primary) text-white' : 'bg-(--surface-pressed) text-(--primary-light)'}`}
                                         >
                                             Guidelines
                                         </button>
@@ -229,11 +229,11 @@ export default function StartupOnboardingPage() {
                                 {mobilePanel === 'guide' && (
                                     <div className="lg:hidden rounded-2xl border border-(--border) bg-white p-4">
                                         <p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Guidelines</p>
-                                        <h3 className="mt-1 text-base font-semibold text-slate-900">{currentGuide.title}</h3>
-                                        <p className="mt-1.5 text-sm text-slate-600">{currentGuide.intro}</p>
+                                        <h3 className="mt-1 text-base font-semibold text-(--primary)">{currentGuide.title}</h3>
+                                        <p className="mt-1.5 text-sm text-(--secondary)">{currentGuide.intro}</p>
                                         <ul className="mt-3 space-y-2.5">
                                             {currentGuide.checklist.map((item) => (
-                                                <li key={item} className="flex items-start gap-2 text-sm text-slate-700">
+                                                <li key={item} className="flex items-start gap-2 text-sm text-(--primary-light)">
                                                     <AppIcon name="check" className="h-4 w-4 text-emerald-600 mt-0.5" />
                                                     <span>{item}</span>
                                                 </li>
@@ -252,7 +252,7 @@ export default function StartupOnboardingPage() {
                                                 toggleWhyXentro={nav.toggleWhyXentro}
                                             />
 
-                                            <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-slate-50/65">
+                                            <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-(--surface-hover)/65">
                                                 <Button
                                                     type="button"
                                                     variant="secondary"

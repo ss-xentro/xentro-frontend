@@ -16,7 +16,7 @@ export default function GlobalError({
 	}, [error]);
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-(--background) px-4">
+		<div className="min-h-screen flex items-center justify-center bg-background px-4">
 			<div className="max-w-md w-full text-center space-y-6">
 				<AppIcon name="alert-triangle" className="w-14 h-14 text-amber-500 mx-auto" />
 				<h1 className="text-2xl font-bold text-(--primary)">Something went wrong</h1>
