@@ -16,6 +16,7 @@ export { Pagination } from './Pagination';
 export { Spinner } from './Spinner';
 export { FeedbackBanner, InlineFeedback } from './FeedbackBanner';
 export { EmptyState } from './EmptyState';
+export { Modal } from './Modal';
 export { BackButton } from './BackButton';
 export { OnboardingNavbar } from './OnboardingNavbar';
 export { OnboardingWizardLayout } from './OnboardingWizardLayout';

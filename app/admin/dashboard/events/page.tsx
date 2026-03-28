@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Button, Card, EmptyState } from '@/components/ui';
+import { Button, Card, EmptyState, Modal } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 import { toast } from 'sonner';
 
@@ -372,10 +372,7 @@ export default function AdminEventsPage() {
 				</div>
 			)}
 
-			{showModal && (
-				<div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4">
-					<Card className="w-full max-w-xl p-6 space-y-4">
-						<h2 className="text-xl font-semibold text-(--primary)">{editingId ? 'Edit Event' : 'New Event'}</h2>
+			<Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingId ? 'Edit Event' : 'New Event'} className="max-w-xl max-h-[90vh] overflow-y-auto">
 						<div className="grid grid-cols-1 gap-4">
 							<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Event name" aria-label="Event name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
 							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[92px]" placeholder="Description" aria-label="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
@@ -462,9 +459,7 @@ export default function AdminEventsPage() {
 							<Button variant="ghost" onClick={() => setShowModal(false)} disabled={saving}>Cancel</Button>
 							<Button onClick={saveEvent} disabled={saving}>{saving ? 'Saving…' : editingId ? 'Save Changes' : 'Create Event'}</Button>
 						</div>
-					</Card>
-				</div>
-			)}
+			</Modal>
 		</div>
 	);
 }
