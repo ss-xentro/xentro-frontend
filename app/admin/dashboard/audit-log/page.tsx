@@ -77,7 +77,7 @@ export default function AdminAuditLogPage() {
 	return (
 		<div className="space-y-6">
 			<div>
-				<h2 className="text-xl font-semibold text-gray-900">Audit Log</h2>
+				<h1 className="text-xl font-semibold text-gray-900">Audit Log</h1>
 				<p className="text-sm text-gray-500 mt-1">{total} log entries</p>
 			</div>
 

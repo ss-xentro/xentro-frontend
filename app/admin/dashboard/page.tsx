@@ -123,7 +123,7 @@ export default function DashboardPage() {
     return (
         <div className="space-y-8 animate-fadeIn">
             <div>
-                <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
+                <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
                 <p className="text-gray-600 mt-1">Here&apos;s what&apos;s happening with your institutions today.</p>
             </div>
 

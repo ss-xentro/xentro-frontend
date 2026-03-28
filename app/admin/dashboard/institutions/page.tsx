@@ -90,7 +90,7 @@ export default function InstitutionsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-(--primary)">Institutions</h2>
+                    <h1 className="text-2xl font-bold text-(--primary)">Institutions</h1>
                     <p className="text-(--secondary) mt-1">Manage and monitor all onboarded institutions</p>
                 </div>
                 <div className="flex items-center gap-3">

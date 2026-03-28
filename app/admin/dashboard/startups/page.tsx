@@ -57,7 +57,7 @@ export default function StartupsAdminPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-(--primary)">Startups</h2>
+                    <h1 className="text-2xl font-bold text-(--primary)">Startups</h1>
                     <p className="text-(--secondary) mt-1">View and manage all startups on the platform</p>
                 </div>
                 <div className="flex items-center gap-3">

@@ -18,7 +18,7 @@ export default function InstitutionError({
 		<div className="flex items-center justify-center min-h-[60vh] px-4">
 			<div className="max-w-md w-full text-center space-y-6">
 				<AppIcon name="landmark" className="w-12 h-12 text-(--secondary) mx-auto" />
-				<h2 className="text-xl font-bold text-(--primary)">Dashboard Error</h2>
+				<h1 className="text-xl font-bold text-(--primary)">Dashboard Error</h1>
 				<p className="text-(--secondary) text-sm">
 					{error.message || 'Something went wrong loading the institution dashboard.'}
 				</p>

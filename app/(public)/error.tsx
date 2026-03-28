@@ -18,7 +18,7 @@ export default function PublicError({
 		<div className="min-h-screen flex items-center justify-center bg-(--background) px-4">
 			<div className="max-w-md w-full text-center space-y-6">
 				<AppIcon name="frown" className="w-12 h-12 text-gray-400 mx-auto" />
-				<h2 className="text-xl font-bold text-(--primary)">Something went wrong</h2>
+				<h1 className="text-xl font-bold text-(--primary)">Something went wrong</h1>
 				<p className="text-(--secondary) text-sm">
 					{error.message || 'An error occurred while loading this page.'}
 				</p>

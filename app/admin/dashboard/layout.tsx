@@ -201,9 +201,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Top Bar */}
                 <header className="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between">
                     <div>
-                        <h1 className="text-lg font-semibold text-gray-900">
+                        <span className="text-lg font-semibold text-gray-900">
                             {navItems.find((item) => item.href === pathname)?.label || 'Dashboard'}
-                        </h1>
+                        </span>
                     </div>
                     <div className="flex items-center gap-4">
                         <button
