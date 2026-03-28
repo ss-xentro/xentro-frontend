@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { Button } from '@/components/ui/Button';
 
 export default function GlobalError({
 	error,
@@ -23,18 +24,18 @@ export default function GlobalError({
 					{error.message || 'An unexpected error occurred. Please try again.'}
 				</p>
 				<div className="flex gap-3 justify-center">
-					<button
+					<Button
 						onClick={reset}
-						className="px-6 py-2.5 bg-accent text-white rounded-xl font-medium hover:bg-accent/90 transition-colors"
+						variant="primary"
 					>
 						Try Again
-					</button>
-					<button
+					</Button>
+					<Button
 						onClick={() => (window.location.href = '/')}
-						className="px-6 py-2.5 bg-(--surface) text-(--primary) rounded-xl font-medium border border-(--border) hover:bg-(--surface-hover) transition-colors"
+						variant="secondary"
 					>
 						Go Home
-					</button>
+					</Button>
 				</div>
 			</div>
 		</div>
