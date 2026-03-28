@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 
 interface StartupDetail {
 	id: string;
@@ -64,7 +65,6 @@ export default function StartupDetailPage() {
 
 	const [startup, setStartup] = useState<StartupDetail | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [deleting, setDeleting] = useState(false);
 
 	useEffect(() => { loadStartup(); }, []);
@@ -80,7 +80,7 @@ export default function StartupDetailPage() {
 			const data = await res.json();
 			setStartup(data.data);
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setLoading(false);
 		}
@@ -102,7 +102,7 @@ export default function StartupDetailPage() {
 			}
 			router.push('/institution-dashboard/startups');
 		} catch (err) {
-			alert((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setDeleting(false);
 		}
@@ -116,10 +116,10 @@ export default function StartupDetailPage() {
 		);
 	}
 
-	if (error || !startup) {
+	if (!startup) {
 		return (
 			<DashboardSidebar>
-				<div className="p-8"><Card className="p-8 text-center"><p className="text-red-400 mb-4">{error || 'Startup not found'}</p><Button onClick={() => router.push('/institution-dashboard/startups')}>Back to Startups</Button></Card></div>
+				<div className="p-8"><Card className="p-8 text-center"><p className="text-red-400 mb-4">Startup not found</p><Button onClick={() => router.push('/institution-dashboard/startups')}>Back to Startups</Button></Card></div>
 			</DashboardSidebar>
 		);
 	}
