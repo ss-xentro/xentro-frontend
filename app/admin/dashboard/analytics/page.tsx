@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from '@/components/ui';
+import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { Institution } from '@/lib/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 
@@ -87,7 +88,7 @@ export default function AnalyticsPage() {
 		return (
 			<div className="space-y-6">
 				<h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-				<Card className="p-6 text-center text-red-600">{error}</Card>
+				<Card className="p-6 text-center"><FeedbackBanner type="error" message={error} /></Card>
 			</div>
 		);
 	}

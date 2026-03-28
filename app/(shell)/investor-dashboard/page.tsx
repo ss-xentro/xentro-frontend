@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
+import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { Button } from '@/components/ui/Button';
 import { getSessionToken } from '@/lib/auth-utils';
 import { InvestorProfile } from './_lib/constants';
@@ -61,7 +62,7 @@ export default function InvestorDashboardPage() {
     if (error) {
         return (
             <Card className="p-8 text-center">
-                <p className="text-red-600 font-medium">{error}</p>
+                <FeedbackBanner type="error" message={error} className="mb-4" />
                 <Link href="/login">
                     <Button className="mt-4">Go to Login</Button>
                 </Link>
