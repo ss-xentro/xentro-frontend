@@ -42,24 +42,6 @@ function deleteCookie(name: string) {
     document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
 }
 
-function getLegacySession(): Record<string, unknown> | null {
-    if (typeof window === 'undefined') return null;
-
-    try {
-        const raw = localStorage.getItem('xentro_session');
-        if (!raw) return null;
-
-        const data = JSON.parse(raw) as { expiresAt?: number } & Record<string, unknown>;
-        if (data.expiresAt && data.expiresAt <= Date.now()) {
-            return null;
-        }
-
-        return data;
-    } catch {
-        return null;
-    }
-}
-
 /* ─── Session user shape stored in xentro_auth ─── */
 
 export interface SessionUser {
@@ -123,7 +105,10 @@ export function normalizeUser(raw: Record<string, unknown>): SessionUser {
  */
 export function syncAuthCookie(user: Record<string, unknown>) {
     const normalized = normalizeUser(user);
-    setCookie(AUTH_COOKIE, JSON.stringify(normalized));
+    // M1 fix: Omit email from the non-HttpOnly cookie to avoid PII exposure.
+    // Full user data (including email) is fetched from /api/auth/me/ on hydration.
+    const { email: _email, ...cookieData } = normalized;
+    setCookie(AUTH_COOKIE, JSON.stringify(cookieData));
 }
 
 /**
@@ -216,13 +201,7 @@ export function getRoleToken(_role: string): string | null {
  */
 export function getRoleFromSession(): string | null {
     const session = getAuthCookie();
-    if (session?.role) return session.role;
-
-    const legacySession = getLegacySession();
-    return (legacySession as { user?: { role?: string; account_type?: string; accountType?: string } } | null)?.user?.role
-        || (legacySession as { user?: { role?: string; account_type?: string; accountType?: string } } | null)?.user?.account_type
-        || (legacySession as { user?: { role?: string; account_type?: string; accountType?: string } } | null)?.user?.accountType
-        || null;
+    return session?.role || null;
 }
 
 /**
@@ -230,11 +209,7 @@ export function getRoleFromSession(): string | null {
  */
 export function getUnlockedContexts(): string[] {
     const session = getAuthCookie();
-    if (session?.contexts?.length) return session.contexts;
-
-    const legacySession = getLegacySession() as { user?: { unlockedContexts?: string[]; unlocked_contexts?: string[] } } | null;
-    if (!legacySession?.user) return [];
-    return legacySession.user.unlockedContexts || legacySession.user.unlocked_contexts || ['explorer'];
+    return session?.contexts?.length ? session.contexts : [];
 }
 
 /**
@@ -273,27 +248,12 @@ export function clearAllRoleTokens() {
 }
 
 /**
- * cleanupLegacyStorage — call once on app boot to migrate any
- * remaining localStorage data to cookies, then remove it.
+ * cleanupLegacyStorage — removes any leftover localStorage keys
+ * from past sessions. Call once on app boot.
  */
 export function cleanupLegacyStorage() {
     if (typeof window === 'undefined') return;
-    try {
-        const raw = localStorage.getItem('xentro_session');
-        if (raw) {
-            const data = JSON.parse(raw);
-            if (data?.user && data?.expiresAt > Date.now()) {
-                // Migrate to cookie if cookie is empty
-                if (!getAuthCookie()) {
-                    syncAuthCookie(data.user);
-                }
-            }
-            // Remove after migration
-            localStorage.removeItem('xentro_session');
-        }
-        // Clean up other legacy keys
-        LEGACY_LS_KEYS.forEach((key) => {
-            try { localStorage.removeItem(key); } catch { /* ignore */ }
-        });
-    } catch { /* ignore */ }
+    LEGACY_LS_KEYS.forEach((key) => {
+        try { localStorage.removeItem(key); } catch { /* ignore */ }
+    });
 }

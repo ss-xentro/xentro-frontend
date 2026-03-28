@@ -26,30 +26,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Hydrate session from cookie (with legacy localStorage migration)
     useEffect(() => {
-        try {
-            // Migrate any leftover localStorage data to cookies first
-            cleanupLegacyStorage();
+        let cancelled = false;
+        (async () => {
+            try {
+                // Migrate any leftover localStorage data to cookies first
+                cleanupLegacyStorage();
 
-            const session = getAuthCookie();
-            if (session && session.role) {
-                const hydratedUser: User = {
-                    id: session.id || '',
-                    email: session.email || '',
-                    name: session.name || '',
-                    avatar: session.avatar || '',
-                    role: session.role as User['role'],
-                    unlockedContexts: session.contexts,
-                };
-                setUser(hydratedUser);
-                // Token lives in an HttpOnly cookie; the client can't read it.
-                // Set to null — use getSessionToken() from auth-utils for API calls.
-                setToken(null);
+                const session = getAuthCookie();
+                if (session && session.role) {
+                    // Hydrate immediately from cookie (email excluded for PII safety)
+                    const hydratedUser: User = {
+                        id: session.id || '',
+                        email: '',
+                        name: session.name || '',
+                        avatar: session.avatar || '',
+                        role: session.role as User['role'],
+                        unlockedContexts: session.contexts,
+                    };
+                    setUser(hydratedUser);
+                    setToken(null);
+
+                    // M1: Fetch full user data (including email) from the server
+                    try {
+                        const res = await fetch('/api/auth/me/');
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (!cancelled && data.user) {
+                                const full = normalizeUser(data.user);
+                                setUser({
+                                    id: full.id || hydratedUser.id,
+                                    email: full.email || '',
+                                    name: full.name || hydratedUser.name,
+                                    avatar: full.avatar || hydratedUser.avatar,
+                                    role: (full.role || hydratedUser.role) as User['role'],
+                                    unlockedContexts: full.contexts?.length ? full.contexts : hydratedUser.unlockedContexts,
+                                });
+                            }
+                        }
+                    } catch { /* Non-critical — UI works without email */ }
+                }
+            } catch {
+                clearAuthCookie();
+            } finally {
+                if (!cancelled) setIsLoading(false);
             }
-        } catch (err) {
-            clearAuthCookie();
-        } finally {
-            setIsLoading(false);
-        }
+        })();
+        return () => { cancelled = true; };
     }, []);
 
     const login = useCallback(async (email: string, password: string) => {

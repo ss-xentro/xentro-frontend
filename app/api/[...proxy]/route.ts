@@ -73,11 +73,10 @@ async function handleProxy(request: NextRequest) {
       method,
       headers,
       body,
-      // @ts-expect-error duplex is required in Node.js for streaming requests
       duplex,
       redirect: 'manual',
       cache: 'no-store'
-    });
+    } as RequestInit);
 
     const responseHeaders = new Headers(response.headers);
     responseHeaders.delete('content-encoding');
