@@ -44,7 +44,7 @@ export default function InstitutionLayout({
 
     if (!allowed) {
         return (
-            <div className="min-h-screen bg-(--background) flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="w-8 h-8 border-2 border-(--border) border-t-(--secondary) rounded-full animate-spin" />
             </div>
         );
@@ -52,7 +52,7 @@ export default function InstitutionLayout({
 
     return (
         <AuthGuard>
-            <div className="min-h-screen bg-(--background)">
+            <div className="min-h-screen bg-background">
                 {children}
             </div>
         </AuthGuard>

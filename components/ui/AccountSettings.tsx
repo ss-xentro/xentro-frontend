@@ -416,7 +416,7 @@ export default function AccountSettings({
 							>
 								<span
 									className={`inline-block h-4 w-4 rounded-full transition-transform ${notifications[key]
-										? "translate-x-6 bg-(--background)"
+										? "translate-x-6 bg-background"
 										: "translate-x-1 bg-(--secondary-light)"
 										}`}
 								/>

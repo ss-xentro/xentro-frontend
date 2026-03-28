@@ -109,7 +109,7 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-(--background)">
+            <div className="min-h-screen flex items-center justify-center bg-background">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
             </div>
         );
@@ -117,7 +117,7 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
 
     if (error || !institution) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-(--background)">
+            <div className="min-h-screen flex items-center justify-center bg-background">
                 <Card className="p-8 text-center max-w-md">
                     <h2 className="text-xl font-bold text-(--primary) mb-2">Institution Not Found</h2>
                     <p className="text-(--secondary) mb-4">{error || 'Unable to load institution data.'}</p>
@@ -130,7 +130,7 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
     }
 
     return (
-        <div className="min-h-screen bg-(--background)">
+        <div className="min-h-screen bg-background">
             <AdminActionBar status={institution.status} updating={updating} onApprove={handleApprove} onReject={handleReject} />
 
             <div className="animate-fadeIn pb-20">

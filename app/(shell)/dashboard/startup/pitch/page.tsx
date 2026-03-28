@@ -244,7 +244,7 @@ export default function PitchEditorPage() {
 						}}
 						className="absolute inset-0 bg-black/45 backdrop-blur-sm"
 					/>
-					<div className="relative z-10 w-full max-w-xl rounded-2xl border border-(--border) bg-(--background) p-5 shadow-(--shadow-lg)">
+					<div className="relative z-10 w-full max-w-xl rounded-2xl border border-(--border) bg-background p-5 shadow-(--shadow-lg)">
 						<div className="mb-4">
 							<h3 className="text-lg font-semibold text-(--primary)">Add New Section</h3>
 							<p className="text-sm text-(--secondary)">Create a custom step by entering a title and short description.</p>
@@ -261,14 +261,14 @@ export default function PitchEditorPage() {
 								value={newStepTitle}
 								onChange={(e) => setNewStepTitle(e.target.value)}
 								placeholder="Step title"
-								className="w-full rounded-lg border border-(--border) bg-(--background) px-3 py-2 text-sm text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+								className="w-full rounded-lg border border-(--border) bg-background px-3 py-2 text-sm text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
 							/>
 							<input
 								type="text"
 								value={newStepDescription}
 								onChange={(e) => setNewStepDescription(e.target.value)}
 								placeholder="Short description for this step"
-								className="w-full rounded-lg border border-(--border) bg-(--background) px-3 py-2 text-sm text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+								className="w-full rounded-lg border border-(--border) bg-background px-3 py-2 text-sm text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
 							/>
 						</div>
 

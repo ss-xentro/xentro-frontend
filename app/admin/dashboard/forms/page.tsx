@@ -232,7 +232,7 @@ export default function AdminFormsPage() {
                 onClick={() => setSelectedForm(selectedForm?.id === form.id ? null : form)}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-(--background) rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-background rounded-lg flex items-center justify-center">
                     <AppIcon name={typeInfo.icon} className="w-6 h-6" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -273,7 +273,7 @@ export default function AdminFormsPage() {
                 {selectedForm?.id === form.id && (
                   <div className="mt-6 pt-6 border-t border-(--border)" onClick={(e) => e.stopPropagation()}>
                     <h4 className="font-medium text-(--primary) mb-3">Form Details</h4>
-                    <div className="bg-(--background) rounded-lg p-4 mb-4 max-h-60 overflow-y-auto">
+                    <div className="bg-background rounded-lg p-4 mb-4 max-h-60 overflow-y-auto">
                       <pre className="text-xs text-(--secondary) whitespace-pre-wrap">
                         {JSON.stringify(form.data, null, 2)}
                       </pre>
@@ -319,7 +319,7 @@ export default function AdminFormsPage() {
                       </div>
                     ) : (
                       form.reviewNotes && (
-                        <div className="bg-(--background) rounded-lg p-4">
+                        <div className="bg-background rounded-lg p-4">
                           <p className="text-xs text-(--secondary) mb-1">Review Notes:</p>
                           <p className="text-sm">{form.reviewNotes}</p>
                         </div>

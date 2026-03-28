@@ -111,7 +111,7 @@ export function Modal({
 				tabIndex={-1}
 				onKeyDown={handleKeyDown}
 				className={cn(
-					'relative w-full max-w-lg bg-(--background) border border-(--border) rounded-2xl shadow-xl animate-fadeIn focus:outline-none',
+					'relative w-full max-w-lg bg-background border border-(--border) rounded-2xl shadow-xl animate-fadeIn focus:outline-none',
 					className
 				)}
 			>

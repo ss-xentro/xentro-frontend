@@ -150,7 +150,7 @@ export default function NotificationsPage() {
   return (
     <div className="max-w-3xl mx-auto">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-10 backdrop-blur-xl bg-(--background) border-b border-(--border) px-6 py-5">
+      <div className="sticky top-0 z-10 backdrop-blur-xl bg-background border-b border-(--border) px-6 py-5">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">

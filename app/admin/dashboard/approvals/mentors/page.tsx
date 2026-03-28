@@ -103,7 +103,7 @@ export default function MentorVerificationPage() {
   };
 
   return (
-    <div className="space-y-4 animate-fadeInUp">
+    <div className="space-y-6 animate-fadeInUp">
       <Card className="p-4 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>

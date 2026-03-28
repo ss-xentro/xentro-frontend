@@ -272,7 +272,7 @@ export default function UnifiedLoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-(--background) flex flex-col">
+        <div className="min-h-screen bg-background flex flex-col">
             {/* Minimal Navbar */}
             <OnboardingNavbar showAction={false} />
 

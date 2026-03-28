@@ -332,7 +332,7 @@ export default function AdminEventsPage() {
 							{event.coverImage && (
 								<div className="relative -mx-5 -mt-5 h-36 overflow-hidden rounded-t-xl border-b border-(--border)">
 									<img src={event.coverImage} alt="" className="w-full h-full object-cover" />
-									<div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/5" />
+									<div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/35 to-black/5" />
 									<div className="absolute inset-x-0 bottom-0 p-3">
 										<div className="flex items-start justify-between gap-3">
 											<div>
@@ -446,10 +446,10 @@ export default function AdminEventsPage() {
 						<input type="number" min="0" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Cancellation cutoff hours" value={form.cancellationCutoffHours} onChange={(e) => setForm((f) => ({ ...f, cancellationCutoffHours: e.target.value }))} />
 						<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder='Recurrence JSON e.g. {"frequency":"weekly"}' value={form.recurrenceRuleJson} onChange={(e) => setForm((f) => ({ ...f, recurrenceRuleJson: e.target.value }))} />
 					</div>
-					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Gallery JSON array" value={form.galleryJson} onChange={(e) => setForm((f) => ({ ...f, galleryJson: e.target.value }))} />
-					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Speaker lineup JSON array" value={form.speakerLineupJson} onChange={(e) => setForm((f) => ({ ...f, speakerLineupJson: e.target.value }))} />
-					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Agenda timeline JSON array" value={form.agendaTimelineJson} onChange={(e) => setForm((f) => ({ ...f, agendaTimelineJson: e.target.value }))} />
-					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Ticket types JSON array" value={form.ticketTypesJson} onChange={(e) => setForm((f) => ({ ...f, ticketTypesJson: e.target.value }))} />
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-20" placeholder="Gallery JSON array" value={form.galleryJson} onChange={(e) => setForm((f) => ({ ...f, galleryJson: e.target.value }))} />
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-20" placeholder="Speaker lineup JSON array" value={form.speakerLineupJson} onChange={(e) => setForm((f) => ({ ...f, speakerLineupJson: e.target.value }))} />
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-20" placeholder="Agenda timeline JSON array" value={form.agendaTimelineJson} onChange={(e) => setForm((f) => ({ ...f, agendaTimelineJson: e.target.value }))} />
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-20" placeholder="Ticket types JSON array" value={form.ticketTypesJson} onChange={(e) => setForm((f) => ({ ...f, ticketTypesJson: e.target.value }))} />
 					<label className="text-sm text-(--primary-light) flex items-center gap-2">
 						<input type="checkbox" checked={form.isVirtual} onChange={(e) => setForm((f) => ({ ...f, isVirtual: e.target.checked }))} />
 						Online event

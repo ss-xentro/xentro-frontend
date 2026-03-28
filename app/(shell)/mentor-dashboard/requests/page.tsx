@@ -178,7 +178,7 @@ export default function MentorRequestsPage() {
 
 									{/* Message */}
 									{req.message && (
-										<div className="mt-3 p-3 bg-(--background) rounded-lg border border-(--border)">
+										<div className="mt-3 p-3 bg-background rounded-lg border border-(--border)">
 											<p className="text-sm text-(--primary) leading-relaxed whitespace-pre-wrap">
 												{req.message}
 											</p>
