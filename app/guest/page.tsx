@@ -11,7 +11,7 @@ export default function Home() {
 
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
-            router.replace('/feed');
+            router.replace('/explore/institute');
         }
     }, [isAuthenticated, isLoading, router]);
 

@@ -20,11 +20,11 @@ import type { User } from '@/lib/types/user';
 const DASHBOARD_MAP: Record<string, string> = {
     startup: '/dashboard',
     founder: '/dashboard',
-    mentor: '/feed',
+    mentor: '/mentor-dashboard',
     institution: '/institution-dashboard',
-    investor: '/feed',
+    // investor hidden for v1
     admin: '/admin/dashboard',
-    explorer: '/feed',
+    explorer: '/explore/institute',
 };
 
 const STARTUP_ONBOARDING_PATH = '/startup/onboarding';
@@ -76,7 +76,7 @@ async function resolveStartupLandingPath(rawUser: Record<string, unknown>, token
 async function resolveMentorLandingPath(rawUser: Record<string, unknown>, token: string): Promise<string> {
     const explicitMentorOnboarded = rawUser.mentorOnboarded ?? rawUser.mentor_onboarded;
     if (explicitMentorOnboarded === false) return MENTOR_ONBOARDING_PATH;
-    if (explicitMentorOnboarded === true) return '/feed';
+    if (explicitMentorOnboarded === true) return '/mentor-dashboard';
 
     try {
         const res = await fetch('/api/auth/mentor-profile/', {
@@ -88,13 +88,13 @@ async function resolveMentorLandingPath(rawUser: Record<string, unknown>, token:
         }
 
         if (!res.ok) {
-            return '/feed';
+            return '/mentor-dashboard';
         }
 
         const profile = await res.json();
-        return isMentorOnboardingComplete(profile) ? '/feed' : MENTOR_ONBOARDING_PATH;
+        return isMentorOnboardingComplete(profile) ? '/mentor-dashboard' : MENTOR_ONBOARDING_PATH;
     } catch {
-        return '/feed';
+        return '/mentor-dashboard';
     }
 }
 
@@ -215,7 +215,7 @@ export default function UnifiedLoginPage() {
                 return;
             }
 
-            router.push(DASHBOARD_MAP[role] || '/feed');
+            router.push(DASHBOARD_MAP[role] || '/explore/institute');
         } catch (err) {
             toast.error((err as Error).message);
         } finally {
@@ -263,7 +263,7 @@ export default function UnifiedLoginPage() {
                 return;
             }
 
-            router.push(DASHBOARD_MAP[role] || '/feed');
+            router.push(DASHBOARD_MAP[role] || '/explore/institute');
         } catch (err) {
             toast.error((err as Error).message);
         } finally {

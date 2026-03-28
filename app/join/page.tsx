@@ -4,20 +4,18 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-type Role = 'startup' | 'mentor' | 'institution' | 'investor' | null;
+type Role = 'startup' | 'mentor' | 'institution' | null;
 
 const PURPOSE_DESTINATIONS: Record<Exclude<Role, null>, string> = {
   startup: '/onboarding/startup',
   mentor: '/mentor-signup',
   institution: '/institution-onboarding',
-  investor: '/investor-onboarding',
 };
 
 const LOGIN_DESTINATIONS: Record<Exclude<Role, null>, string> = {
   startup: '/login',
   mentor: '/login',
   institution: '/login',
-  investor: '/login',
 };
 
 export default function JoinPage() {
@@ -65,16 +63,7 @@ export default function JoinPage() {
         </svg>
       ),
     },
-    {
-      id: 'investor' as const,
-      title: 'Investor',
-      description: 'Discover and fund emerging startups.',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-        </svg>
-      ),
-    },
+    // investor role hidden for v1 — will be re-enabled in v2
   ];
 
   return (

@@ -47,7 +47,7 @@ export default function FeedSidebar() {
 	const handleLogout = () => {
 		logout();
 		setProfileOpen(false);
-		router.push("/feed");
+		router.push("/guest");
 	};
 
 	if (!isAuthenticated) return null;

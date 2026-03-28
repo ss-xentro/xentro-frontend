@@ -15,7 +15,7 @@ const ROLE_LABELS: Record<string, string> = {
 	founder: 'Startup Founder',
 	mentor: 'Mentor',
 	institution: 'Institution',
-	investor: 'Investor',
+	// investor hidden for v1
 };
 
 function getDashboardUrl(role?: string): string {
@@ -25,9 +25,9 @@ function getDashboardUrl(role?: string): string {
 		founder: '/dashboard',
 		mentor: '/mentor-dashboard',
 		institution: '/institution-dashboard',
-		investor: '/investor-dashboard',
+		// investor hidden for v1
 	};
-	return role && roleMap[role] ? roleMap[role] : '/feed';
+	return role && roleMap[role] ? roleMap[role] : '/explore/institute';
 }
 
 // SVG paths for child nav items (extracted from sidebar-icons)
@@ -100,7 +100,7 @@ function NavIcon({ svgPath, active, size = 'w-6 h-6' }: { svgPath: string; activ
 }
 
 const DESKTOP_NAV_ITEMS = [
-	{ icon: 'feed', label: 'Feed', href: '/feed', path: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
+	// feed hidden for v1 — re-enable in v2
 	{ icon: 'events', label: 'Events', href: '/events', path: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
 	{ icon: 'institutions', label: 'Institutions', href: '/explore/institute', path: CHILD_ICON_PATHS.building },
 	{ icon: 'startups', label: 'Startups', href: '/explore/startups', path: CHILD_ICON_PATHS.bolt },
@@ -109,7 +109,7 @@ const DESKTOP_NAV_ITEMS = [
 ];
 
 const MOBILE_NAV_ITEMS = [
-	{ icon: 'feed', label: 'Feed', href: '/feed', path: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
+	// feed hidden for v1 — re-enable in v2
 	{ icon: 'events', label: 'Events', href: '/events', path: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
 	{ icon: 'explore', label: 'Explore', href: '/explore/institute', path: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
 	{ icon: 'bell', label: 'Notifications', href: '/notifications', path: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },

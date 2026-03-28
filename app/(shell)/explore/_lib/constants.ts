@@ -4,7 +4,7 @@ export const ROLE_LABELS: Record<string, string> = {
 	founder: 'Startup Founder',
 	mentor: 'Mentor',
 	institution: 'Institution',
-	investor: 'Investor',
+	// investor hidden for v1
 };
 
 export function getDashboardUrl(role?: string): string {
@@ -14,9 +14,9 @@ export function getDashboardUrl(role?: string): string {
 		founder: '/dashboard',
 		mentor: '/mentor-dashboard',
 		institution: '/institution-dashboard',
-		investor: '/investor-dashboard',
+		// investor hidden for v1
 	};
-	return role && roleMap[role] ? roleMap[role] : '/feed';
+	return role && roleMap[role] ? roleMap[role] : '/explore/institute';
 }
 
 export interface NavItem {
@@ -27,12 +27,7 @@ export interface NavItem {
 }
 
 export const BASE_NAV_ITEMS: NavItem[] = [
-	{
-		icon: 'feed',
-		label: 'Feed',
-		href: '/feed',
-		path: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z',
-	},
+	// feed hidden for v1 — re-enable in v2
 	{
 		icon: 'explore',
 		label: 'Explore',

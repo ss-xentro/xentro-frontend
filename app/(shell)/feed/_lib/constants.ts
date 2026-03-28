@@ -80,7 +80,7 @@ export const ROLE_LABELS: Record<string, string> = {
 	founder: 'Startup Founder',
 	mentor: 'Mentor',
 	institution: 'Institution',
-	investor: 'Investor',
+	// investor hidden for v1
 };
 
 export function getDashboardUrl(role?: string): string {
@@ -90,9 +90,9 @@ export function getDashboardUrl(role?: string): string {
 		founder: '/dashboard',
 		mentor: '/mentor-dashboard',
 		institution: '/institution-dashboard',
-		investor: '/investor-dashboard',
+		// investor hidden for v1
 	};
-	return role && roleMap[role] ? roleMap[role] : '/feed';
+	return role && roleMap[role] ? roleMap[role] : '/explore/institute';
 }
 
 export const NAV_ICON_PATHS: Record<string, string> = {

@@ -13,7 +13,7 @@ export default function HomePage() {
     if (!isAuthenticated) {
       router.replace('/guest');
     } else {
-      router.replace('/feed');
+      router.replace('/explore/institute');
     }
   }, [router, isAuthenticated, isLoading]);
 

@@ -21,7 +21,7 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
         }
 
         if (role !== 'mentor' && !contexts.includes('mentor')) {
-            router.replace('/feed');
+            router.replace('/explore/institute');
             return;
         }
 

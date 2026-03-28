@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             // Quick client-side check first
             if (role !== 'startup' && role !== 'founder' && !contexts.includes('startup')) {
-                router.replace('/feed');
+                router.replace('/explore/institute');
                 return;
             }
 
@@ -36,11 +36,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!res.ok) {
-                    router.replace('/feed');
+                    router.replace('/explore/institute');
                     return;
                 }
             } catch {
-                router.replace('/feed');
+                router.replace('/explore/institute');
                 return;
             }
 

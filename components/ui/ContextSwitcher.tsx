@@ -20,7 +20,7 @@ interface ContextSwitcherProps {
 }
 
 const CONTEXT_META: Record<string, { label: string; icon: string; href: string }> = {
-  explorer: { label: 'Explorer', icon: 'search', href: '/feed' },
+  explorer: { label: 'Explorer', icon: 'search', href: '/explore/institute' },
   startup: { label: 'Startup', icon: 'rocket', href: '/dashboard' },
   mentor: { label: 'Mentor', icon: 'target', href: '/mentor-dashboard' },
   institute: { label: 'Institution', icon: 'landmark', href: '/institution-dashboard' },

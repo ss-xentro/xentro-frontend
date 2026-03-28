@@ -19,7 +19,7 @@ export default function InvestorDashboardLayout({ children }: { children: React.
         }
 
         if (role !== 'investor' && !contexts.includes('investor')) {
-            router.replace('/feed');
+            router.replace('/explore/institute');
             return;
         }
 

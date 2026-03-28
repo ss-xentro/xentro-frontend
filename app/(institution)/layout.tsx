@@ -25,7 +25,7 @@ export default function InstitutionLayout({
 
         // If there's a valid session but no institution access, redirect away
         if (role && role !== 'institution') {
-            router.replace('/feed');
+            router.replace('/explore/institute');
             return;
         }
 

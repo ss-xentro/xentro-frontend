@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { icons } from './sidebar-icons';
 
-export type UserRole = 'institution' | 'startup' | 'founder' | 'mentor' | 'investor';
+export type UserRole = 'institution' | 'startup' | 'founder' | 'mentor';
 
 export interface NavItem {
 	name: string;
@@ -43,12 +43,7 @@ export function getNavItems(role: UserRole): NavItem[] {
 				{ name: 'Requests', href: '/mentor-dashboard/requests', icon: icons.addPerson },
 				{ name: 'Endorsements', href: '/mentor-dashboard/endorsements', icon: icons.endorsement },
 			];
-		case 'investor':
-			return [
-				{ name: 'Overview', href: '/investor-dashboard', icon: icons.overview },
-				{ name: 'Deal Flow', href: '/investor-dashboard/deals', icon: icons.trendUp },
-				{ name: 'Portfolio', href: '/investor-dashboard/portfolio', icon: icons.building },
-			];
+		// investor hidden for v1 — re-enable in v2
 		default:
 			return [];
 	}
@@ -59,7 +54,6 @@ export const roleLabels: Record<UserRole, string> = {
 	startup: 'Founder',
 	founder: 'Founder',
 	mentor: 'Mentor',
-	investor: 'Investor',
 };
 
 export const logoutRedirects: Record<UserRole, string> = {
@@ -67,5 +61,4 @@ export const logoutRedirects: Record<UserRole, string> = {
 	startup: '/login',
 	founder: '/login',
 	mentor: '/login',
-	investor: '/login',
 };

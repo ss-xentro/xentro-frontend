@@ -69,7 +69,7 @@ const rateLimits: Record<string, { max: number; window: number }> = {
 // ── Auth route definitions ──
 
 /** Routes that require ANY authenticated user */
-const AUTH_REQUIRED_PREFIXES = ['/feed', '/notifications', '/profile'];
+const AUTH_REQUIRED_PREFIXES = ['/notifications', '/profile'];
 
 /** Role → allowed dashboard prefixes */
 const ROLE_ROUTE_MAP: Record<string, string[]> = {
@@ -78,7 +78,7 @@ const ROLE_ROUTE_MAP: Record<string, string[]> = {
   founder: ['/dashboard'],
   mentor: ['/mentor-dashboard', '/mentor/onboarding'],
   institution: ['/institution-dashboard', '/institution-edit'],
-  investor: ['/investor-dashboard'],
+  // investor hidden for v1 — re-enable in v2
 };
 
 /** Routes that guests should access; logged-in users get redirected away */
@@ -88,9 +88,9 @@ const GUEST_ONLY_ROUTES = ['/guest', '/join', '/login', '/admin/login'];
 const PUBLIC_PREFIXES = [
   '/api', '/assets', '/_next', '/favicon', '/xentro-logo',
   '/onboarding', '/mentor-signup', '/mentor-login',
-  '/investor-login', '/investor-onboarding',
   '/institution-login', '/institution-onboarding',
   '/explore', '/startups', '/institutions', '/events', '/search',
+  '/feed', // feed is public/hidden for v1 — let it pass through
 ];
 
 function parseCookie(cookieValue: string): { role: string; contexts: string[]; startupOnboarded?: boolean; mentorOnboarded?: boolean } | null {
@@ -134,7 +134,7 @@ function checkAuth(request: NextRequest): NextResponse | null {
   // Guest-only routes: redirect logged-in users to /home
   if (isLoggedIn && GUEST_ONLY_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))) {
     if (pathname.startsWith('/admin/login') && auth?.role === 'admin') return null;
-    return NextResponse.redirect(new URL('/feed', request.url));
+    return NextResponse.redirect(new URL('/explore/institute', request.url));
   }
 
   // Auth-required routes
@@ -169,7 +169,7 @@ function checkAuth(request: NextRequest): NextResponse | null {
         if (contexts.includes(contextName)) return null;
 
         // No access
-        return NextResponse.redirect(new URL('/feed', request.url));
+        return NextResponse.redirect(new URL('/explore/institute', request.url));
       }
     }
   }

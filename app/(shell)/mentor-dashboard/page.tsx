@@ -288,12 +288,12 @@ export default function MentorDashboardPage() {
                                 </div>
                             </button>
                         </Link>
-                        <Link href="/feed" className="block">
+                        <Link href="/explore/startups" className="block">
                             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-(--border) hover:bg-(--surface-hover) transition-colors text-left">
-                                <AppIcon name="newspaper" className="w-5 h-5" />
+                                <AppIcon name="rocket" className="w-5 h-5" />
                                 <div>
-                                    <p className="text-sm font-medium text-(--primary)">Browse Feed</p>
-                                    <p className="text-xs text-(--secondary)">Discover ecosystem updates</p>
+                                    <p className="text-sm font-medium text-(--primary)">Browse Startups</p>
+                                    <p className="text-xs text-(--secondary)">Discover ecosystem startups</p>
                                 </div>
                             </button>
                         </Link>

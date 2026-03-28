@@ -1,6 +1,6 @@
 import { getSessionToken, getRoleFromSession } from '@/lib/auth-utils';
 
-export type DetectedRole = 'admin' | 'founder' | 'mentor' | 'investor' | 'institution' | 'guest';
+export type DetectedRole = 'admin' | 'founder' | 'mentor' | 'institution' | 'guest';
 
 export interface StatCard {
 	label: string;
@@ -33,7 +33,7 @@ export function detectRole(): { role: DetectedRole; token: string | null } {
 		admin: 'admin',
 		mentor: 'mentor',
 		institution: 'institution',
-		investor: 'investor',
+		// investor hidden for v1
 		startup: 'founder',
 		founder: 'founder',
 		explorer: 'guest',
@@ -57,8 +57,8 @@ export const ROLE_META: Record<DetectedRole, {
 		quickActions: [
 			{ label: 'Review Approvals', href: '/admin/dashboard/institutions/verification-requests', icon: 'clipboard-list' },
 			{ label: 'Manage Institutions', href: '/admin/dashboard', icon: 'landmark' },
-			{ label: 'Browse Feed', href: '/feed', icon: 'newspaper' },
 			{ label: 'Explore', href: '/explore/institute', icon: 'search' },
+			{ label: 'Browse Startups', href: '/explore/startups', icon: 'rocket' },
 		],
 	},
 	founder: {
@@ -70,7 +70,7 @@ export const ROLE_META: Record<DetectedRole, {
 			{ label: 'Edit Startup', href: '/dashboard', icon: 'pencil' },
 			{ label: 'Find Mentors', href: '/explore/mentors', icon: 'graduation-cap' },
 			{ label: 'Browse Programs', href: '/explore/institute', icon: 'landmark' },
-			{ label: 'View Feed', href: '/feed', icon: 'newspaper' },
+			{ label: 'Explore Startups', href: '/explore/startups', icon: 'rocket' },
 		],
 	},
 	mentor: {
@@ -82,21 +82,10 @@ export const ROLE_META: Record<DetectedRole, {
 			{ label: 'Manage Slots', href: '/mentor-dashboard', icon: 'calendar' },
 			{ label: 'View Requests', href: '/mentor-dashboard/requests', icon: 'clipboard-list' },
 			{ label: 'Explore Startups', href: '/explore/startups', icon: 'rocket' },
-			{ label: 'View Feed', href: '/feed', icon: 'newspaper' },
-		],
-	},
-	investor: {
-		greeting: 'Welcome back, Investor',
-		subtitle: 'Investment Dashboard',
-		dashboardHref: '/investor-dashboard',
-		loginHref: '/investor-login',
-		quickActions: [
-			{ label: 'Browse Startups', href: '/explore/startups', icon: 'rocket' },
-			{ label: 'Deal Flow', href: '/investor-dashboard', icon: 'trending-up' },
 			{ label: 'Explore Institutions', href: '/explore/institute', icon: 'landmark' },
-			{ label: 'View Feed', href: '/feed', icon: 'newspaper' },
 		],
 	},
+	// investor hidden for v1 — re-enable in v2
 	institution: {
 		greeting: 'Welcome back',
 		subtitle: 'Institution Dashboard',
@@ -106,19 +95,19 @@ export const ROLE_META: Record<DetectedRole, {
 			{ label: 'Manage Programs', href: '/institution-dashboard', icon: 'clipboard-list' },
 			{ label: 'View Team', href: '/institution-dashboard/team', icon: 'users' },
 			{ label: 'Edit Profile', href: '/institution-edit', icon: 'pencil' },
-			{ label: 'View Feed', href: '/feed', icon: 'newspaper' },
+			{ label: 'Explore', href: '/explore/institute', icon: 'search' },
 		],
 	},
 	guest: {
 		greeting: 'Welcome to Xentro',
 		subtitle: 'Get started by joining the ecosystem',
-		dashboardHref: '/feed',
+		dashboardHref: '/explore/institute',
 		loginHref: '/join',
 		quickActions: [
 			{ label: 'Sign Up', href: '/join', icon: 'rocket' },
 			{ label: 'Explore Institutions', href: '/explore/institute', icon: 'landmark' },
 			{ label: 'Browse Startups', href: '/explore/startups', icon: 'lightbulb' },
-			{ label: 'View Feed', href: '/feed', icon: 'newspaper' },
+			{ label: 'Browse Events', href: '/events', icon: 'calendar' },
 		],
 	},
 };

@@ -112,7 +112,7 @@ export default function ProfilePage() {
           <Card className="p-4 space-y-3">
             <h2 className="text-lg font-semibold">Dashboards & onboarding</h2>
             <div className="flex flex-col gap-2">
-              <Link href="/feed"><Button className="w-full min-h-[44px]" variant="secondary">Explore Feed</Button></Link>
+              <Link href="/explore/institute"><Button className="w-full min-h-[44px]" variant="secondary">Explore</Button></Link>
               <Link href="/dashboard"><Button className="w-full min-h-[44px]" variant="ghost">Founder Dashboard</Button></Link>
               <Link href="/institution-dashboard"><Button className="w-full min-h-[44px]" variant="ghost">Institution Dashboard</Button></Link>
               <Link href="/onboarding/startup"><Button className="w-full min-h-[44px]" variant="ghost">Startup Onboarding</Button></Link>

@@ -5,7 +5,7 @@ import { AppIcon } from '@/components/ui/AppIcon';
 const ACTIONS = [
 	{ href: '/explore/institute', icon: 'landmark' as const, label: 'Explore Institutions', desc: 'Discover incubators & accelerators' },
 	{ href: '/events', icon: 'calendar' as const, label: 'Events', desc: 'Browse upcoming events' },
-	{ href: '/feed', icon: 'newspaper' as const, label: 'Browse Feed', desc: 'Latest updates and news' },
+	{ href: '/explore/startups', icon: 'rocket' as const, label: 'Browse Startups', desc: 'Explore startup ecosystem' },
 	{ href: '/notifications', icon: 'bell' as const, label: 'Notifications', desc: 'Check your latest alerts' },
 ];
 
