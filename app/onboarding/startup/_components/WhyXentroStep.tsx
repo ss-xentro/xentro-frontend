@@ -66,7 +66,7 @@ export function WhyXentroStep({ selectedValues, otherText, onToggle, onOtherChan
 												'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors',
 												isSelected
 													? 'border-slate-900 bg-slate-900 text-white'
-													: 'border-(--secondary-light) bg-white text-transparent'
+													: 'border-(--secondary-light) bg-(--surface) text-transparent'
 											)}>
 												<AppIcon name="check" className="h-3 w-3" />
 											</div>

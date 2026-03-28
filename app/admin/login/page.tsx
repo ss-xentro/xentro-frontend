@@ -32,7 +32,7 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white flex items-center justify-center p-4" role="main">
+        <div className="min-h-screen bg-(--surface) flex items-center justify-center p-4" role="main">
             <div className="w-full max-w-md animate-fadeInUp">
                 {/* Logo and Title */}
                 <div className="text-center mb-8">

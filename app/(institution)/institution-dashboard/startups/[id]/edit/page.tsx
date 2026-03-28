@@ -145,7 +145,7 @@ export default function EditStartupPage() {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab
-                ? 'border-emerald-400 text-white'
+                ? 'border-violet-500 text-white'
                 : 'border-transparent text-gray-400 hover:text-gray-200'
                 }`}
             >

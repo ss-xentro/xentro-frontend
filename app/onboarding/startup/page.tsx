@@ -127,7 +127,7 @@ export default function StartupOnboardingPage() {
             <div className="flex-1 py-5 sm:py-7 px-3 sm:px-6 lg:px-8 xl:px-10">
                 <div className={`${containerWidthClass} mx-auto w-full`}>
                     {/* Header */}
-                    <div className="mb-4 sm:mb-6 rounded-2xl border border-(--border) bg-white px-4 py-4 sm:px-6 sm:py-5 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
+                    <div className="mb-4 sm:mb-6 rounded-2xl border border-(--border) bg-(--surface) px-4 py-4 sm:px-6 sm:py-5 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                             <div className="max-w-3xl">
                                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--secondary)">Startup Onboarding</p>
@@ -157,7 +157,7 @@ export default function StartupOnboardingPage() {
                     </div>
 
                     {!isCompletionFlow && (
-                        <div className="bg-white border border-(--border) rounded-2xl shadow-[0_14px_40px_rgba(15,23,42,0.08)] overflow-hidden">
+                        <div className="bg-(--surface) border border-(--border) rounded-2xl shadow-[0_14px_40px_rgba(15,23,42,0.08)] overflow-hidden">
                             <SignupForm
                                 name={nav.data.name}
                                 email={nav.data.primaryContactEmail}
@@ -191,7 +191,7 @@ export default function StartupOnboardingPage() {
                     {isCompletionFlow && (
                         <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-4 sm:gap-6 items-start">
                             <aside className="hidden lg:block sticky top-20 space-y-4">
-                                <div className="rounded-2xl border border-(--border) bg-white p-4">
+                                <div className="rounded-2xl border border-(--border) bg-(--surface) p-4">
                                     <p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Guidelines</p>
                                     <h3 className="mt-1 text-base font-semibold text-(--primary)">{currentGuide.title}</h3>
                                     <p className="mt-1.5 text-sm text-(--secondary)">{currentGuide.intro}</p>
@@ -207,7 +207,7 @@ export default function StartupOnboardingPage() {
                             </aside>
 
                             <div className="space-y-4">
-                                <div className="lg:hidden rounded-2xl border border-(--border) bg-white p-2">
+                                <div className="lg:hidden rounded-2xl border border-(--border) bg-(--surface) p-2">
                                     <div className="grid grid-cols-2 gap-2">
                                         <button
                                             type="button"
@@ -227,7 +227,7 @@ export default function StartupOnboardingPage() {
                                 </div>
 
                                 {mobilePanel === 'guide' && (
-                                    <div className="lg:hidden rounded-2xl border border-(--border) bg-white p-4">
+                                    <div className="lg:hidden rounded-2xl border border-(--border) bg-(--surface) p-4">
                                         <p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Guidelines</p>
                                         <h3 className="mt-1 text-base font-semibold text-(--primary)">{currentGuide.title}</h3>
                                         <p className="mt-1.5 text-sm text-(--secondary)">{currentGuide.intro}</p>
@@ -244,7 +244,7 @@ export default function StartupOnboardingPage() {
 
                                 {mobilePanel === 'form' && (
                                     <>
-                                        <div className="bg-white border border-(--border) rounded-2xl shadow-[0_14px_40px_rgba(15,23,42,0.08)] overflow-hidden">
+                                        <div className="bg-(--surface) border border-(--border) rounded-2xl shadow-[0_14px_40px_rgba(15,23,42,0.08)] overflow-hidden">
                                             <CompletionStepContent
                                                 currentStep={nav.currentStep}
                                                 data={nav.data}

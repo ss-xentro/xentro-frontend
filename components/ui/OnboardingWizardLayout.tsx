@@ -58,7 +58,7 @@ export function OnboardingWizardLayout({
 }: OnboardingWizardLayoutProps) {
 	return (
 		<main className="flex-1 px-3 sm:px-4 py-6 sm:py-10 flex items-center justify-center">
-			<Card className={cn('w-full max-w-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-lg bg-white/90 backdrop-blur animate-fadeInUp', className)}>
+			<Card className={cn('w-full max-w-3xl p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 shadow-lg bg-(--surface)/90 backdrop-blur animate-fadeInUp', className)}>
 				<div className="flex flex-col gap-1.5 sm:gap-2">
 					<h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-(--primary)">{title}</h1>
 					{subtitle && <p className="text-xs sm:text-sm text-(--secondary)">{subtitle}</p>}

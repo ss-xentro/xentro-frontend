@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Badge } from '@/components/ui';
+import { Modal } from '@/components/ui/Modal';
 import { MediaPreview } from '@/components/ui/MediaPreview';
 import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 import type { StartupWithDetails, Founder, TeamMemberData } from './types';
@@ -232,47 +233,43 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 			)}
 
 			{selectedMember && (
-				<div
-					className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
-					onClick={() => setSelectedMember(null)}
+				<Modal
+					isOpen={!!selectedMember}
+					onClose={() => setSelectedMember(null)}
+					className="max-w-2xl overflow-hidden p-0"
 				>
-					<div
-						className="w-full max-w-2xl bg-(--surface) border border-(--border) rounded-2xl overflow-hidden"
-						onClick={(e) => e.stopPropagation()}
-					>
-						<div className="relative h-[45vh] min-h-[260px] bg-black">
-							{selectedMember.avatar ? (
-								<MediaPreview
-									src={selectedMember.avatar}
-									alt={selectedMember.name}
-									className="h-full w-full rounded-none border-0 bg-black"
-									mediaClassName="object-contain"
-									showControls={false}
-								/>
-							) : (
-								<div className="h-full w-full flex items-center justify-center text-5xl font-semibold text-white/70">{selectedMember.initial}</div>
-							)}
-							<button
-								type="button"
-								onClick={() => setSelectedMember(null)}
-								className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white hover:bg-black/80"
-								aria-label="Close profile image preview"
-							>
-								X
-							</button>
-						</div>
-						<div className="p-5">
-							<h4 className="text-lg font-semibold text-(--primary)">{selectedMember.name}</h4>
-							<p className="text-sm text-(--secondary)">{selectedMember.title}</p>
-							{selectedMember.email && <p className="mt-1 text-xs text-(--secondary)">{selectedMember.email}</p>}
-							{selectedMember.bio ? (
-								<RichTextDisplay html={selectedMember.bio} className="mt-4" compact />
-							) : (
-								<p className="mt-4 text-sm text-(--secondary)">No additional profile details shared yet.</p>
-							)}
-						</div>
+					<div className="relative h-[45vh] min-h-[260px] bg-black">
+						{selectedMember.avatar ? (
+							<MediaPreview
+								src={selectedMember.avatar}
+								alt={selectedMember.name}
+								className="h-full w-full rounded-none border-0 bg-black"
+								mediaClassName="object-contain"
+								showControls={false}
+							/>
+						) : (
+							<div className="h-full w-full flex items-center justify-center text-5xl font-semibold text-white/70">{selectedMember.initial}</div>
+						)}
+						<button
+							type="button"
+							onClick={() => setSelectedMember(null)}
+							className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white hover:bg-black/80"
+							aria-label="Close profile image preview"
+						>
+							X
+						</button>
 					</div>
-				</div>
+					<div className="p-5">
+						<h4 className="text-lg font-semibold text-(--primary)">{selectedMember.name}</h4>
+						<p className="text-sm text-(--secondary)">{selectedMember.title}</p>
+						{selectedMember.email && <p className="mt-1 text-xs text-(--secondary)">{selectedMember.email}</p>}
+						{selectedMember.bio ? (
+							<RichTextDisplay html={selectedMember.bio} className="mt-4" compact />
+						) : (
+							<p className="mt-4 text-sm text-(--secondary)">No additional profile details shared yet.</p>
+						)}
+					</div>
+				</Modal>
 			)}
 		</div>
 	);

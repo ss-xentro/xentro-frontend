@@ -21,7 +21,7 @@ export function SectorPicker({ selectedSectors, onSelect, expandedCategory, onTo
 				const selectedCount = subSectors.filter(s => selectedSectors.includes(s.slug)).length;
 
 				return (
-					<div key={catSlug} className="rounded-lg border border-(--border) overflow-hidden flex-shrink-0 bg-white">
+					<div key={catSlug} className="rounded-lg border border-(--border) overflow-hidden flex-shrink-0 bg-(--surface)">
 						<button
 							type="button"
 							onClick={() => onToggleCategory(expandedCategory === catSlug ? null : catSlug)}
@@ -64,7 +64,7 @@ export function SectorPicker({ selectedSectors, onSelect, expandedCategory, onTo
 												isSelected ? 'border-slate-900 bg-slate-900' : 'border-(--secondary-light)',
 											)}>
 												{isSelected && (
-													<div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+													<div className="w-1.5 h-1.5 rounded-full bg-(--surface)"></div>
 												)}
 											</div>
 											<span className="flex-1 text-left line-clamp-2">{subLabel}</span>

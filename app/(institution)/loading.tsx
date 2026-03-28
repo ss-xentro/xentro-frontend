@@ -1,6 +1,6 @@
 export default function InstitutionLoading() {
 	return (
-		<div className="space-y-6 animate-pulse p-6">
+		<div className="space-y-6 animate-pulse p-4 md:p-6">
 			<div className="h-8 w-56 bg-(--surface) rounded-lg" />
 			<div className="h-4 w-40 bg-(--surface) rounded-lg" />
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">

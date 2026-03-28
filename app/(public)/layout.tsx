@@ -20,7 +20,7 @@ export default function PublicLayout({
         || pathname.startsWith('/mentors/');
 
     return (
-        <div className="min-h-screen bg-white flex flex-col">
+        <div className="min-h-screen bg-(--surface) flex flex-col">
             {!hasOwnNavbar && !isExistingUser && <PublicNavbar />}
             <main className="flex-1">
                 {children}

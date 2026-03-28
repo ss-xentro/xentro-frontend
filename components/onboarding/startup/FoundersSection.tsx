@@ -38,7 +38,7 @@ export function FoundersSection() {
 	return (
 		<div className="animate-fadeIn grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-6 xl:gap-8">
 			<div className="space-y-7">
-				<section className="space-y-4 rounded-2xl border border-(--border) bg-white p-4 md:p-5">
+				<section className="space-y-4 rounded-2xl border border-(--border) bg-(--surface) p-4 md:p-5">
 					<div className="flex items-center justify-between gap-3">
 						<div>
 							<p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Part A</p>
@@ -53,7 +53,7 @@ export function FoundersSection() {
 					{data.founders.map((founder, index) => (
 						<div
 							key={index}
-							className="rounded-2xl border border-(--border) bg-white p-4 md:p-5 shadow-[0_8px_24px_rgba(15,23,42,0.05)]"
+							className="rounded-2xl border border-(--border) bg-(--surface) p-4 md:p-5 shadow-[0_8px_24px_rgba(15,23,42,0.05)]"
 						>
 							<div className="flex items-center justify-between gap-3 mb-4">
 								<div>
@@ -65,7 +65,7 @@ export function FoundersSection() {
 									<button
 										type="button"
 										onClick={() => removeFounder(index)}
-										className="inline-flex items-center gap-1.5 rounded-md border border-(--border) bg-white px-2.5 py-1.5 text-xs font-medium text-(--secondary) transition-colors hover:border-error/30 hover:text-error"
+										className="inline-flex items-center gap-1.5 rounded-md border border-(--border) bg-(--surface) px-2.5 py-1.5 text-xs font-medium text-(--secondary) transition-colors hover:border-error/30 hover:text-error"
 										title="Remove founder card"
 									>
 										<AppIcon name="x" className="h-3.5 w-3.5" />
@@ -136,7 +136,7 @@ export function FoundersSection() {
 					</Button>
 				</section>
 
-				<section className="space-y-4 rounded-2xl border border-(--border) bg-white p-4 md:p-5">
+				<section className="space-y-4 rounded-2xl border border-(--border) bg-(--surface) p-4 md:p-5">
 					<div className="flex items-center justify-between gap-3">
 						<div>
 							<p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Part B</p>
@@ -151,7 +151,7 @@ export function FoundersSection() {
 					{teamCount === 0 && (
 						<div className="rounded-2xl border border-dashed border-(--secondary-light) bg-(--surface-secondary) px-4 py-5 text-sm text-(--secondary)">
 							<div className="flex items-start gap-3">
-								<div className="h-8 w-8 rounded-lg bg-white border border-(--border) flex items-center justify-center">
+								<div className="h-8 w-8 rounded-lg bg-(--surface) border border-(--border) flex items-center justify-center">
 									<AppIcon name="users" className="h-4 w-4 text-(--secondary)" />
 								</div>
 								<div>
@@ -165,7 +165,7 @@ export function FoundersSection() {
 					{data.teamMembers.map((member, index) => (
 						<div
 							key={`team-${index}`}
-							className="p-4 md:p-5 bg-white border border-(--border) rounded-2xl transition-all shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:border-(--secondary-light)"
+							className="p-4 md:p-5 bg-(--surface) border border-(--border) rounded-2xl transition-all shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:border-(--secondary-light)"
 						>
 							<div className="flex items-center justify-between gap-3 mb-4">
 								<div>
@@ -176,7 +176,7 @@ export function FoundersSection() {
 								<button
 									type="button"
 									onClick={() => removeTeamMember(index)}
-									className="inline-flex items-center gap-1.5 rounded-md border border-(--border) bg-white px-2.5 py-1.5 text-xs font-medium text-(--secondary) transition-colors hover:border-error/30 hover:text-error"
+									className="inline-flex items-center gap-1.5 rounded-md border border-(--border) bg-(--surface) px-2.5 py-1.5 text-xs font-medium text-(--secondary) transition-colors hover:border-error/30 hover:text-error"
 									title="Remove team member"
 								>
 									<AppIcon name="x" className="h-3.5 w-3.5" />
@@ -255,7 +255,7 @@ export function FoundersSection() {
 							<h3 className="text-base font-semibold text-(--primary)">Team setup status</h3>
 							<p className="text-sm text-(--secondary) mt-1">Check this panel before continuing to the next step.</p>
 						</div>
-						<div className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-white px-3 py-1.5">
+						<div className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--surface) px-3 py-1.5">
 							<AppIcon name="users" className="h-4 w-4 text-accent" />
 							<span className="text-xs font-medium text-(--primary)">{totalProfiles} profile{totalProfiles === 1 ? '' : 's'} added</span>
 						</div>
@@ -299,7 +299,7 @@ export function FoundersSection() {
 					</p>
 				</div>
 
-				<div className="rounded-xl border border-(--border) bg-white p-4">
+				<div className="rounded-xl border border-(--border) bg-(--surface) p-4">
 					<h4 className="text-sm font-semibold text-(--primary)">Quick Tip</h4>
 					<p className="text-sm text-(--secondary) mt-1.5">
 						Profiles with clear titles and short bios tend to get more inbound mentor and investor interest.

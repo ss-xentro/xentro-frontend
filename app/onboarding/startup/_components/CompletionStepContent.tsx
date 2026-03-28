@@ -37,7 +37,7 @@ export function CompletionStepContent({ currentStep, data, updateData, toggleWhy
 				</div>
 
 				<div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-6">
-					<div className="rounded-2xl border border-(--border) bg-white p-4 md:p-5 space-y-4">
+					<div className="rounded-2xl border border-(--border) bg-(--surface) p-4 md:p-5 space-y-4">
 						<p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Part A</p>
 						<Input
 							label="Startup Name"
@@ -55,7 +55,7 @@ export function CompletionStepContent({ currentStep, data, updateData, toggleWhy
 						/>
 					</div>
 
-					<div className="rounded-2xl border border-(--border) bg-white p-4 md:p-5 space-y-3">
+					<div className="rounded-2xl border border-(--border) bg-(--surface) p-4 md:p-5 space-y-3">
 						<p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Part B</p>
 						<div>
 							<label className="block text-sm font-medium text-(--primary) mb-2">Logo</label>
@@ -98,7 +98,7 @@ export function CompletionStepContent({ currentStep, data, updateData, toggleWhy
 				</div>
 
 				<div className="grid grid-cols-1 xl:grid-cols-[1.35fr_1fr] gap-6">
-					<div className="rounded-2xl border border-(--border) bg-white p-4 md:p-5">
+					<div className="rounded-2xl border border-(--border) bg-(--surface) p-4 md:p-5">
 						<p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary) mb-2">Part A</p>
 						<h3 className="text-lg font-semibold text-(--primary)">Sector</h3>
 						<p className="text-sm text-(--secondary) mt-1">Select one sub-sector that best describes your startup.</p>
@@ -110,7 +110,7 @@ export function CompletionStepContent({ currentStep, data, updateData, toggleWhy
 						/>
 					</div>
 
-					<div className="rounded-2xl border border-(--border) bg-white p-4 md:p-5">
+					<div className="rounded-2xl border border-(--border) bg-(--surface) p-4 md:p-5">
 						<p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary) mb-2">Part B</p>
 						<h3 className="text-lg font-semibold text-(--primary)">Current Stage</h3>
 						<p className="text-sm text-(--secondary) mt-1">Where is your startup right now?</p>

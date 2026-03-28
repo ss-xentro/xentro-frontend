@@ -522,57 +522,53 @@ export default function TeamPage() {
             )}
 
             {selectedMember && (
-                <div
-                    className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
-                    onClick={() => setSelectedMember(null)}
+                <Modal
+                    isOpen={!!selectedMember}
+                    onClose={() => setSelectedMember(null)}
+                    className="max-w-2xl overflow-hidden p-0"
                 >
-                    <div
-                        className="w-full max-w-2xl bg-(--surface) border border-(--border) rounded-2xl overflow-hidden"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="relative h-[65vh] min-h-[360px] bg-black">
-                            {selectedMember.avatar ? (
-                                <MediaPreview
-                                    src={selectedMember.avatar}
-                                    alt={selectedMember.name}
-                                    className="h-full w-full rounded-none border-0 bg-black"
-                                    mediaClassName="object-contain"
-                                    showControls={false}
-                                />
-                            ) : (
-                                <div className="h-full w-full flex items-center justify-center text-7xl font-semibold text-white/70">
-                                    {selectedMember.name.substring(0, 2).toUpperCase()}
-                                </div>
-                            )}
-                            <button
-                                type="button"
-                                onClick={() => setSelectedMember(null)}
-                                className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white hover:bg-black/80"
-                                aria-label="Close profile image preview"
-                            >
-                                ✕
-                            </button>
-                        </div>
-                        <div className="p-5">
-                            <h4 className="text-lg font-semibold text-(--primary)">{selectedMember.name}</h4>
-                            <p className="text-sm text-(--secondary)">{selectedMember.email}</p>
-                            {shouldShowTitle(selectedMember.title, selectedMember.role) && (
-                                <p className="text-sm text-(--primary) mt-1">{selectedMember.title}</p>
-                            )}
-                            <div className="mt-3">
-                                <Badge variant="outline" className="uppercase text-[10px] tracking-wider">
-                                    {formatRoleLabel(selectedMember.role)}
-                                </Badge>
+                    <div className="relative h-[65vh] min-h-[360px] bg-black">
+                        {selectedMember.avatar ? (
+                            <MediaPreview
+                                src={selectedMember.avatar}
+                                alt={selectedMember.name}
+                                className="h-full w-full rounded-none border-0 bg-black"
+                                mediaClassName="object-contain"
+                                showControls={false}
+                            />
+                        ) : (
+                            <div className="h-full w-full flex items-center justify-center text-7xl font-semibold text-white/70">
+                                {selectedMember.name.substring(0, 2).toUpperCase()}
                             </div>
-                            {selectedBioHtml && (
-                                <div
-                                    className="text-sm text-(--secondary) mt-3 leading-relaxed space-y-2 [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_a]:underline"
-                                    dangerouslySetInnerHTML={{ __html: selectedBioHtml }}
-                                />
-                            )}
-                        </div>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => setSelectedMember(null)}
+                            className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white hover:bg-black/80"
+                            aria-label="Close profile image preview"
+                        >
+                            ✕
+                        </button>
                     </div>
-                </div>
+                    <div className="p-5">
+                        <h4 className="text-lg font-semibold text-(--primary)">{selectedMember.name}</h4>
+                        <p className="text-sm text-(--secondary)">{selectedMember.email}</p>
+                        {shouldShowTitle(selectedMember.title, selectedMember.role) && (
+                            <p className="text-sm text-(--primary) mt-1">{selectedMember.title}</p>
+                        )}
+                        <div className="mt-3">
+                            <Badge variant="outline" className="uppercase text-[10px] tracking-wider">
+                                {formatRoleLabel(selectedMember.role)}
+                            </Badge>
+                        </div>
+                        {selectedBioHtml && (
+                            <div
+                                className="text-sm text-(--secondary) mt-3 leading-relaxed space-y-2 [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_a]:underline"
+                                dangerouslySetInnerHTML={{ __html: selectedBioHtml }}
+                            />
+                        )}
+                    </div>
+                </Modal>
             )}
         </div>
     );
