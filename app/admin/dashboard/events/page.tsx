@@ -373,92 +373,92 @@ export default function AdminEventsPage() {
 			)}
 
 			<Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingId ? 'Edit Event' : 'New Event'} className="max-w-xl max-h-[90vh] overflow-y-auto">
-						<div className="grid grid-cols-1 gap-4">
-							<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Event name" aria-label="Event name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[92px]" placeholder="Description" aria-label="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Type" aria-label="Event type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} />
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Location" aria-label="Event location" value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} />
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Domain" aria-label="Event domain" value={form.domain} onChange={(e) => setForm((f) => ({ ...f, domain: e.target.value }))} />
-								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" aria-label="Event mode" value={form.mode} onChange={(e) => setForm((f) => ({ ...f, mode: e.target.value }))}>
-									<option value="online">Online</option>
-									<option value="offline">Offline</option>
-									<option value="hybrid">Hybrid</option>
-								</select>
-								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" aria-label="Pricing type" value={form.pricingType} onChange={(e) => setForm((f) => ({ ...f, pricingType: e.target.value }))}>
-									<option value="free">Free</option>
-									<option value="paid">Paid</option>
-									<option value="freemium">Freemium</option>
-									<option value="sponsored">Sponsored</option>
-								</select>
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="City" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="State" value={form.state} onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} />
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Country" value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
-							</div>
-							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Audience types (one per line)" value={form.audienceTypes} onChange={(e) => setForm((f) => ({ ...f, audienceTypes: e.target.value }))} />
-							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Startup stages (one per line)" value={form.startupStages} onChange={(e) => setForm((f) => ({ ...f, startupStages: e.target.value }))} />
-							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[72px]" placeholder="Benefits / outcomes (one per line)" value={form.benefits} onChange={(e) => setForm((f) => ({ ...f, benefits: e.target.value }))} />
-							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.difficultyLevel} onChange={(e) => setForm((f) => ({ ...f, difficultyLevel: e.target.value }))}>
-									<option value="beginner">Beginner</option>
-									<option value="intermediate">Intermediate</option>
-									<option value="advanced">Advanced</option>
-								</select>
-								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.applicationRequirement} onChange={(e) => setForm((f) => ({ ...f, applicationRequirement: e.target.value }))}>
-									<option value="open_entry">Open Entry</option>
-									<option value="application_required">Application Required</option>
-									<option value="invite_only">Invite Only</option>
-								</select>
-								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.availabilityStatus} onChange={(e) => setForm((f) => ({ ...f, availabilityStatus: e.target.value }))}>
-									<option value="open">Open</option>
-									<option value="limited">Limited Seats</option>
-									<option value="waitlist">Waitlist</option>
-								</select>
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input type="datetime-local" className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.startTime} onChange={(e) => setForm((f) => ({ ...f, startTime: e.target.value }))} />
-								<input type="datetime-local" className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.endTime} onChange={(e) => setForm((f) => ({ ...f, endTime: e.target.value }))} />
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input type="number" min="0" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Price" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
-								<input type="number" min="1" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Available slots" value={form.maxAttendees} onChange={(e) => setForm((f) => ({ ...f, maxAttendees: e.target.value }))} />
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Status: draft/published/cancelled" value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as EventForm['status'] }))} />
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Cover image URL" value={form.coverImage} onChange={(e) => setForm((f) => ({ ...f, coverImage: e.target.value }))} />
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.organizerType} onChange={(e) => setForm((f) => ({ ...f, organizerType: e.target.value }))}>
-									<option value="institution">Institution</option>
-									<option value="incubator_accelerator">Incubator / Accelerator</option>
-									<option value="corporate">Corporate</option>
-									<option value="government">Government</option>
-									<option value="independent_mentor">Independent Mentor</option>
-									<option value="xentro">Xentro Hosted</option>
-								</select>
-								<input type="number" min="0" max="5" step="0.1" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Average rating (0-5)" value={form.averageRating} onChange={(e) => setForm((f) => ({ ...f, averageRating: e.target.value }))} />
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input type="number" min="0" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Cancellation cutoff hours" value={form.cancellationCutoffHours} onChange={(e) => setForm((f) => ({ ...f, cancellationCutoffHours: e.target.value }))} />
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder='Recurrence JSON e.g. {"frequency":"weekly"}' value={form.recurrenceRuleJson} onChange={(e) => setForm((f) => ({ ...f, recurrenceRuleJson: e.target.value }))} />
-							</div>
-							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Gallery JSON array" value={form.galleryJson} onChange={(e) => setForm((f) => ({ ...f, galleryJson: e.target.value }))} />
-							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Speaker lineup JSON array" value={form.speakerLineupJson} onChange={(e) => setForm((f) => ({ ...f, speakerLineupJson: e.target.value }))} />
-							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Agenda timeline JSON array" value={form.agendaTimelineJson} onChange={(e) => setForm((f) => ({ ...f, agendaTimelineJson: e.target.value }))} />
-							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Ticket types JSON array" value={form.ticketTypesJson} onChange={(e) => setForm((f) => ({ ...f, ticketTypesJson: e.target.value }))} />
-							<label className="text-sm text-(--primary-light) flex items-center gap-2">
-								<input type="checkbox" checked={form.isVirtual} onChange={(e) => setForm((f) => ({ ...f, isVirtual: e.target.checked }))} />
-								Online event
-							</label>
-						</div>
-						<div className="flex items-center justify-end gap-3 pt-2">
-							<Button variant="ghost" onClick={() => setShowModal(false)} disabled={saving}>Cancel</Button>
-							<Button onClick={saveEvent} disabled={saving}>{saving ? 'Saving…' : editingId ? 'Save Changes' : 'Create Event'}</Button>
-						</div>
+				<div className="grid grid-cols-1 gap-4">
+					<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Event name" aria-label="Event name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-23" placeholder="Description" aria-label="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Type" aria-label="Event type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} />
+						<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Location" aria-label="Event location" value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} />
+					</div>
+					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+						<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Domain" aria-label="Event domain" value={form.domain} onChange={(e) => setForm((f) => ({ ...f, domain: e.target.value }))} />
+						<select className="border border-(--border) rounded-md px-3 py-2 text-sm" aria-label="Event mode" value={form.mode} onChange={(e) => setForm((f) => ({ ...f, mode: e.target.value }))}>
+							<option value="online">Online</option>
+							<option value="offline">Offline</option>
+							<option value="hybrid">Hybrid</option>
+						</select>
+						<select className="border border-(--border) rounded-md px-3 py-2 text-sm" aria-label="Pricing type" value={form.pricingType} onChange={(e) => setForm((f) => ({ ...f, pricingType: e.target.value }))}>
+							<option value="free">Free</option>
+							<option value="paid">Paid</option>
+							<option value="freemium">Freemium</option>
+							<option value="sponsored">Sponsored</option>
+						</select>
+					</div>
+					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+						<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="City" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
+						<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="State" value={form.state} onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} />
+						<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Country" value={form.country} onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))} />
+					</div>
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-18" placeholder="Audience types (one per line)" value={form.audienceTypes} onChange={(e) => setForm((f) => ({ ...f, audienceTypes: e.target.value }))} />
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-18" placeholder="Startup stages (one per line)" value={form.startupStages} onChange={(e) => setForm((f) => ({ ...f, startupStages: e.target.value }))} />
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-18" placeholder="Benefits / outcomes (one per line)" value={form.benefits} onChange={(e) => setForm((f) => ({ ...f, benefits: e.target.value }))} />
+					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+						<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.difficultyLevel} onChange={(e) => setForm((f) => ({ ...f, difficultyLevel: e.target.value }))}>
+							<option value="beginner">Beginner</option>
+							<option value="intermediate">Intermediate</option>
+							<option value="advanced">Advanced</option>
+						</select>
+						<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.applicationRequirement} onChange={(e) => setForm((f) => ({ ...f, applicationRequirement: e.target.value }))}>
+							<option value="open_entry">Open Entry</option>
+							<option value="application_required">Application Required</option>
+							<option value="invite_only">Invite Only</option>
+						</select>
+						<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.availabilityStatus} onChange={(e) => setForm((f) => ({ ...f, availabilityStatus: e.target.value }))}>
+							<option value="open">Open</option>
+							<option value="limited">Limited Seats</option>
+							<option value="waitlist">Waitlist</option>
+						</select>
+					</div>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<input type="datetime-local" className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.startTime} onChange={(e) => setForm((f) => ({ ...f, startTime: e.target.value }))} />
+						<input type="datetime-local" className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.endTime} onChange={(e) => setForm((f) => ({ ...f, endTime: e.target.value }))} />
+					</div>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<input type="number" min="0" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Price" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
+						<input type="number" min="1" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Available slots" value={form.maxAttendees} onChange={(e) => setForm((f) => ({ ...f, maxAttendees: e.target.value }))} />
+					</div>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Status: draft/published/cancelled" value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as EventForm['status'] }))} />
+						<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Cover image URL" value={form.coverImage} onChange={(e) => setForm((f) => ({ ...f, coverImage: e.target.value }))} />
+					</div>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.organizerType} onChange={(e) => setForm((f) => ({ ...f, organizerType: e.target.value }))}>
+							<option value="institution">Institution</option>
+							<option value="incubator_accelerator">Incubator / Accelerator</option>
+							<option value="corporate">Corporate</option>
+							<option value="government">Government</option>
+							<option value="independent_mentor">Independent Mentor</option>
+							<option value="xentro">Xentro Hosted</option>
+						</select>
+						<input type="number" min="0" max="5" step="0.1" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Average rating (0-5)" value={form.averageRating} onChange={(e) => setForm((f) => ({ ...f, averageRating: e.target.value }))} />
+					</div>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<input type="number" min="0" className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Cancellation cutoff hours" value={form.cancellationCutoffHours} onChange={(e) => setForm((f) => ({ ...f, cancellationCutoffHours: e.target.value }))} />
+						<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder='Recurrence JSON e.g. {"frequency":"weekly"}' value={form.recurrenceRuleJson} onChange={(e) => setForm((f) => ({ ...f, recurrenceRuleJson: e.target.value }))} />
+					</div>
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Gallery JSON array" value={form.galleryJson} onChange={(e) => setForm((f) => ({ ...f, galleryJson: e.target.value }))} />
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Speaker lineup JSON array" value={form.speakerLineupJson} onChange={(e) => setForm((f) => ({ ...f, speakerLineupJson: e.target.value }))} />
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Agenda timeline JSON array" value={form.agendaTimelineJson} onChange={(e) => setForm((f) => ({ ...f, agendaTimelineJson: e.target.value }))} />
+					<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[80px]" placeholder="Ticket types JSON array" value={form.ticketTypesJson} onChange={(e) => setForm((f) => ({ ...f, ticketTypesJson: e.target.value }))} />
+					<label className="text-sm text-(--primary-light) flex items-center gap-2">
+						<input type="checkbox" checked={form.isVirtual} onChange={(e) => setForm((f) => ({ ...f, isVirtual: e.target.checked }))} />
+						Online event
+					</label>
+				</div>
+				<div className="flex items-center justify-end gap-3 pt-2">
+					<Button variant="ghost" onClick={() => setShowModal(false)} disabled={saving}>Cancel</Button>
+					<Button onClick={saveEvent} disabled={saving}>{saving ? 'Saving…' : editingId ? 'Save Changes' : 'Create Event'}</Button>
+				</div>
 			</Modal>
 		</div>
 	);
