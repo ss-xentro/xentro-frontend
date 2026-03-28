@@ -234,6 +234,9 @@ function StartupsContent() {
                                 </Card>
                             </Link>
                         ))}
+                    </div>
+                ) : (
+                    <div className="space-y-3 sm:space-y-4 animate-fadeIn">
                         {startups.map((startup) => (
                             <Link key={startup.id} href={`/startups/${startup.id}`} className="block">
                                 <Card
@@ -264,10 +267,10 @@ function StartupsContent() {
                                         {startup.fundingRound && <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>}
                                     </div>
                                 </Card>
-                            </Link> 
+                            </Link>
                         ))}
                     </div>
-                ) }
+                )}
             </div>
         </div>
     );
