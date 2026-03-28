@@ -177,7 +177,7 @@ function checkAuth(request: NextRequest): NextResponse | null {
   return null; // pass through
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const start = performance.now();
   const pathname = request.nextUrl.pathname;
 

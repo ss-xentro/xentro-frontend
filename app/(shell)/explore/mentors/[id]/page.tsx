@@ -37,7 +37,7 @@ export default function MentorDetailPage() {
 	const [selectedDate, setSelectedDate] = useState("");
 	const [requestMessage, setRequestMessage] = useState("");
 	const [bookingSubmitting, setBookingSubmitting] = useState(false);
-	const [bookingSuccess, setBookingSuccess] = useState<string | null>(null);
+
 
 	useEffect(() => {
 		async function load() {
@@ -186,7 +186,6 @@ export default function MentorDetailPage() {
 	const btnConfig = getConnectBtnConfig(connectionStatus);
 
 	const openSlotBookingModal = async () => {
-		setBookingSuccess(null);
 		await loadSlots();
 		setShowSlotsModal(true);
 	};
@@ -231,7 +230,7 @@ export default function MentorDetailPage() {
 				throw new Error(payload.error || "Failed to send booking request");
 			}
 			setShowRequestModal(false);
-			setBookingSuccess(
+			toast.success(
 				"Booking request sent. Mentor can review and accept it from their dashboard.",
 			);
 		} catch (err) {
@@ -301,11 +300,6 @@ export default function MentorDetailPage() {
 		<div className="min-h-screen bg-[#0B0D10] text-white">
 			<StartupProfileNavbar />
 			<div className="p-6 max-w-5xl mx-auto">
-				{bookingSuccess && (
-					<div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300">
-						{bookingSuccess}
-					</div>
-				)}
 				<Link
 					href="/explore/mentors"
 					className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-white mb-6 transition-colors"
@@ -426,8 +420,8 @@ export default function MentorDetailPage() {
 							type="button"
 							onClick={() => setActiveTab("overview")}
 							className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "overview"
-									? "bg-white text-[#0B0D10]"
-									: "text-gray-300 hover:text-white"
+								? "bg-white text-[#0B0D10]"
+								: "text-gray-300 hover:text-white"
 								}`}
 						>
 							Overview
@@ -436,8 +430,8 @@ export default function MentorDetailPage() {
 							type="button"
 							onClick={() => setActiveTab("mentoredStartups")}
 							className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "mentoredStartups"
-									? "bg-white text-[#0B0D10]"
-									: "text-gray-300 hover:text-white"
+								? "bg-white text-[#0B0D10]"
+								: "text-gray-300 hover:text-white"
 								}`}
 						>
 							Previously Mentored Startups
@@ -711,7 +705,7 @@ export default function MentorDetailPage() {
 									{Object.entries(slotsByDay).map(([day, daySlots]) => (
 										<div
 											key={day}
-											className="rounded-xl border border-white/8 p-3 bg-white/[0.02]"
+											className="rounded-xl border border-white/8 p-3 bg-white/2"
 										>
 											<p className="text-sm font-semibold text-white mb-2 capitalize">
 												{day}
@@ -800,8 +794,9 @@ export default function MentorDetailPage() {
 								</div>
 							</div>
 						</div>
-				)}
 					</div>
+				)}
+			</div>
 		</div>
-			);
+	);
 }
