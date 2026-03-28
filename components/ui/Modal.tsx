@@ -12,6 +12,8 @@ interface ModalProps {
 	className?: string;
 	closeOnBackdrop?: boolean;
 	closeOnEscape?: boolean;
+	/** 'light' uses design tokens; 'dark' uses dark-surface colors */
+	variant?: 'light' | 'dark';
 }
 
 /**
@@ -26,6 +28,7 @@ export function Modal({
 	className,
 	closeOnBackdrop = true,
 	closeOnEscape = true,
+	variant = 'light',
 }: ModalProps) {
 	const dialogRef = useRef<HTMLDivElement>(null);
 	const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -92,6 +95,7 @@ export function Modal({
 	if (!isOpen) return null;
 
 	const titleId = title ? 'modal-title' : undefined;
+	const isDark = variant === 'dark';
 
 	return createPortal(
 		<div
@@ -100,7 +104,7 @@ export function Modal({
 			aria-hidden="false"
 		>
 			{/* Backdrop */}
-			<div className="absolute inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
+			<div className={cn('absolute inset-0 backdrop-blur-sm', isDark ? 'bg-black/60' : 'bg-black/50')} aria-hidden="true" />
 
 			{/* Dialog */}
 			<div
@@ -111,16 +115,22 @@ export function Modal({
 				tabIndex={-1}
 				onKeyDown={handleKeyDown}
 				className={cn(
-					'relative w-full max-w-lg bg-background border border-(--border) rounded-2xl shadow-xl animate-fadeIn focus:outline-none',
+					'relative w-full max-w-lg rounded-2xl shadow-xl animate-fadeIn focus:outline-none',
+					isDark
+						? 'bg-[#12141a] border border-white/10 text-white'
+						: 'bg-background border border-(--border) text-(--primary)',
 					className
 				)}
 			>
 				{title && (
 					<div className="flex items-center justify-between px-6 pt-6 pb-0">
-						<h2 id={titleId} className="text-xl font-semibold text-(--primary)">{title}</h2>
+						<h2 id={titleId} className={cn('text-xl font-semibold', isDark ? 'text-white' : 'text-(--primary)')}>{title}</h2>
 						<button
 							onClick={onClose}
-							className="p-1 rounded-lg hover:bg-(--surface-hover) transition-colors text-(--secondary)"
+							className={cn(
+								'p-1 rounded-lg transition-colors',
+								isDark ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-(--surface-hover) text-(--secondary)'
+							)}
 							aria-label="Close dialog"
 						>
 							<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
