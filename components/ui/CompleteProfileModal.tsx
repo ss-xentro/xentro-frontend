@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Modal } from '@/components/ui/Modal';
 
 interface CompleteProfileModalProps {
     isOpen: boolean;
@@ -10,18 +10,6 @@ interface CompleteProfileModalProps {
 
 export default function CompleteProfileModal({ isOpen, onClose }: CompleteProfileModalProps) {
     const router = useRouter();
-    const [visible, setVisible] = useState(false);
-
-    useEffect(() => {
-        if (isOpen) {
-            // Small delay for animation
-            requestAnimationFrame(() => setVisible(true));
-        } else {
-            setVisible(false);
-        }
-    }, [isOpen]);
-
-    if (!isOpen) return null;
 
     const handleComplete = () => {
         onClose();
@@ -36,19 +24,11 @@ export default function CompleteProfileModal({ isOpen, onClose }: CompleteProfil
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
-            {/* Backdrop */}
-            <div
-                className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
-                onClick={handleLater}
-            />
-
-            {/* Modal */}
-            <div className={`relative w-full max-w-md mx-4 bg-(--surface) border border-(--border) rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+        <Modal isOpen={isOpen} onClose={handleLater} className="max-w-md">
                 {/* Gradient accent bar */}
-                <div className="h-1 bg-gradient-to-r from-accent to-purple-500" />
+                <div className="h-1 bg-gradient-to-r from-accent to-purple-500 -mx-6 -mt-4 mb-6 rounded-t-2xl" />
 
-                <div className="p-8">
+                <div>
                     {/* Icon */}
                     <div className="flex justify-center mb-5">
                         <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center">
@@ -104,7 +84,6 @@ export default function CompleteProfileModal({ isOpen, onClose }: CompleteProfil
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

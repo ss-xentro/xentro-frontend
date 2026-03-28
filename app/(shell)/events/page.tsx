@@ -2,7 +2,7 @@
 
 import { useMemo, useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Button, Card, Input } from '@/components/ui';
+import { Button, Card, Input, Modal } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 
 interface EventItem {
@@ -260,7 +260,7 @@ export default function PublicEventsPage() {
 				Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
 			</button>
 
-			<div className="mx-auto max-w-[1400px] px-3 py-5 sm:px-4 sm:py-7 lg:px-6 lg:py-10 space-y-5 sm:space-y-7">
+			<div className="mx-auto max-w-350 px-3 py-5 sm:px-4 sm:py-7 lg:px-6 lg:py-10 space-y-5 sm:space-y-7">
 				<header className="rounded-2xl sm:rounded-3xl border border-white/10 bg-[linear-gradient(135deg,#111827,#0f172a_45%,#3f1d2e)] p-4 sm:p-6 lg:p-9">
 					<div className="flex flex-wrap items-start justify-between gap-4">
 						<div>
@@ -365,128 +365,120 @@ export default function PublicEventsPage() {
 			</div>
 
 			{filtersModalOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5">
-					<button
-						type="button"
-						onClick={closeFiltersModal}
-						className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
-						aria-label="Close filters"
-					/>
-					<Card className="relative z-10 w-full max-w-4xl rounded-2xl border-white/10 bg-[#0b1220]/95 p-4 sm:p-5">
-						<div className="mb-3 flex items-center justify-between gap-3">
-							<div>
-								<h2 className="text-sm font-semibold text-white sm:text-base">Filter Stack</h2>
-								<p className="text-xs text-white/60">Closing this modal saves your filter choices automatically.</p>
-							</div>
-							<div className="flex items-center gap-2">
-								<Button
-									type="button"
-									variant="ghost"
-									onClick={() => setDraftFilters(EMPTY_FILTERS)}
-									className="border border-white/20 bg-white/5 text-white/85 transition duration-200 hover:bg-white/10 active:scale-[0.98]"
-								>
-									Clear
-								</Button>
-								<Button
-									type="button"
-									onClick={closeFiltersModal}
-									className="bg-[#ef4444] text-white transition duration-200 hover:bg-[#dc2626] active:scale-[0.98]"
-								>
-									Done
-								</Button>
-							</div>
+				<Modal isOpen={filtersModalOpen} onClose={closeFiltersModal} variant="dark" className="max-w-4xl">
+					<div className="mb-3 flex items-center justify-between gap-3 -mt-2">
+						<div>
+							<h2 className="text-sm font-semibold text-white sm:text-base">Filter Stack</h2>
+							<p className="text-xs text-white/60">Closing this modal saves your filter choices automatically.</p>
 						</div>
-
-						<div className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">1. Event Type</p>
-								{renderPillOptions('eventType', FILTER_OPTIONS.eventType)}
-							</section>
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">2. Audience Type</p>
-								{renderPillOptions('audienceType', FILTER_OPTIONS.audienceType)}
-							</section>
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">3. Startup Stage</p>
-								{renderPillOptions('startupStage', FILTER_OPTIONS.startupStage)}
-							</section>
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">4. Domain / Industry</p>
-								{renderPillOptions('domain', FILTER_OPTIONS.domain)}
-							</section>
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">5. Mode</p>
-								{renderPillOptions('mode', FILTER_OPTIONS.mode)}
-							</section>
-
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">6. Location</p>
-								<div className="grid grid-cols-1 gap-2">
-									<Input placeholder="City" aria-label="City" value={draftFilters.city} onChange={(e) => setDraftFilters((p) => ({ ...p, city: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
-									<Input placeholder="State" aria-label="State" value={draftFilters.state} onChange={(e) => setDraftFilters((p) => ({ ...p, state: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
-									<Input placeholder="Country" aria-label="Country" value={draftFilters.country} onChange={(e) => setDraftFilters((p) => ({ ...p, country: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
-								</div>
-							</section>
-
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">7. Cost</p>
-								{renderPillOptions('pricing', FILTER_OPTIONS.pricing)}
-							</section>
-
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">8. Date & Time</p>
-								<div className="flex flex-wrap gap-2">
-									{['today', 'this_week', 'this_month'].map((preset) => {
-										const active = draftFilters.datePreset === preset;
-										return (
-											<button
-												key={preset}
-												type="button"
-												onClick={() => setDraftFilters((p) => ({ ...p, datePreset: active ? '' : preset, startDate: '', endDate: '' }))}
-												className={`rounded-full border px-3 py-1.5 text-xs font-medium transition duration-200 active:scale-[0.97] ${active
-													? 'border-[#ef4444] bg-[#ef4444]/10 text-[#fecaca]'
-													: 'border-white/15 bg-white/5 text-white/80 hover:border-white/35 hover:bg-white/10'
-													}`}
-											>
-												{labelize(preset)}
-											</button>
-										);
-									})}
-								</div>
-								<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-									<Input type="date" value={draftFilters.startDate} onChange={(e) => setDraftFilters((p) => ({ ...p, startDate: e.target.value, datePreset: '' }))} className="bg-white/5 border-white/15 text-white" />
-									<Input type="date" value={draftFilters.endDate} onChange={(e) => setDraftFilters((p) => ({ ...p, endDate: e.target.value, datePreset: '' }))} className="bg-white/5 border-white/15 text-white" />
-								</div>
-							</section>
-
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">9. Organizer Type</p>
-								{renderPillOptions('organizerType', FILTER_OPTIONS.organizerType)}
-							</section>
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">10. Benefits / Outcomes</p>
-								{renderPillOptions('benefit', FILTER_OPTIONS.benefit)}
-							</section>
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">11. Difficulty</p>
-								{renderPillOptions('difficulty', FILTER_OPTIONS.difficulty)}
-							</section>
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">12. Application Requirement</p>
-								{renderPillOptions('applicationRequirement', FILTER_OPTIONS.applicationRequirement)}
-							</section>
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">13. Availability</p>
-								{renderPillOptions('availability', FILTER_OPTIONS.availability)}
-							</section>
-							<section className="space-y-2">
-								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">14. Popularity</p>
-								{renderPillOptions('popularity', FILTER_OPTIONS.popularity, true)}
-							</section>
+						<div className="flex items-center gap-2">
+							<Button
+								type="button"
+								variant="ghost"
+								onClick={() => setDraftFilters(EMPTY_FILTERS)}
+								className="border border-white/20 bg-white/5 text-white/85 transition duration-200 hover:bg-white/10 active:scale-[0.98]"
+							>
+								Clear
+							</Button>
+							<Button
+								type="button"
+								onClick={closeFiltersModal}
+								className="bg-[#ef4444] text-white transition duration-200 hover:bg-[#dc2626] active:scale-[0.98]"
+							>
+								Done
+							</Button>
 						</div>
-					</Card>
-				</div>
+					</div>
+
+					<div className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">1. Event Type</p>
+							{renderPillOptions('eventType', FILTER_OPTIONS.eventType)}
+						</section>
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">2. Audience Type</p>
+							{renderPillOptions('audienceType', FILTER_OPTIONS.audienceType)}
+						</section>
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">3. Startup Stage</p>
+							{renderPillOptions('startupStage', FILTER_OPTIONS.startupStage)}
+						</section>
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">4. Domain / Industry</p>
+							{renderPillOptions('domain', FILTER_OPTIONS.domain)}
+						</section>
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">5. Mode</p>
+							{renderPillOptions('mode', FILTER_OPTIONS.mode)}
+						</section>
+
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">6. Location</p>
+							<div className="grid grid-cols-1 gap-2">
+								<Input placeholder="City" aria-label="City" value={draftFilters.city} onChange={(e) => setDraftFilters((p) => ({ ...p, city: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
+								<Input placeholder="State" aria-label="State" value={draftFilters.state} onChange={(e) => setDraftFilters((p) => ({ ...p, state: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
+								<Input placeholder="Country" aria-label="Country" value={draftFilters.country} onChange={(e) => setDraftFilters((p) => ({ ...p, country: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
+							</div>
+						</section>
+
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">7. Cost</p>
+							{renderPillOptions('pricing', FILTER_OPTIONS.pricing)}
+						</section>
+
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">8. Date & Time</p>
+							<div className="flex flex-wrap gap-2">
+								{['today', 'this_week', 'this_month'].map((preset) => {
+									const active = draftFilters.datePreset === preset;
+									return (
+										<button
+											key={preset}
+											type="button"
+											onClick={() => setDraftFilters((p) => ({ ...p, datePreset: active ? '' : preset, startDate: '', endDate: '' }))}
+											className={`rounded-full border px-3 py-1.5 text-xs font-medium transition duration-200 active:scale-[0.97] ${active
+												? 'border-[#ef4444] bg-[#ef4444]/10 text-[#fecaca]'
+												: 'border-white/15 bg-white/5 text-white/80 hover:border-white/35 hover:bg-white/10'
+												}`}
+										>
+											{labelize(preset)}
+										</button>
+									);
+								})}
+							</div>
+							<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+								<Input type="date" value={draftFilters.startDate} onChange={(e) => setDraftFilters((p) => ({ ...p, startDate: e.target.value, datePreset: '' }))} className="bg-white/5 border-white/15 text-white" />
+								<Input type="date" value={draftFilters.endDate} onChange={(e) => setDraftFilters((p) => ({ ...p, endDate: e.target.value, datePreset: '' }))} className="bg-white/5 border-white/15 text-white" />
+							</div>
+						</section>
+
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">9. Organizer Type</p>
+							{renderPillOptions('organizerType', FILTER_OPTIONS.organizerType)}
+						</section>
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">10. Benefits / Outcomes</p>
+							{renderPillOptions('benefit', FILTER_OPTIONS.benefit)}
+						</section>
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">11. Difficulty</p>
+							{renderPillOptions('difficulty', FILTER_OPTIONS.difficulty)}
+						</section>
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">12. Application Requirement</p>
+							{renderPillOptions('applicationRequirement', FILTER_OPTIONS.applicationRequirement)}
+						</section>
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">13. Availability</p>
+							{renderPillOptions('availability', FILTER_OPTIONS.availability)}
+						</section>
+						<section className="space-y-2">
+							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">14. Popularity</p>
+							{renderPillOptions('popularity', FILTER_OPTIONS.popularity, true)}
+						</section>
+					</div>
+				</Modal>
 			)}
-		</div>
+		</div >
 	);
 }

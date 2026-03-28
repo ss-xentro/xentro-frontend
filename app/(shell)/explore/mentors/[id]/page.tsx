@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSessionToken } from "@/lib/auth-utils";
 import { toast } from "sonner";
+import { Modal } from "@/components/ui/Modal";
 import { AppIcon } from "@/components/ui/AppIcon";
 import RichTextDisplay from "@/components/ui/RichTextDisplay";
 import { StartupProfileNavbar } from "@/components/public/StartupProfileNavbar";
@@ -602,7 +603,7 @@ export default function MentorDetailPage() {
 										href={`/startups/${startup.id}`}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="rounded-xl border border-white/8 bg-white/[0.02] p-4 hover:bg-white/[0.05] hover:border-white/20 transition-colors"
+										className="rounded-xl border border-white/8 bg-white/2 p-4 hover:bg-white/5 hover:border-white/20 transition-colors"
 									>
 										<div className="flex items-center gap-3">
 											<div className="w-10 h-10 rounded-lg bg-white/6 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
@@ -664,137 +665,98 @@ export default function MentorDetailPage() {
 				)}
 
 				{showSlotsModal && (
-					<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-						<div
-							className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-							onClick={() => setShowSlotsModal(false)}
-						/>
-						<div className="relative w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#12141a] p-5">
-							<div className="flex items-center justify-between mb-4">
-								<h3 className="text-lg font-semibold text-white">
-									Select an Available Slot
-								</h3>
-								<button
-									onClick={() => setShowSlotsModal(false)}
-									className="text-gray-500 hover:text-white"
-								>
-									<svg
-										className="w-5 h-5"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
+					<Modal isOpen={showSlotsModal} onClose={() => setShowSlotsModal(false)} variant="dark" title="Select an Available Slot" className="max-w-2xl max-h-[80vh] overflow-y-auto">
+						{slotsLoading ? (
+							<p className="text-sm text-gray-400">Loading slots...</p>
+						) : slots.length === 0 ? (
+							<p className="text-sm text-gray-400">
+								This mentor has not published any slots yet.
+							</p>
+						) : (
+							<div className="space-y-3">
+								{Object.entries(slotsByDay).map(([day, daySlots]) => (
+									<div
+										key={day}
+										className="rounded-xl border border-white/8 p-3 bg-white/2"
 									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M6 18L18 6M6 6l12 12"
-										/>
-									</svg>
-								</button>
-							</div>
-
-							{slotsLoading ? (
-								<p className="text-sm text-gray-400">Loading slots...</p>
-							) : slots.length === 0 ? (
-								<p className="text-sm text-gray-400">
-									This mentor has not published any slots yet.
-								</p>
-							) : (
-								<div className="space-y-3">
-									{Object.entries(slotsByDay).map(([day, daySlots]) => (
-										<div
-											key={day}
-											className="rounded-xl border border-white/8 p-3 bg-white/2"
-										>
-											<p className="text-sm font-semibold text-white mb-2 capitalize">
-												{day}
-											</p>
-											<div className="flex flex-wrap gap-2">
-												{daySlots.map((slot) => (
-													<button
-														key={slot.id}
-														onClick={() => handlePickSlot(slot)}
-														className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-violet-500/40 hover:bg-violet-500/10"
-													>
-														{formatTime(slot.startTime)} –{" "}
-														{formatTime(slot.endTime)}
-													</button>
-												))}
-											</div>
+										<p className="text-sm font-semibold text-white mb-2 capitalize">
+											{day}
+										</p>
+										<div className="flex flex-wrap gap-2">
+											{daySlots.map((slot) => (
+												<button
+													key={slot.id}
+													onClick={() => handlePickSlot(slot)}
+													className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-violet-500/40 hover:bg-violet-500/10"
+												>
+													{formatTime(slot.startTime)} –{" "}
+													{formatTime(slot.endTime)}
+												</button>
+											))}
 										</div>
-									))}
-								</div>
-							)}
-						</div>
-					</div>
+									</div>
+								))}
+							</div>
+						)}
+					</Modal>
 				)}
 
 				{showRequestModal && selectedSlot && (
-					<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-						<div
-							className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-							onClick={() => !bookingSubmitting && setShowRequestModal(false)}
-						/>
-						<div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#12141a] p-5">
-							<h3 className="text-lg font-semibold text-white mb-1">
-								Request Booking
-							</h3>
-							<p className="text-xs text-gray-500 mb-4">
-								{selectedSlot.dayOfWeek} · {formatTime(selectedSlot.startTime)}{" "}
-								– {formatTime(selectedSlot.endTime)}
-							</p>
+					<Modal isOpen={showRequestModal} onClose={() => !bookingSubmitting && setShowRequestModal(false)} variant="dark" title="Request Booking" className="max-w-md">
+						<p className="text-xs text-gray-500 mb-4 -mt-2">
+							{selectedSlot.dayOfWeek} · {formatTime(selectedSlot.startTime)}{" "}
+							– {formatTime(selectedSlot.endTime)}
+						</p>
 
-							<div className="space-y-3">
-								<div>
-									<label className="block text-xs font-medium text-gray-400 mb-1">
-										Date
-									</label>
-									<input
-										type="date"
-										value={selectedDate}
-										onChange={(e) => setSelectedDate(e.target.value)}
-										min={new Date().toISOString().split("T")[0]}
-										className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-violet-500/50"
-									/>
-								</div>
-								<div>
-									<label className="block text-xs font-medium text-gray-400 mb-1">
-										Message to mentor
-									</label>
-									<textarea
-										rows={4}
-										value={requestMessage}
-										onChange={(e) => setRequestMessage(e.target.value)}
-										placeholder="Tell the mentor what you want to discuss..."
-										className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 resize-none"
-									/>
-								</div>
+						<div className="space-y-3">
+							<div>
+								<label className="block text-xs font-medium text-gray-400 mb-1">
+									Date
+								</label>
+								<input
+									type="date"
+									value={selectedDate}
+									onChange={(e) => setSelectedDate(e.target.value)}
+									min={new Date().toISOString().split("T")[0]}
+									className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-violet-500/50"
+								/>
+							</div>
+							<div>
+								<label className="block text-xs font-medium text-gray-400 mb-1">
+									Message to mentor
+								</label>
+								<textarea
+									rows={4}
+									value={requestMessage}
+									onChange={(e) => setRequestMessage(e.target.value)}
+									placeholder="Tell the mentor what you want to discuss..."
+									className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 resize-none"
+								/>
+							</div>
 
 
-								<div className="mt-4 flex items-center gap-2">
-									<button
-										onClick={() =>
-											!bookingSubmitting && setShowRequestModal(false)
-										}
-										className="flex-1 px-4 py-2.5 rounded-lg border border-white/10 text-sm text-gray-300 hover:text-white"
-										disabled={bookingSubmitting}
-									>
-										Cancel
-									</button>
-									<button
-										onClick={handleSubmitBookingRequest}
-										className="flex-1 px-4 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-sm font-medium text-white disabled:bg-violet-600/50"
-										disabled={
-											bookingSubmitting || !selectedDate || !requestMessage.trim()
-										}
-									>
-										{bookingSubmitting ? "Sending..." : "Send Request"}
-									</button>
-								</div>
+							<div className="mt-4 flex items-center gap-2">
+								<button
+									onClick={() =>
+										!bookingSubmitting && setShowRequestModal(false)
+									}
+									className="flex-1 px-4 py-2.5 rounded-lg border border-white/10 text-sm text-gray-300 hover:text-white"
+									disabled={bookingSubmitting}
+								>
+									Cancel
+								</button>
+								<button
+									onClick={handleSubmitBookingRequest}
+									className="flex-1 px-4 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-sm font-medium text-white disabled:bg-violet-600/50"
+									disabled={
+										bookingSubmitting || !selectedDate || !requestMessage.trim()
+									}
+								>
+									{bookingSubmitting ? "Sending..." : "Send Request"}
+								</button>
 							</div>
 						</div>
-					</div>
+					</Modal>
 				)}
 			</div>
 		</div>

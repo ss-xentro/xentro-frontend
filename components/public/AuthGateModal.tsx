@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { Modal } from '@/components/ui/Modal';
 
 interface AuthGateModalProps {
     isOpen: boolean;
@@ -9,30 +10,10 @@ interface AuthGateModalProps {
 }
 
 export default function AuthGateModal({ isOpen, onClose }: AuthGateModalProps) {
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                onClick={onClose}
-            />
-
-            {/* Modal */}
-            <div className="relative w-full max-w-md mx-4 bg-[#15181C] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-fadeIn">
-                {/* Close button */}
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors z-10"
-                >
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-
+        <Modal isOpen={isOpen} onClose={onClose} variant="dark" className="max-w-md">
                 {/* Content */}
-                <div className="px-8 py-10 text-center">
+                <div className="text-center -mt-1">
                     {/* Logo */}
                     <div className="flex justify-center mb-6">
                         <Image
@@ -76,7 +57,6 @@ export default function AuthGateModal({ isOpen, onClose }: AuthGateModalProps) {
                         <a href="/privacy" className="text-gray-400 hover:underline">Privacy Policy</a>.
                     </p>
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }
