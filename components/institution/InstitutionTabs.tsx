@@ -29,7 +29,7 @@ export function InstitutionTabs({ programs, events, startups, team = [], project
                         <button
                             key={key}
                             onClick={() => setActiveTab(key)}
-                            className={`px-6 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition-colors ${activeTab === key
+                            className={`px-3 md:px-6 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition-colors ${activeTab === key
                                     ? 'border-violet-500 text-white'
                                     : 'border-transparent text-gray-400 hover:text-white'
                                 }`}

@@ -25,6 +25,8 @@
   --warning-light: #FEF3C7;
   --error: #EF4444;
   --error-light: #FEE2E2;
+  --danger: #EF4444;
+  --danger-light: #FEE2E2;
 
   /* Backgrounds */
   --background: #FFFFFF;
