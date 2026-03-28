@@ -145,6 +145,7 @@ export default function SearchPage() {
 						value={query}
 						onChange={(e) => handleInputChange(e.target.value)}
 						placeholder="Search startups, institutions, mentors, investors, events..."
+						aria-label="Search startups, institutions, mentors, investors, events"
 						className="w-full pl-10 pr-4 py-3 rounded-xl border border-(--border) bg-(--surface) text-(--primary) placeholder:text-(--secondary) focus:outline-none focus:ring-2 focus:ring-accent text-sm"
 						autoFocus
 					/>

@@ -42,14 +42,14 @@ export default function ExploreSidebar() {
 
 	const navItems: NavItem[] = isAuthenticated
 		? [
-				...BASE_NAV_ITEMS,
-				{
-					icon: "dashboard",
-					label: "Dashboard",
-					href: getDashboardUrl(user?.role),
-					path: DASHBOARD_NAV_PATH,
-				},
-			]
+			...BASE_NAV_ITEMS,
+			{
+				icon: "dashboard",
+				label: "Dashboard",
+				href: getDashboardUrl(user?.role),
+				path: DASHBOARD_NAV_PATH,
+			},
+		]
 		: BASE_NAV_ITEMS;
 
 	const username = user?.email ? user.email.split("@")[0] : "guest";
@@ -147,6 +147,7 @@ export default function ExploreSidebar() {
 							<input
 								type="text"
 								placeholder="Search..."
+								aria-label="Search explore"
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
 								className="w-full px-4 py-2.5 pl-10 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.07] transition-all duration-200"

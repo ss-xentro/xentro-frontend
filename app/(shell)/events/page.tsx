@@ -422,9 +422,9 @@ export default function PublicEventsPage() {
 							<section className="space-y-2">
 								<p className="text-xs font-semibold uppercase tracking-wide text-white/70">6. Location</p>
 								<div className="grid grid-cols-1 gap-2">
-									<Input placeholder="City" value={draftFilters.city} onChange={(e) => setDraftFilters((p) => ({ ...p, city: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
-									<Input placeholder="State" value={draftFilters.state} onChange={(e) => setDraftFilters((p) => ({ ...p, state: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
-									<Input placeholder="Country" value={draftFilters.country} onChange={(e) => setDraftFilters((p) => ({ ...p, country: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
+									<Input placeholder="City" aria-label="City" value={draftFilters.city} onChange={(e) => setDraftFilters((p) => ({ ...p, city: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
+									<Input placeholder="State" aria-label="State" value={draftFilters.state} onChange={(e) => setDraftFilters((p) => ({ ...p, state: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
+									<Input placeholder="Country" aria-label="Country" value={draftFilters.country} onChange={(e) => setDraftFilters((p) => ({ ...p, country: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
 								</div>
 							</section>
 

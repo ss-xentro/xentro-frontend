@@ -379,20 +379,20 @@ export default function AdminEventsPage() {
 					<Card className="w-full max-w-xl p-6 space-y-4">
 						<h2 className="text-xl font-semibold text-(--primary)">{editingId ? 'Edit Event' : 'New Event'}</h2>
 						<div className="grid grid-cols-1 gap-4">
-							<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Event name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[92px]" placeholder="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+							<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Event name" aria-label="Event name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+							<textarea className="border border-(--border) rounded-md px-3 py-2 text-sm min-h-[92px]" placeholder="Description" aria-label="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} />
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Location" value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} />
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Type" aria-label="Event type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} />
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Location" aria-label="Event location" value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} />
 							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Domain" value={form.domain} onChange={(e) => setForm((f) => ({ ...f, domain: e.target.value }))} />
-								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.mode} onChange={(e) => setForm((f) => ({ ...f, mode: e.target.value }))}>
+								<input className="border border-(--border) rounded-md px-3 py-2 text-sm" placeholder="Domain" aria-label="Event domain" value={form.domain} onChange={(e) => setForm((f) => ({ ...f, domain: e.target.value }))} />
+								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" aria-label="Event mode" value={form.mode} onChange={(e) => setForm((f) => ({ ...f, mode: e.target.value }))}>
 									<option value="online">Online</option>
 									<option value="offline">Offline</option>
 									<option value="hybrid">Hybrid</option>
 								</select>
-								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" value={form.pricingType} onChange={(e) => setForm((f) => ({ ...f, pricingType: e.target.value }))}>
+								<select className="border border-(--border) rounded-md px-3 py-2 text-sm" aria-label="Pricing type" value={form.pricingType} onChange={(e) => setForm((f) => ({ ...f, pricingType: e.target.value }))}>
 									<option value="free">Free</option>
 									<option value="paid">Paid</option>
 									<option value="freemium">Freemium</option>

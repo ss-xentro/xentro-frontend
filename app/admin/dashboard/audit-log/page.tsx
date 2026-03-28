@@ -88,6 +88,7 @@ export default function AdminAuditLogPage() {
 						<input
 							type="text"
 							placeholder="Search by action, user name, or email..."
+							aria-label="Search by action, user name, or email"
 							value={search}
 							onChange={(e) => { setSearch(e.target.value); setPage(1); }}
 							className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"

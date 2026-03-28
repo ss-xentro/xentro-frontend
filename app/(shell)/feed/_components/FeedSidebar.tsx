@@ -127,6 +127,7 @@ export default function FeedSidebar() {
 							<input
 								type="text"
 								placeholder="Search..."
+								aria-label="Search feed"
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
 								className="w-full px-4 py-2.5 pl-10 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.07] transition-all duration-200"
