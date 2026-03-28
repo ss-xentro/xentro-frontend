@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button, Card } from '@/components/ui';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from 'sonner';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
@@ -128,13 +129,12 @@ export default function EventBookingsPage() {
 					))}
 				</div>
 			) : bookings.length === 0 ? (
-				<Card className="p-8 text-center bg-(--surface)">
-					<h2 className="text-lg font-semibold text-(--primary)">No bookings yet</h2>
-					<p className="text-sm text-(--secondary) mt-1">Book events from the Events page to see them here.</p>
-					<div className="mt-4">
-						<Link href="/events"><Button>Go to Events</Button></Link>
-					</div>
-				</Card>
+				<EmptyState
+					title="No bookings yet"
+					description="Book events from the Events page to see them here."
+					ctaLabel="Go to Events"
+					ctaHref="/events"
+				/>
 			) : (
 				<>
 					{upcoming.length > 0 && (

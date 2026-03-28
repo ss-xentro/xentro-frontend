@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card, Input, Button, Badge } from '@/components/ui';
+import { Card, Input, Button, Badge, EmptyState } from '@/components/ui';
 import { AppIcon } from '@/components/ui/AppIcon';
 
 interface SearchResult {
@@ -193,11 +193,11 @@ export default function SearchPage() {
 			)}
 
 			{!loading && query.length >= 2 && total === 0 && (
-				<Card className="p-8 text-center">
-					<AppIcon name="search" className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-					<p className="text-(--primary) font-medium">No results found for &ldquo;{query}&rdquo;</p>
-					<p className="text-(--secondary) text-sm mt-1">Try a different search term or check for typos.</p>
-				</Card>
+				<EmptyState
+					icon={<AppIcon name="search" className="w-8 h-8 text-(--secondary)" />}
+					title={`No results found for \u201c${query}\u201d`}
+					description="Try a different search term or check for typos."
+				/>
 			)}
 
 			{!loading && filteredResults.length > 0 && (

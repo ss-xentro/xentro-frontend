@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Button, Card } from '@/components/ui';
+import { Button, Card, EmptyState } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 import { toast } from 'sonner';
 
@@ -324,9 +324,7 @@ export default function AdminEventsPage() {
 					))}
 				</div>
 			) : events.length === 0 ? (
-				<Card className="p-8 text-center">
-					<p className="text-(--secondary)">No events yet.</p>
-				</Card>
+				<EmptyState title="No events yet" description="Create your first event to get started." />
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					{events.map((event) => (

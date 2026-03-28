@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { getSessionToken } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
 
@@ -66,11 +67,11 @@ export default function MenteesPage() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
                 </div>
             ) : mentees.length === 0 ? (
-                <Card className="p-8 text-center bg-(--surface)">
-                    <AppIcon name="users" className="w-10 h-10 text-(--secondary) mx-auto mb-3" />
-                    <h3 className="text-lg font-semibold text-(--primary)">No mentees yet</h3>
-                    <p className="text-sm text-(--secondary) mt-1">When someone books a session with you, they&apos;ll appear here.</p>
-                </Card>
+                <EmptyState
+                    icon={<AppIcon name="users" className="w-8 h-8 text-(--secondary)" />}
+                    title="No mentees yet"
+                    description="When someone books a session with you, they'll appear here."
+                />
             ) : (
                 <div className="grid gap-3">
                     {mentees.map((m, i) => (

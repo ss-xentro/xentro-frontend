@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { getSessionToken } from '@/lib/auth-utils';
 import { useNotifications, WsNotification } from '@/lib/useNotifications';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface Notification {
   id: string;
@@ -231,17 +232,11 @@ export default function NotificationsPage() {
             </button>
           </div>
         ) : notifications.length === 0 ? (
-          <div className="bg-(--surface) border border-(--border) rounded-2xl p-10 text-center">
-            <AppIcon name="bell" className="w-12 h-12 text-(--secondary) mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-(--primary) mb-2">
-              {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
-            </h3>
-            <p className="text-(--secondary) text-sm">
-              {filter === 'unread'
-                ? "You're all caught up!"
-                : 'When something happens, you\'ll see it here.'}
-            </p>
-          </div>
+          <EmptyState
+            icon={<AppIcon name="bell" className="w-8 h-8 text-(--secondary)" />}
+            title={filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
+            description={filter === 'unread' ? "You're all caught up!" : 'When something happens, you\'ll see it here.'}
+          />
         ) : (
           <div className="space-y-2">
             {notifications.map((notification) => (

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { getSessionToken } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
 
@@ -125,17 +126,13 @@ export default function MentorRequestsPage() {
 					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
 				</div>
 			) : filtered.length === 0 ? (
-				<Card className="p-8 text-center bg-(--surface)">
-					<AppIcon name="handshake" className="w-10 h-10 text-(--secondary) mx-auto mb-3" />
-					<h3 className="text-lg font-semibold text-(--primary)">
-						{filter === 'all' ? 'No connection requests yet' : `No ${filter} requests`}
-					</h3>
-					<p className="text-sm text-(--secondary) mt-1">
-						{filter === 'all'
-							? 'When startups want to connect, their requests will appear here.'
-							: `You don't have any ${filter} connection requests.`}
-					</p>
-				</Card>
+				<EmptyState
+					icon={<AppIcon name="handshake" className="w-8 h-8 text-(--secondary)" />}
+					title={filter === 'all' ? 'No connection requests yet' : `No ${filter} requests`}
+					description={filter === 'all'
+						? 'When startups want to connect, their requests will appear here.'
+						: `You don't have any ${filter} connection requests.`}
+				/>
 			) : (
 				<div className="space-y-3">
 					{filtered.map((req) => (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, EmptyState } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 
 interface Institution {
@@ -217,17 +217,15 @@ export default function EndorsementsPage() {
 					<div className="h-20 bg-(--surface) rounded-lg"></div>
 				</div>
 			) : endorsements.length === 0 ? (
-				<Card className="p-12 text-center">
-					<div className="w-16 h-16 rounded-full bg-(--surface-hover) mx-auto mb-4 flex items-center justify-center">
+				<EmptyState
+					icon={
 						<svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 						</svg>
-					</div>
-					<h3 className="text-lg font-semibold text-(--primary) mb-2">No endorsements yet</h3>
-					<p className="text-(--secondary) mb-6">
-						Request endorsement from institutions to boost your profile credibility.
-					</p>
-				</Card>
+					}
+					title="No endorsements yet"
+					description="Request endorsement from institutions to boost your profile credibility."
+				/>
 			) : (
 				<div className="space-y-3">
 					{endorsements.map((endorsement) => (
