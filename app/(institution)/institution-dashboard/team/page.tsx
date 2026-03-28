@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, Badge } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
@@ -129,47 +130,49 @@ export default function TeamPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {team.map((member) => (
-              <Card key={member.id} className="p-6 cursor-pointer bg-white/5 border-white/10 hover:border-white/20 transition-colors" onClick={() => router.push(`/institution-dashboard/team/${member.id}`)}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center text-xl font-bold text-violet-300">
-                      {member.userName?.[0]?.toUpperCase() || '?'}
+              <Link key={member.id} href={`/institution-dashboard/team/${member.id}`} className="block">
+                <Card className="p-6 bg-white/5 border-white/10 hover:border-white/20 transition-colors">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center text-xl font-bold text-violet-300">
+                        {member.userName?.[0]?.toUpperCase() || '?'}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white">{member.userName || 'Unknown'}</h3>
+                        <p className="text-sm text-gray-400">{member.userEmail || ''}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-white">{member.userName || 'Unknown'}</h3>
-                      <p className="text-sm text-gray-400">{member.userEmail || ''}</p>
-                    </div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[member.role]}`}>
+                      {member.role}
+                    </span>
                   </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[member.role]}`}>
-                    {member.role}
-                  </span>
-                </div>
 
-                <div className="text-xs text-gray-400 mb-4">
-                  Joined {new Date(member.createdAt).toLocaleDateString()}
-                </div>
+                  <div className="text-xs text-gray-400 mb-4">
+                    Joined {new Date(member.createdAt).toLocaleDateString()}
+                  </div>
 
-                <div className="flex gap-2 border-t border-white/10 pt-4 mt-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex-1"
-                    onClick={(e: React.MouseEvent) => { e.stopPropagation(); router.push(`/institution-dashboard/team/${member.id}`); }}
-                  >
-                    View Details
-                  </Button>
-                  {member.role !== 'admin' && (
+                  <div className="flex gap-2 border-t border-white/10 pt-4 mt-2">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                      onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleRemove(member.id); }}
+                      className="flex-1"
+                      onClick={() => router.push(`/institution-dashboard/team/${member.id}`)}
                     >
-                      Remove
+                      View Details
                     </Button>
-                  )}
-                </div>
-              </Card>
+                    {member.role !== 'admin' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        onClick={(e: React.MouseEvent) => { e.preventDefault(); handleRemove(member.id); }}
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+              </Link>
             ))}
           </div>
         )}

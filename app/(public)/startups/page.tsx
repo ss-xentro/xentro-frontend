@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -190,83 +191,80 @@ function StartupsContent() {
                 ) : view === 'grid' ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-fadeIn">
                         {startups.map((startup) => (
-                            <Card
-                                key={startup.id}
-                                className="p-4 sm:p-5 md:p-6 hover:shadow-lg transition-all group flex flex-col h-full cursor-pointer hover:border-accent/50"
-                                onClick={() => router.push(`/startups/${startup.id}`)}
-                            >
-                                <div className="flex items-start justify-between mb-3 sm:mb-4">
-                                    <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center overflow-hidden">
-                                        {startup.logo ? (
-                                            <img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <span className="text-xl font-bold text-(--secondary)">
-                                                {startup.name.substring(0, 2).toUpperCase()}
+                            <Link key={startup.id} href={`/startups/${startup.id}`} className="block">
+                                <Card
+                                    className="p-4 sm:p-5 md:p-6 hover:shadow-lg transition-all group flex flex-col h-full cursor-pointer hover:border-accent/50"
+                                >
+                                    <div className="flex items-start justify-between mb-3 sm:mb-4">
+                                        <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center overflow-hidden">
+                                            {startup.logo ? (
+                                                <img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span className="text-xl font-bold text-(--secondary)">
+                                                    {startup.name.substring(0, 2).toUpperCase()}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
+                                    </div>
+
+                                    <div className="mb-3 sm:mb-4 flex-1">
+                                        <h3 className="text-base sm:text-lg md:text-xl font-bold text-(--primary) group-hover:text-accent transition-colors">
+                                            {startup.name}
+                                        </h3>
+                                        <p className="text-(--secondary) mt-1 line-clamp-2 text-xs sm:text-sm leading-relaxed">
+                                            {startup.tagline || "Building something amazing."}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-4 border-t border-(--border) mt-auto">
+                                        <div className="flex items-center gap-2">
+                                            {startup.fundingRound && (
+                                                <Badge variant="outline" size="sm" className="bg-(--surface)">
+                                                    {startup.fundingRound.replace(/_/g, ' ')}
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        {Number(startup.fundsRaised) > 0 && (
+                                            <span className="text-sm font-medium text-success">
+                                                ${Number(startup.fundsRaised).toLocaleString()}
                                             </span>
                                         )}
                                     </div>
-                                    {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
-                                </div>
-
-                                <div className="mb-3 sm:mb-4 flex-1">
-                                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-(--primary) group-hover:text-accent transition-colors">
-                                        {startup.name}
-                                    </h3>
-                                    <p className="text-(--secondary) mt-1 line-clamp-2 text-xs sm:text-sm leading-relaxed">
-                                        {startup.tagline || "Building something amazing."}
-                                    </p>
-                                </div>
-
-                                <div className="flex items-center justify-between pt-4 border-t border-(--border) mt-auto">
-                                    <div className="flex items-center gap-2">
-                                        {startup.fundingRound && (
-                                            <Badge variant="outline" size="sm" className="bg-(--surface)">
-                                                {startup.fundingRound.replace(/_/g, ' ')}
-                                            </Badge>
-                                        )}
-                                    </div>
-                                    {Number(startup.fundsRaised) > 0 && (
-                                        <span className="text-sm font-medium text-success">
-                                            ${Number(startup.fundsRaised).toLocaleString()}
-                                        </span>
-                                    )}
-                                </div>
-                            </Card>
+                                </Card>
+                            </Link>
                         ))}
-                    </div>
-                ) : (
-                    <div className="space-y-3 sm:space-y-4 animate-fadeIn">
                         {startups.map((startup) => (
-                            <Card
-                                key={startup.id}
-                                className="p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer hover:border-accent/50"
-                                onClick={() => router.push(`/startups/${startup.id}`)}
-                            >
-                                <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
-                                    <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg bg-(--surface-hover) border border-(--border) shrink-0 flex items-center justify-center overflow-hidden">
-                                        {startup.logo ? (
-                                            <img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <span className="text-base sm:text-lg md:text-xl font-bold text-(--secondary)">
-                                                {startup.name.substring(0, 2).toUpperCase()}
-                                            </span>
-                                        )}
+                            <Link key={startup.id} href={`/startups/${startup.id}`} className="block">
+                                <Card
+                                    className="p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer hover:border-accent/50"
+                                >
+                                    <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
+                                        <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg bg-(--surface-hover) border border-(--border) shrink-0 flex items-center justify-center overflow-hidden">
+                                            {startup.logo ? (
+                                                <img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span className="text-base sm:text-lg md:text-xl font-bold text-(--secondary)">
+                                                    {startup.name.substring(0, 2).toUpperCase()}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-base sm:text-lg font-bold text-(--primary)">{startup.name}</h3>
+                                            <p className="text-(--secondary) truncate text-xs sm:text-sm">{startup.tagline || 'Building something amazing'}</p>
+                                        </div>
+                                        <div className="hidden sm:flex items-center gap-2 md:gap-4 shrink-0">
+                                            {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
+                                            {startup.fundingRound && <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>}
+                                        </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-base sm:text-lg font-bold text-(--primary)">{startup.name}</h3>
-                                        <p className="text-(--secondary) truncate text-xs sm:text-sm">{startup.tagline || 'Building something amazing'}</p>
-                                    </div>
-                                    <div className="hidden sm:flex items-center gap-2 md:gap-4 shrink-0">
+                                    {/* Mobile badges row */}
+                                    <div className="flex sm:hidden items-center gap-2 mt-2 pl-15">
                                         {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
                                         {startup.fundingRound && <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>}
                                     </div>
-                                </div>
-                                {/* Mobile badges row */}
-                                <div className="flex sm:hidden items-center gap-2 mt-2 pl-15">
-                                    {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
-                                    {startup.fundingRound && <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>}
-                                </div>
-                            </Card>
+                                </Card>
+                            </Link>
                         ))}
                     </div>
                 )}

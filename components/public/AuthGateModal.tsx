@@ -71,9 +71,9 @@ export default function AuthGateModal({ isOpen, onClose }: AuthGateModalProps) {
                     {/* Terms */}
                     <p className="text-[11px] text-gray-600 mt-6 leading-relaxed">
                         By signing up, you agree to our{' '}
-                        <span className="text-gray-400 hover:underline cursor-pointer">Terms of Service</span>{' '}
+                        <a href="/terms" className="text-gray-400 hover:underline">Terms of Service</a>{' '}
                         and{' '}
-                        <span className="text-gray-400 hover:underline cursor-pointer">Privacy Policy</span>.
+                        <a href="/privacy" className="text-gray-400 hover:underline">Privacy Policy</a>.
                     </p>
                 </div>
             </div>
