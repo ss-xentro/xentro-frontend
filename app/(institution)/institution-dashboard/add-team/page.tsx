@@ -6,6 +6,7 @@ import { Card, Button, Input, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
+import { toast } from 'sonner';
 
 // Roles that can be assigned to team members (owner is reserved)
 const roleOptions = [
@@ -18,7 +19,6 @@ const roleOptions = [
 export default function AddTeamMemberPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -30,7 +30,6 @@ export default function AddTeamMemberPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
       const token = getSessionToken('institution');
@@ -53,7 +52,7 @@ export default function AddTeamMemberPage() {
 
       router.push('/institution-dashboard/team');
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -145,12 +144,6 @@ export default function AddTeamMemberPage() {
                 />
               </div>
             </div>
-
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-300" role="alert">
-                {error}
-              </div>
-            )}
 
             <div className="flex items-center gap-4 pt-4">
               <button

@@ -7,11 +7,11 @@ import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
 import { useEmailCheck } from '@/lib/useEmailCheck';
+import { toast } from 'sonner';
 
 export default function AddMentorPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -28,7 +28,6 @@ export default function AddMentorPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
       const token = getSessionToken('institution');
@@ -56,7 +55,7 @@ export default function AddMentorPage() {
 
       router.push('/institution-dashboard/mentors');
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -133,12 +132,6 @@ export default function AddMentorPage() {
                 required
               />
             </div>
-
-            {error && (
-              <div className="p-4 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg">
-                {error}
-              </div>
-            )}
 
             <div className="flex items-center gap-4 pt-4">
               <Button type="button" variant="secondary" onClick={() => router.back()}>

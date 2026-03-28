@@ -6,6 +6,7 @@ import { Card } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
+import { toast } from 'sonner';
 import { StartupDetailsStep } from './_components/StartupDetailsStep';
 import { FoundersStep } from './_components/FoundersStep';
 
@@ -26,7 +27,6 @@ export default function AddStartupPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Location autocomplete
   const [locationSearch, setLocationSearch] = useState('');
@@ -80,7 +80,6 @@ export default function AddStartupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
       const token = getSessionToken('institution');
@@ -142,7 +141,7 @@ export default function AddStartupPage() {
 
       router.push('/institution-dashboard/startups');
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -170,12 +169,6 @@ export default function AddStartupPage() {
 
             {currentStep === 2 && (
               <FoundersStep founders={founders} setFounders={setFounders} />
-            )}
-
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-300" role="alert">
-                {error}
-              </div>
             )}
 
             {/* Navigation Buttons */}

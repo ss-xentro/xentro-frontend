@@ -6,6 +6,7 @@ import { Card } from '@/components/ui';
 import { Institution } from '@/lib/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 
 const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -19,7 +20,6 @@ interface DashboardStats {
 export default function DashboardPage() {
     const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -33,10 +33,9 @@ export default function DashboardPage() {
                 }
                 const { data } = await response.json();
                 setInstitutions(data ?? []);
-                setError(null);
             } catch (err) {
                 if ((err as Error).name !== 'AbortError') {
-                    setError((err as Error).message);
+                    toast.error((err as Error).message);
                 }
             } finally {
                 setLoading(false);
@@ -127,12 +126,6 @@ export default function DashboardPage() {
                 <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
                 <p className="text-gray-600 mt-1">Here&apos;s what&apos;s happening with your institutions today.</p>
             </div>
-
-            {error && (
-                <div className="text-red-600 bg-red-50 border border-red-200 px-4 py-3 rounded-lg">
-                    {error}
-                </div>
-            )}
 
             {loading && (
                 <p className="text-gray-600">Loading dashboard data…</p>

@@ -6,6 +6,7 @@ import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
+import { toast } from 'sonner';
 
 const programTypeOptions = [
 	{ value: 'incubation', label: 'Incubation Program' },
@@ -24,7 +25,6 @@ export default function EditProgramPage() {
 
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -57,7 +57,7 @@ export default function EditProgramPage() {
 				is_active: data.isActive ?? true,
 			});
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setLoading(false);
 		}
@@ -66,7 +66,6 @@ export default function EditProgramPage() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setSaving(true);
-		setError(null);
 		try {
 			const token = getSessionToken('institution');
 			if (!token) throw new Error('Authentication required');
@@ -80,7 +79,7 @@ export default function EditProgramPage() {
 			}
 			router.push(`/institution-dashboard/programs/${programId}`);
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setSaving(false);
 		}
@@ -144,8 +143,6 @@ export default function EditProgramPage() {
 							<input type="checkbox" id="isActive" checked={formData.is_active} onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} className="mt-1 w-4 h-4 text-white bg-white/5 border-white/20 rounded focus:ring-white/40 focus:ring-2" />
 							<label htmlFor="isActive" className="text-sm text-white">Make this program active and visible</label>
 						</div>
-
-						{error && <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-300">{error}</div>}
 
 						<div className="flex items-center justify-between pt-8">
 							<button type="button" onClick={() => router.back()} disabled={saving} className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50">Cancel</button>

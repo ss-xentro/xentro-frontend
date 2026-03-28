@@ -9,13 +9,12 @@ import { Institution, InstitutionType, OperatingMode } from '@/lib/types';
 import { institutionTypeLabels, operatingModeLabels } from '@/lib/types';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
+import { toast } from 'sonner';
 
 export default function EditInstitutionPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [institution, setInstitution] = useState<Institution | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -34,7 +33,6 @@ export default function EditInstitutionPage() {
   useEffect(() => {
     const loadInstitution = async () => {
       try {
-        setError(null);
         const token = getSessionToken('institution');
         if (!token) {
           router.push('/institution-login');
@@ -66,7 +64,7 @@ export default function EditInstitutionPage() {
         });
       } catch (error) {
         console.error('Error loading institution:', error);
-        setError((error as Error).message || 'Failed to load institution data');
+        toast.error((error as Error).message || 'Failed to load institution data');
       } finally {
         setLoading(false);
       }
@@ -78,8 +76,6 @@ export default function EditInstitutionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setError(null);
-    setSuccess(null);
 
     try {
       const token = getSessionToken('institution');
@@ -97,11 +93,11 @@ export default function EditInstitutionPage() {
         throw new Error(await readApiErrorMessage(res, 'Failed to update institution'));
       }
 
-      setSuccess('Institution updated successfully! Redirecting...');
+      toast.success('Institution updated successfully! Redirecting...');
       router.push('/institution-dashboard');
     } catch (error) {
       console.error('Error updating institution:', error);
-      setError((error as Error).message || 'Failed to update institution');
+      toast.error((error as Error).message || 'Failed to update institution');
     } finally {
       setSaving(false);
     }
@@ -140,18 +136,6 @@ export default function EditInstitutionPage() {
             <p className="text-(--secondary) mt-1">Update your institution information</p>
           </div>
         </div>
-
-        {error && (
-          <Card className="p-4 bg-red-500/10 border border-red-500/30">
-            <p className="text-sm text-red-300">{error}</p>
-          </Card>
-        )}
-
-        {success && (
-          <Card className="p-4 bg-green-500/10 border border-green-500/30">
-            <p className="text-sm text-green-300">{success}</p>
-          </Card>
-        )}
 
         <form onSubmit={handleSubmit}>
           <Card className="p-8 space-y-6">

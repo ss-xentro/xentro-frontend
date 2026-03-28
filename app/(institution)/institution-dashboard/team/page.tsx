@@ -6,6 +6,7 @@ import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, Badge } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
+import { toast } from 'sonner';
 
 interface TeamMember {
   id: string;
@@ -28,7 +29,6 @@ export default function TeamPage() {
   const router = useRouter();
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadTeam();
@@ -52,9 +52,8 @@ export default function TeamPage() {
 
       const data = await res.json();
       setTeam(data.data || []);
-      setError(null);
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -77,7 +76,7 @@ export default function TeamPage() {
 
       setTeam((prev) => prev.filter(m => m.id !== id));
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     }
   };
 
@@ -111,12 +110,6 @@ export default function TeamPage() {
             Add Team Member
           </Button>
         </div>
-
-        {error && (
-          <Card className="p-4 bg-red-500/10 border-red-500/30">
-            <p className="text-red-300">{error}</p>
-          </Card>
-        )}
 
         {team.length === 0 ? (
           <Card className="p-12 text-center bg-white/5 border-white/10">

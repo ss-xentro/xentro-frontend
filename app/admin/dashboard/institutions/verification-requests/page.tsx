@@ -5,6 +5,7 @@ import { Button, Card, Textarea } from '@/components/ui';
 import { InstitutionApplication } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { getSessionToken } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 
 interface InstitutionLookup {
 	id: string;
@@ -20,7 +21,6 @@ export default function InstitutionVerificationRequestsPage() {
 	const { token } = useAuth();
 	const [applications, setApplications] = useState<InstitutionApplication[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [selected, setSelected] = useState<InstitutionApplication | null>(null);
 	const [remark, setRemark] = useState('');
 	const [submitting, setSubmitting] = useState(false);
@@ -57,9 +57,8 @@ export default function InstitutionVerificationRequestsPage() {
 			}
 
 			setApplications(payload.data ?? []);
-			setError(null);
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setLoading(false);
 		}
@@ -102,7 +101,7 @@ export default function InstitutionVerificationRequestsPage() {
 			setRemark('');
 			await loadRequests();
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setSubmitting(false);
 		}
@@ -125,12 +124,6 @@ export default function InstitutionVerificationRequestsPage() {
 					{loading ? 'Refreshing...' : 'Refresh'}
 				</Button>
 			</div>
-
-			{error && (
-				<Card className="p-4 border border-red-200 bg-red-50 text-red-800">
-					{error}
-				</Card>
-			)}
 
 			{loading && <p className="text-(--secondary)">Loading requests...</p>}
 

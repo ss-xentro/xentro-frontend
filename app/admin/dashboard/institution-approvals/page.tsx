@@ -6,6 +6,7 @@ import { Card, Button } from '@/components/ui';
 import { InstitutionApplication } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -17,7 +18,6 @@ export default function InstitutionApprovalsPage() {
   const { token } = useAuth();
   const [applications, setApplications] = useState<InstitutionApplication[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'pending' | 'all'>('pending');
 
   const load = async () => {
@@ -31,9 +31,8 @@ export default function InstitutionApprovalsPage() {
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.message || 'Failed to load applications');
       setApplications(payload.data ?? []);
-      setError(null);
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -89,12 +88,6 @@ export default function InstitutionApprovalsPage() {
           <Button variant="ghost" onClick={load} disabled={loading}>{loading ? 'Refreshing…' : 'Refresh'}</Button>
         </div>
       </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-900" role="alert">
-          {error}
-        </div>
-      )}
 
       {loading && <p className="text-(--secondary)">Loading applications…</p>}
 

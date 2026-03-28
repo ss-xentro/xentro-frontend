@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, Input, Textarea, Select, Button, Badge, VerifiedBadge, FileUpload } from '@/components/ui';
 import { institutionTypeLabels, Institution } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const statusOptions = [
   { value: 'published', label: 'Published' },
@@ -26,7 +27,6 @@ export default function EditInstitutionPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [institution, setInstitution] = useState<Institution | null>(null);
 
   useEffect(() => {
@@ -60,15 +60,11 @@ export default function EditInstitutionPage() {
 
   const updateField = (key: keyof Institution, value: any) => {
     setInstitution((prev) => (prev ? { ...prev, [key]: value } : prev));
-    setMessage(null);
-    setError(null);
   };
 
   const handleSave = async () => {
     if (!institution) return;
     setSaving(true);
-    setError(null);
-    setMessage(null);
     try {
       const authToken = getAuthToken(token);
       const res = await fetch(`/api/institutions/${id}`, {
@@ -94,9 +90,9 @@ export default function EditInstitutionPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Update failed');
       setInstitution((prev) => (prev ? { ...prev, ...data.data } : prev));
-      setMessage('Saved changes');
+      toast.success('Saved changes');
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setSaving(false);
     }
@@ -135,9 +131,6 @@ export default function EditInstitutionPage() {
           <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</Button>
         </div>
       </div>
-
-      {message && <p className="text-sm text-success">{message}</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Card className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

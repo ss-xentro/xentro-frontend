@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button, Card } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 type InvestorRow = {
     profileId: string;
@@ -25,14 +25,12 @@ export default function InvestorApprovalsPage() {
     const { token } = useAuth();
     const [loading, setLoading] = useState(false);
     const [rows, setRows] = useState<InvestorRow[]>([]);
-    const [message, setMessage] = useState<string | null>(null);
     const [rejectingId, setRejectingId] = useState<string | null>(null);
     const [remark, setRemark] = useState('');
 
     async function fetchPending() {
         if (!token) return;
         setLoading(true);
-        setMessage(null);
         try {
             const res = await fetch('/api/investors', {
                 headers: { Authorization: `Bearer ${token}` },
@@ -41,7 +39,7 @@ export default function InvestorApprovalsPage() {
             if (!res.ok) throw new Error(data.message || 'Failed to load');
             setRows(data.data || []);
         } catch (err) {
-            setMessage(err instanceof Error ? err.message : 'Failed to load');
+            toast.error(err instanceof Error ? err.message : 'Failed to load');
         } finally {
             setLoading(false);
         }
@@ -55,7 +53,6 @@ export default function InvestorApprovalsPage() {
     async function handleApprove(userId: string) {
         if (!token) return;
         setLoading(true);
-        setMessage(null);
         try {
             const res = await fetch('/api/approvals/investors', {
                 method: 'POST',
@@ -64,10 +61,10 @@ export default function InvestorApprovalsPage() {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Action failed');
-            setMessage('Investor approved — notification email sent');
+            toast.success('Investor approved — notification email sent');
             await fetchPending();
         } catch (err) {
-            setMessage(err instanceof Error ? err.message : 'Action failed');
+            toast.error(err instanceof Error ? err.message : 'Action failed');
         } finally {
             setLoading(false);
         }
@@ -75,12 +72,11 @@ export default function InvestorApprovalsPage() {
 
     async function handleReject(userId: string) {
         if (!remark.trim()) {
-            setMessage('Please add a remark before rejecting.');
+            toast.error('Please add a remark before rejecting.');
             return;
         }
         if (!token) return;
         setLoading(true);
-        setMessage(null);
         try {
             const res = await fetch('/api/approvals/investors', {
                 method: 'POST',
@@ -89,12 +85,12 @@ export default function InvestorApprovalsPage() {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Action failed');
-            setMessage('Investor rejected — notification email sent');
+            toast.success('Investor rejected — notification email sent');
             setRejectingId(null);
             setRemark('');
             await fetchPending();
         } catch (err) {
-            setMessage(err instanceof Error ? err.message : 'Action failed');
+            toast.error(err instanceof Error ? err.message : 'Action failed');
         } finally {
             setLoading(false);
         }
@@ -197,7 +193,6 @@ export default function InvestorApprovalsPage() {
                     {!loading && !rows.length && <p className="text-sm text-muted-foreground">No pending investor applications.</p>}
                     {loading && <p className="text-sm text-muted-foreground animate-pulse">Loading…</p>}
                 </div>
-                {message && <p className={cn('text-sm', message.toLowerCase().includes('fail') || message.toLowerCase().includes('please') ? 'text-red-600' : 'text-green-600')}>{message}</p>}
             </Card>
         </div>
     );

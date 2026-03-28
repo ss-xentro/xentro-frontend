@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { getSessionToken } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
@@ -43,7 +44,6 @@ export default function SessionsPage() {
     const [tab, setTab] = useState<'upcoming' | 'slots'>('upcoming');
     const [savingSlots, setSavingSlots] = useState(false);
     const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
-    const [message, setMessage] = useState<string | null>(null);
 
     const token = typeof window !== 'undefined' ? getSessionToken('mentor') : null;
 
@@ -102,7 +102,6 @@ export default function SessionsPage() {
         const key = `${day}-${time}`;
         // Removing is always allowed
         if (selectedSlots.has(key)) {
-            setMessage(null);
             setSelectedSlots(prev => { const next = new Set(prev); next.delete(key); return next; });
             return;
         }
@@ -122,18 +121,16 @@ export default function SessionsPage() {
             if (newStart < selEnd && selStart < newEnd) {
                 const endLabel = `${String(Math.floor(newEnd / 60)).padStart(2, '0')}:00`;
                 const selEndLabel = dbSlot ? dbSlot.endTime : `${String(Math.floor(selEnd / 60)).padStart(2, '0')}:00`;
-                setMessage(`Cannot add ${time}–${endLabel} on ${day}: overlaps with existing slot ${selTime}–${selEndLabel}`);
+                toast.warning(`Cannot add ${time}–${endLabel} on ${day}: overlaps with existing slot ${selTime}–${selEndLabel}`);
                 return;
             }
         }
-        setMessage(null);
         setSelectedSlots(prev => { const next = new Set(prev); next.add(key); return next; });
     }
 
     async function saveSlots() {
         if (!token) return;
         setSavingSlots(true);
-        setMessage(null);
 
         const newSlots = Array.from(selectedSlots).map(key => {
             const [day, startTime] = key.split('-');
@@ -144,7 +141,7 @@ export default function SessionsPage() {
 
         const overlapError = checkForOverlaps(newSlots);
         if (overlapError) {
-            setMessage(overlapError);
+            toast.error(overlapError);
             setSavingSlots(false);
             return;
         }
@@ -172,9 +169,9 @@ export default function SessionsPage() {
                 setSlots([]);
             }
 
-            setMessage('Availability saved!');
+            toast.success('Availability saved!');
         } catch (err) {
-            setMessage(err instanceof Error ? err.message : 'Failed to save');
+            toast.error(err instanceof Error ? err.message : 'Failed to save');
         } finally {
             setSavingSlots(false);
         }
@@ -324,7 +321,6 @@ export default function SessionsPage() {
                             {savingSlots ? 'Saving…' : 'Save Availability'}
                         </Button>
                     </div>
-                    {message && <p className={`text-sm font-medium ${message.startsWith('Cannot') || message.includes('Overlap') || message.includes('Failed') ? 'text-red-400' : 'text-emerald-400'}`}>{message}</p>}
                 </div>
             )}
         </div>

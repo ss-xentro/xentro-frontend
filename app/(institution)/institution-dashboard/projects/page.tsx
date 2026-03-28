@@ -6,6 +6,7 @@ import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
 import { useProjectStore } from '@/stores/useProjectStore';
 import { getSessionToken } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   planning: { label: 'Planning', color: 'bg-blue-500/20 text-blue-200' },
@@ -33,6 +34,11 @@ export default function ProjectsPage() {
     if (typeof window === 'undefined') return null;
     return getSessionToken('institution');
   };
+
+  // Show toast when store error changes
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
 
   // Initial fetch
   useEffect(() => {
@@ -85,12 +91,6 @@ export default function ProjectsPage() {
             Add Project
           </Button>
         </div>
-
-        {error && (
-          <Card className="p-4 bg-red-500/10 border-red-500/30">
-            <p className="text-red-300">{error}</p>
-          </Card>
-        )}
 
         {projects.length === 0 ? (
           <Card className="p-12 text-center bg-white/5 border-white/10">

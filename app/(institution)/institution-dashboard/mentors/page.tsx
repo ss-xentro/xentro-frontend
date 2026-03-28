@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
+import { toast } from 'sonner';
 
 interface Mentor {
   id: string;
@@ -53,7 +54,6 @@ export default function MentorsPage() {
   const router = useRouter();
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Endorsement requests
   const [endorsements, setEndorsements] = useState<EndorsementRequest[]>([]);
@@ -86,9 +86,8 @@ export default function MentorsPage() {
         expertise: normalizeExpertise(mentor.expertise),
       }));
       setMentors(normalizedMentors);
-      setError(null);
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -135,7 +134,7 @@ export default function MentorsPage() {
       loadEndorsements();
       if (action === 'accepted') loadMentors();
     } catch (err) {
-      setError((err as Error).message);
+      toast.error((err as Error).message);
     }
   };
 
@@ -271,12 +270,6 @@ export default function MentorsPage() {
                 ))}
               </div>
             )}
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-300">
-            {error}
           </div>
         )}
 

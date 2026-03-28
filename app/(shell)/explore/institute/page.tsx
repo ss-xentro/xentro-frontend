@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { institutionTypeLabels, sectorLabels, sdgLabels, Institution, SectorFocus } from '@/lib/types';
 import { formatNumber } from '@/lib/utils';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { toast } from 'sonner';
 
 export default function ExploreInstitutionsPage() {
     const [selectedType, setSelectedType] = useState<string>('all');
     const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -21,9 +21,8 @@ export default function ExploreInstitutionsPage() {
                 if (!res.ok) throw new Error('Failed to load institutions');
                 const { data } = await res.json();
                 setInstitutions(data ?? []);
-                setError(null);
             } catch (err) {
-                if ((err as Error).name !== 'AbortError') setError((err as Error).message);
+                if ((err as Error).name !== 'AbortError') toast.error((err as Error).message);
             } finally {
                 setLoading(false);
             }
@@ -54,11 +53,6 @@ export default function ExploreInstitutionsPage() {
                         ))}
                     </select>
                 </div>
-            )}
-
-            {/* Error */}
-            {error && (
-                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">{error}</div>
             )}
 
             {/* Skeleton */}

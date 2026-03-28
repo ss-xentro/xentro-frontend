@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 
 interface AnalyticsData {
   profileViews: number;
@@ -17,7 +18,6 @@ interface AnalyticsData {
 export default function AnalyticsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<AnalyticsData>({
     profileViews: 0,
     startupsCount: 0,
@@ -58,10 +58,9 @@ export default function AnalyticsPage() {
         programsCount: programs.data?.length || 0,
         institutionName: institution.institution?.name || 'Your Institution',
       });
-      setError(null);
     } catch (err) {
       console.error('Failed to load analytics:', err);
-      setError('Failed to load analytics data');
+      toast.error('Failed to load analytics data');
     } finally {
       setLoading(false);
     }
@@ -92,12 +91,6 @@ export default function AnalyticsPage() {
           <h1 className="text-3xl font-bold text-white">Analytics</h1>
           <p className="text-gray-400 mt-1">View {data.institutionName}&apos;s performance metrics</p>
         </div>
-
-        {error && (
-          <Card className="p-4 bg-red-500/10 border-red-500/30">
-            <p className="text-red-300 text-sm">{error}</p>
-          </Card>
-        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="p-6 bg-white/5 border-white/10 border">

@@ -6,6 +6,7 @@ import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
+import { toast } from 'sonner';
 
 const statusOptions = [
 	{ value: 'planning', label: 'Planning' },
@@ -21,7 +22,6 @@ export default function EditProjectPage() {
 
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -50,7 +50,7 @@ export default function EditProjectPage() {
 				end_date: data.endDate ? data.endDate.split('T')[0] : '',
 			});
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setLoading(false);
 		}
@@ -59,7 +59,6 @@ export default function EditProjectPage() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setSaving(true);
-		setError(null);
 		try {
 			const token = getSessionToken('institution');
 			if (!token) throw new Error('Authentication required');
@@ -73,7 +72,7 @@ export default function EditProjectPage() {
 			}
 			router.push(`/institution-dashboard/projects/${projectId}`);
 		} catch (err) {
-			setError((err as Error).message);
+			toast.error((err as Error).message);
 		} finally {
 			setSaving(false);
 		}
@@ -128,8 +127,6 @@ export default function EditProjectPage() {
 								</div>
 							</div>
 						</div>
-
-						{error && <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-300">{error}</div>}
 
 						<div className="flex items-center justify-between pt-8">
 							<button type="button" onClick={() => router.back()} disabled={saving} className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50">Cancel</button>

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Card } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 
 type EventItem = {
 	id: string;
@@ -163,7 +164,6 @@ function normalizeEventListResponse(payload: unknown): EventItem[] {
 export default function AdminEventsPage() {
 	const [events, setEvents] = useState<EventItem[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [form, setForm] = useState<EventForm>(EMPTY_FORM);
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [showModal, setShowModal] = useState(false);
@@ -173,7 +173,6 @@ export default function AdminEventsPage() {
 		const token = getSessionToken('admin');
 		if (!token) return;
 		setLoading(true);
-		setError(null);
 		try {
 			const res = await fetch('/api/events/', {
 				headers: { Authorization: `Bearer ${token}` },
@@ -182,7 +181,7 @@ export default function AdminEventsPage() {
 			const data = await res.json();
 			setEvents(normalizeEventListResponse(data));
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to load events');
+			toast.error(err instanceof Error ? err.message : 'Failed to load events');
 		} finally {
 			setLoading(false);
 		}
@@ -206,16 +205,15 @@ export default function AdminEventsPage() {
 		const token = getSessionToken('admin');
 		if (!token) return;
 		if (!form.name.trim()) {
-			setError('Event name is required');
+			toast.error('Event name is required');
 			return;
 		}
 		if (!form.maxAttendees || Number(form.maxAttendees) <= 0) {
-			setError('Available slots are required when creating an event.');
+			toast.error('Available slots are required when creating an event.');
 			return;
 		}
 
 		setSaving(true);
-		setError(null);
 
 		try {
 			const parseLines = (value: string) => value.split('\n').map((x) => x.trim()).filter(Boolean);
@@ -281,7 +279,7 @@ export default function AdminEventsPage() {
 			setForm(EMPTY_FORM);
 			await fetchEvents();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to save event');
+			toast.error(err instanceof Error ? err.message : 'Failed to save event');
 		} finally {
 			setSaving(false);
 		}
@@ -299,7 +297,7 @@ export default function AdminEventsPage() {
 			if (!res.ok) throw new Error('Failed to delete event');
 			setEvents((prev) => prev.filter((ev) => ev.id !== id));
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to delete event');
+			toast.error(err instanceof Error ? err.message : 'Failed to delete event');
 		}
 	};
 
@@ -318,12 +316,6 @@ export default function AdminEventsPage() {
 					+ New Event
 				</button>
 			</div>
-
-			{error && (
-				<div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-					{error}
-				</div>
-			)}
 
 			{loading ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">

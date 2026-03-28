@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { getSessionToken } from '@/lib/auth-utils';
+import { toast } from 'sonner';
 
 const programTypeOptions = [
     { value: 'incubation', label: 'Incubation Program' },
@@ -19,7 +20,6 @@ const programTypeOptions = [
 export default function AddProgramPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -34,7 +34,6 @@ export default function AddProgramPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError(null);
 
         try {
             const token = getSessionToken('institution');
@@ -59,7 +58,7 @@ export default function AddProgramPage() {
 
             router.push('/institution-dashboard/programs');
         } catch (err) {
-            setError((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setLoading(false);
         }
@@ -181,12 +180,6 @@ export default function AddProgramPage() {
                                 Make this program visible to students and startups
                             </label>
                         </div>
-
-                        {error && (
-                            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-300" role="alert">
-                                {error}
-                            </div>
-                        )}
 
                         <div className="flex items-center gap-4 pt-8">
                             <button

@@ -36,7 +36,6 @@ export default function ProgramsPage() {
     const router = useRouter();
     const [programs, setPrograms] = useState<Program[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -62,7 +61,7 @@ export default function ProgramsPage() {
             const data = await res.json();
             setPrograms(data);
         } catch (err) {
-            setError((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setLoading(false);
         }
@@ -122,12 +121,6 @@ export default function ProgramsPage() {
                         Add Program
                     </Button>
                 </div>
-
-                {error && (
-                    <Card className="p-4 bg-red-500/10 border-red-500/30">
-                        <p className="text-red-300">{error}</p>
-                    </Card>
-                )}
 
                 {programs.length === 0 ? (
                     <Card className="p-12 text-center bg-white/5 border-white/10">
