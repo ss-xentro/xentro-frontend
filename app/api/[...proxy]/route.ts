@@ -35,7 +35,6 @@ async function handleProxy(request: NextRequest) {
   }
 
   const targetUrl = `${DJANGO_URL}${pathname}${url.search}`;
-  console.log(`[API Proxy] ${method} ${pathname} → ${targetUrl}`);
 
   // Extract headers — remove hop-by-hop headers that must not be forwarded
   const headers = new Headers(request.headers);
@@ -91,9 +90,10 @@ async function handleProxy(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error(`[API Gateway Error] ${method} ${targetUrl} failed:`, error);
+    console.error(`[API Gateway Error] ${method} ${pathname} failed:`, error);
+    // C3 fix: Never expose internal URLs or error details to the client
     return NextResponse.json(
-      { error: 'API Gateway Timeout or Connection Refused', target: targetUrl, details: String(error) },
+      { error: 'Service temporarily unavailable' },
       { status: 502 }
     );
   }
