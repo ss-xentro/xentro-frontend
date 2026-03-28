@@ -94,7 +94,7 @@ const ROLE_ROUTE_MAP: Record<string, string[]> = {
 };
 
 /** Routes that guests should access; logged-in users get redirected away */
-const GUEST_ONLY_ROUTES = ['/guest', '/join', '/login', '/admin/login'];
+const GUEST_ONLY_ROUTES = ['/join', '/login', '/admin/login'];
 
 /** Prefixes that skip auth checks entirely */
 const PUBLIC_PREFIXES = [
@@ -151,7 +151,7 @@ function checkAuth(request: NextRequest): NextResponse | null {
 
   // Auth-required routes
   if (AUTH_REQUIRED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
-    if (!isLoggedIn) return NextResponse.redirect(new URL('/guest', request.url));
+    if (!isLoggedIn) return NextResponse.redirect(new URL('https://xentro.in'));
     return null;
   }
 

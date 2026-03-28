@@ -11,7 +11,7 @@ export default function HomePage() {
   useEffect(() => {
     if (isLoading) return;
     if (!isAuthenticated) {
-      router.replace('/guest');
+      window.location.href = 'https://xentro.in';
     } else {
       router.replace('/explore/institute');
     }

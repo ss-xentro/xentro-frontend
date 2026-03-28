@@ -47,7 +47,7 @@ export default function FeedSidebar() {
 	const handleLogout = () => {
 		logout();
 		setProfileOpen(false);
-		router.push("/guest");
+		window.location.href = "https://xentro.in";
 	};
 
 	if (!isAuthenticated) return null;
