@@ -90,7 +90,7 @@ export default function DocumentsSection({ documents, uploading, uploadError, on
 							</a>
 							<button
 								onClick={() => onRemove(index)}
-								className="w-8 h-8 flex items-center justify-center rounded-lg text-(--secondary) hover:text-red-500 hover:bg-(--surface) transition-colors opacity-0 group-hover:opacity-100"
+								className="w-8 h-8 flex items-center justify-center rounded-lg text-(--secondary) hover:text-red-500 hover:bg-(--surface) transition-colors md:opacity-0 md:group-hover:opacity-100"
 								aria-label="Remove document"
 							>
 								<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

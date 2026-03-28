@@ -40,7 +40,7 @@ export function AchievementsCard({ achievements, setAchievements, achievementInp
 						<li key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg group">
 							<span className="mt-0.5 text-amber-500">&bull;</span>
 							<span className="flex-1 text-sm text-gray-800">{item}</span>
-							<button onClick={() => removeAchievement(i)} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+							<button onClick={() => removeAchievement(i)} className="text-gray-400 hover:text-red-500 md:opacity-0 md:group-hover:opacity-100 transition-opacity" aria-label="Remove achievement">
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
 							</button>
 						</li>

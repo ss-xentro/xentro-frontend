@@ -50,7 +50,7 @@ export default function ReviewPublishSlide({
                 <Card className="relative group">
                     <button
                         onClick={() => onEdit(1)}
-                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 px-3 py-1 text-sm bg-(--surface-hover) rounded-(--radius-full) text-accent transition-all"
+                        className="absolute top-4 right-4 md:opacity-0 md:group-hover:opacity-100 px-3 py-1 text-sm bg-(--surface-hover) rounded-(--radius-full) text-accent transition-all"
                     >
                         Edit
                     </button>
@@ -87,7 +87,7 @@ export default function ReviewPublishSlide({
                 <Card className="relative group">
                     <button
                         onClick={() => onEdit(6)}
-                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 px-3 py-1 text-sm bg-(--surface-hover) rounded-(--radius-full) text-accent transition-all"
+                        className="absolute top-4 right-4 md:opacity-0 md:group-hover:opacity-100 px-3 py-1 text-sm bg-(--surface-hover) rounded-(--radius-full) text-accent transition-all"
                     >
                         Edit
                     </button>
@@ -119,7 +119,7 @@ export default function ReviewPublishSlide({
                 <Card className="relative group">
                     <button
                         onClick={() => onEdit(8)}
-                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 px-3 py-1 text-sm bg-(--surface-hover) rounded-(--radius-full) text-accent transition-all"
+                        className="absolute top-4 right-4 md:opacity-0 md:group-hover:opacity-100 px-3 py-1 text-sm bg-(--surface-hover) rounded-(--radius-full) text-accent transition-all"
                     >
                         Edit
                     </button>

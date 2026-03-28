@@ -142,7 +142,7 @@ export function ItemCard({ index, onRemove, canEdit, children }: {
 					<button
 						type="button"
 						onClick={onRemove}
-						className="opacity-0 group-hover:opacity-100 inline-flex items-center gap-1.5 text-xs font-medium text-(--secondary) hover:text-error px-2 py-1 rounded-lg hover:bg-error/5 transition-all duration-200"
+						className="md:opacity-0 md:group-hover:opacity-100 inline-flex items-center gap-1.5 text-xs font-medium text-(--secondary) hover:text-error px-2 py-1 rounded-lg hover:bg-error/5 transition-all duration-200"
 					>
 						<TrashIcon /> Remove
 					</button>

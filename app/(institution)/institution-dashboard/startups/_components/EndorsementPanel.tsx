@@ -50,9 +50,9 @@ export default function EndorsementPanel({ endorsements, loading, onRespond }: E
 											className="w-full px-3 py-2 text-sm bg-white/10 border border-white/15 text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 resize-none"
 										/>
 										<div className="flex gap-2">
-												<Button variant="primary" size="sm" onClick={() => handleRespond(e.id, 'accepted')}>Accept</Button>
-												<Button variant="danger" size="sm" onClick={() => handleRespond(e.id, 'rejected')}>Reject</Button>
-												<Button variant="ghost" size="sm" onClick={() => { setRespondingId(null); setResponseComment(''); }}>Cancel</Button>
+											<Button variant="primary" size="sm" onClick={() => handleRespond(e.id, 'accepted')}>Accept</Button>
+											<Button variant="danger" size="sm" onClick={() => handleRespond(e.id, 'rejected')}>Reject</Button>
+											<Button variant="ghost" size="sm" onClick={() => { setRespondingId(null); setResponseComment(''); }}>Cancel</Button>
 										</div>
 									</div>
 								) : (

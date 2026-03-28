@@ -25,7 +25,7 @@ export function DocumentsCard({ documents, setDocuments }: DocumentsCardProps) {
 								<p className="text-xs text-gray-500">Uploaded {new Date(doc.uploadedAt).toLocaleDateString()}</p>
 							</div>
 							<a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-sm">View</a>
-							<button onClick={() => removeDocument(i)} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+							<button onClick={() => removeDocument(i)} className="text-gray-400 hover:text-red-500 md:opacity-0 md:group-hover:opacity-100 transition-opacity" aria-label="Remove document">
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
 							</button>
 						</div>
