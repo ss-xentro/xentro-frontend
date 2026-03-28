@@ -181,7 +181,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 	const handleLogout = () => {
 		logout();
 		setProfileOpen(false);
-		window.location.href = 'https://xentro.in';
+		router.push('/login');
 	};
 
 	function isNavActive(href: string, label: string) {

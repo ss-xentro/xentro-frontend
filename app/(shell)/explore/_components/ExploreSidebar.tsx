@@ -70,7 +70,7 @@ export default function ExploreSidebar() {
 	const handleLogout = () => {
 		logout();
 		setProfileOpen(false);
-		window.location.href = "https://xentro.in";
+		router.push("/login");
 	};
 
 	return (
