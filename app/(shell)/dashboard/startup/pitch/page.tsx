@@ -5,6 +5,7 @@ import { hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
 import { getSessionToken } from '@/lib/auth-utils';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import {
 	StartupPitchData,
 	PitchAbout,
@@ -233,61 +234,55 @@ export default function PitchEditorPage() {
 	return (
 		<div className="animate-fadeIn">
 			{isCreatingStep && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-					<button
-						type="button"
-						aria-label="Close add section dialog"
-						onClick={() => {
-							setIsCreatingStep(false);
-							setNewStepTitle('');
-							setNewStepDescription('');
-						}}
-						className="absolute inset-0 bg-black/45 backdrop-blur-sm"
-					/>
-					<div className="relative z-10 w-full max-w-xl rounded-2xl border border-(--border) bg-background p-5 shadow-(--shadow-lg)">
-						<div className="mb-4">
-							<h3 className="text-lg font-semibold text-(--primary)">Add New Section</h3>
-							<p className="text-sm text-(--secondary)">Create a custom step by entering a title and short description.</p>
-						</div>
+				<Modal
+					isOpen={isCreatingStep}
+					onClose={() => {
+						setIsCreatingStep(false);
+						setNewStepTitle('');
+						setNewStepDescription('');
+					}}
+					title="Add New Section"
+					className="max-w-xl"
+				>
+					<p className="text-sm text-(--secondary) -mt-2 mb-4">Create a custom step by entering a title and short description.</p>
 
-						<div className="mb-4 rounded-xl border border-(--border) bg-(--surface) p-3">
-							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">Step Description Card</p>
-							<p className="mt-1 text-sm text-(--primary)">This step will be added to your pitch sidebar and its section will appear in the public profile About page footer.</p>
-						</div>
-
-						<div className="space-y-3">
-							<input
-								type="text"
-								value={newStepTitle}
-								onChange={(e) => setNewStepTitle(e.target.value)}
-								placeholder="Step title"
-								className="w-full rounded-lg border border-(--border) bg-background px-3 py-2 text-sm text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
-							/>
-							<input
-								type="text"
-								value={newStepDescription}
-								onChange={(e) => setNewStepDescription(e.target.value)}
-								placeholder="Short description for this step"
-								className="w-full rounded-lg border border-(--border) bg-background px-3 py-2 text-sm text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
-							/>
-						</div>
-
-						<div className="mt-5 flex items-center justify-end gap-2">
-							<Button
-								type="button"
-								variant="secondary"
-								onClick={() => {
-									setIsCreatingStep(false);
-									setNewStepTitle('');
-									setNewStepDescription('');
-								}}
-							>
-								Cancel
-							</Button>
-							<Button type="button" onClick={handleCreateCustomStep}>Create Section</Button>
-						</div>
+					<div className="mb-4 rounded-xl border border-(--border) bg-(--surface) p-3">
+						<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">Step Description Card</p>
+						<p className="mt-1 text-sm text-(--primary)">This step will be added to your pitch sidebar and its section will appear in the public profile About page footer.</p>
 					</div>
-				</div>
+
+					<div className="space-y-3">
+						<input
+							type="text"
+							value={newStepTitle}
+							onChange={(e) => setNewStepTitle(e.target.value)}
+							placeholder="Step title"
+							className="w-full rounded-lg border border-(--border) bg-background px-3 py-2 text-sm text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+						/>
+						<input
+							type="text"
+							value={newStepDescription}
+							onChange={(e) => setNewStepDescription(e.target.value)}
+							placeholder="Short description for this step"
+							className="w-full rounded-lg border border-(--border) bg-background px-3 py-2 text-sm text-(--primary) focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+						/>
+					</div>
+
+					<div className="mt-5 flex items-center justify-end gap-2">
+						<Button
+							type="button"
+							variant="secondary"
+							onClick={() => {
+								setIsCreatingStep(false);
+								setNewStepTitle('');
+								setNewStepDescription('');
+							}}
+						>
+							Cancel
+						</Button>
+						<Button type="button" onClick={handleCreateCustomStep}>Create Section</Button>
+					</div>
+				</Modal>
 			)}
 
 			{/* Header */}

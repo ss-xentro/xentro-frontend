@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Card, Button, Textarea } from '@/components/ui';
+import { Card, Button, Textarea, Modal } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { InstitutionApplication, Institution } from '@/lib/types';
 import { AppIcon } from '@/components/ui/AppIcon';
@@ -202,41 +202,36 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 				</Card>
 
 				{requestModalOpen && (
-					<div className="fixed inset-0 z-[110] flex items-center justify-center px-4">
-						<div
-							className="absolute inset-0 bg-black/45 backdrop-blur-sm"
-							onClick={() => !submittingRequest && setRequestModalOpen(false)}
+					<Modal
+						isOpen={requestModalOpen}
+						onClose={() => !submittingRequest && setRequestModalOpen(false)}
+						title="Request Verified Badge"
+					>
+						<p className="text-sm text-(--secondary) -mt-2 mb-4">
+							Send an optional note to admin. They can approve or deny your blue tick request.
+						</p>
+
+						<Textarea
+							label="Message to admin (optional)"
+							placeholder="Add context about your institution, traction, or why this should be verified."
+							value={requestMessage}
+							onChange={(e) => setRequestMessage(e.target.value)}
+							rows={5}
 						/>
-						<Card className="relative w-full max-w-lg p-6 space-y-4">
-							<div>
-								<h3 className="text-lg font-bold text-(--primary)">Request Verified Badge</h3>
-								<p className="text-sm text-(--secondary) mt-1">
-									Send an optional note to admin. They can approve or deny your blue tick request.
-								</p>
-							</div>
 
-							<Textarea
-								label="Message to admin (optional)"
-								placeholder="Add context about your institution, traction, or why this should be verified."
-								value={requestMessage}
-								onChange={(e) => setRequestMessage(e.target.value)}
-								rows={5}
-							/>
-
-							<div className="flex items-center justify-end gap-3 pt-2">
-								<Button
-									variant="ghost"
-									onClick={() => setRequestModalOpen(false)}
-									disabled={submittingRequest}
-								>
-									Cancel
-								</Button>
-								<Button onClick={handleSubmitVerificationRequest} disabled={submittingRequest}>
-									{submittingRequest ? 'Submitting...' : 'Send Request'}
-								</Button>
-							</div>
-						</Card>
-					</div>
+						<div className="flex items-center justify-end gap-3 pt-2">
+							<Button
+								variant="ghost"
+								onClick={() => setRequestModalOpen(false)}
+								disabled={submittingRequest}
+							>
+								Cancel
+							</Button>
+							<Button onClick={handleSubmitVerificationRequest} disabled={submittingRequest}>
+								{submittingRequest ? 'Submitting...' : 'Send Request'}
+							</Button>
+						</div>
+					</Modal>
 				)}
 			</div>
 		</DashboardSidebar>

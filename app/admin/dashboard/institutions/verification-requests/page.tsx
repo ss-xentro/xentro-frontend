@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Textarea } from '@/components/ui';
+import { Button, Card, Textarea, Modal } from '@/components/ui';
 import { InstitutionApplication } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { getSessionToken } from '@/lib/auth-utils';
@@ -194,44 +194,39 @@ export default function InstitutionVerificationRequestsPage() {
 			</div>
 
 			{selected && (
-				<div className="fixed inset-0 z-[110] flex items-center justify-center px-4">
-					<div
-						className="absolute inset-0 bg-black/45 backdrop-blur-sm"
-						onClick={() => !submitting && setSelected(null)}
+				<Modal
+					isOpen={!!selected}
+					onClose={() => !submitting && setSelected(null)}
+					title={`Review Request: ${selected.name}`}
+				>
+					<p className="text-sm text-(--secondary) -mt-2 mb-4">
+						Approve to grant the verified blue tick. Message is optional.
+					</p>
+
+					<Textarea
+						label="Message to institution (optional)"
+						placeholder="Optional note about your decision"
+						value={remark}
+						onChange={(e) => setRemark(e.target.value)}
+						rows={5}
 					/>
-					<Card className="relative w-full max-w-lg p-6 space-y-4">
-						<div>
-							<h2 className="text-xl font-bold text-(--primary)">Review Request: {selected.name}</h2>
-							<p className="text-sm text-(--secondary) mt-1">
-								Approve to grant the verified blue tick. Message is optional.
-							</p>
-						</div>
 
-						<Textarea
-							label="Message to institution (optional)"
-							placeholder="Optional note about your decision"
-							value={remark}
-							onChange={(e) => setRemark(e.target.value)}
-							rows={5}
-						/>
-
-						<div className="flex items-center justify-end gap-3 pt-1">
-							<Button variant="ghost" onClick={() => setSelected(null)} disabled={submitting}>
-								Cancel
-							</Button>
-							<Button
-								variant="ghost"
-								onClick={() => handleDecision('rejected')}
-								disabled={submitting}
-							>
-								{submitting ? 'Saving...' : 'Reject'}
-							</Button>
-							<Button onClick={() => handleDecision('approved')} disabled={submitting}>
-								{submitting ? 'Saving...' : 'Approve'}
-							</Button>
-						</div>
-					</Card>
-				</div>
+					<div className="flex items-center justify-end gap-3 pt-1">
+						<Button variant="ghost" onClick={() => setSelected(null)} disabled={submitting}>
+							Cancel
+						</Button>
+						<Button
+							variant="ghost"
+							onClick={() => handleDecision('rejected')}
+							disabled={submitting}
+						>
+							{submitting ? 'Saving...' : 'Reject'}
+						</Button>
+						<Button onClick={() => handleDecision('approved')} disabled={submitting}>
+							{submitting ? 'Saving...' : 'Approve'}
+						</Button>
+					</div>
+				</Modal>
 			)}
 		</div>
 	);

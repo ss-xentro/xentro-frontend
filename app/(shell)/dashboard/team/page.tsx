@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/Badge';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { MediaPreview } from '@/components/ui/MediaPreview';
+import { Modal } from '@/components/ui/Modal';
 import { getSessionToken } from '@/lib/auth-utils';
 
 interface TeamMember {
@@ -451,77 +452,73 @@ export default function TeamPage() {
             </div>
 
             {editingMember && (
-                <div
-                    className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-                    onClick={() => setEditingMember(null)}
+                <Modal
+                    isOpen={!!editingMember}
+                    onClose={() => setEditingMember(null)}
+                    title="Edit Team Member"
+                    className="max-w-2xl"
                 >
-                    <Card
-                        className="w-full max-w-2xl p-6"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h3 className="text-lg font-semibold mb-1">Edit Team Member</h3>
-                        <p className="text-sm text-(--secondary) mb-4">Update profile details for {editingMember.name}.</p>
+                    <p className="text-sm text-(--secondary) -mt-2 mb-4">Update profile details for {editingMember.name}.</p>
 
-                        <form onSubmit={handleEditSave} className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Input
-                                    placeholder="Full Name"
-                                    value={editMember.name}
-                                    onChange={(e) => setEditMember({ ...editMember, name: e.target.value })}
-                                    required
-                                />
-                                <Input
-                                    placeholder="Email Address"
-                                    type="email"
-                                    value={editMember.email}
-                                    onChange={(e) => setEditMember({ ...editMember, email: e.target.value })}
-                                />
-                                <Select
-                                    value={editMember.role}
-                                    onChange={(val) => setEditMember({ ...editMember, role: val })}
-                                    options={roleOptions}
-                                />
-                                <Input
-                                    placeholder="Professional Title"
-                                    value={editMember.title}
-                                    onChange={(e) => setEditMember({ ...editMember, title: e.target.value })}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <p className="text-sm font-medium text-(--primary)">Profile Image</p>
-                                <FileUpload
-                                    value={editMember.avatar || null}
-                                    onChange={(url) => setEditMember({ ...editMember, avatar: url || '' })}
-                                    folder="team-avatars"
-                                    accept="image/*"
-                                    enableCrop
-                                    aspectRatio={1}
-                                />
-                            </div>
-
-                            <RichTextEditor
-                                label="Short Bio"
-                                placeholder="Brief background, responsibilities, or expertise"
-                                value={editMember.bio}
-                                onChange={(html) => setEditMember({ ...editMember, bio: html })}
+                    <form onSubmit={handleEditSave} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Input
+                                placeholder="Full Name"
+                                value={editMember.name}
+                                onChange={(e) => setEditMember({ ...editMember, name: e.target.value })}
+                                required
                             />
+                            <Input
+                                placeholder="Email Address"
+                                type="email"
+                                value={editMember.email}
+                                onChange={(e) => setEditMember({ ...editMember, email: e.target.value })}
+                            />
+                            <Select
+                                value={editMember.role}
+                                onChange={(val) => setEditMember({ ...editMember, role: val })}
+                                options={roleOptions}
+                            />
+                            <Input
+                                placeholder="Professional Title"
+                                value={editMember.title}
+                                onChange={(e) => setEditMember({ ...editMember, title: e.target.value })}
+                            />
+                        </div>
 
-                            {editError && <p className="text-sm text-error">{editError}</p>}
+                        <div className="space-y-2">
+                            <p className="text-sm font-medium text-(--primary)">Profile Image</p>
+                            <FileUpload
+                                value={editMember.avatar || null}
+                                onChange={(url) => setEditMember({ ...editMember, avatar: url || '' })}
+                                folder="team-avatars"
+                                accept="image/*"
+                                enableCrop
+                                aspectRatio={1}
+                            />
+                        </div>
 
-                            <div className="flex justify-end gap-3">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={() => setEditingMember(null)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button type="submit" isLoading={isSavingEdit}>Save Changes</Button>
-                            </div>
-                        </form>
-                    </Card>
-                </div>
+                        <RichTextEditor
+                            label="Short Bio"
+                            placeholder="Brief background, responsibilities, or expertise"
+                            value={editMember.bio}
+                            onChange={(html) => setEditMember({ ...editMember, bio: html })}
+                        />
+
+                        {editError && <p className="text-sm text-error">{editError}</p>}
+
+                        <div className="flex justify-end gap-3">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setEditingMember(null)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button type="submit" isLoading={isSavingEdit}>Save Changes</Button>
+                        </div>
+                    </form>
+                </Modal>
             )}
 
             {selectedMember && (
