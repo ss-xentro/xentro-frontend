@@ -195,34 +195,50 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 		<aside
 			className={cn(
 				'sticky top-0 h-screen shrink-0 border-r border-white/10 hidden md:flex flex-col transition-all duration-300 ease-in-out',
-				isCollapsed ? 'w-20' : 'w-72',
+				isCollapsed ? 'w-17' : 'w-72',
 			)}
 		>
-			<div className="flex-1 flex flex-col items-center px-3 py-6 overflow-hidden">
-				<div className={cn('mb-6 w-full', !isCollapsed && 'px-2')}>
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-3 min-w-0">
-							<Image src="/xentro-logo.png" alt="Xentro" width={36} height={36} className="rounded-lg shrink-0" />
-							<span className={cn('text-white font-bold text-xl tracking-tight whitespace-nowrap overflow-hidden transition-all duration-300', isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')}>
-								Xentro
-							</span>
-						</div>
-						<button
-							onClick={onToggleCollapse}
-							className={cn('shrink-0 w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all duration-200', isCollapsed && 'mx-auto mt-1')}
-							title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-						>
-							<svg className={cn('w-4 h-4 text-gray-400 transition-transform duration-300', isCollapsed && 'rotate-180')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-							</svg>
-						</button>
-					</div>
-					<div className={cn('mt-4 overflow-hidden transition-all duration-300', isCollapsed ? 'opacity-0 h-0' : 'opacity-100 h-auto')}>
-						<div className="h-px bg-white/10 mb-3" />
-						<span className="text-xs font-medium text-white/40 uppercase tracking-widest whitespace-nowrap">
-							{user?.role ? (ROLE_LABELS[user.role] ?? user.role) : 'Guest'}
-						</span>
-					</div>
+			<div className={cn('flex-1 flex flex-col items-center py-5', isCollapsed ? 'px-2' : 'px-3 overflow-hidden')}>
+				{/* Logo + Collapse */}
+				<div className={cn('mb-5 w-full', isCollapsed ? 'flex flex-col items-center gap-2' : 'px-2')}>
+					{isCollapsed ? (
+						<>
+							<Image src="/xentro-logo.png" alt="Xentro" width={32} height={32} className="rounded-lg" />
+							<button
+								onClick={onToggleCollapse}
+								className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+								title="Expand sidebar"
+							>
+								<svg className="w-4 h-4 text-gray-400 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+								</svg>
+							</button>
+						</>
+					) : (
+						<>
+							<div className="flex items-center justify-between">
+								<div className="flex items-center gap-3 min-w-0">
+									<Image src="/xentro-logo.png" alt="Xentro" width={36} height={36} className="rounded-lg shrink-0" />
+									<span className="text-white font-bold text-xl tracking-tight">Xentro</span>
+								</div>
+								<button
+									onClick={onToggleCollapse}
+									className="shrink-0 w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+									title="Collapse sidebar"
+								>
+									<svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+									</svg>
+								</button>
+							</div>
+							<div className="mt-4">
+								<div className="h-px bg-white/10 mb-3" />
+								<span className="text-xs font-medium text-white/40 uppercase tracking-widest">
+									{user?.role ? (ROLE_LABELS[user.role] ?? user.role) : 'Guest'}
+								</span>
+							</div>
+						</>
+					)}
 				</div>
 
 				{!isCollapsed && (
@@ -243,7 +259,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 					</div>
 				)}
 
-				<nav className="space-y-1 w-full overflow-y-auto">
+				<nav className={cn('w-full', isCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-1 overflow-y-auto scrollbar-none')}>
 					{/* Dashboard with expandable children */}
 					{isAuthenticated && (
 						<>
@@ -256,15 +272,18 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 									}
 								}}
 								className={cn(
-									'relative w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-colors duration-200 group',
-									isCollapsed ? 'justify-center' : '',
-									isDashboardRoute ? 'bg-white/10' : 'hover:bg-white/5',
+									'relative flex items-center transition-colors duration-200 group',
+									isCollapsed
+										? cn('w-11 h-11 justify-center rounded-xl', isDashboardRoute ? 'bg-white/10' : 'hover:bg-white/[0.07]')
+										: cn('w-full gap-4 px-3 py-3 rounded-xl', isDashboardRoute ? 'bg-white/10' : 'hover:bg-white/5'),
 								)}
 							>
 								<NavIcon svgPath={DASHBOARD_PATH} active={isDashboardRoute} />
-								<span className={cn('text-[15px] font-medium transition-all duration-300 whitespace-nowrap overflow-hidden flex-1 text-left', isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100', isDashboardRoute ? 'text-white' : 'text-gray-400')}>
-									Dashboard
-								</span>
+								{!isCollapsed && (
+									<span className={cn('text-[15px] font-medium whitespace-nowrap flex-1 text-left', isDashboardRoute ? 'text-white' : 'text-gray-400')}>
+										Dashboard
+									</span>
+								)}
 								{!isCollapsed && (
 									<svg className={cn('w-4 h-4 text-white/40 transition-transform duration-200 shrink-0', dashExpanded && 'rotate-180')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -307,15 +326,18 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 								key={item.icon}
 								href={item.href}
 								className={cn(
-									'relative w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-colors duration-200 group',
-									isCollapsed ? 'justify-center' : '',
-									active ? 'bg-white/10' : 'hover:bg-white/5',
+									'relative flex items-center transition-colors duration-200 group',
+									isCollapsed
+										? cn('w-11 h-11 justify-center rounded-xl', active ? 'bg-white/10' : 'hover:bg-white/[0.07]')
+										: cn('w-full gap-4 px-3 py-3 rounded-xl', active ? 'bg-white/10' : 'hover:bg-white/5'),
 								)}
 							>
 								<NavIcon svgPath={item.path} active={active} />
-								<span className={cn('text-[15px] font-medium transition-all duration-300 whitespace-nowrap overflow-hidden', isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100', active ? 'text-white' : 'text-gray-400')}>
-									{item.label}
-								</span>
+								{!isCollapsed && (
+									<span className={cn('text-[15px] font-medium whitespace-nowrap', active ? 'text-white' : 'text-gray-400')}>
+										{item.label}
+									</span>
+								)}
 								{isCollapsed && (
 									<div className="absolute left-full ml-3 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
 										{item.label}
@@ -327,9 +349,12 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 				</nav>
 			</div>
 
-			<div className="p-3 border-t border-white/10" ref={profileRef}>
+			<div className={cn('border-t border-white/10', isCollapsed ? 'p-2' : 'p-3')} ref={profileRef}>
 				{profileOpen && (
-					<div className="absolute bottom-20 left-3 right-3 bg-[#15181C] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-fadeIn">
+					<div className={cn(
+						'absolute bottom-20 bg-[#15181C] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-fadeIn',
+						isCollapsed ? 'left-2 w-56' : 'left-3 right-3',
+					)}>
 						<div className="px-4 py-3 border-b border-white/10">
 							<p className="text-sm font-semibold text-white truncate">{displayName}</p>
 							<p className="text-xs text-gray-400 truncate">@{username}</p>
@@ -371,19 +396,25 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 				)}
 				<button
 					onClick={() => setProfileOpen((prev) => !prev)}
-					className={cn('w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group relative', isCollapsed && 'justify-center', profileOpen && 'bg-white/5')}
+					className={cn(
+						'flex items-center rounded-xl hover:bg-white/5 transition-colors group relative',
+						isCollapsed ? 'w-11 h-11 justify-center mx-auto' : 'w-full gap-3 p-3',
+						profileOpen && 'bg-white/5',
+					)}
 				>
-					<div className="shrink-0 w-9 h-9 rounded-full border border-white/10 flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-500/30 to-purple-500/30">
+					<div className="shrink-0 w-9 h-9 rounded-full border border-white/10 flex items-center justify-center overflow-hidden bg-linear-to-br from-blue-500/30 to-purple-500/30">
 						{displayAvatar ? (
 							<img src={displayAvatar} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
 						) : (
 							<span className="text-sm font-semibold text-white">{displayName.charAt(0).toUpperCase()}</span>
 						)}
 					</div>
-					<div className={cn('flex-1 text-left overflow-hidden transition-all duration-300', isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100')}>
-						<p className="text-sm font-medium text-white truncate">{displayName}</p>
-						<p className="text-xs text-gray-400 truncate">@{username}</p>
-					</div>
+					{!isCollapsed && (
+						<div className="flex-1 text-left overflow-hidden">
+							<p className="text-sm font-medium text-white truncate">{displayName}</p>
+							<p className="text-xs text-gray-400 truncate">@{username}</p>
+						</div>
+					)}
 					{!isCollapsed && (
 						<svg className="w-4 h-4 text-white/40 shrink-0" fill="currentColor" viewBox="0 0 24 24">
 							<circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
