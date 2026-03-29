@@ -13,7 +13,7 @@ export default function RootRedirect() {
             if (isAuthenticated) {
                 router.replace('/explore/institute');
             } else {
-                window.location.href = 'https://xentro.in';
+                router.replace('/login');
             }
         }
     }, [isAuthenticated, isLoading, router]);

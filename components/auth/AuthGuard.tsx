@@ -26,7 +26,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated && !hasRoleToken) {
-            window.location.href = 'https://xentro.in';
+            window.location.href = '/login';
         }
     }, [isAuthenticated, isLoading, hasRoleToken, router]);
 

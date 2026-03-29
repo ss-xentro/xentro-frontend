@@ -151,7 +151,7 @@ function checkAuth(request: NextRequest): NextResponse | null {
 
   // Auth-required routes
   if (AUTH_REQUIRED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
-    if (!isLoggedIn) return NextResponse.redirect(new URL('https://xentro.in'));
+    if (!isLoggedIn) return NextResponse.redirect(new URL('/login', request.url));
     return null;
   }
 
