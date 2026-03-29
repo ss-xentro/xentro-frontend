@@ -53,7 +53,7 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
 
     return (
         <>
-            <div className="theme-dark p-4 sm:p-6 lg:p-8">
+            <div className="p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto">
                     {children}
                 </div>

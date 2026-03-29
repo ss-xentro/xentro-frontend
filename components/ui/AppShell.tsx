@@ -32,17 +32,17 @@ export default function AppShell({ children }: AppShellProps) {
   }
 
   return (
-    <div className="theme-dark h-screen bg-[#0B0D10] text-white font-sans overflow-hidden">
+    <div className="h-screen bg-(--background) text-(--primary) font-sans overflow-hidden">
       <div className="flex h-full">
         <AppShellSidebar isCollapsed={isCollapsed} onToggleCollapse={() => setIsCollapsed(!isCollapsed)} />
 
-        <main className="flex-1 min-w-0 border-r border-white/10 overflow-y-auto">
+        <main className="flex-1 min-w-0 border-r border-(--border) overflow-y-auto">
           {children}
         </main>
       </div>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#0B0D10]/95 backdrop-blur-xl border-t border-white/10 z-50">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-(--background)/95 backdrop-blur-xl border-t border-(--border) z-50">
         <div className="flex items-center justify-around px-2 py-3">
           {navItems.map((item) => {
             const active = isActive(item);
@@ -52,11 +52,11 @@ export default function AppShell({ children }: AppShellProps) {
                 href={item.href}
                 className={cn(
                   'flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200',
-                  active ? 'bg-white/10' : '',
+                  active ? 'bg-(--accent-light)' : '',
                 )}
               >
                 <NavIcon svgPath={item.path} active={active} />
-                <span className={cn('text-[10px] font-medium', active ? 'text-white' : 'text-white/40')}>
+                <span className={cn('text-[10px] font-medium', active ? 'text-(--primary)' : 'text-(--secondary-light)')}>
                   {item.label}
                 </span>
               </Link>

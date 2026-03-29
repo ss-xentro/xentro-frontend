@@ -86,12 +86,13 @@ html {
 }
 
 body {
-  background: #FFFFFF;
-  color: #111827;
+  background: var(--background);
+  color: var(--primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Focus States */
@@ -140,8 +141,8 @@ button {
   cursor: pointer;
 }
 
-/* Dark theme overrides for dashboard content inside AppShell */
-.theme-dark {
+/* Dark theme */
+.dark {
   --primary: #F9FAFB;
   --primary-light: #E5E7EB;
   --secondary: #9CA3AF;
@@ -310,6 +311,10 @@ select {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+}
+
+.dark .glass {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .gradient-text {

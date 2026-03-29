@@ -6,6 +6,7 @@ import { Card, Button, Input } from "@/components/ui";
 import { getSessionToken } from "@/lib/auth-utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppIcon } from "@/components/ui/AppIcon";
+import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import { toast } from "sonner";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -368,6 +369,13 @@ export default function AccountSettings({
 					</Card>
 				)
 			}
+
+			{/* Appearance */}
+			<Card className="p-6 space-y-4">
+				<h2 className="text-lg font-semibold text-(--primary)">Appearance</h2>
+				<p className="text-sm text-(--secondary)">Choose how Xentro looks for you</p>
+				<ThemeSwitcher />
+			</Card>
 
 			{/* Notifications Section */}
 			<Card className="p-6 space-y-4">

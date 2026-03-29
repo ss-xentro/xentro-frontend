@@ -68,7 +68,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!isAuthenticated) return null;
 
     return (
-        <div className="theme-dark p-4 sm:p-6 lg:p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto">
                 {children}
             </div>
