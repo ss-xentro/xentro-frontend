@@ -1,7 +1,9 @@
+import { redirect } from 'next/navigation';
+
 export default function FeedLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    return <>{children}</>;
+    redirect('/explore/institute');
 }

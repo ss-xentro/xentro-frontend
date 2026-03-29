@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { getSessionToken } from '@/lib/auth-utils';
+import { getSessionToken, syncAuthCookie, getAuthCookie } from '@/lib/auth-utils';
 import { getStartupCompletionStep } from '@/lib/startup-onboarding';
 
 const CANONICAL_ONBOARDING_PATH = '/startup/onboarding';
@@ -66,6 +66,8 @@ export default function StartupOnboardingGuard({ children }: { children: React.R
 				if (nextStep <= 4) {
 					router.replace(CANONICAL_ONBOARDING_PATH);
 				} else {
+					// Update cookie so middleware stops redirecting to onboarding
+					syncAuthCookie({ ...(getAuthCookie() ?? {}), startupOnboarded: true });
 					// Cache success so we don't re-check on every navigation
 					sessionStorage.setItem(CACHE_KEY, 'true');
 				}

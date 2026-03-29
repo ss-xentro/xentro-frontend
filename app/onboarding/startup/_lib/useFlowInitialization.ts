@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStartupOnboardingStore } from '@/stores/useStartupOnboardingStore';
-import { getSessionToken } from '@/lib/auth-utils';
+import { getSessionToken, syncAuthCookie, getAuthCookie } from '@/lib/auth-utils';
 import { getStartupCompletionStep } from '@/lib/startup-onboarding';
 import { COMPLETION_STEPS, getWhyXentroValues, hasPartialMember } from './constants';
 
@@ -49,17 +49,13 @@ export function useFlowInitialization() {
 
 				if (!res.ok) {
 					if (!cancelled) {
-						// If 404 (no startup), user genuinely needs to create one — stay in signup mode
-						// For other errors (403, 500), redirect to dashboard rather than trapping them here
-						if (res.status === 404) {
-							setFlowMode('signup');
-							setExistingStartupId(null);
-							resetToSignupDraft();
-							resetVerificationState.current?.();
-						} else {
-							router.replace('/dashboard');
-							return;
-						}
+						// 404 = no startup yet → stay in signup mode
+						// Other errors → also stay on onboarding (redirecting to /dashboard
+						// would loop when the cookie has startupOnboarded: false)
+						setFlowMode('signup');
+						setExistingStartupId(null);
+						resetToSignupDraft();
+						resetVerificationState.current?.();
 					}
 					return;
 				}
@@ -82,6 +78,8 @@ export function useFlowInitialization() {
 					});
 
 					if (serverStep > COMPLETION_STEPS.length) {
+						// Update cookie before redirect so middleware doesn't bounce back
+						syncAuthCookie({ ...(getAuthCookie() ?? {}), startupOnboarded: true });
 						router.replace('/dashboard');
 						return;
 					}
@@ -152,9 +150,12 @@ export function useFlowInitialization() {
 				}
 			} catch {
 				if (!cancelled) {
-					// Network error — redirect to dashboard rather than showing broken onboarding
-					router.replace('/dashboard');
-					return;
+					// Network error — stay on onboarding in signup mode rather than
+					// redirecting to /dashboard (which loops when cookie says not onboarded)
+					setFlowMode('signup');
+					setExistingStartupId(null);
+					resetToSignupDraft();
+					resetVerificationState.current?.();
 				}
 			} finally {
 				if (!cancelled) setIsInitializingFlow(false);

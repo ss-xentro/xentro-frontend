@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStartupOnboardingStore } from '@/stores/useStartupOnboardingStore';
-import { getSessionToken } from '@/lib/auth-utils';
+import { getSessionToken, syncAuthCookie, getAuthCookie } from '@/lib/auth-utils';
 import {
 	COMPLETION_STEPS, WHY_XENTRO_OPTIONS,
 	hasIncompleteMember, isValidEmail,
@@ -186,6 +186,8 @@ export function useStepNavigation({
 
 			if (isCompletionFlow) {
 				reset();
+				// Mark onboarding complete in auth cookie so middleware stops redirecting
+				syncAuthCookie({ ...(getAuthCookie() ?? {}), startupOnboarded: true });
 				router.push('/dashboard');
 				return;
 			}
