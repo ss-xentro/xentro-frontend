@@ -248,7 +248,7 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 								showControls={false}
 							/>
 						) : (
-							<div className="h-full w-full flex items-center justify-center text-5xl font-semibold text-white/70">{selectedMember.initial}</div>
+							<div className="h-full w-full flex items-center justify-center text-5xl font-semibold text-(--secondary)">{selectedMember.initial}</div>
 						)}
 						<button
 							type="button"

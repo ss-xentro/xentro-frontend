@@ -92,9 +92,9 @@ export default function MentorVerificationPage() {
       approved: { bg: 'bg-green-50', text: 'text-green-700', label: 'Approved' },
       pending: { bg: 'bg-yellow-50', text: 'text-yellow-700', label: 'Pending' },
       rejected: { bg: 'bg-red-50', text: 'text-red-700', label: 'Rejected' },
-      suspended: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Suspended' },
+      suspended: { bg: 'bg-(--accent-light)', text: 'text-(--secondary-light)', label: 'Suspended' },
     };
-    const s = map[status] || { bg: 'bg-gray-100', text: 'text-gray-600', label: status };
+    const s = map[status] || { bg: 'bg-(--accent-light)', text: 'text-(--secondary-light)', label: status };
     return (
       <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', s.bg, s.text)}>
         {s.label}
@@ -177,15 +177,15 @@ export default function MentorVerificationPage() {
                     {/* Achievements */}
                     {row.achievements && (
                       <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-1">Achievements</h4>
+                        <h4 className="text-sm font-medium text-(--primary-light) mb-1">Achievements</h4>
                         {Array.isArray(row.achievements) ? (
                           <ul className="list-disc list-inside space-y-1">
                             {row.achievements.map((item, i) => (
-                              <li key={i} className="text-sm text-gray-600">{item}</li>
+                              <li key={i} className="text-sm text-(--secondary-light)">{item}</li>
                             ))}
                           </ul>
                         ) : (
-                          <p className="text-sm text-gray-600 whitespace-pre-wrap">{row.achievements}</p>
+                          <p className="text-sm text-(--secondary-light) whitespace-pre-wrap">{row.achievements}</p>
                         )}
                       </div>
                     )}
@@ -193,10 +193,10 @@ export default function MentorVerificationPage() {
                     {/* Availability */}
                     {slots.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-1">Availability</h4>
+                        <h4 className="text-sm font-medium text-(--primary-light) mb-1">Availability</h4>
                         <div className="flex flex-wrap gap-2">
                           {slots.map((slot, i) => (
-                            <span key={i} className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 text-xs text-gray-700">
+                            <span key={i} className="inline-flex items-center px-2.5 py-1 rounded-md bg-(--accent-light) text-xs text-(--primary-light)">
                               {slot.day} {slot.startTime}–{slot.endTime}
                             </span>
                           ))}
@@ -207,7 +207,7 @@ export default function MentorVerificationPage() {
                     {/* Documents */}
                     {row.documents && row.documents.length > 0 && (
                       <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-1">Documents</h4>
+                        <h4 className="text-sm font-medium text-(--primary-light) mb-1">Documents</h4>
                         <ul className="space-y-1">
                           {row.documents.map((doc, i) => (
                             <li key={i}>
@@ -238,8 +238,8 @@ export default function MentorVerificationPage() {
 
           {!loading && !rows.length && (
             <div className="text-center py-8">
-              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 rounded-full bg-(--accent-light) flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>

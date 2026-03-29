@@ -195,9 +195,9 @@ export default function StartupSettingsPage() {
                                     <div className="grid gap-2">
                                         <label className="block text-sm font-medium text-(--primary) mb-2">Logo</label>
                                         <div className="flex items-center gap-6">
-                                            <div className={`w-20 h-20 rounded-xl border border-(--border) flex items-center justify-center overflow-hidden shrink-0 ${data.logo ? 'bg-[#6B7280]' : 'bg-(--surface-hover)'}`}>
+                                            <div className={`w-20 h-20 rounded-xl border border-(--border) flex items-center justify-center overflow-hidden shrink-0 ${data.logo ? 'bg-(--secondary)' : 'bg-(--surface-hover)'}`}>
                                                 {data.logo ? (
-                                                    <MediaPreview src={data.logo} alt="Logo" className="h-full w-full rounded-none border-0 bg-[#6B7280]" mediaClassName="object-cover" />
+                                                    <MediaPreview src={data.logo} alt="Logo" className="h-full w-full rounded-none border-0 bg-(--secondary)" mediaClassName="object-cover" />
                                                 ) : (
                                                     <span className="text-2xl font-bold text-(--secondary)">
                                                         {data.name.substring(0, 2).toUpperCase()}

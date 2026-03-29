@@ -245,25 +245,25 @@ export default function MentorDetailPage() {
 
 	if (loading) {
 		return (
-			<div className="min-h-screen bg-[#0B0D10] text-white">
+			<div className="min-h-screen bg-background text-(--primary)">
 				<StartupProfileNavbar />
 				<div className="p-6 max-w-5xl mx-auto animate-pulse space-y-5">
-					<div className="h-5 w-36 bg-white/5 rounded-lg" />
-					<div className="h-48 bg-white/3 border border-white/6 rounded-xl" />
+					<div className="h-5 w-36 bg-(--accent-subtle) rounded-lg" />
+					<div className="h-48 bg-(--accent-subtle) border border-(--border-light) rounded-xl" />
 					<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
 						{[1, 2, 3, 4].map((i) => (
 							<div
 								key={i}
-								className="h-20 bg-white/3 border border-white/6 rounded-xl"
+								className="h-20 bg-(--accent-subtle) border border-(--border-light) rounded-xl"
 							/>
 						))}
 					</div>
 					<div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 						<div className="lg:col-span-2 space-y-5">
-							<div className="h-40 bg-white/3 border border-white/6 rounded-xl" />
-							<div className="h-28 bg-white/3 border border-white/6 rounded-xl" />
+							<div className="h-40 bg-(--accent-subtle) border border-(--border-light) rounded-xl" />
+							<div className="h-28 bg-(--accent-subtle) border border-(--border-light) rounded-xl" />
 						</div>
-						<div className="h-64 bg-white/3 border border-white/6 rounded-xl" />
+						<div className="h-64 bg-(--accent-subtle) border border-(--border-light) rounded-xl" />
 					</div>
 				</div>
 			</div>
@@ -272,16 +272,16 @@ export default function MentorDetailPage() {
 
 	if (!mentor) {
 		return (
-			<div className="min-h-screen bg-[#0B0D10] text-white">
+			<div className="min-h-screen bg-background text-(--primary)">
 				<StartupProfileNavbar />
 				<div className="p-6 flex flex-col items-center justify-center py-24 text-center">
-					<div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-						<AppIcon name="brain" className="w-8 h-8 text-gray-500" />
+					<div className="w-16 h-16 rounded-full bg-(--accent-subtle) flex items-center justify-center mb-4">
+						<AppIcon name="brain" className="w-8 h-8 text-(--secondary-light)" />
 					</div>
-					<h3 className="text-lg font-semibold text-white mb-1">
+					<h3 className="text-lg font-semibold text-(--primary) mb-1">
 						Mentor not found
 					</h3>
-					<p className="text-sm text-gray-500 mb-4">
+					<p className="text-sm text-(--secondary-light) mb-4">
 						This mentor profile doesn&apos;t exist or has been removed.
 					</p>
 					<button
@@ -298,12 +298,12 @@ export default function MentorDetailPage() {
 	const hourlyRate = mentor.pricingPerHour || mentor.rate;
 
 	return (
-		<div className="min-h-screen bg-[#0B0D10] text-white">
+		<div className="min-h-screen bg-background text-(--primary)">
 			<StartupProfileNavbar />
 			<div className="p-6 max-w-5xl mx-auto">
 				<Link
 					href="/explore/mentors"
-					className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-white mb-6 transition-colors"
+					className="inline-flex items-center gap-1.5 text-sm text-(--secondary-light) hover:text-(--primary) mb-6 transition-colors"
 				>
 					<svg
 						className="w-4 h-4"
@@ -416,13 +416,13 @@ export default function MentorDetailPage() {
 				)}
 
 				<div className="mb-5">
-					<div className="inline-flex items-center p-1 rounded-xl bg-white/3 border border-white/8">
+					<div className="inline-flex items-center p-1 rounded-xl bg-(--accent-subtle) border border-(--border-light)">
 						<button
 							type="button"
 							onClick={() => setActiveTab("overview")}
 							className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "overview"
-								? "bg-white text-[#0B0D10]"
-								: "text-gray-300 hover:text-white"
+								? "bg-(--primary) text-(--background)"
+								: "text-(--primary-light) hover:text-(--primary)"
 								}`}
 						>
 							Overview
@@ -431,8 +431,8 @@ export default function MentorDetailPage() {
 							type="button"
 							onClick={() => setActiveTab("mentoredStartups")}
 							className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "mentoredStartups"
-								? "bg-white text-[#0B0D10]"
-								: "text-gray-300 hover:text-white"
+								? "bg-(--primary) text-(--background)"
+								: "text-(--primary-light) hover:text-(--primary)"
 								}`}
 						>
 							Previously Mentored Startups
@@ -449,7 +449,7 @@ export default function MentorDetailPage() {
 										{mentor.expertise.map((tag) => (
 											<span
 												key={tag}
-												className="text-sm px-4 py-1.5 rounded-full bg-white/5 text-gray-300 border border-white/10"
+												className="text-sm px-4 py-1.5 rounded-full bg-(--accent-subtle) text-(--primary-light) border border-(--border)"
 											>
 												{tag}
 											</span>
@@ -475,7 +475,7 @@ export default function MentorDetailPage() {
 										{mentor.achievements.map((a, i) => (
 											<li
 												key={i}
-												className="flex items-start gap-3 text-sm text-gray-400"
+												className="flex items-start gap-3 text-sm text-(--secondary)"
 											>
 												<div className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
 													<svg
@@ -489,7 +489,7 @@ export default function MentorDetailPage() {
 												<RichTextDisplay
 													html={a}
 													compact
-													className="text-sm text-gray-300"
+													className="text-sm text-(--primary-light)"
 												/>
 											</li>
 										))}
@@ -503,7 +503,7 @@ export default function MentorDetailPage() {
 										{mentor.packages.map((pkg, i) => (
 											<li
 												key={i}
-												className="flex items-start gap-2.5 text-sm text-gray-400"
+												className="flex items-start gap-2.5 text-sm text-(--secondary)"
 											>
 												<svg
 													className="w-4 h-4 text-violet-400 shrink-0 mt-0.5"
@@ -521,7 +521,7 @@ export default function MentorDetailPage() {
 												<RichTextDisplay
 													html={pkg}
 													compact
-													className="text-sm text-gray-300"
+													className="text-sm text-(--primary-light)"
 												/>
 											</li>
 										))}
@@ -556,26 +556,26 @@ export default function MentorDetailPage() {
 				)}
 
 				{activeTab === "mentoredStartups" && (
-					<div className="bg-white/3 border border-white/8 rounded-xl p-5">
+					<div className="bg-(--accent-subtle) border border-(--border-light) rounded-xl p-5">
 						<div className="flex items-start justify-between gap-3 mb-4">
 							<div>
-								<h3 className="text-lg font-semibold text-white">
+								<h3 className="text-lg font-semibold text-(--primary)">
 									Previously Mentored Startups
 								</h3>
-								<p className="text-sm text-gray-400 mt-0.5">
+								<p className="text-sm text-(--secondary) mt-0.5">
 									Startups this mentor has completed sessions with on Xentro.
 								</p>
 							</div>
-							<span className="px-2.5 py-1 rounded-full text-xs bg-white/8 text-gray-300 border border-white/10">
+							<span className="px-2.5 py-1 rounded-full text-xs bg-(--accent-light) text-(--primary-light) border border-(--border)">
 								{mentor.mentoredStartups.length}
 							</span>
 						</div>
 
 						{mentor.mentoredStartups.length === 0 ? (
-							<div className="border border-dashed border-white/12 rounded-xl p-8 text-center">
-								<div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
+							<div className="border border-dashed border-(--border) rounded-xl p-8 text-center">
+								<div className="w-12 h-12 rounded-full bg-(--accent-subtle) flex items-center justify-center mx-auto mb-3">
 									<svg
-										className="w-6 h-6 text-gray-500"
+										className="w-6 h-6 text-(--secondary-light)"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -588,10 +588,10 @@ export default function MentorDetailPage() {
 										/>
 									</svg>
 								</div>
-								<p className="text-sm font-medium text-white">
+								<p className="text-sm font-medium text-(--primary)">
 									No mentoring experience on platform yet
 								</p>
-								<p className="text-xs text-gray-500 mt-1">
+								<p className="text-xs text-(--secondary-light) mt-1">
 									Completed startup mentorships will appear here.
 								</p>
 							</div>
@@ -603,10 +603,10 @@ export default function MentorDetailPage() {
 										href={`/startups/${startup.id}`}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="rounded-xl border border-white/8 bg-white/2 p-4 hover:bg-white/5 hover:border-white/20 transition-colors"
+										className="rounded-xl border border-(--border-light) bg-(--accent-subtle) p-4 hover:bg-(--accent-subtle) hover:border-(--border-hover) transition-colors"
 									>
 										<div className="flex items-center gap-3">
-											<div className="w-10 h-10 rounded-lg bg-white/6 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+											<div className="w-10 h-10 rounded-lg bg-(--accent-subtle) border border-(--border) overflow-hidden flex items-center justify-center shrink-0">
 												{startup.logo ? (
 													<img
 														src={startup.logo}
@@ -614,13 +614,13 @@ export default function MentorDetailPage() {
 														className="w-full h-full object-cover"
 													/>
 												) : (
-													<span className="text-sm font-bold text-gray-300">
+													<span className="text-sm font-bold text-(--primary-light)">
 														{startup.name.charAt(0).toUpperCase()}
 													</span>
 												)}
 											</div>
 											<div className="min-w-0 flex-1">
-												<p className="text-sm font-semibold text-white truncate">
+												<p className="text-sm font-semibold text-(--primary) truncate">
 													{startup.name}
 												</p>
 												{startup.isExternalInstitution &&
@@ -629,12 +629,12 @@ export default function MentorDetailPage() {
 															Associated with {startup.institutionName}
 														</p>
 													)}
-												<p className="text-[11px] text-gray-500 mt-1">
+												<p className="text-[11px] text-(--secondary-light) mt-1">
 													View startup profile
 												</p>
 											</div>
 											<svg
-												className="w-4 h-4 text-gray-500 shrink-0"
+												className="w-4 h-4 text-(--secondary-light) shrink-0"
 												fill="none"
 												stroke="currentColor"
 												viewBox="0 0 24 24"
@@ -667,9 +667,9 @@ export default function MentorDetailPage() {
 				{showSlotsModal && (
 					<Modal isOpen={showSlotsModal} onClose={() => setShowSlotsModal(false)} variant="dark" title="Select an Available Slot" className="max-w-2xl max-h-[80vh] overflow-y-auto">
 						{slotsLoading ? (
-							<p className="text-sm text-gray-400">Loading slots...</p>
+							<p className="text-sm text-(--secondary)">Loading slots...</p>
 						) : slots.length === 0 ? (
-							<p className="text-sm text-gray-400">
+							<p className="text-sm text-(--secondary)">
 								This mentor has not published any slots yet.
 							</p>
 						) : (
@@ -677,9 +677,9 @@ export default function MentorDetailPage() {
 								{Object.entries(slotsByDay).map(([day, daySlots]) => (
 									<div
 										key={day}
-										className="rounded-xl border border-white/8 p-3 bg-white/2"
+										className="rounded-xl border border-(--border-light) p-3 bg-(--accent-subtle)"
 									>
-										<p className="text-sm font-semibold text-white mb-2 capitalize">
+										<p className="text-sm font-semibold text-(--primary) mb-2 capitalize">
 											{day}
 										</p>
 										<div className="flex flex-wrap gap-2">
@@ -687,7 +687,7 @@ export default function MentorDetailPage() {
 												<button
 													key={slot.id}
 													onClick={() => handlePickSlot(slot)}
-													className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-violet-500/40 hover:bg-violet-500/10"
+													className="text-xs px-3 py-1.5 rounded-lg border border-(--border) text-(--primary-light) hover:text-white hover:border-violet-500/40 hover:bg-violet-500/10"
 												>
 													{formatTime(slot.startTime)} –{" "}
 													{formatTime(slot.endTime)}
@@ -703,14 +703,14 @@ export default function MentorDetailPage() {
 
 				{showRequestModal && selectedSlot && (
 					<Modal isOpen={showRequestModal} onClose={() => !bookingSubmitting && setShowRequestModal(false)} variant="dark" title="Request Booking" className="max-w-md">
-						<p className="text-xs text-gray-500 mb-4 -mt-2">
+						<p className="text-xs text-(--secondary-light) mb-4 -mt-2">
 							{selectedSlot.dayOfWeek} · {formatTime(selectedSlot.startTime)}{" "}
 							– {formatTime(selectedSlot.endTime)}
 						</p>
 
 						<div className="space-y-3">
 							<div>
-								<label className="block text-xs font-medium text-gray-400 mb-1">
+								<label className="block text-xs font-medium text-(--secondary) mb-1">
 									Date
 								</label>
 								<input
@@ -718,11 +718,11 @@ export default function MentorDetailPage() {
 									value={selectedDate}
 									onChange={(e) => setSelectedDate(e.target.value)}
 									min={new Date().toISOString().split("T")[0]}
-									className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-violet-500/50"
+									className="w-full px-3 py-2 rounded-lg bg-(--accent-subtle) border border-(--border) text-sm text-(--primary) focus:outline-none focus:border-violet-500/50"
 								/>
 							</div>
 							<div>
-								<label className="block text-xs font-medium text-gray-400 mb-1">
+								<label className="block text-xs font-medium text-(--secondary) mb-1">
 									Message to mentor
 								</label>
 								<textarea
@@ -730,7 +730,7 @@ export default function MentorDetailPage() {
 									value={requestMessage}
 									onChange={(e) => setRequestMessage(e.target.value)}
 									placeholder="Tell the mentor what you want to discuss..."
-									className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 resize-none"
+									className="w-full px-3 py-2 rounded-lg bg-(--accent-subtle) border border-(--border) text-sm text-(--primary) placeholder:text-(--secondary-light) focus:outline-none focus:border-violet-500/50 resize-none"
 								/>
 							</div>
 
@@ -740,7 +740,7 @@ export default function MentorDetailPage() {
 									onClick={() =>
 										!bookingSubmitting && setShowRequestModal(false)
 									}
-									className="flex-1 px-4 py-2.5 rounded-lg border border-white/10 text-sm text-gray-300 hover:text-white"
+									className="flex-1 px-4 py-2.5 rounded-lg border border-(--border) text-sm text-(--primary-light) hover:text-(--primary)"
 									disabled={bookingSubmitting}
 								>
 									Cancel

@@ -236,7 +236,7 @@ export default function PublicEventsPage() {
 							}}
 							className={`rounded-full border px-3 py-1.5 text-xs font-medium transition duration-200 active:scale-[0.97] ${active
 								? 'border-[#ef4444] bg-[#ef4444]/10 text-[#fecaca] shadow-[0_0_0_1px_rgba(239,68,68,0.15)]'
-								: 'border-white/15 bg-white/5 text-white/80 hover:border-white/35 hover:bg-white/10'
+								: 'border-(--border) bg-(--accent-subtle) text-(--primary)/80 hover:border-(--border-hover) hover:bg-(--accent-light)'
 								}`}
 						>
 							{labelize(opt)}
@@ -252,7 +252,7 @@ export default function PublicEventsPage() {
 			<button
 				type="button"
 				onClick={openFiltersModal}
-				className="fixed bottom-5 right-4 z-40 inline-flex items-center gap-2 rounded-full border border-white/70 bg-white px-4 py-2.5 text-xs font-semibold text-[#0b1220] shadow-[0_14px_36px_rgba(2,6,23,0.45)] transition duration-200 hover:bg-white/90 active:scale-[0.97] sm:right-6 sm:text-sm"
+				className="fixed bottom-5 right-4 z-40 inline-flex items-center gap-2 rounded-full border border-(--primary)/70 bg-(--primary) px-4 py-2.5 text-xs font-semibold text-(--background) shadow-[0_14px_36px_rgba(2,6,23,0.45)] transition duration-200 hover:opacity-90 active:scale-[0.97] sm:right-6 sm:text-sm"
 			>
 				<svg viewBox="0 0 20 20" aria-hidden="true" className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
 					<path d="M3 5h14M6 10h8M8.5 15h3" strokeLinecap="round" />
@@ -261,17 +261,17 @@ export default function PublicEventsPage() {
 			</button>
 
 			<div className="mx-auto max-w-350 px-3 py-5 sm:px-4 sm:py-7 lg:px-6 lg:py-10 space-y-5 sm:space-y-7">
-				<header className="rounded-2xl sm:rounded-3xl border border-white/10 bg-[linear-gradient(135deg,#111827,#0f172a_45%,#3f1d2e)] p-4 sm:p-6 lg:p-9">
+				<header className="rounded-2xl sm:rounded-3xl border border-(--border) bg-[linear-gradient(135deg,#111827,#0f172a_45%,#3f1d2e)] p-4 sm:p-6 lg:p-9">
 					<div className="flex flex-wrap items-start justify-between gap-4">
 						<div>
 							<p className="text-[11px] uppercase tracking-[0.22em] text-[#fca5a5]">Startup Discovery</p>
-							<h1 className="mt-1.5 text-2xl font-bold text-white sm:text-3xl lg:text-4xl">Events That Match Your Startup Journey</h1>
-							<p className="mt-2.5 max-w-3xl text-xs text-white/80 sm:text-sm lg:text-base">
+							<h1 className="mt-1.5 text-2xl font-bold text-(--primary) sm:text-3xl lg:text-4xl">Events That Match Your Startup Journey</h1>
+							<p className="mt-2.5 max-w-3xl text-xs text-(--primary)/80 sm:text-sm lg:text-base">
 								Scan high-signal events by stage, domain, audience, outcomes, and credibility signals. This board is tuned for founders who need relevance fast.
 							</p>
 						</div>
 						<Link href="/events/my-bookings">
-							<Button variant="ghost" className="border border-white/20 bg-white/10 text-white transition duration-200 hover:bg-white/20 active:scale-[0.98]">My Bookings</Button>
+							<Button variant="ghost" className="border border-(--border-hover) bg-(--accent-light) text-(--primary) transition duration-200 hover:bg-(--accent) active:scale-[0.98]">My Bookings</Button>
 						</Link>
 					</div>
 				</header>
@@ -280,21 +280,21 @@ export default function PublicEventsPage() {
 					<main className="space-y-4 sm:space-y-6 pb-20">
 						<div className="flex items-center justify-between">
 							<div>
-								<h2 className="text-lg sm:text-xl font-semibold text-white">Matching Events</h2>
-								<p className="text-xs sm:text-sm text-white/70">{events.length} opportunities discovered</p>
+								<h2 className="text-lg sm:text-xl font-semibold text-(--primary)">Matching Events</h2>
+								<p className="text-xs sm:text-sm text-(--secondary)">{events.length} opportunities discovered</p>
 							</div>
 						</div>
 
 						{loading ? (
 							<div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
 								{[1, 2, 3, 4, 5, 6].map((i) => (
-									<div key={i} className="h-56 sm:h-64 rounded-2xl bg-white/10 animate-pulse" />
+									<div key={i} className="h-56 sm:h-64 rounded-2xl bg-(--accent-light) animate-pulse" />
 								))}
 							</div>
 						) : events.length === 0 ? (
-							<Card className="rounded-2xl border-white/10 bg-[#111827]/90 p-6 sm:p-10 text-center">
-								<h3 className="text-lg sm:text-xl font-semibold text-white">No events match this filter stack</h3>
-								<p className="mt-2 text-xs sm:text-sm text-white/70">Try widening stage, audience, or date controls to surface more opportunities.</p>
+							<Card className="rounded-2xl border-(--border) bg-(--surface)/90 p-6 sm:p-10 text-center">
+								<h3 className="text-lg sm:text-xl font-semibold text-(--primary)">No events match this filter stack</h3>
+								<p className="mt-2 text-xs sm:text-sm text-(--secondary)">Try widening stage, audience, or date controls to surface more opportunities.</p>
 							</Card>
 						) : (
 							<>
@@ -310,28 +310,28 @@ export default function PublicEventsPage() {
 												const capacityLabel = isOpenCapacity ? 'Open' : `${event.remainingSlots} seats left`;
 												return (
 													<Link key={event.id} href={`/events/${event.id}`} className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f87171]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1220]">
-														<Card className="group h-full rounded-2xl border border-white/10 bg-[#0f172a]/95 p-3.5 sm:p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#ef4444]/45 hover:bg-[#111827] hover:shadow-[0_8px_24px_rgba(2,6,23,0.35)] active:scale-[0.99]">
+														<Card className="group h-full rounded-2xl border border-(--border) bg-(--surface)/95 p-3.5 sm:p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#ef4444]/45 hover:bg-(--surface) hover:shadow-[0_8px_24px_rgba(2,6,23,0.35)] active:scale-[0.99]">
 															<div className="flex items-start justify-between gap-3">
 																<div className="min-w-0">
 																	<p className="text-[11px] font-medium uppercase tracking-wide text-[#fca5a5]">{labelize(event.type || 'event')}</p>
-																	<h4 className="mt-1 line-clamp-2 text-sm sm:text-base font-semibold text-white">{event.name}</h4>
+																	<h4 className="mt-1 line-clamp-2 text-sm sm:text-base font-semibold text-(--primary)">{event.name}</h4>
 																</div>
 																{isBooked && <span className="rounded-full bg-emerald-500/20 px-2 py-1 text-[10px] font-semibold text-emerald-300">Booked</span>}
 															</div>
-															<div className="mt-3 flex items-center gap-2 text-xs text-white/70">
+															<div className="mt-3 flex items-center gap-2 text-xs text-(--secondary)">
 																<span>{start ? `${start.month} ${start.day}` : 'TBA'}</span>
 																{start && <span>{start.time}</span>}
 															</div>
-															<p className="mt-2 line-clamp-2 text-xs sm:text-sm text-white/75">{event.description || 'No description available yet.'}</p>
+															<p className="mt-2 line-clamp-2 text-xs sm:text-sm text-(--secondary)">{event.description || 'No description available yet.'}</p>
 															<div className="mt-3 flex flex-wrap gap-2 text-[11px]">
-																<span className="rounded-full border border-white/15 px-2 py-1 text-white/70">{labelize(event.mode || (event.isVirtual ? 'online' : 'offline'))}</span>
-																<span className="rounded-full border border-white/15 px-2 py-1 text-white/70">{labelize(event.pricingType || 'free')}</span>
-																<span className="rounded-full border border-white/15 px-2 py-1 text-white/70">{labelize(event.difficultyLevel || 'beginner')}</span>
-																<span className={`rounded-full px-2 py-1 ${isOpenCapacity ? 'border border-emerald-400/45 bg-emerald-400/15 text-emerald-200' : 'border border-white/15 text-white/70'}`}>
+																<span className="rounded-full border border-(--border) px-2 py-1 text-(--secondary)">{labelize(event.mode || (event.isVirtual ? 'online' : 'offline'))}</span>
+																<span className="rounded-full border border-(--border) px-2 py-1 text-(--secondary)">{labelize(event.pricingType || 'free')}</span>
+																<span className="rounded-full border border-(--border) px-2 py-1 text-(--secondary)">{labelize(event.difficultyLevel || 'beginner')}</span>
+																<span className={`rounded-full px-2 py-1 ${isOpenCapacity ? 'border border-emerald-400/45 bg-emerald-400/15 text-emerald-200' : 'border border-(--border) text-(--secondary)'}`}>
 																	{capacityLabel}
 																</span>
 															</div>
-															<div className="mt-3 sm:mt-4 border-t border-white/10 pt-3 text-xs text-white/70">
+															<div className="mt-3 sm:mt-4 border-t border-(--border) pt-3 text-xs text-(--secondary)">
 																<p>{organizer}</p>
 																<p className="mt-1">{capacityLabel}</p>
 															</div>
@@ -345,13 +345,13 @@ export default function PublicEventsPage() {
 
 								{pastEvents.length > 0 && (
 									<section className="space-y-3">
-										<h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/60">Past</h3>
+										<h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-(--secondary-light)">Past</h3>
 										<div className="grid gap-2.5 sm:gap-3 md:grid-cols-2 xl:grid-cols-3">
 											{pastEvents.map((event) => (
 												<Link key={event.id} href={`/events/${event.id}`} className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f87171]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1220]">
-													<Card className="h-full rounded-xl border border-white/10 bg-white/5 p-3 opacity-80 transition duration-200 hover:opacity-100 active:scale-[0.99]">
-														<p className="text-xs uppercase tracking-wide text-white/55">{labelize(event.type || 'event')}</p>
-														<h4 className="mt-1 line-clamp-2 text-sm font-semibold text-white">{event.name}</h4>
+													<Card className="h-full rounded-xl border border-(--border) bg-(--accent-subtle) p-3 opacity-80 transition duration-200 hover:opacity-100 active:scale-[0.99]">
+														<p className="text-xs uppercase tracking-wide text-(--secondary-light)">{labelize(event.type || 'event')}</p>
+														<h4 className="mt-1 line-clamp-2 text-sm font-semibold text-(--primary)">{event.name}</h4>
 													</Card>
 												</Link>
 											))}
@@ -368,15 +368,15 @@ export default function PublicEventsPage() {
 				<Modal isOpen={filtersModalOpen} onClose={closeFiltersModal} variant="dark" className="max-w-4xl">
 					<div className="mb-3 flex items-center justify-between gap-3 -mt-2">
 						<div>
-							<h2 className="text-sm font-semibold text-white sm:text-base">Filter Stack</h2>
-							<p className="text-xs text-white/60">Closing this modal saves your filter choices automatically.</p>
+							<h2 className="text-sm font-semibold text-(--primary) sm:text-base">Filter Stack</h2>
+							<p className="text-xs text-(--secondary-light)">Closing this modal saves your filter choices automatically.</p>
 						</div>
 						<div className="flex items-center gap-2">
 							<Button
 								type="button"
 								variant="ghost"
 								onClick={() => setDraftFilters(EMPTY_FILTERS)}
-								className="border border-white/20 bg-white/5 text-white/85 transition duration-200 hover:bg-white/10 active:scale-[0.98]"
+								className="border border-(--border-hover) bg-(--accent-subtle) text-(--primary)/85 transition duration-200 hover:bg-(--accent-light) active:scale-[0.98]"
 							>
 								Clear
 							</Button>
@@ -392,42 +392,42 @@ export default function PublicEventsPage() {
 
 					<div className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">1. Event Type</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">1. Event Type</p>
 							{renderPillOptions('eventType', FILTER_OPTIONS.eventType)}
 						</section>
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">2. Audience Type</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">2. Audience Type</p>
 							{renderPillOptions('audienceType', FILTER_OPTIONS.audienceType)}
 						</section>
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">3. Startup Stage</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">3. Startup Stage</p>
 							{renderPillOptions('startupStage', FILTER_OPTIONS.startupStage)}
 						</section>
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">4. Domain / Industry</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">4. Domain / Industry</p>
 							{renderPillOptions('domain', FILTER_OPTIONS.domain)}
 						</section>
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">5. Mode</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">5. Mode</p>
 							{renderPillOptions('mode', FILTER_OPTIONS.mode)}
 						</section>
 
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">6. Location</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">6. Location</p>
 							<div className="grid grid-cols-1 gap-2">
-								<Input placeholder="City" aria-label="City" value={draftFilters.city} onChange={(e) => setDraftFilters((p) => ({ ...p, city: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
-								<Input placeholder="State" aria-label="State" value={draftFilters.state} onChange={(e) => setDraftFilters((p) => ({ ...p, state: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
-								<Input placeholder="Country" aria-label="Country" value={draftFilters.country} onChange={(e) => setDraftFilters((p) => ({ ...p, country: e.target.value }))} className="bg-white/5 border-white/15 text-white" />
+								<Input placeholder="City" aria-label="City" value={draftFilters.city} onChange={(e) => setDraftFilters((p) => ({ ...p, city: e.target.value }))} className="bg-(--accent-subtle) border-(--border) text-(--primary)" />
+								<Input placeholder="State" aria-label="State" value={draftFilters.state} onChange={(e) => setDraftFilters((p) => ({ ...p, state: e.target.value }))} className="bg-(--accent-subtle) border-(--border) text-(--primary)" />
+								<Input placeholder="Country" aria-label="Country" value={draftFilters.country} onChange={(e) => setDraftFilters((p) => ({ ...p, country: e.target.value }))} className="bg-(--accent-subtle) border-(--border) text-(--primary)" />
 							</div>
 						</section>
 
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">7. Cost</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">7. Cost</p>
 							{renderPillOptions('pricing', FILTER_OPTIONS.pricing)}
 						</section>
 
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">8. Date & Time</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">8. Date & Time</p>
 							<div className="flex flex-wrap gap-2">
 								{['today', 'this_week', 'this_month'].map((preset) => {
 									const active = draftFilters.datePreset === preset;
@@ -438,7 +438,7 @@ export default function PublicEventsPage() {
 											onClick={() => setDraftFilters((p) => ({ ...p, datePreset: active ? '' : preset, startDate: '', endDate: '' }))}
 											className={`rounded-full border px-3 py-1.5 text-xs font-medium transition duration-200 active:scale-[0.97] ${active
 												? 'border-[#ef4444] bg-[#ef4444]/10 text-[#fecaca]'
-												: 'border-white/15 bg-white/5 text-white/80 hover:border-white/35 hover:bg-white/10'
+												: 'border-(--border) bg-(--accent-subtle) text-(--primary)/80 hover:border-(--border-hover) hover:bg-(--accent-light)'
 												}`}
 										>
 											{labelize(preset)}
@@ -447,33 +447,33 @@ export default function PublicEventsPage() {
 								})}
 							</div>
 							<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-								<Input type="date" value={draftFilters.startDate} onChange={(e) => setDraftFilters((p) => ({ ...p, startDate: e.target.value, datePreset: '' }))} className="bg-white/5 border-white/15 text-white" />
-								<Input type="date" value={draftFilters.endDate} onChange={(e) => setDraftFilters((p) => ({ ...p, endDate: e.target.value, datePreset: '' }))} className="bg-white/5 border-white/15 text-white" />
+								<Input type="date" value={draftFilters.startDate} onChange={(e) => setDraftFilters((p) => ({ ...p, startDate: e.target.value, datePreset: '' }))} className="bg-(--accent-subtle) border-(--border) text-(--primary)" />
+								<Input type="date" value={draftFilters.endDate} onChange={(e) => setDraftFilters((p) => ({ ...p, endDate: e.target.value, datePreset: '' }))} className="bg-(--accent-subtle) border-(--border) text-(--primary)" />
 							</div>
 						</section>
 
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">9. Organizer Type</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">9. Organizer Type</p>
 							{renderPillOptions('organizerType', FILTER_OPTIONS.organizerType)}
 						</section>
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">10. Benefits / Outcomes</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">10. Benefits / Outcomes</p>
 							{renderPillOptions('benefit', FILTER_OPTIONS.benefit)}
 						</section>
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">11. Difficulty</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">11. Difficulty</p>
 							{renderPillOptions('difficulty', FILTER_OPTIONS.difficulty)}
 						</section>
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">12. Application Requirement</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">12. Application Requirement</p>
 							{renderPillOptions('applicationRequirement', FILTER_OPTIONS.applicationRequirement)}
 						</section>
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">13. Availability</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">13. Availability</p>
 							{renderPillOptions('availability', FILTER_OPTIONS.availability)}
 						</section>
 						<section className="space-y-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-white/70">14. Popularity</p>
+							<p className="text-xs font-semibold uppercase tracking-wide text-(--secondary)">14. Popularity</p>
 							{renderPillOptions('popularity', FILTER_OPTIONS.popularity, true)}
 						</section>
 					</div>

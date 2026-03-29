@@ -38,12 +38,12 @@ const FORM_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
 };
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  draft: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Draft' },
+  draft: { bg: 'bg-(--accent-light)', text: 'text-(--primary-light)', label: 'Draft' },
   submitted: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Submitted' },
   under_review: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Under Review' },
   approved: { bg: 'bg-green-100', text: 'text-green-700', label: 'Approved' },
   rejected: { bg: 'bg-red-100', text: 'text-red-700', label: 'Rejected' },
-  withdrawn: { bg: 'bg-gray-100', text: 'text-gray-500', label: 'Withdrawn' },
+  withdrawn: { bg: 'bg-(--accent-light)', text: 'text-(--secondary-light)', label: 'Withdrawn' },
 };
 
 // Helper to safely get string from form data
@@ -208,7 +208,7 @@ export default function AdminFormsPage() {
         </Card>
       ) : forms.length === 0 ? (
         <Card className="p-8 text-center">
-          <AppIcon name="clipboard-list" className="w-10 h-10 text-gray-400 mx-auto mb-4" />
+          <AppIcon name="clipboard-list" className="w-10 h-10 text-(--secondary) mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-(--primary) mb-2">No forms found</h3>
           <p className="text-(--secondary)">
             {statusFilter === 'submitted'

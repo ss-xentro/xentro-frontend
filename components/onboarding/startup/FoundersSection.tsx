@@ -129,7 +129,7 @@ export function FoundersSection() {
 						type="button"
 						variant="secondary"
 						onClick={addFounder}
-						className="w-full border-dashed border-slate-300 bg-slate-100 text-slate-900 hover:bg-slate-200 hover:border-slate-400"
+						className="w-full border-dashed border-slate-300 bg-slate-100 text-white hover:bg-slate-200 hover:border-slate-400"
 					>
 						<AppIcon name="plus" className="h-4 w-4 mr-1.5" />
 						Add Co-Founder
@@ -239,7 +239,7 @@ export function FoundersSection() {
 						type="button"
 						variant="secondary"
 						onClick={addTeamMember}
-						className="w-full border-dashed border-slate-300 bg-slate-100 text-slate-900 hover:bg-slate-200 hover:border-slate-400"
+						className="w-full border-dashed border-slate-300 bg-slate-100 text-white hover:bg-slate-200 hover:border-slate-400"
 					>
 						<AppIcon name="plus" className="h-4 w-4 mr-1.5" />
 						Add Team Member

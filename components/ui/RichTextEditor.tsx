@@ -46,7 +46,7 @@ function ToolbarBtn({
 			className={cn(
 				'p-1.5 rounded-md transition-colors duration-150',
 				active
-					? 'bg-(--primary) text-white'
+					? 'bg-(--primary) text-(--primary)'
 					: 'text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover)',
 				disabled && 'opacity-30 cursor-not-allowed'
 			)}

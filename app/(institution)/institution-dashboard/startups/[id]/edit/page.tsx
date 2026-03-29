@@ -131,22 +131,22 @@ export default function EditStartupPage() {
         <div className="flex items-center justify-between">
           <div>
             <BackButton href={`/institution-dashboard/startups/${startupId}`} label="Back to Details" />
-            <h1 className="text-2xl font-bold text-white">Edit Startup</h1>
-            <p className="text-sm text-gray-300 mt-1">Update all startup details — same fields as the startup owner sees</p>
+            <h1 className="text-2xl font-bold text-(--primary)">Edit Startup</h1>
+            <p className="text-sm text-(--primary-light) mt-1">Update all startup details — same fields as the startup owner sees</p>
           </div>
           <Button onClick={() => handleSubmit()} disabled={saving || !formData.name}>
             {saving ? 'Saving…' : 'Save Changes'}
           </Button>
         </div>
 
-        <div className="flex gap-6 border-b border-gray-700">
+        <div className="flex gap-6 border-b border-(--border)">
           {(['details', 'funding', 'links'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab
-                ? 'border-violet-500 text-white'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
+                ? 'border-violet-500 text-(--primary)'
+                : 'border-transparent text-(--secondary) hover:text-(--primary-light)'
                 }`}
             >
               {TAB_LABELS[tab]}
@@ -162,10 +162,10 @@ export default function EditStartupPage() {
           {activeTab === 'links' && <LinksTab formData={formData} onFieldChange={set} />}
 
           <div className="flex items-center justify-between pt-4">
-            <button type="button" onClick={() => router.back()} disabled={saving} className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors">
+            <button type="button" onClick={() => router.back()} disabled={saving} className="px-4 py-2 text-sm text-(--primary-light) hover:text-(--primary) transition-colors">
               Cancel
             </button>
-            <button type="submit" disabled={saving || !formData.name} className="px-6 py-3 text-sm font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors flex items-center gap-2">
+            <button type="submit" disabled={saving || !formData.name} className="px-6 py-3 text-sm font-medium bg-(--primary) text-(--background) rounded-lg hover:bg-(--primary-light) disabled:opacity-50 transition-colors flex items-center gap-2">
               {saving ? 'Saving...' : <><span>Save Changes</span> <span>→</span></>}
             </button>
           </div>

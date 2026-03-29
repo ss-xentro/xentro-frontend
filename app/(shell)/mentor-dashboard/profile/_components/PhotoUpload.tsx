@@ -106,7 +106,7 @@ export default function PhotoUpload({
 	if (variant === "cover") {
 		return (
 			<>
-				<div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden bg-white/5 border border-(--border)">
+				<div className="relative w-full aspect-[3/1] rounded-xl overflow-hidden bg-(--accent-subtle) border border-(--border)">
 					{currentUrl && (
 						<img
 							src={currentUrl}
@@ -119,11 +119,11 @@ export default function PhotoUpload({
 						onClick={() => inputRef.current?.click()}
 						disabled={uploading}
 						title={label}
-						className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/80 transition-colors"
+						className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-(--border-hover) flex items-center justify-center hover:bg-black/80 transition-colors"
 					>
 						{uploading ? (
 							<svg
-								className="w-4 h-4 text-white animate-spin"
+								className="w-4 h-4 text-(--primary) animate-spin"
 								fill="none"
 								viewBox="0 0 24 24"
 							>
@@ -143,7 +143,7 @@ export default function PhotoUpload({
 							</svg>
 						) : (
 							<svg
-								className="w-4 h-4 text-white"
+								className="w-4 h-4 text-(--primary)"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -193,7 +193,7 @@ export default function PhotoUpload({
 	return (
 		<>
 			<div className="relative shrink-0">
-				<div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-(--surface) bg-white/8 flex items-center justify-center overflow-hidden shadow-lg">
+				<div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-(--surface) bg-(--accent-light) flex items-center justify-center overflow-hidden shadow-lg">
 					{currentUrl ? (
 						<img
 							src={currentUrl}

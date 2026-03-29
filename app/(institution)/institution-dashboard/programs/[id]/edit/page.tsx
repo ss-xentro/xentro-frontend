@@ -89,7 +89,7 @@ export default function EditProgramPage() {
 		return (
 			<DashboardSidebar>
 				<div className="max-w-2xl mx-auto px-6 py-12">
-					<div className="animate-pulse space-y-4"><div className="h-8 bg-white/10 rounded w-1/4" /><div className="h-64 bg-white/10 rounded" /></div>
+					<div className="animate-pulse space-y-4"><div className="h-8 bg-(--accent-light) rounded w-1/4" /><div className="h-64 bg-(--accent-light) rounded" /></div>
 				</div>
 			</DashboardSidebar>
 		);
@@ -99,54 +99,54 @@ export default function EditProgramPage() {
 		<DashboardSidebar>
 			<div className="max-w-2xl mx-auto px-6 py-12">
 				<div className="mb-12">
-					<h1 className="text-2xl font-semibold text-white mb-2">Edit Program</h1>
-					<p className="text-sm text-gray-300">Update program details</p>
+					<h1 className="text-2xl font-semibold text-(--primary) mb-2">Edit Program</h1>
+					<p className="text-sm text-(--primary-light)">Update program details</p>
 				</div>
 
-				<Card className="p-10 bg-white/5 border border-white/10 shadow-sm">
+				<Card className="p-10 bg-(--accent-subtle) border border-(--border) shadow-sm">
 					<form onSubmit={handleSubmit} className="space-y-12">
 						<div className="space-y-6">
 							<div>
-								<label className="block text-xs font-medium text-gray-400 mb-2">Program Name *</label>
-								<input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors" placeholder="e.g., Summer Incubation 2026" required />
+								<label className="block text-xs font-medium text-(--secondary) mb-2">Program Name *</label>
+								<input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors" placeholder="e.g., Summer Incubation 2026" required />
 							</div>
 							<div>
-								<label className="block text-xs font-medium text-gray-400 mb-2">Type</label>
+								<label className="block text-xs font-medium text-(--secondary) mb-2">Type</label>
 								<Select value={formData.type} onChange={(value) => setFormData({ ...formData, type: value })} options={programTypeOptions} placeholder="Select type" />
 							</div>
 						</div>
 
 						<div className="space-y-3">
-							<label className="block text-xs font-medium text-gray-400">Description</label>
-							<textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={5} className="w-full px-4 py-4 text-sm bg-white/5 border border-white/20 rounded-lg focus:border-white/40 focus:bg-white/10 focus:outline-none transition-all resize-none" placeholder="Describe the program" />
+							<label className="block text-xs font-medium text-(--secondary)">Description</label>
+							<textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={5} className="w-full px-4 py-4 text-sm bg-(--accent-subtle) border border-(--border-hover) rounded-lg focus:border-(--border-focus) focus:bg-(--accent-light) focus:outline-none transition-all resize-none" placeholder="Describe the program" />
 						</div>
 
 						<div className="space-y-6 pt-6">
-							<h3 className="text-base font-semibold text-white mb-6">Timeline</h3>
+							<h3 className="text-base font-semibold text-(--primary) mb-6">Timeline</h3>
 							<div>
-								<label className="block text-xs font-medium text-gray-400 mb-2">Duration</label>
-								<input type="text" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors" placeholder="e.g., 3 months" />
+								<label className="block text-xs font-medium text-(--secondary) mb-2">Duration</label>
+								<input type="text" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors" placeholder="e.g., 3 months" />
 							</div>
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<div>
-									<label className="block text-xs font-medium text-gray-400 mb-2">Start Date</label>
-									<input type="date" value={formData.start_date} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors" />
+									<label className="block text-xs font-medium text-(--secondary) mb-2">Start Date</label>
+									<input type="date" value={formData.start_date} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors" />
 								</div>
 								<div>
-									<label className="block text-xs font-medium text-gray-400 mb-2">End Date</label>
-									<input type="date" value={formData.end_date} onChange={(e) => setFormData({ ...formData, end_date: e.target.value })} className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors" />
+									<label className="block text-xs font-medium text-(--secondary) mb-2">End Date</label>
+									<input type="date" value={formData.end_date} onChange={(e) => setFormData({ ...formData, end_date: e.target.value })} className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors" />
 								</div>
 							</div>
 						</div>
 
 						<div className="flex items-start gap-3 pt-6">
-							<input type="checkbox" id="isActive" checked={formData.is_active} onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} className="mt-1 w-4 h-4 text-white bg-white/5 border-white/20 rounded focus:ring-white/40 focus:ring-2" />
-							<label htmlFor="isActive" className="text-sm text-white">Make this program active and visible</label>
+							<input type="checkbox" id="isActive" checked={formData.is_active} onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} className="mt-1 w-4 h-4 text-(--primary) bg-(--accent-subtle) border-(--border-hover) rounded focus:ring-white/40 focus:ring-2" />
+							<label htmlFor="isActive" className="text-sm text-(--primary)">Make this program active and visible</label>
 						</div>
 
 						<div className="flex items-center justify-between pt-8">
-							<button type="button" onClick={() => router.back()} disabled={saving} className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50">Cancel</button>
-							<button type="submit" disabled={saving || !formData.name} className="px-6 py-3 text-sm font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2">
+							<button type="button" onClick={() => router.back()} disabled={saving} className="px-4 py-2 text-sm text-(--primary-light) hover:text-(--primary) transition-colors disabled:opacity-50">Cancel</button>
+							<button type="submit" disabled={saving || !formData.name} className="px-6 py-3 text-sm font-medium bg-(--primary) text-(--background) rounded-lg hover:bg-(--primary-light) disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2">
 								{saving ? 'Saving...' : <>Save Changes <span className="text-base">→</span></>}
 							</button>
 						</div>

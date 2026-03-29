@@ -18,7 +18,7 @@ export interface UserRecord {
 export const ACCOUNT_TYPES = ['explorer', 'startup', 'mentor', 'investor', 'institution', 'admin', 'approver'];
 
 export const TYPE_COLORS: Record<string, string> = {
-	explorer: 'bg-gray-100 text-gray-700',
+	explorer: 'bg-(--accent-light) text-(--primary-light)',
 	startup: 'bg-blue-100 text-blue-700',
 	mentor: 'bg-green-100 text-green-700',
 	investor: 'bg-amber-100 text-amber-700',

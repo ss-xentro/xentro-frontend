@@ -158,8 +158,8 @@ export default function SearchPage() {
 					<button
 						onClick={() => handleFilterClick('')}
 						className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${!activeFilter
-							? 'bg-white text-[#0B0D10]'
-							: 'bg-white/5 text-white/60 hover:bg-white/10'
+							? 'bg-(--primary) text-(--background)'
+							: 'bg-(--accent-subtle) text-(--secondary-light) hover:bg-(--accent-light)'
 							}`}
 					>
 						All ({total})
@@ -172,8 +172,8 @@ export default function SearchPage() {
 								key={key}
 								onClick={() => handleFilterClick(typeKey)}
 								className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${activeFilter === typeKey
-									? 'bg-white text-[#0B0D10]'
-									: 'bg-white/5 text-white/60 hover:bg-white/10'
+									? 'bg-(--primary) text-(--background)'
+									: 'bg-(--accent-subtle) text-(--secondary-light) hover:bg-(--accent-light)'
 									}`}
 							>
 								<AppIcon name={TYPE_ICONS[typeKey]} className="w-3.5 h-3.5 inline" /> {TYPE_LABELS[typeKey]} ({items.length})
@@ -242,22 +242,22 @@ export default function SearchPage() {
 										{/* Extra metadata */}
 										<div className="flex flex-wrap gap-1.5 mt-1.5">
 											{item.industry && (
-												<span className="px-1.5 py-0.5 text-[10px] rounded bg-white/10 text-white/60">{item.industry}</span>
+												<span className="px-1.5 py-0.5 text-[10px] rounded bg-(--accent-light) text-(--secondary-light)">{item.industry}</span>
 											)}
 											{item.stage && (
-												<span className="px-1.5 py-0.5 text-[10px] rounded bg-white/10 text-white/60">{item.stage}</span>
+												<span className="px-1.5 py-0.5 text-[10px] rounded bg-(--accent-light) text-(--secondary-light)">{item.stage}</span>
 											)}
 											{item.investorType && (
-												<span className="px-1.5 py-0.5 text-[10px] rounded bg-white/10 text-white/60">{item.investorType}</span>
+												<span className="px-1.5 py-0.5 text-[10px] rounded bg-(--accent-light) text-(--secondary-light)">{item.investorType}</span>
 											)}
 											{item.expertise?.slice(0, 3).map((e) => (
-												<span key={e} className="px-1.5 py-0.5 text-[10px] rounded bg-white/10 text-white/60">{e}</span>
+												<span key={e} className="px-1.5 py-0.5 text-[10px] rounded bg-(--accent-light) text-(--secondary-light)">{e}</span>
 											))}
 											{item.isVirtual && (
 												<span className="px-1.5 py-0.5 text-[10px] rounded bg-blue-50 text-blue-600">Virtual</span>
 											)}
 											{item.startTime && (
-												<span className="px-1.5 py-0.5 text-[10px] rounded bg-white/10 text-white/60">
+												<span className="px-1.5 py-0.5 text-[10px] rounded bg-(--accent-light) text-(--secondary-light)">
 													{new Date(item.startTime).toLocaleDateString()}
 												</span>
 											)}
@@ -277,7 +277,7 @@ export default function SearchPage() {
 
 			{!loading && query.length < 2 && (
 				<div className="text-center py-12">
-					<AppIcon name="search" className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+					<AppIcon name="search" className="w-10 h-10 text-(--secondary) mx-auto mb-3" />
 					<p className="text-(--secondary)">Type at least 2 characters to search</p>
 				</div>
 			)}

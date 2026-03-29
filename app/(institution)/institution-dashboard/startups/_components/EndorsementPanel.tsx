@@ -21,24 +21,24 @@ export default function EndorsementPanel({ endorsements, loading, onRespond }: E
 	};
 
 	return (
-		<Card className="p-6 bg-white/5 border-white/10 space-y-4">
-			<h3 className="font-semibold text-white">Pending Startup Endorsement Requests</h3>
+		<Card className="p-6 bg-(--accent-subtle) border-(--border) space-y-4">
+			<h3 className="font-semibold text-(--primary)">Pending Startup Endorsement Requests</h3>
 			{loading ? (
-				<p className="text-sm text-gray-400">Loading requests...</p>
+				<p className="text-sm text-(--secondary)">Loading requests...</p>
 			) : endorsements.length === 0 ? (
-				<p className="text-sm text-gray-400">No pending endorsement requests from startups.</p>
+				<p className="text-sm text-(--secondary)">No pending endorsement requests from startups.</p>
 			) : (
 				<div className="space-y-3">
 					{endorsements.map((e) => (
-						<div key={e.id} className="bg-white/5 border border-white/10 rounded-lg p-4">
+						<div key={e.id} className="bg-(--accent-subtle) border border-(--border) rounded-lg p-4">
 							<div className="flex items-start justify-between">
 								<div>
-									<p className="font-semibold text-white">{e.requesterName}</p>
-									<p className="text-sm text-gray-400">{e.requesterEmail}</p>
+									<p className="font-semibold text-(--primary)">{e.requesterName}</p>
+									<p className="text-sm text-(--secondary)">{e.requesterEmail}</p>
 									{e.message && (
-										<p className="text-sm text-gray-300 mt-1 italic">&ldquo;{e.message}&rdquo;</p>
+										<p className="text-sm text-(--primary-light) mt-1 italic">&ldquo;{e.message}&rdquo;</p>
 									)}
-									<p className="text-xs text-gray-500 mt-1">{new Date(e.createdAt).toLocaleDateString()}</p>
+									<p className="text-xs text-(--secondary-light) mt-1">{new Date(e.createdAt).toLocaleDateString()}</p>
 								</div>
 								{respondingId === e.id ? (
 									<div className="space-y-2 ml-4 min-w-50">
@@ -47,7 +47,7 @@ export default function EndorsementPanel({ endorsements, loading, onRespond }: E
 											onChange={(ev) => setResponseComment(ev.target.value)}
 											placeholder="Add a comment..."
 											rows={2}
-											className="w-full px-3 py-2 text-sm bg-white/10 border border-white/15 text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 resize-none"
+											className="w-full px-3 py-2 text-sm bg-(--accent-light) border border-(--border) text-(--primary) rounded-lg focus:outline-none focus:ring-1 focus:ring-violet-500 resize-none"
 										/>
 										<div className="flex gap-2">
 											<Button variant="primary" size="sm" onClick={() => handleRespond(e.id, 'accepted')}>Accept</Button>

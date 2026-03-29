@@ -378,7 +378,7 @@ export default function PitchEditorPage() {
 								<button
 									key={s.key}
 									onClick={() => setActiveSection(s.key)}
-									className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-[10px] font-medium transition-all min-w-15 ${isActive ? 'bg-(--primary) text-white' : isDone ? 'text-success' : 'text-(--secondary)'
+									className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-[10px] font-medium transition-all min-w-15 ${isActive ? 'bg-(--primary) text-(--primary)' : isDone ? 'text-success' : 'text-(--secondary)'
 										}`}
 								>
 									{isDone && !isActive ? <CheckIcon className="w-3.5 h-3.5" /> : <span className="text-[10px]">{idx + 1}</span>}

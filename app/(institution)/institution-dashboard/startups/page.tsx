@@ -102,13 +102,13 @@ export default function StartupsPage() {
             <div className="p-8 space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-white">Startups</h1>
-                        <p className="text-gray-400 mt-1">Manage your portfolio startups</p>
+                        <h1 className="text-3xl font-bold text-(--primary)">Startups</h1>
+                        <p className="text-(--secondary) mt-1">Manage your portfolio startups</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setShowEndorsements(!showEndorsements)}
-                            className="relative px-4 py-2 bg-white/5 border border-white/10 text-gray-200 rounded-lg hover:bg-white/10 transition-colors"
+                            className="relative px-4 py-2 bg-(--accent-subtle) border border-(--border) text-(--primary-light) rounded-lg hover:bg-(--accent-light) transition-colors"
                         >
                             Endorsement Requests
                             {endorsements.length > 0 && (
@@ -140,7 +140,7 @@ export default function StartupsPage() {
                 {startups.length === 0 ? (
                     <EmptyState
                         icon={
-                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         }

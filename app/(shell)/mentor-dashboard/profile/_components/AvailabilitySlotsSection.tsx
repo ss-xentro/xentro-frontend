@@ -370,10 +370,10 @@ export default function AvailabilitySlotsSection({
 
 	const selectClass = `
 		h-10 w-full px-3 pr-8
-		bg-white/5 border border-white/10
-		rounded-lg text-sm text-white
+		bg-(--accent-subtle) border border-(--border)
+		rounded-lg text-sm text-(--primary)
 		appearance-none cursor-pointer
-		focus:outline-none focus:border-white/30
+		focus:outline-none focus:border-(--border-hover)
 		transition-colors
 	`;
 
@@ -381,9 +381,9 @@ export default function AvailabilitySlotsSection({
 		<div className="space-y-5 w-full">
 			{/* Header */}
 			<div className="flex items-start gap-3">
-				<div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+				<div className="w-9 h-9 rounded-lg bg-(--accent-subtle) border border-(--border) flex items-center justify-center shrink-0">
 					<svg
-						className="w-4 h-4 text-white/60"
+						className="w-4 h-4 text-(--secondary-light)"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -398,19 +398,19 @@ export default function AvailabilitySlotsSection({
 				</div>
 				<div className="flex-1 min-w-0">
 					<div className="flex items-center gap-3 flex-wrap">
-						<h3 className="text-sm font-semibold text-white">
+						<h3 className="text-sm font-semibold text-(--primary)">
 							Available Slots
 						</h3>
-						<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/6 border border-white/10 text-xs text-gray-400">
+						<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-(--accent-subtle) border border-(--border) text-xs text-(--secondary)">
 							{slots.length} total
 						</span>
 						{daySlots.length > 0 && (
-							<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/8 border border-white/10 text-xs text-white">
+							<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-(--accent-light) border border-(--border) text-xs text-(--primary)">
 								{DAY_SHORT[selectedDay]}: {daySlots.length}
 							</span>
 						)}
 					</div>
-					<p className="text-xs text-gray-500 mt-0.5">
+					<p className="text-xs text-(--secondary-light) mt-0.5">
 						Select a day, define a time range, then save your profile.
 					</p>
 				</div>
@@ -418,8 +418,8 @@ export default function AvailabilitySlotsSection({
 
 			<div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
 				{/* ── Day picker ── */}
-				<div className="xl:col-span-3 rounded-xl border border-white/10 bg-white/[0.02] p-3 space-y-1 xl:sticky xl:top-6 h-fit">
-					<p className="text-[10px] uppercase tracking-widest text-gray-600 font-medium px-1 pb-1">
+				<div className="xl:col-span-3 rounded-xl border border-(--border) bg-(--accent-subtle) p-3 space-y-1 xl:sticky xl:top-6 h-fit">
+					<p className="text-[10px] uppercase tracking-widest text-(--secondary-light) font-medium px-1 pb-1">
 						Day
 					</p>
 					{dayStats.map(({ day, count }) => {
@@ -437,8 +437,8 @@ export default function AvailabilitySlotsSection({
 									transition-colors duration-150
 									${
 										active
-											? "bg-white/10 text-white font-medium"
-											: "text-gray-400 hover:text-white hover:bg-white/5"
+											? "bg-(--accent-light) text-(--primary) font-medium"
+											: "text-(--secondary) hover:text-(--primary) hover:bg-(--accent-subtle)"
 									}
 								`}
 							>
@@ -447,13 +447,13 @@ export default function AvailabilitySlotsSection({
 									<span
 										className={`
 										min-w-[22px] h-[22px] flex items-center justify-center rounded-full text-xs font-semibold px-1
-										${active ? "bg-white text-[#0B0D10]" : "bg-white/10 text-gray-300"}
+										${active ? "bg-(--primary) text-(--background)" : "bg-(--accent-light) text-(--primary-light)"}
 									`}
 									>
 										{count}
 									</span>
 								) : (
-									<span className="min-w-[22px] h-[22px] flex items-center justify-center rounded-full text-xs text-gray-600">
+									<span className="min-w-[22px] h-[22px] flex items-center justify-center rounded-full text-xs text-(--secondary-light)">
 										–
 									</span>
 								)}
@@ -465,12 +465,12 @@ export default function AvailabilitySlotsSection({
 				{/* ── Main panel ── */}
 				<div className="xl:col-span-9 space-y-4">
 					{/* Add slot row */}
-					<div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-3">
+					<div className="rounded-xl border border-(--border) bg-(--accent-subtle) p-4 space-y-3">
 						<div className="flex items-center justify-between gap-2">
-							<p className="text-xs font-semibold text-white/80 uppercase tracking-wide">
+							<p className="text-xs font-semibold text-(--primary)/80 uppercase tracking-wide">
 								Add New Slot
 							</p>
-							<span className="text-xs text-gray-500">
+							<span className="text-xs text-(--secondary-light)">
 								{selectedDay} ·{" "}
 								<span className={`${periodColors[targetPeriod]}`}>
 									{targetPeriod.charAt(0).toUpperCase() + targetPeriod.slice(1)}
@@ -481,7 +481,7 @@ export default function AvailabilitySlotsSection({
 						<div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-end">
 							{/* Day */}
 							<div className="relative">
-								<label className="block text-[10px] uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
+								<label className="block text-[10px] uppercase tracking-widest text-(--secondary-light) mb-1.5 font-medium">
 									Day
 								</label>
 								<div className="relative">
@@ -500,7 +500,7 @@ export default function AvailabilitySlotsSection({
 										))}
 									</select>
 									<svg
-										className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500"
+										className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-(--secondary-light)"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -517,7 +517,7 @@ export default function AvailabilitySlotsSection({
 
 							{/* Start */}
 							<div className="relative">
-								<label className="block text-[10px] uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
+								<label className="block text-[10px] uppercase tracking-widest text-(--secondary-light) mb-1.5 font-medium">
 									From
 								</label>
 								<div className="relative">
@@ -537,7 +537,7 @@ export default function AvailabilitySlotsSection({
 										))}
 									</select>
 									<svg
-										className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500"
+										className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-(--secondary-light)"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -554,7 +554,7 @@ export default function AvailabilitySlotsSection({
 
 							{/* End */}
 							<div className="relative">
-								<label className="block text-[10px] uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
+								<label className="block text-[10px] uppercase tracking-widest text-(--secondary-light) mb-1.5 font-medium">
 									To
 								</label>
 								<div className="relative">
@@ -574,7 +574,7 @@ export default function AvailabilitySlotsSection({
 										))}
 									</select>
 									<svg
-										className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500"
+										className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-(--secondary-light)"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -600,8 +600,8 @@ export default function AvailabilitySlotsSection({
 									disabled={!isValidRange}
 									className="
 										h-10 px-5 rounded-lg text-sm font-semibold
-										bg-white text-[#0B0D10]
-										hover:bg-white/90
+										bg-(--primary) text-(--background)
+										hover:bg-(--primary)/90
 										disabled:opacity-30 disabled:cursor-not-allowed
 										transition-colors duration-150
 										flex items-center justify-center gap-1.5
@@ -629,8 +629,8 @@ export default function AvailabilitySlotsSection({
 						{/* Duration preview + overlap error */}
 						{isValidRange && !addError && (
 							<div className="flex items-center gap-2 pt-0.5">
-								<span className="text-xs text-gray-500">Duration:</span>
-								<span className="text-xs font-medium text-white/70">
+								<span className="text-xs text-(--secondary-light)">Duration:</span>
+								<span className="text-xs font-medium text-(--secondary)">
 									{getDuration(newStart, newEnd)}
 								</span>
 								{addSplits.length > 1 && (
@@ -672,10 +672,10 @@ export default function AvailabilitySlotsSection({
 							return (
 								<div
 									key={period}
-									className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden"
+									className="rounded-xl border border-(--border) bg-(--accent-subtle) overflow-hidden"
 								>
 									{/* Period header */}
-									<div className="flex items-center justify-between px-3 py-2.5 border-b border-white/8">
+									<div className="flex items-center justify-between px-3 py-2.5 border-b border-(--border-light)">
 										<div
 											className={`flex items-center gap-1.5 text-xs font-semibold ${periodColors[period]}`}
 										>
@@ -685,7 +685,7 @@ export default function AvailabilitySlotsSection({
 										<button
 											type="button"
 											onClick={() => handleQuickAdd(period)}
-											className="text-[11px] text-gray-500 hover:text-white transition-colors flex items-center gap-0.5"
+											className="text-[11px] text-(--secondary-light) hover:text-(--primary) transition-colors flex items-center gap-0.5"
 										>
 											<svg
 												className="w-3 h-3"
@@ -707,7 +707,7 @@ export default function AvailabilitySlotsSection({
 									{/* Slots */}
 									<div className="p-2.5 min-h-[80px]">
 										{list.length === 0 ? (
-											<p className="text-xs text-gray-600 py-3 text-center">
+											<p className="text-xs text-(--secondary-light) py-3 text-center">
 												No {period} slots
 											</p>
 										) : (
@@ -726,27 +726,27 @@ export default function AvailabilitySlotsSection({
 																transition-all duration-150
 																${
 																	isEditing
-																		? "bg-white/8 border-white/20 ring-1 ring-white/15"
-																		: "bg-transparent border-white/8 hover:bg-white/5 hover:border-white/15"
+																		? "bg-(--accent-light) border-(--border-hover) ring-1 ring-white/15"
+																		: "bg-transparent border-(--border-light) hover:bg-(--accent-subtle) hover:border-(--border)"
 																}
 															`}
 														>
 															<div className="flex items-center justify-between gap-2">
 																<span
-																	className={`text-sm font-medium ${isEditing ? "text-white" : "text-gray-200"}`}
+																	className={`text-sm font-medium ${isEditing ? "text-(--primary)" : "text-(--primary-light)"}`}
 																>
 																	{formatTime(slot.startTime)}
-																	<span className="mx-1.5 text-gray-600">
+																	<span className="mx-1.5 text-(--secondary-light)">
 																		→
 																	</span>
 																	{formatTime(slot.endTime)}
 																</span>
-																<span className="text-[11px] text-gray-600 shrink-0">
+																<span className="text-[11px] text-(--secondary-light) shrink-0">
 																	{getDuration(slot.startTime, slot.endTime)}
 																</span>
 															</div>
 															{isEditing && (
-																<p className="text-[11px] text-gray-500 mt-0.5">
+																<p className="text-[11px] text-(--secondary-light) mt-0.5">
 																	Editing below ↓
 																</p>
 															)}
@@ -763,12 +763,12 @@ export default function AvailabilitySlotsSection({
 
 					{/* Edit toolbar */}
 					{editingIndex !== null && slots[editingIndex] && (
-						<div className="rounded-xl border border-white/15 bg-white/[0.03] p-4 space-y-3">
+						<div className="rounded-xl border border-(--border) bg-(--accent-subtle) p-4 space-y-3">
 							<div className="flex items-center justify-between gap-2">
-								<p className="text-xs font-semibold text-white/80 uppercase tracking-wide">
+								<p className="text-xs font-semibold text-(--primary)/80 uppercase tracking-wide">
 									Edit Slot
 								</p>
-								<span className="text-xs text-gray-500">
+								<span className="text-xs text-(--secondary-light)">
 									{slots[editingIndex].day}
 								</span>
 							</div>
@@ -776,7 +776,7 @@ export default function AvailabilitySlotsSection({
 							<div className="flex flex-wrap items-end gap-2">
 								{/* Edit from */}
 								<div className="relative flex-1 min-w-[130px]">
-									<label className="block text-[10px] uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
+									<label className="block text-[10px] uppercase tracking-widest text-(--secondary-light) mb-1.5 font-medium">
 										From
 									</label>
 									<div className="relative">
@@ -796,7 +796,7 @@ export default function AvailabilitySlotsSection({
 											))}
 										</select>
 										<svg
-											className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500"
+											className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-(--secondary-light)"
 											fill="none"
 											stroke="currentColor"
 											viewBox="0 0 24 24"
@@ -811,11 +811,11 @@ export default function AvailabilitySlotsSection({
 									</div>
 								</div>
 
-								<span className="text-gray-600 text-sm pb-2.5 shrink-0">→</span>
+								<span className="text-(--secondary-light) text-sm pb-2.5 shrink-0">→</span>
 
 								{/* Edit to */}
 								<div className="relative flex-1 min-w-[130px]">
-									<label className="block text-[10px] uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
+									<label className="block text-[10px] uppercase tracking-widest text-(--secondary-light) mb-1.5 font-medium">
 										To
 									</label>
 									<div className="relative">
@@ -835,7 +835,7 @@ export default function AvailabilitySlotsSection({
 											))}
 										</select>
 										<svg
-											className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500"
+											className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-(--secondary-light)"
 											fill="none"
 											stroke="currentColor"
 											viewBox="0 0 24 24"
@@ -853,7 +853,7 @@ export default function AvailabilitySlotsSection({
 								{/* Duration preview */}
 								{isEditValid && (
 									<div className="pb-2.5 shrink-0">
-										<span className="text-xs text-gray-500">
+										<span className="text-xs text-(--secondary-light)">
 											{getDuration(editStart, editEnd)}
 										</span>
 									</div>
@@ -865,8 +865,8 @@ export default function AvailabilitySlotsSection({
 										type="button"
 										onClick={cancelEdit}
 										className="
-											h-10 px-4 rounded-lg border border-white/10 text-sm text-gray-400
-											hover:text-white hover:border-white/20 transition-colors
+											h-10 px-4 rounded-lg border border-(--border) text-sm text-(--secondary)
+											hover:text-(--primary) hover:border-(--border-hover) transition-colors
 										"
 									>
 										Cancel
@@ -877,8 +877,8 @@ export default function AvailabilitySlotsSection({
 										disabled={!isEditValid}
 										className="
 											h-10 px-4 rounded-lg text-sm font-semibold
-											bg-white text-[#0B0D10]
-											hover:bg-white/90
+											bg-(--primary) text-(--background)
+											hover:bg-(--primary)/90
 											disabled:opacity-30 disabled:cursor-not-allowed
 											transition-colors
 										"
@@ -944,10 +944,10 @@ export default function AvailabilitySlotsSection({
 
 					{/* Empty state */}
 					{slots.length === 0 && (
-						<div className="rounded-xl border border-dashed border-white/10 p-6 text-center">
-							<div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
+						<div className="rounded-xl border border-dashed border-(--border) p-6 text-center">
+							<div className="w-10 h-10 rounded-full bg-(--accent-subtle) flex items-center justify-center mx-auto mb-3">
 								<svg
-									className="w-5 h-5 text-gray-600"
+									className="w-5 h-5 text-(--secondary-light)"
 									fill="none"
 									stroke="currentColor"
 									viewBox="0 0 24 24"
@@ -960,8 +960,8 @@ export default function AvailabilitySlotsSection({
 									/>
 								</svg>
 							</div>
-							<p className="text-sm text-gray-500">No slots yet.</p>
-							<p className="text-xs text-gray-600 mt-0.5">
+							<p className="text-sm text-(--secondary-light)">No slots yet.</p>
+							<p className="text-xs text-(--secondary-light) mt-0.5">
 								Use the form above to set your availability.
 							</p>
 						</div>

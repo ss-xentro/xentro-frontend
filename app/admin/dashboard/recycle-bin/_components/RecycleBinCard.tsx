@@ -19,7 +19,7 @@ export default function RecycleBinCard({ user, actionLoading, onRestore, onDelet
 	return (
 		<Card className="p-4 flex items-center justify-between hover:shadow-sm transition-shadow">
 			<div className="flex items-center gap-4 flex-1 min-w-0">
-				<div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-600 overflow-hidden flex-shrink-0">
+				<div className="w-10 h-10 rounded-full bg-(--accent-light) flex items-center justify-center text-sm font-semibold text-(--secondary-light) overflow-hidden flex-shrink-0">
 					{user.avatar ? (
 						<img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
 					) : (
@@ -29,14 +29,14 @@ export default function RecycleBinCard({ user, actionLoading, onRestore, onDelet
 
 				<div className="flex-1 min-w-0">
 					<div className="flex items-center gap-2">
-						<h3 className="font-semibold text-gray-900 truncate">{user.name}</h3>
-						<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${accountTypeColors[user.accountType] || 'bg-gray-100 text-gray-700'}`}>
+						<h3 className="font-semibold text-(--primary) truncate">{user.name}</h3>
+						<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${accountTypeColors[user.accountType] || 'bg-(--accent-light) text-(--primary-light)'}`}>
 							{accountTypeLabels[user.accountType] || user.accountType}
 						</span>
 					</div>
-					<div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+					<div className="flex items-center gap-3 mt-1 text-sm text-(--secondary-light)">
 						<span className="truncate">{user.email}</span>
-						<span className="text-gray-300">|</span>
+						<span className="text-(--primary-light)">|</span>
 						<span>
 							Deleted{' '}
 							{new Date(user.deletedAt).toLocaleDateString('en-US', {

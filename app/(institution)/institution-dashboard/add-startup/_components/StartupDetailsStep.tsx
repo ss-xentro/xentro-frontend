@@ -52,7 +52,7 @@ export function StartupDetailsStep({ formData, setFormData, locationSearch, setL
 		<>
 			<div className="space-y-6">
 				<div>
-					<label className="block text-xs font-medium text-gray-500 mb-2">Startup Logo</label>
+					<label className="block text-xs font-medium text-(--secondary-light) mb-2">Startup Logo</label>
 					<FileUpload
 						value={formData.logo}
 						onChange={(logo) => setFormData({ ...formData, logo })}
@@ -65,12 +65,12 @@ export function StartupDetailsStep({ formData, setFormData, locationSearch, setL
 				</div>
 
 				<div>
-					<label className="block text-xs font-medium text-gray-500 mb-2">Startup Name *</label>
+					<label className="block text-xs font-medium text-(--secondary-light) mb-2">Startup Name *</label>
 					<input
 						type="text"
 						value={formData.name}
 						onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-						className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+						className="w-full px-4 py-3 text-sm border border-(--border-hover) rounded-lg focus:border-(--primary) focus:outline-none transition-colors"
 						placeholder="e.g., TechVenture"
 						required
 						aria-label="Startup name"
@@ -79,7 +79,7 @@ export function StartupDetailsStep({ formData, setFormData, locationSearch, setL
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div>
-						<label className="block text-xs font-medium text-gray-500 mb-2">Stage</label>
+						<label className="block text-xs font-medium text-(--secondary-light) mb-2">Stage</label>
 						<Select
 							value={formData.stage}
 							onChange={(value) => setFormData({ ...formData, stage: value })}
@@ -102,13 +102,13 @@ export function StartupDetailsStep({ formData, setFormData, locationSearch, setL
 
 				{programs.length > 0 && (
 					<div>
-						<label className="block text-xs font-medium text-gray-500 mb-2">
-							Assign to Program <span className="text-gray-400">(optional)</span>
+						<label className="block text-xs font-medium text-(--secondary-light) mb-2">
+							Assign to Program <span className="text-(--secondary)">(optional)</span>
 						</label>
 						<select
 							value={formData.programId}
 							onChange={(e) => setFormData({ ...formData, programId: e.target.value })}
-							className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+							className="w-full px-4 py-3 text-sm border border-(--border-hover) rounded-lg focus:border-(--primary) focus:outline-none transition-colors"
 							aria-label="Assign to program"
 						>
 							<option value="">No program</option>
@@ -123,17 +123,17 @@ export function StartupDetailsStep({ formData, setFormData, locationSearch, setL
 			</div>
 
 			<div className="space-y-3">
-				<label className="block text-xs font-medium text-gray-500">What You&apos;re Building</label>
+				<label className="block text-xs font-medium text-(--secondary-light)">What You&apos;re Building</label>
 				<textarea
 					value={formData.oneLiner}
 					onChange={(e) => setFormData({ ...formData, oneLiner: e.target.value })}
 					rows={4}
 					maxLength={280}
-					className="w-full px-4 py-4 text-sm border border-gray-300 rounded-lg focus:border-gray-900 focus:focus:outline-none transition-all resize-none"
+					className="w-full px-4 py-4 text-sm border border-(--border-hover) rounded-lg focus:border-(--primary) focus:focus:outline-none transition-all resize-none"
 					placeholder="Describe your startup in one clear sentence"
 					aria-label="Startup one-liner"
 				/>
-				<p className="text-xs text-gray-400">{formData.oneLiner.length} / 280</p>
+				<p className="text-xs text-(--secondary)">{formData.oneLiner.length} / 280</p>
 			</div>
 		</>
 	);

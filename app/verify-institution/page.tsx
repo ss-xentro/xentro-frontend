@@ -128,7 +128,7 @@ function SuccessView() {
 			</p>
 			<Link
 				href="/institution-dashboard"
-				className="inline-block bg-(--primary) text-white text-sm font-medium px-8 py-3 rounded-lg hover:bg-(--primary-light) transition-colors"
+				className="inline-block bg-(--primary) text-(--primary) text-sm font-medium px-8 py-3 rounded-lg hover:bg-(--primary-light) transition-colors"
 			>
 				Go to Dashboard
 			</Link>
@@ -152,7 +152,7 @@ function AlreadyUsedView() {
 			<div className="flex items-center justify-center gap-3">
 				<Link
 					href="/login"
-					className="inline-block bg-(--primary) text-white text-sm font-medium px-6 py-3 rounded-lg hover:bg-(--primary-light) transition-colors"
+					className="inline-block bg-(--primary) text-(--primary) text-sm font-medium px-6 py-3 rounded-lg hover:bg-(--primary-light) transition-colors"
 				>
 					Go to Login
 				</Link>
@@ -180,7 +180,7 @@ function ErrorView({ title, message }: { title: string; message: string }) {
 			<div className="flex items-center justify-center gap-3">
 				<Link
 					href="/login"
-					className="inline-block bg-(--primary) text-white text-sm font-medium px-6 py-3 rounded-lg hover:bg-(--primary-light) transition-colors"
+					className="inline-block bg-(--primary) text-(--primary) text-sm font-medium px-6 py-3 rounded-lg hover:bg-(--primary-light) transition-colors"
 				>
 					Go to Login
 				</Link>

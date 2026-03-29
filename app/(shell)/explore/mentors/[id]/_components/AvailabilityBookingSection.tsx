@@ -79,11 +79,11 @@ export default function AvailabilityBookingSection({
 						{slotsLoading ? (
 							<div className="space-y-3">
 								{[1, 2, 3].map((i) => (
-									<div key={i} className="h-20 bg-white/3 border border-white/5 rounded-lg animate-pulse" />
+									<div key={i} className="h-20 bg-(--accent-subtle) border border-(--border) rounded-lg animate-pulse" />
 								))}
 							</div>
 						) : slots.length === 0 ? (
-							<p className="text-sm text-gray-500 py-6 text-center">
+							<p className="text-sm text-(--secondary-light) py-6 text-center">
 								This mentor hasn&apos;t set up any bookable slots yet.
 							</p>
 						) : (
@@ -92,13 +92,13 @@ export default function AvailabilityBookingSection({
 									const daySlots = slots.filter((s) => s.dayOfWeek.toLowerCase() === day);
 									if (daySlots.length === 0) return null;
 									return (
-										<div key={day} className="bg-white/3 border border-white/5 rounded-lg p-4">
+										<div key={day} className="bg-(--accent-subtle) border border-(--border) rounded-lg p-4">
 											<div className="flex items-center justify-between mb-3">
 												<div>
-													<p className="text-sm font-semibold text-white">{DAY_LABELS[day] || day}</p>
-													<p className="text-xs text-gray-600">{FULL_DAY[day] || day}</p>
+													<p className="text-sm font-semibold text-(--primary)">{DAY_LABELS[day] || day}</p>
+													<p className="text-xs text-(--secondary-light)">{FULL_DAY[day] || day}</p>
 												</div>
-												<svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+												<svg className="w-4 h-4 text-(--secondary-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
 													<rect x="3" y="4" width="18" height="18" rx="2" />
 													<path d="M16 2v4M8 2v4M3 10h18" />
 												</svg>
@@ -115,7 +115,7 @@ export default function AvailabilityBookingSection({
 														}}
 														className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${selectedSlot?.id === slot.id
 															? 'border-violet-500/50 bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/30'
-															: 'border-white/10 text-gray-400 hover:border-violet-500/30 hover:text-violet-300 hover:bg-violet-500/5'
+															: 'border-(--border) text-(--secondary) hover:border-violet-500/30 hover:text-violet-300 hover:bg-violet-500/5'
 															}`}
 													>
 														{formatTime(slot.startTime)} – {formatTime(slot.endTime)}
@@ -136,7 +136,7 @@ export default function AvailabilityBookingSection({
 											<p className="text-sm font-medium text-violet-300">
 												{FULL_DAY[selectedSlot.dayOfWeek.toLowerCase()] || selectedSlot.dayOfWeek} · {formatTime(selectedSlot.startTime)} – {formatTime(selectedSlot.endTime)}
 											</p>
-											<button onClick={() => setSelectedSlot(null)} className="ml-auto text-gray-500 hover:text-white transition-colors">
+											<button onClick={() => setSelectedSlot(null)} className="ml-auto text-(--secondary-light) hover:text-(--primary) transition-colors">
 												<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
 													<path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
 												</svg>
@@ -145,12 +145,12 @@ export default function AvailabilityBookingSection({
 
 										<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
 											<div>
-												<label className="block text-xs font-medium text-gray-400 mb-1">Date</label>
-												<input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} min={new Date().toISOString().split('T')[0]} className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-violet-500/50 transition-colors scheme-dark" />
+												<label className="block text-xs font-medium text-(--secondary) mb-1">Date</label>
+												<input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} min={new Date().toISOString().split('T')[0]} className="w-full px-3 py-2 bg-(--accent-subtle) border border-(--border) rounded-lg text-sm text-(--primary) focus:outline-none focus:border-violet-500/50 transition-colors scheme-dark" />
 											</div>
 											<div>
-												<label className="block text-xs font-medium text-gray-400 mb-1">Notes (optional)</label>
-												<input type="text" value={bookingNotes} onChange={(e) => setBookingNotes(e.target.value)} placeholder="Topic to discuss..." className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 transition-colors" maxLength={500} />
+												<label className="block text-xs font-medium text-(--secondary) mb-1">Notes (optional)</label>
+												<input type="text" value={bookingNotes} onChange={(e) => setBookingNotes(e.target.value)} placeholder="Topic to discuss..." className="w-full px-3 py-2 bg-(--accent-subtle) border border-(--border) rounded-lg text-sm text-(--primary) placeholder:text-(--secondary-light) focus:outline-none focus:border-violet-500/50 transition-colors" maxLength={500} />
 											</div>
 										</div>
 
@@ -195,31 +195,31 @@ export default function AvailabilityBookingSection({
 							const avSlots = availability[day];
 							if (!avSlots || avSlots.length === 0) return null;
 							return (
-								<div key={day} className="bg-white/3 border border-white/5 rounded-lg p-4">
+								<div key={day} className="bg-(--accent-subtle) border border-(--border) rounded-lg p-4">
 									<div className="flex items-center justify-between mb-2">
 										<div>
-											<p className="text-sm font-semibold text-white">{DAY_LABELS[day] || day}</p>
-											<p className="text-xs text-gray-600">{FULL_DAY[day] || day}</p>
+											<p className="text-sm font-semibold text-(--primary)">{DAY_LABELS[day] || day}</p>
+											<p className="text-xs text-(--secondary-light)">{FULL_DAY[day] || day}</p>
 										</div>
-										<svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+										<svg className="w-4 h-4 text-(--secondary-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
 									</div>
 									<div className="flex flex-wrap gap-2">
 										{avSlots.map((slot, i) => (
-											<span key={i} className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-400">{formatTimeSlot(slot)}</span>
+											<span key={i} className="text-xs px-3 py-1.5 rounded-lg border border-(--border) text-(--secondary)">{formatTimeSlot(slot)}</span>
 										))}
 									</div>
 								</div>
 							);
 						})}
 						{!connectionStatus && (
-							<p className="text-xs text-gray-500 text-center pt-1">Connect with this mentor to book a session</p>
+							<p className="text-xs text-(--secondary-light) text-center pt-1">Connect with this mentor to book a session</p>
 						)}
 					</div>
 				)}
 
 				{/* No availability at all */}
 				{connectionStatus !== 'accepted' && (!availability || Object.keys(availability).length === 0) && (
-					<p className="text-sm text-gray-500 py-4 text-center">Availability not set yet.</p>
+					<p className="text-sm text-(--secondary-light) py-4 text-center">Availability not set yet.</p>
 				)}
 			</Section>
 		</div>

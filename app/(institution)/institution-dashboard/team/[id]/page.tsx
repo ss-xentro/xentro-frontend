@@ -22,7 +22,7 @@ const roleColors: Record<string, string> = {
 	admin: 'bg-purple-500/20 text-purple-200',
 	manager: 'bg-blue-500/20 text-blue-200',
 	ambassador: 'bg-green-500/20 text-green-200',
-	viewer: 'bg-white/10 text-gray-100',
+	viewer: 'bg-(--accent-light) text-gray-100',
 };
 
 export default function TeamMemberDetailPage() {
@@ -81,7 +81,7 @@ export default function TeamMemberDetailPage() {
 	if (loading) {
 		return (
 			<DashboardSidebar>
-				<div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-white/10 rounded w-1/4" /><div className="h-64 bg-white/10 rounded" /></div></div>
+				<div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-(--accent-light) rounded w-1/4" /><div className="h-64 bg-(--accent-light) rounded" /></div></div>
 			</DashboardSidebar>
 		);
 	}
@@ -98,7 +98,7 @@ export default function TeamMemberDetailPage() {
 		<DashboardSidebar>
 			<div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
 				<div className="flex items-center justify-between">
-					<button onClick={() => router.push('/institution-dashboard/team')} className="text-sm text-gray-400 hover:text-white flex items-center gap-1">
+					<button onClick={() => router.push('/institution-dashboard/team')} className="text-sm text-(--secondary) hover:text-(--primary) flex items-center gap-1">
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
 						Back to Team
 					</button>
@@ -109,16 +109,16 @@ export default function TeamMemberDetailPage() {
 					)}
 				</div>
 
-				<Card className="p-8 bg-white/5 border border-white/10">
+				<Card className="p-8 bg-(--accent-subtle) border border-(--border)">
 					<div className="flex items-start gap-6 mb-6">
-						<div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center text-3xl font-bold text-gray-300 shrink-0">
+						<div className="w-20 h-20 rounded-full bg-(--accent-light) flex items-center justify-center text-3xl font-bold text-(--primary-light) shrink-0">
 							{member.userName?.[0]?.toUpperCase() || '?'}
 						</div>
 						<div className="flex-1">
-							<h1 className="text-2xl font-bold text-white">{member.userName || 'Unknown'}</h1>
-							{member.userEmail && <p className="text-sm text-gray-400 mt-1">{member.userEmail}</p>}
+							<h1 className="text-2xl font-bold text-(--primary)">{member.userName || 'Unknown'}</h1>
+							{member.userEmail && <p className="text-sm text-(--secondary) mt-1">{member.userEmail}</p>}
 							<div className="flex items-center gap-3 mt-3">
-								<span className={`px-3 py-1 rounded-full text-xs font-medium ${roleColors[member.role] || 'bg-white/10 text-gray-100'}`}>
+								<span className={`px-3 py-1 rounded-full text-xs font-medium ${roleColors[member.role] || 'bg-(--accent-light) text-gray-100'}`}>
 									{member.role}
 								</span>
 								<span className={`px-3 py-1 rounded-full text-xs font-medium ${member.isActive ? 'bg-green-500/20 text-green-200' : 'bg-red-500/20 text-red-200'}`}>
@@ -128,18 +128,18 @@ export default function TeamMemberDetailPage() {
 						</div>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-white/10 pt-6">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-(--border) pt-6">
 						<div>
-							<p className="text-xs font-medium text-gray-400 mb-1">Joined</p>
-							<p className="text-sm text-white">{new Date(member.createdAt).toLocaleDateString()}</p>
+							<p className="text-xs font-medium text-(--secondary) mb-1">Joined</p>
+							<p className="text-sm text-(--primary)">{new Date(member.createdAt).toLocaleDateString()}</p>
 						</div>
 						<div>
-							<p className="text-xs font-medium text-gray-400 mb-1">Admin Approved</p>
-							<p className="text-sm text-white">{member.adminApproved ? 'Yes' : 'No'}</p>
+							<p className="text-xs font-medium text-(--secondary) mb-1">Admin Approved</p>
+							<p className="text-sm text-(--primary)">{member.adminApproved ? 'Yes' : 'No'}</p>
 						</div>
 						<div>
-							<p className="text-xs font-medium text-gray-400 mb-1">Manager Approved</p>
-							<p className="text-sm text-white">{member.managerApproved ? 'Yes' : 'No'}</p>
+							<p className="text-xs font-medium text-(--secondary) mb-1">Manager Approved</p>
+							<p className="text-sm text-(--primary)">{member.managerApproved ? 'Yes' : 'No'}</p>
 						</div>
 					</div>
 				</Card>

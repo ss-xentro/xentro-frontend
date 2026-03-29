@@ -111,7 +111,7 @@ export default function StartupDetailPage() {
 	if (loading) {
 		return (
 			<DashboardSidebar>
-				<div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-white/10 rounded w-1/4" /><div className="h-64 bg-white/10 rounded" /></div></div>
+				<div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-(--accent-light) rounded w-1/4" /><div className="h-64 bg-(--accent-light) rounded" /></div></div>
 			</DashboardSidebar>
 		);
 	}
@@ -128,11 +128,11 @@ export default function StartupDetailPage() {
 		if (!value) return null;
 		return (
 			<div>
-				<p className="text-xs font-medium text-gray-400 mb-1">{label}</p>
+				<p className="text-xs font-medium text-(--secondary) mb-1">{label}</p>
 				{isLink ? (
 					<a href={value} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline break-all">{value}</a>
 				) : (
-					<p className="text-sm text-white">{value}</p>
+					<p className="text-sm text-(--primary)">{value}</p>
 				)}
 			</div>
 		);
@@ -143,7 +143,7 @@ export default function StartupDetailPage() {
 			<div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
 				{/* Header */}
 				<div className="flex items-center justify-between">
-					<button onClick={() => router.push('/institution-dashboard/startups')} className="text-sm text-gray-400 hover:text-white flex items-center gap-1">
+					<button onClick={() => router.push('/institution-dashboard/startups')} className="text-sm text-(--secondary) hover:text-(--primary) flex items-center gap-1">
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
 						Back to Startups
 					</button>
@@ -157,59 +157,59 @@ export default function StartupDetailPage() {
 
 				{/* Cover image */}
 				{startup.coverImage && (
-					<div className="relative w-full h-48 rounded-xl overflow-hidden bg-white/10">
+					<div className="relative w-full h-48 rounded-xl overflow-hidden bg-(--accent-light)">
 						<img src={startup.coverImage} alt="Cover" className="w-full h-full object-cover" />
 						<div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent pointer-events-none" />
 					</div>
 				)}
 
 				{/* Profile header */}
-				<Card className="p-8 bg-white/5 border border-white/10">
+				<Card className="p-8 bg-(--accent-subtle) border border-(--border)">
 					<div className="flex items-start gap-5 mb-4">
 						{startup.logo ? (
-							<img src={startup.logo} alt="" className="w-16 h-16 rounded-xl object-cover border border-white/10" />
+							<img src={startup.logo} alt="" className="w-16 h-16 rounded-xl object-cover border border-(--border)" />
 						) : (
-							<div className="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center text-xl font-bold text-gray-400">
+							<div className="w-16 h-16 rounded-xl bg-(--accent-light) flex items-center justify-center text-xl font-bold text-(--secondary)">
 								{startup.name.substring(0, 2).toUpperCase()}
 							</div>
 						)}
 						<div className="flex-1">
 							<div className="flex items-center gap-3 mb-1">
-								<h1 className="text-2xl font-bold text-white">{startup.name}</h1>
+								<h1 className="text-2xl font-bold text-(--primary)">{startup.name}</h1>
 								{startup.stage && (
 									<span className="px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-200 rounded">
 										{stageLabels[startup.stage] || startup.stage}
 									</span>
 								)}
 								{startup.status && (
-									<span className={`px-2 py-1 text-xs font-medium rounded ${startup.status === 'public' ? 'bg-green-100 text-green-700' : 'bg-white/10 text-gray-300'}`}>
+									<span className={`px-2 py-1 text-xs font-medium rounded ${startup.status === 'public' ? 'bg-green-100 text-green-700' : 'bg-(--accent-light) text-(--primary-light)'}`}>
 										{startup.status}
 									</span>
 								)}
 							</div>
-							{startup.tagline && <p className="text-gray-300 text-sm">{startup.tagline}</p>}
+							{startup.tagline && <p className="text-(--primary-light) text-sm">{startup.tagline}</p>}
 						</div>
 					</div>
 
 					{startup.oneLiner && (
-						<p className="text-gray-200 text-lg mb-4 italic">&ldquo;{startup.oneLiner}&rdquo;</p>
+						<p className="text-(--primary-light) text-lg mb-4 italic">&ldquo;{startup.oneLiner}&rdquo;</p>
 					)}
 
 					{startup.pitch && (
-						<p className="text-gray-300 mb-4">{startup.pitch}</p>
+						<p className="text-(--primary-light) mb-4">{startup.pitch}</p>
 					)}
 
 					{startup.description && (
-						<div className="border-t border-white/10 pt-4 mt-4">
-							<p className="text-xs font-medium text-gray-400 mb-2">Description</p>
-							<p className="text-sm text-gray-200 whitespace-pre-wrap">{startup.description}</p>
+						<div className="border-t border-(--border) pt-4 mt-4">
+							<p className="text-xs font-medium text-(--secondary) mb-2">Description</p>
+							<p className="text-sm text-(--primary-light) whitespace-pre-wrap">{startup.description}</p>
 						</div>
 					)}
 				</Card>
 
 				{/* Details Grid */}
-				<Card className="p-8 bg-white/5 border border-white/10">
-					<h3 className="text-sm font-semibold text-white mb-4">Company Details</h3>
+				<Card className="p-8 bg-(--accent-subtle) border border-(--border)">
+					<h3 className="text-sm font-semibold text-(--primary) mb-4">Company Details</h3>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 						<InfoRow label="Industry" value={startup.industry} />
 						<InfoRow label="Location" value={startup.location} />
@@ -224,8 +224,8 @@ export default function StartupDetailPage() {
 
 				{/* Funding */}
 				{(startup.fundingRound || startup.fundsRaised) && (
-					<Card className="p-8 bg-white/5 border border-white/10">
-						<h3 className="text-sm font-semibold text-white mb-4">Funding & Financials</h3>
+					<Card className="p-8 bg-(--accent-subtle) border border-(--border)">
+						<h3 className="text-sm font-semibold text-(--primary) mb-4">Funding & Financials</h3>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<InfoRow label="Latest Round" value={startup.fundingRound ? (fundingLabels[startup.fundingRound] || startup.fundingRound) : null} />
 							<InfoRow label="Funds Raised" value={startup.fundsRaised ? `${startup.fundingCurrency || 'USD'} ${Number(startup.fundsRaised).toLocaleString()}` : null} />
@@ -235,8 +235,8 @@ export default function StartupDetailPage() {
 
 				{/* Links */}
 				{(startup.website || startup.linkedin || startup.twitter || startup.instagram || startup.pitchDeckUrl || startup.demoVideoUrl) && (
-					<Card className="p-8 bg-white/5 border border-white/10">
-						<h3 className="text-sm font-semibold text-white mb-4">Links & Social</h3>
+					<Card className="p-8 bg-(--accent-subtle) border border-(--border)">
+						<h3 className="text-sm font-semibold text-(--primary) mb-4">Links & Social</h3>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<InfoRow label="Website" value={startup.website} isLink />
 							<InfoRow label="LinkedIn" value={startup.linkedin} isLink />
@@ -250,10 +250,10 @@ export default function StartupDetailPage() {
 
 				{/* Sectors & SDGs */}
 				{((startup.sectors && startup.sectors.length > 0) || (startup.sdgs && startup.sdgs.length > 0)) && (
-					<Card className="p-8 bg-white/5 border border-white/10">
+					<Card className="p-8 bg-(--accent-subtle) border border-(--border)">
 						{startup.sectors && startup.sectors.length > 0 && (
 							<div className="mb-6">
-								<p className="text-xs font-medium text-gray-400 mb-3">Sectors</p>
+								<p className="text-xs font-medium text-(--secondary) mb-3">Sectors</p>
 								<div className="flex flex-wrap gap-2">
 									{startup.sectors.map((s, i) => (
 										<span key={i} className="px-3 py-1 text-sm font-medium bg-blue-500/20 text-blue-200 rounded-full">{s}</span>
@@ -263,7 +263,7 @@ export default function StartupDetailPage() {
 						)}
 						{startup.sdgs && startup.sdgs.length > 0 && (
 							<div>
-								<p className="text-xs font-medium text-gray-400 mb-3">SDG Focus</p>
+								<p className="text-xs font-medium text-(--secondary) mb-3">SDG Focus</p>
 								<div className="flex flex-wrap gap-2">
 									{startup.sdgs.map((s, i) => (
 										<span key={i} className="px-3 py-1 text-sm font-medium bg-green-500/20 text-green-200 rounded-full">{s}</span>

@@ -376,14 +376,14 @@ export function ImageCropper({
 		>
 			{/* modal card */}
 			<div
-				className="relative w-full max-w-md bg-[#16181f] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+				className="relative w-full max-w-md bg-(--surface) border border-(--border) rounded-2xl shadow-2xl flex flex-col overflow-hidden"
 				onPointerDown={(e) => e.stopPropagation()}
 			>
 				{/* ── header ── */}
-				<div className="flex items-center justify-between px-5 py-3.5 border-b border-white/8 shrink-0">
+				<div className="flex items-center justify-between px-5 py-3.5 border-b border-(--border-light) shrink-0">
 					<div>
-						<h3 className="text-sm font-semibold text-white">Crop Photo</h3>
-						<p className="text-[11px] text-gray-500 mt-0.5">
+						<h3 className="text-sm font-semibold text-(--primary)">Crop Photo</h3>
+						<p className="text-[11px] text-(--secondary) mt-0.5">
 							Drag to reposition · scroll or pinch to zoom
 						</p>
 					</div>
@@ -391,7 +391,7 @@ export function ImageCropper({
 						type="button"
 						onClick={onCancel}
 						aria-label="Close"
-						className="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:text-white hover:bg-white/8 transition-colors"
+						className="w-8 h-8 flex items-center justify-center rounded-full text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) transition-colors"
 					>
 						<svg
 							className="w-4 h-4"
@@ -485,7 +485,7 @@ export function ImageCropper({
 							{/* crop border + rule-of-thirds grid + corner handles */}
 							<div
 								className={[
-									"absolute border border-white/60 overflow-hidden",
+									"absolute border border-(--primary)/60 overflow-hidden",
 									cropShape === "circle" ? "rounded-full" : "rounded-[6px]",
 								].join(" ")}
 								style={{
@@ -498,7 +498,7 @@ export function ImageCropper({
 								{/* thirds grid — always subtle */}
 								<div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
 									{Array.from({ length: 9 }).map((_, i) => (
-										<div key={i} className="border border-white/[0.12]" />
+										<div key={i} className="border border-(--border-light)" />
 									))}
 								</div>
 
@@ -543,7 +543,7 @@ export function ImageCropper({
 					{!ready && (
 						<div className="absolute inset-0 flex items-center justify-center">
 							<svg
-								className="w-6 h-6 text-white/30 animate-spin"
+								className="w-6 h-6 text-(--secondary-light) animate-spin"
 								fill="none"
 								viewBox="0 0 24 24"
 							>
@@ -566,7 +566,7 @@ export function ImageCropper({
 				</div>
 
 				{/* ── controls ── */}
-				<div className="px-5 py-4 space-y-4 border-t border-white/8 shrink-0">
+				<div className="px-5 py-4 space-y-4 border-t border-(--border-light) shrink-0">
 					{/* zoom row */}
 					<div className="flex items-center gap-3">
 						{/* − */}
@@ -575,7 +575,7 @@ export function ImageCropper({
 							onClick={() => applyZoom(zoom - 0.25)}
 							disabled={zoom <= MIN_ZOOM}
 							aria-label="Zoom out"
-							className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-white hover:bg-white/8 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+							className="w-7 h-7 flex items-center justify-center rounded-md text-(--secondary) hover:text-(--primary) hover:bg-(--accent-light) disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
 						>
 							<svg
 								className="w-4 h-4"
@@ -602,7 +602,7 @@ export function ImageCropper({
 							onChange={(e) => applyZoom(parseFloat(e.target.value))}
 							className="
                 flex-1 h-1.5 rounded-full appearance-none cursor-pointer
-                bg-white/10
+                bg-(--accent-light)
                 [&::-webkit-slider-thumb]:appearance-none
                 [&::-webkit-slider-thumb]:w-[18px]
                 [&::-webkit-slider-thumb]:h-[18px]
@@ -628,7 +628,7 @@ export function ImageCropper({
 							onClick={() => applyZoom(zoom + 0.25)}
 							disabled={zoom >= MAX_ZOOM}
 							aria-label="Zoom in"
-							className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-white hover:bg-white/8 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+							className="w-7 h-7 flex items-center justify-center rounded-md text-(--secondary) hover:text-(--primary) hover:bg-(--surface-hover) disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
 						>
 							<svg
 								className="w-4 h-4"
@@ -646,7 +646,7 @@ export function ImageCropper({
 						</button>
 
 						{/* pct label */}
-						<span className="text-xs text-gray-600 tabular-nums w-8 text-right">
+						<span className="text-xs text-(--secondary-light) tabular-nums w-8 text-right">
 							{zoomPct}%
 						</span>
 					</div>
@@ -657,7 +657,7 @@ export function ImageCropper({
 						<button
 							type="button"
 							onClick={handleRotate}
-							className="h-9 px-3 flex items-center gap-1.5 rounded-lg border border-white/10 text-xs text-gray-400 hover:text-white hover:border-white/20 transition-colors"
+							className="h-9 px-3 flex items-center gap-1.5 rounded-lg border border-(--border) text-xs text-(--secondary) hover:text-(--primary) hover:border-(--border-hover) transition-colors"
 						>
 							<svg
 								className="w-3.5 h-3.5"
@@ -685,7 +685,7 @@ export function ImageCropper({
 								currentOffset.current = resetOffset;
 								setRotation(0);
 							}}
-							className="h-9 px-3 flex items-center gap-1.5 rounded-lg border border-white/10 text-xs text-gray-400 hover:text-white hover:border-white/20 transition-colors"
+							className="h-9 px-3 flex items-center gap-1.5 rounded-lg border border-(--border) text-xs text-(--secondary) hover:text-(--primary) hover:border-(--border-hover) transition-colors"
 						>
 							<svg
 								className="w-3.5 h-3.5"
@@ -709,7 +709,7 @@ export function ImageCropper({
 						<button
 							type="button"
 							onClick={onCancel}
-							className="h-9 px-4 rounded-lg border border-white/10 text-sm text-gray-400 hover:text-white transition-colors"
+							className="h-9 px-4 rounded-lg border border-(--border) text-sm text-(--secondary) hover:text-(--primary) transition-colors"
 						>
 							Cancel
 						</button>
@@ -719,7 +719,7 @@ export function ImageCropper({
 							type="button"
 							onClick={handleCrop}
 							disabled={!ready}
-							className="h-9 px-5 rounded-lg bg-white text-[#0d0f14] text-sm font-semibold hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+							className="h-9 px-5 rounded-lg bg-(--accent) text-(--background) text-sm font-semibold hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
 						>
 							Apply
 						</button>

@@ -537,7 +537,7 @@ export default function TeamPage() {
                                 showControls={false}
                             />
                         ) : (
-                            <div className="h-full w-full flex items-center justify-center text-7xl font-semibold text-white/70">
+                            <div className="h-full w-full flex items-center justify-center text-7xl font-semibold text-(--secondary)">
                                 {selectedMember.name.substring(0, 2).toUpperCase()}
                             </div>
                         )}

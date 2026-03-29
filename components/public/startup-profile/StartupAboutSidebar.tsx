@@ -81,7 +81,7 @@ export function StartupAboutSidebar({ startup, sections }: StartupAboutSidebarPr
 										return info ? (
 											<span
 												key={sdg}
-												className="w-7 h-7 rounded flex items-center justify-center text-white text-[10px] font-bold"
+												className="w-7 h-7 rounded flex items-center justify-center text-(--primary) text-[10px] font-bold"
 												style={{ backgroundColor: info.color }}
 												title={info.fullName}
 											>

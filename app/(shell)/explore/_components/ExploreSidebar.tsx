@@ -19,7 +19,7 @@ function NavIcon({ path, active }: { path: string; active?: boolean }) {
 		<svg
 			className={cn(
 				"w-6 h-6 transition-all duration-200",
-				active ? "text-white" : "text-gray-400",
+				active ? "text-(--primary)" : "text-(--secondary)",
 			)}
 			fill="none"
 			stroke="currentColor"
@@ -76,7 +76,7 @@ export default function ExploreSidebar() {
 	return (
 		<aside
 			className={cn(
-				"relative sticky top-0 h-screen shrink-0 border-r border-white/10 hidden md:flex flex-col transition-all duration-300 ease-in-out",
+				"relative sticky top-0 h-screen shrink-0 border-r border-(--border) hidden md:flex flex-col transition-all duration-300 ease-in-out",
 				isCollapsed ? "w-20" : "w-72",
 			)}
 		>
@@ -94,7 +94,7 @@ export default function ExploreSidebar() {
 							/>
 							<span
 								className={cn(
-									"text-white font-bold text-xl tracking-tight whitespace-nowrap overflow-hidden transition-all duration-300",
+									"text-(--primary) font-bold text-xl tracking-tight whitespace-nowrap overflow-hidden transition-all duration-300",
 									isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100",
 								)}
 							>
@@ -104,14 +104,14 @@ export default function ExploreSidebar() {
 						<button
 							onClick={() => setIsCollapsed(!isCollapsed)}
 							className={cn(
-								"shrink-0 w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all duration-200",
+								"shrink-0 w-7 h-7 rounded-lg bg-(--accent-subtle) hover:bg-(--accent-light) flex items-center justify-center transition-all duration-200",
 								isCollapsed && "mx-auto mt-1",
 							)}
 							title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
 						>
 							<svg
 								className={cn(
-									"w-4 h-4 text-gray-400 transition-transform duration-300",
+									"w-4 h-4 text-(--secondary) transition-transform duration-300",
 									isCollapsed && "rotate-180",
 								)}
 								fill="none"
@@ -133,8 +133,8 @@ export default function ExploreSidebar() {
 							isCollapsed ? "opacity-0 h-0" : "opacity-100 h-auto",
 						)}
 					>
-						<div className="h-px bg-white/10 mb-3" />
-						<span className="text-xs font-medium text-gray-500 uppercase tracking-widest whitespace-nowrap">
+						<div className="h-px bg-(--border) mb-3" />
+						<span className="text-xs font-medium text-(--secondary-light) uppercase tracking-widest whitespace-nowrap">
 							{user?.role ? (ROLE_LABELS[user.role] ?? user.role) : "Guest"}
 						</span>
 					</div>
@@ -150,10 +150,10 @@ export default function ExploreSidebar() {
 								aria-label="Search explore"
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
-								className="w-full px-4 py-2.5 pl-10 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.07] transition-all duration-200"
+								className="w-full px-4 py-2.5 pl-10 bg-(--accent-subtle) border border-(--border) rounded-xl text-(--primary) placeholder-gray-500 text-sm focus:outline-none focus:border-blue-500/50 focus:bg-(--accent-subtle) transition-all duration-200"
 							/>
 							<svg
-								className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"
+								className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-(--secondary-light)"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -186,8 +186,8 @@ export default function ExploreSidebar() {
 									"relative w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-colors duration-200 group",
 									isCollapsed ? "justify-center" : "",
 									isActive
-										? "bg-white/10 animate-navHighlight"
-										: "hover:bg-white/5",
+										? "bg-(--accent-light) animate-navHighlight"
+										: "hover:bg-(--accent-subtle)",
 								)}
 							>
 								<NavIcon path={item.path} active={isActive} />
@@ -195,7 +195,7 @@ export default function ExploreSidebar() {
 									className={cn(
 										"text-[15px] font-medium transition-all duration-300 whitespace-nowrap overflow-hidden",
 										isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100",
-										isActive ? "text-white" : "text-gray-400",
+										isActive ? "text-(--primary)" : "text-(--secondary)",
 									)}
 								>
 									{item.label}
@@ -212,19 +212,19 @@ export default function ExploreSidebar() {
 			</div>
 
 			{/* Profile Section */}
-			<div className="p-3 border-t border-white/10" ref={profileRef}>
+			<div className="p-3 border-t border-(--border)" ref={profileRef}>
 				{profileOpen && (
-					<div className="absolute bottom-20 left-3 right-3 bg-[#15181C] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-fadeIn">
-						<div className="px-4 py-3 border-b border-white/10">
-							<p className="text-sm font-semibold text-white truncate">
+					<div className="absolute bottom-20 left-3 right-3 bg-(--surface) border border-(--border) rounded-2xl shadow-2xl overflow-hidden z-50 animate-fadeIn">
+						<div className="px-4 py-3 border-b border-(--border)">
+							<p className="text-sm font-semibold text-(--primary) truncate">
 								{user?.name ?? "Guest"}
 							</p>
-							<p className="text-xs text-gray-400 truncate">@{username}</p>
+							<p className="text-xs text-(--secondary) truncate">@{username}</p>
 						</div>
 						<div className="p-1.5 space-y-0.5">
 							<button
 								onClick={() => setProfileOpen(false)}
-								className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-sm"
+								className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-(--primary-light) hover:bg-(--accent-subtle) hover:text-(--primary) transition-colors text-sm"
 							>
 								<svg
 									className="w-4 h-4 shrink-0"
@@ -249,7 +249,7 @@ export default function ExploreSidebar() {
 							</button>
 							<button
 								onClick={() => setProfileOpen(false)}
-								className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-sm"
+								className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-(--primary-light) hover:bg-(--accent-subtle) hover:text-(--primary) transition-colors text-sm"
 							>
 								<svg
 									className="w-4 h-4 shrink-0"
@@ -266,7 +266,7 @@ export default function ExploreSidebar() {
 								</svg>
 								Help &amp; Support
 							</button>
-							<div className="my-1 h-px bg-white/10" />
+							<div className="my-1 h-px bg-(--border)" />
 							{isAuthenticated ? (
 								<button
 									onClick={handleLogout}
@@ -316,13 +316,13 @@ export default function ExploreSidebar() {
 				<button
 					onClick={() => setProfileOpen((prev) => !prev)}
 					className={cn(
-						"w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group relative",
+						"w-full flex items-center gap-3 p-3 rounded-xl hover:bg-(--accent-subtle) transition-colors group relative",
 						isCollapsed && "justify-center",
-						profileOpen && "bg-white/5",
+						profileOpen && "bg-(--accent-subtle)",
 					)}
 				>
-					<div className="shrink-0 w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center">
-						<span className="text-sm font-semibold text-white">
+					<div className="shrink-0 w-9 h-9 rounded-full bg-(--accent-light) border border-(--border) flex items-center justify-center">
+						<span className="text-sm font-semibold text-(--primary)">
 							{user?.name ? user.name.charAt(0).toUpperCase() : "?"}
 						</span>
 					</div>
@@ -332,14 +332,14 @@ export default function ExploreSidebar() {
 							isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100",
 						)}
 					>
-						<p className="text-sm font-medium text-white truncate">
+						<p className="text-sm font-medium text-(--primary) truncate">
 							{user?.name ?? "Guest"}
 						</p>
-						<p className="text-xs text-gray-400 truncate">@{username}</p>
+						<p className="text-xs text-(--secondary) truncate">@{username}</p>
 					</div>
 					{!isCollapsed && (
 						<svg
-							className="w-4 h-4 text-gray-500 shrink-0"
+							className="w-4 h-4 text-(--secondary-light) shrink-0"
 							fill="currentColor"
 							viewBox="0 0 24 24"
 						>

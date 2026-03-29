@@ -29,7 +29,7 @@ const ACTION_COLORS: Record<string, string> = {
 
 function getActionColor(action: string): string {
 	const key = Object.keys(ACTION_COLORS).find((k) => action.toLowerCase().includes(k));
-	return key ? ACTION_COLORS[key] : 'bg-gray-100 text-gray-700';
+	return key ? ACTION_COLORS[key] : 'bg-(--accent-light) text-(--primary-light)';
 }
 
 export default function AdminAuditLogPage() {
@@ -77,8 +77,8 @@ export default function AdminAuditLogPage() {
 	return (
 		<div className="space-y-6">
 			<div>
-				<h1 className="text-xl font-semibold text-gray-900">Audit Log</h1>
-				<p className="text-sm text-gray-500 mt-1">{total} log entries</p>
+				<h1 className="text-xl font-semibold text-(--primary)">Audit Log</h1>
+				<p className="text-sm text-(--secondary-light) mt-1">{total} log entries</p>
 			</div>
 
 			{/* Filters */}
@@ -91,13 +91,13 @@ export default function AdminAuditLogPage() {
 							aria-label="Search by action, user name, or email"
 							value={search}
 							onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-							className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+							className="w-full px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
 						/>
 					</div>
 					<select
 						value={entityType}
 						onChange={(e) => { setEntityType(e.target.value); setPage(1); }}
-						className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none bg-white"
+						className="px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none bg-white"
 					>
 						<option value="">All Entity Types</option>
 						<option value="startup">Startup</option>
@@ -112,25 +112,25 @@ export default function AdminAuditLogPage() {
 			</Card>
 
 			{/* Log Timeline */}
-			<Card className="divide-y divide-gray-100">
+			<Card className="divide-y divide-(--border-light)">
 				{loading && (
 					<div className="p-6 space-y-4">
 						{[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-							<div key={i} className="h-12 bg-gray-50 rounded animate-pulse" />
+							<div key={i} className="h-12 bg-(--accent-subtle) rounded animate-pulse" />
 						))}
 					</div>
 				)}
 
 				{!loading && entries.length === 0 && (
-					<div className="p-8 text-center text-gray-500">
+					<div className="p-8 text-center text-(--secondary-light)">
 						No audit log entries found.
 					</div>
 				)}
 
 				{!loading && entries.map((entry) => (
-					<div key={entry.id} className="px-4 py-3 hover:bg-gray-50/50 flex items-start gap-4">
+					<div key={entry.id} className="px-4 py-3 hover:bg-(--accent-subtle)/50 flex items-start gap-4">
 						{/* Timestamp */}
-						<div className="flex-shrink-0 w-32 text-xs text-gray-400 pt-0.5">
+						<div className="flex-shrink-0 w-32 text-xs text-(--secondary) pt-0.5">
 							{formatTime(entry.createdAt)}
 						</div>
 
@@ -143,16 +143,16 @@ export default function AdminAuditLogPage() {
 
 						{/* Details */}
 						<div className="flex-1 min-w-0">
-							<p className="text-sm text-gray-900">
+							<p className="text-sm text-(--primary)">
 								{entry.userName && (
 									<span className="font-medium">{entry.userName}</span>
 								)}
 								{entry.userName && ' '}
 								{entry.entityType && (
-									<span className="text-gray-500">
+									<span className="text-(--secondary-light)">
 										on <span className="font-medium">{entry.entityType}</span>
 										{entry.entityId && (
-											<span className="text-gray-400 ml-1 font-mono text-xs">
+											<span className="text-(--secondary) ml-1 font-mono text-xs">
 												{entry.entityId.slice(0, 8)}...
 											</span>
 										)}
@@ -160,17 +160,17 @@ export default function AdminAuditLogPage() {
 								)}
 							</p>
 							{entry.context && (
-								<p className="text-xs text-gray-400 mt-0.5">
+								<p className="text-xs text-(--secondary) mt-0.5">
 									Context: {entry.context}
 									{entry.ipAddress && ` · IP: ${entry.ipAddress}`}
 								</p>
 							)}
 							{entry.details && Object.keys(entry.details).length > 0 && (
 								<details className="mt-1">
-									<summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600">
+									<summary className="text-xs text-(--secondary) cursor-pointer hover:text-(--secondary-light)">
 										Details
 									</summary>
-									<pre className="mt-1 text-xs bg-gray-50 rounded p-2 overflow-x-auto text-gray-600 max-h-32">
+									<pre className="mt-1 text-xs bg-(--accent-subtle) rounded p-2 overflow-x-auto text-(--secondary-light) max-h-32">
 										{JSON.stringify(entry.details, null, 2)}
 									</pre>
 								</details>
@@ -182,21 +182,21 @@ export default function AdminAuditLogPage() {
 				{/* Pagination */}
 				{!loading && totalPages > 1 && (
 					<div className="flex items-center justify-between px-4 py-3">
-						<p className="text-xs text-gray-500">
+						<p className="text-xs text-(--secondary-light)">
 							Page {page} of {totalPages} ({total} entries)
 						</p>
 						<div className="flex gap-2">
 							<button
 								onClick={() => setPage((p) => Math.max(1, p - 1))}
 								disabled={page <= 1}
-								className="px-3 py-1 rounded border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+								className="px-3 py-1 rounded border border-(--border) text-xs font-medium text-(--secondary-light) hover:bg-(--accent-subtle) disabled:opacity-40"
 							>
 								Previous
 							</button>
 							<button
 								onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
 								disabled={page >= totalPages}
-								className="px-3 py-1 rounded border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+								className="px-3 py-1 rounded border border-(--border) text-xs font-medium text-(--secondary-light) hover:bg-(--accent-subtle) disabled:opacity-40"
 							>
 								Next
 							</button>

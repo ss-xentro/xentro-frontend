@@ -33,7 +33,7 @@ export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
-				<h3 className="text-base font-semibold text-gray-900">Founders</h3>
+				<h3 className="text-base font-semibold text-(--primary)">Founders</h3>
 				<Button
 					variant="ghost"
 					size="sm"
@@ -45,7 +45,7 @@ export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 			</div>
 
 			{founders.map((founder, index) => (
-				<div key={founder.id} className="p-6 border border-gray-200 rounded-lg space-y-4 relative">
+				<div key={founder.id} className="p-6 border border-(--border) rounded-lg space-y-4 relative">
 					{founders.length > 1 && (
 						<button
 							type="button"
@@ -59,27 +59,27 @@ export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 						</button>
 					)}
 
-					<p className="text-sm font-medium text-gray-700">Founder {index + 1}</p>
+					<p className="text-sm font-medium text-(--primary-light)">Founder {index + 1}</p>
 
 					<div>
-						<label className="block text-xs font-medium text-gray-500 mb-2">Name *</label>
+						<label className="block text-xs font-medium text-(--secondary-light) mb-2">Name *</label>
 						<input
 							type="text"
 							value={founder.name}
 							onChange={(e) => updateFounder(founder.id, 'name', e.target.value)}
-							className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+							className="w-full px-4 py-3 text-sm bg-background border border-(--border) rounded-lg focus:border-(--primary) focus:outline-none transition-colors"
 							placeholder="Full name"
 							aria-label="Founder name"
 						/>
 					</div>
 
 					<div>
-						<label className="block text-xs font-medium text-gray-500 mb-2">Email *</label>
+						<label className="block text-xs font-medium text-(--secondary-light) mb-2">Email *</label>
 						<input
 							type="email"
 							value={founder.email}
 							onChange={(e) => updateFounder(founder.id, 'email', e.target.value)}
-							className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+							className="w-full px-4 py-3 text-sm bg-background border border-(--border) rounded-lg focus:border-(--primary) focus:outline-none transition-colors"
 							placeholder="founder@startup.com"
 							aria-label="Founder email"
 						/>
@@ -87,12 +87,12 @@ export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 					</div>
 
 					<div>
-						<label className="block text-xs font-medium text-gray-500 mb-2">Phone *</label>
+						<label className="block text-xs font-medium text-(--secondary-light) mb-2">Phone *</label>
 						<input
 							type="tel"
 							value={founder.phone}
 							onChange={(e) => updateFounder(founder.id, 'phone', e.target.value)}
-							className="w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none transition-colors"
+							className="w-full px-4 py-3 text-sm bg-background border border-(--border) rounded-lg focus:border-(--primary) focus:outline-none transition-colors"
 							placeholder="+1 555 123 4567"
 							aria-label="Founder phone"
 						/>

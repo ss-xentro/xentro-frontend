@@ -42,12 +42,12 @@ export function InstitutionalBadge({ name }: { name: string }) {
 /* ── Stat card ── */
 export function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
 	return (
-		<div className="bg-white/3 border border-white/6 rounded-xl px-4 py-3">
-			<div className="flex items-center gap-2 text-gray-500 mb-1">
+		<div className="bg-(--accent-subtle) border border-(--border-light) rounded-xl px-4 py-3">
+			<div className="flex items-center gap-2 text-(--secondary-light) mb-1">
 				{icon}
 				<span className="text-xs">{label}</span>
 			</div>
-			<p className="text-xl font-bold text-white">{value}</p>
+			<p className="text-xl font-bold text-(--primary)">{value}</p>
 		</div>
 	);
 }
@@ -55,10 +55,10 @@ export function StatCard({ icon, label, value }: { icon: React.ReactNode; label:
 /* ── Section wrapper ── */
 export function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
 	return (
-		<div className="bg-white/3 border border-white/6 rounded-xl p-6">
+		<div className="bg-(--accent-subtle) border border-(--border) rounded-xl p-6">
 			<div className="flex items-center gap-2 mb-4">
 				{icon}
-				<h2 className="text-base font-semibold text-white">{title}</h2>
+				<h2 className="text-base font-semibold text-(--primary)">{title}</h2>
 			</div>
 			{children}
 		</div>

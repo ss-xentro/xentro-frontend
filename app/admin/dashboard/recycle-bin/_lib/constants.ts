@@ -23,7 +23,7 @@ export const accountTypeColors: Record<string, string> = {
 	institution_admin: 'bg-purple-100 text-purple-700',
 	mentor: 'bg-green-100 text-green-700',
 	investor: 'bg-amber-100 text-amber-700',
-	explorer: 'bg-gray-100 text-gray-700',
+	explorer: 'bg-(--accent-light) text-(--primary-light)',
 	admin: 'bg-red-100 text-red-700',
 	approver: 'bg-indigo-100 text-indigo-700',
 };

@@ -29,7 +29,7 @@ const typeLabels: Record<string, { label: string; color: string }> = {
 	workshop: { label: 'Workshop', color: 'bg-yellow-500/20 text-yellow-200' },
 	mentorship: { label: 'Mentorship', color: 'bg-pink-500/20 text-pink-200' },
 	competition: { label: 'Competition', color: 'bg-indigo-500/20 text-indigo-200' },
-	other: { label: 'Other', color: 'bg-white/10 text-gray-100' },
+	other: { label: 'Other', color: 'bg-(--accent-light) text-gray-100' },
 };
 
 export default function ProgramDetailPage() {
@@ -86,7 +86,7 @@ export default function ProgramDetailPage() {
 	if (loading) {
 		return (
 			<DashboardSidebar>
-				<div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-white/10 rounded w-1/4" /><div className="h-64 bg-white/10 rounded" /></div></div>
+				<div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-(--accent-light) rounded w-1/4" /><div className="h-64 bg-(--accent-light) rounded" /></div></div>
 			</DashboardSidebar>
 		);
 	}
@@ -105,7 +105,7 @@ export default function ProgramDetailPage() {
 		<DashboardSidebar>
 			<div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
 				<div className="flex items-center justify-between">
-					<button onClick={() => router.push('/institution-dashboard/programs')} className="text-sm text-gray-400 hover:text-white flex items-center gap-1">
+					<button onClick={() => router.push('/institution-dashboard/programs')} className="text-sm text-(--secondary) hover:text-(--primary) flex items-center gap-1">
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
 						Back to Programs
 					</button>
@@ -117,44 +117,44 @@ export default function ProgramDetailPage() {
 					</div>
 				</div>
 
-				<Card className="p-8 bg-white/5 border border-white/10">
+				<Card className="p-8 bg-(--accent-subtle) border border-(--border)">
 					<div className="flex items-center gap-3 mb-4">
-						<h1 className="text-2xl font-bold text-white">{program.name}</h1>
+						<h1 className="text-2xl font-bold text-(--primary)">{program.name}</h1>
 						<span className={`px-2 py-1 rounded text-xs font-medium ${typeInfo.color}`}>{typeInfo.label}</span>
-						{!program.isActive && <span className="px-2 py-0.5 rounded text-xs bg-white/10 text-gray-300">Inactive</span>}
+						{!program.isActive && <span className="px-2 py-0.5 rounded text-xs bg-(--accent-light) text-(--primary-light)">Inactive</span>}
 					</div>
 
 					{program.description && (
-						<p className="text-gray-300 mb-6 whitespace-pre-wrap">{program.description}</p>
+						<p className="text-(--primary-light) mb-6 whitespace-pre-wrap">{program.description}</p>
 					)}
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-white/10 pt-6">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-(--border) pt-6">
 						{program.duration && (
 							<div>
-								<p className="text-xs font-medium text-gray-400 mb-1">Duration</p>
-								<p className="text-sm text-white">{program.duration}</p>
+								<p className="text-xs font-medium text-(--secondary) mb-1">Duration</p>
+								<p className="text-sm text-(--primary)">{program.duration}</p>
 							</div>
 						)}
 						{program.startDate && (
 							<div>
-								<p className="text-xs font-medium text-gray-400 mb-1">Start Date</p>
-								<p className="text-sm text-white">{new Date(program.startDate).toLocaleDateString()}</p>
+								<p className="text-xs font-medium text-(--secondary) mb-1">Start Date</p>
+								<p className="text-sm text-(--primary)">{new Date(program.startDate).toLocaleDateString()}</p>
 							</div>
 						)}
 						{program.endDate && (
 							<div>
-								<p className="text-xs font-medium text-gray-400 mb-1">End Date</p>
-								<p className="text-sm text-white">{new Date(program.endDate).toLocaleDateString()}</p>
+								<p className="text-xs font-medium text-(--secondary) mb-1">End Date</p>
+								<p className="text-sm text-(--primary)">{new Date(program.endDate).toLocaleDateString()}</p>
 							</div>
 						)}
 						<div>
-							<p className="text-xs font-medium text-gray-400 mb-1">Status</p>
-							<p className="text-sm text-white">{program.isActive ? 'Active' : 'Inactive'}</p>
+							<p className="text-xs font-medium text-(--secondary) mb-1">Status</p>
+							<p className="text-sm text-(--primary)">{program.isActive ? 'Active' : 'Inactive'}</p>
 						</div>
 						{program.createdAt && (
 							<div>
-								<p className="text-xs font-medium text-gray-400 mb-1">Created</p>
-								<p className="text-sm text-white">{new Date(program.createdAt).toLocaleDateString()}</p>
+								<p className="text-xs font-medium text-(--secondary) mb-1">Created</p>
+								<p className="text-sm text-(--primary)">{new Date(program.createdAt).toLocaleDateString()}</p>
 							</div>
 						)}
 					</div>

@@ -75,5 +75,5 @@ export const EMPTY_STARTUP_FORM: StartupFormData = {
 	primaryContactEmail: '',
 };
 
-export const INPUT_CLASS = 'w-full px-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none';
+export const INPUT_CLASS = 'w-full px-4 py-3 text-sm bg-background border border-(--border) rounded-lg focus:border-(--primary) focus:outline-none';
 export const TEXTAREA_CLASS = `${INPUT_CLASS} resize-none`;

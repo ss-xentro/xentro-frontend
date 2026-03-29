@@ -74,7 +74,7 @@ export function StatusBadge({ status }: { status: 'draft' | 'published' | 'archi
 export function SDGBadge({ sdg, color }: { sdg: string; color: string }) {
     return (
         <span
-            className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-(--radius-full) text-white"
+            className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-(--radius-full) text-(--primary)"
             style={{ backgroundColor: color }}
         >
             {sdg}

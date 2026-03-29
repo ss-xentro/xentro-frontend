@@ -30,7 +30,7 @@ export function SectorPicker({ selectedSectors, onSelect, expandedCategory, onTo
 								isExpanded ? 'bg-slate-100' : 'bg-(--surface) hover:bg-(--surface-hover)',
 							)}
 						>
-							<AppIcon name={icon} className={cn('w-5 h-5 shrink-0', isExpanded ? 'text-slate-900' : 'text-(--secondary)')} />
+							<AppIcon name={icon} className={cn('w-5 h-5 shrink-0', isExpanded ? 'text-(--primary)' : 'text-(--secondary)')} />
 							<span className="font-medium text-sm flex-1 text-(--primary)">{label}</span>
 							{selectedCount > 0 && (
 								<span className="w-2 h-2 rounded-full bg-slate-700"></span>
@@ -55,7 +55,7 @@ export function SectorPicker({ selectedSectors, onSelect, expandedCategory, onTo
 											className={cn(
 												'flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-all text-left',
 												isSelected
-													? 'border-slate-900 bg-slate-100 text-slate-900 font-medium'
+													? 'border-slate-900 bg-slate-100 text-white font-medium'
 													: 'border-(--border) bg-(--surface) text-(--primary) hover:border-(--secondary-light)',
 											)}
 										>

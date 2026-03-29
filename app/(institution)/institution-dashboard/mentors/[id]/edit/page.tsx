@@ -145,8 +145,8 @@ export default function EditMentorPage() {
 				<div className="flex items-center justify-between">
 					<div>
 						<BackButton href={`/institution-dashboard/mentors/${mentorId}`} label="Back to Details" />
-						<h1 className="text-2xl font-bold text-white">Edit Mentor</h1>
-						<p className="text-sm text-gray-300 mt-1">Update mentor profile — same fields as the mentor sees</p>
+						<h1 className="text-2xl font-bold text-(--primary)">Edit Mentor</h1>
+						<p className="text-sm text-(--primary-light) mt-1">Update mentor profile — same fields as the mentor sees</p>
 					</div>
 					<Button onClick={handleSubmit} disabled={saving}>
 						{saving ? 'Saving...' : 'Save Changes'}
@@ -156,9 +156,9 @@ export default function EditMentorPage() {
 
 
 				{/* Profile Overview (read-only) */}
-				<Card className="p-6 bg-white/5 border border-white/10">
+				<Card className="p-6 bg-(--accent-subtle) border border-(--border)">
 					<div className="flex items-center gap-4 mb-2">
-						<div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-xl font-bold text-gray-300 shrink-0 overflow-hidden">
+						<div className="w-14 h-14 rounded-full bg-(--accent-light) flex items-center justify-center text-xl font-bold text-(--primary-light) shrink-0 overflow-hidden">
 							{avatar ? (
 								<img src={avatar} alt="" className="w-14 h-14 rounded-full object-cover" />
 							) : (
@@ -166,14 +166,14 @@ export default function EditMentorPage() {
 							)}
 						</div>
 						<div className="flex-1">
-							<h2 className="text-lg font-semibold text-white">{userName || 'Unnamed Mentor'}</h2>
-							<p className="text-sm text-gray-400">{userEmail}</p>
+							<h2 className="text-lg font-semibold text-(--primary)">{userName || 'Unnamed Mentor'}</h2>
+							<p className="text-sm text-(--secondary)">{userEmail}</p>
 						</div>
 						<div className="flex items-center gap-2">
 							<span className={`px-2 py-1 rounded-full text-xs font-medium ${verified ? 'bg-green-500/20 text-green-200' : 'bg-yellow-500/20 text-yellow-200'}`}>
 								{verified ? 'Verified' : 'Pending'}
 							</span>
-							<span className={`px-2 py-1 rounded-full text-xs font-medium ${status === 'approved' || status === 'active' ? 'bg-blue-500/20 text-blue-200' : 'bg-white/10 text-gray-100'}`}>
+							<span className={`px-2 py-1 rounded-full text-xs font-medium ${status === 'approved' || status === 'active' ? 'bg-blue-500/20 text-blue-200' : 'bg-(--accent-light) text-gray-100'}`}>
 								{status}
 							</span>
 						</div>
@@ -182,20 +182,20 @@ export default function EditMentorPage() {
 
 				{/* Occupation */}
 				<Card className="p-6 space-y-4">
-					<h3 className="text-lg font-semibold text-white">Occupation</h3>
+					<h3 className="text-lg font-semibold text-(--primary)">Occupation</h3>
 					<input
 						type="text"
 						value={occupation}
 						onChange={(e) => setOccupation(e.target.value)}
-						className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none"
+						className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none"
 						placeholder="e.g., Senior Product Manager at Google"
 					/>
 				</Card>
 
 				{/* Expertise */}
 				<Card className="p-6 space-y-4">
-					<h3 className="text-lg font-semibold text-white">Expertise Areas</h3>
-					<p className="text-sm text-gray-400">Add your areas of expertise one at a time</p>
+					<h3 className="text-lg font-semibold text-(--primary)">Expertise Areas</h3>
+					<p className="text-sm text-(--secondary)">Add your areas of expertise one at a time</p>
 					<TagInput
 						tags={expertise}
 						onChange={setExpertise}
@@ -213,17 +213,17 @@ export default function EditMentorPage() {
 
 				{/* Pricing */}
 				<Card className="p-6 space-y-4">
-					<h3 className="text-lg font-semibold text-white">Pricing</h3>
+					<h3 className="text-lg font-semibold text-(--primary)">Pricing</h3>
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 						<div>
-							<label className="block text-xs font-medium text-gray-400 mb-2">Rate per hour (INR)</label>
+							<label className="block text-xs font-medium text-(--secondary) mb-2">Rate per hour (INR)</label>
 							<div className="relative">
-								<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">Rs</span>
+								<span className="absolute left-4 top-1/2 -translate-y-1/2 text-(--secondary)">Rs</span>
 								<input
 									type="number"
 									value={pricingPerHour}
 									onChange={(e) => setPricingPerHour(e.target.value)}
-									className="w-full pl-8 pr-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none"
+									className="w-full pl-8 pr-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none"
 									placeholder="0.00"
 									min="0"
 									step="0.01"
@@ -231,14 +231,14 @@ export default function EditMentorPage() {
 							</div>
 						</div>
 						<div>
-							<label className="block text-xs font-medium text-gray-400 mb-2">Base Rate (INR)</label>
+							<label className="block text-xs font-medium text-(--secondary) mb-2">Base Rate (INR)</label>
 							<div className="relative">
-								<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">Rs</span>
+								<span className="absolute left-4 top-1/2 -translate-y-1/2 text-(--secondary)">Rs</span>
 								<input
 									type="number"
 									value={rate}
 									onChange={(e) => setRate(e.target.value)}
-									className="w-full pl-8 pr-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none"
+									className="w-full pl-8 pr-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none"
 									placeholder="0.00"
 									min="0"
 									step="0.01"
@@ -256,10 +256,10 @@ export default function EditMentorPage() {
 
 				{/* Bottom actions */}
 				<div className="flex items-center justify-between pt-4 pb-8">
-					<button type="button" onClick={() => router.back()} disabled={saving} className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors">
+					<button type="button" onClick={() => router.back()} disabled={saving} className="px-4 py-2 text-sm text-(--primary-light) hover:text-(--primary) transition-colors">
 						Cancel
 					</button>
-					<button onClick={handleSubmit} disabled={saving} className="px-6 py-3 text-sm font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors flex items-center gap-2">
+					<button onClick={handleSubmit} disabled={saving} className="px-6 py-3 text-sm font-medium bg-(--primary) text-(--background) rounded-lg hover:bg-(--primary-light) disabled:opacity-50 transition-colors flex items-center gap-2">
 						{saving ? 'Saving...' : <><span>Save Changes</span> <span>→</span></>}
 					</button>
 				</div>

@@ -202,11 +202,11 @@ export function FileUpload({
 	if (preview) {
 		return (
 			<div className={cn("w-full", className)}>
-				<div className="relative w-40 h-40 mx-auto rounded-xl overflow-hidden border-2 border-(--border) bg-[#6B7280]">
+				<div className="relative w-40 h-40 mx-auto rounded-xl overflow-hidden border-2 border-(--border) bg-(--secondary)">
 					<MediaPreview
 						src={preview}
 						alt="Preview"
-						className="h-full w-full rounded-none border-0 bg-[#6B7280]"
+						className="h-full w-full rounded-none border-0 bg-(--secondary)"
 						mediaClassName="object-contain"
 					/>
 					<button

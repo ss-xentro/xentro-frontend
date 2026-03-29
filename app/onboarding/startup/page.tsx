@@ -212,14 +212,14 @@ export default function StartupOnboardingPage() {
                                         <button
                                             type="button"
                                             onClick={() => setMobilePanel('form')}
-                                            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${mobilePanel === 'form' ? 'bg-(--primary) text-white' : 'bg-(--surface-pressed) text-(--primary-light)'}`}
+                                            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${mobilePanel === 'form' ? 'bg-(--primary) text-(--primary)' : 'bg-(--surface-pressed) text-(--primary-light)'}`}
                                         >
                                             Form
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setMobilePanel('guide')}
-                                            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${mobilePanel === 'guide' ? 'bg-(--primary) text-white' : 'bg-(--surface-pressed) text-(--primary-light)'}`}
+                                            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${mobilePanel === 'guide' ? 'bg-(--primary) text-(--primary)' : 'bg-(--surface-pressed) text-(--primary-light)'}`}
                                         >
                                             Guidelines
                                         </button>

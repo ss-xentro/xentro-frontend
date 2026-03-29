@@ -63,7 +63,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 					onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('name', e.target.value)}
 					required
 					autoFocus
-					className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+					className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 				/>
 
 				<Textarea
@@ -72,20 +72,20 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 					rows={3}
 					value={form.description}
 					onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('description', e.target.value)}
-					className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+					className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 				/>
 
 				<div className="grid grid-cols-2 gap-4">
 					<div>
-						<label className="block text-xs font-medium text-gray-400 mb-2">Event Type</label>
+						<label className="block text-xs font-medium text-(--secondary) mb-2">Event Type</label>
 						<select
 							value={form.type}
 							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('type', e.target.value)}
-							className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none"
+							className="w-full px-3 py-2 bg-(--accent-subtle) border border-(--border) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none"
 						>
-							<option value="" className="bg-gray-900">Select a type…</option>
+							<option value="" className="bg-(--surface)">Select a type…</option>
 							{EVENT_TYPES.map((t) => (
-								<option key={t} value={t} className="bg-gray-900 capitalize">
+								<option key={t} value={t} className="bg-(--surface) capitalize">
 									{formatTypeLabel(t)}
 								</option>
 							))}
@@ -96,7 +96,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						placeholder="Virtual or physical venue"
 						value={form.location}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('location', e.target.value)}
-						className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 					/>
 				</div>
 
@@ -106,26 +106,26 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						placeholder="ai_ml, fintech, healthtech..."
 						value={form.domain}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('domain', e.target.value)}
-						className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 					/>
 					<div>
-						<label className="block text-xs font-medium text-gray-400 mb-2">Mode</label>
+						<label className="block text-xs font-medium text-(--secondary) mb-2">Mode</label>
 						<select
 							value={form.mode}
 							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('mode', e.target.value)}
-							className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none"
+							className="w-full px-3 py-2 bg-(--accent-subtle) border border-(--border) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none"
 						>
-							<option value="online" className="bg-gray-900">Online</option>
-							<option value="offline" className="bg-gray-900">Offline</option>
-							<option value="hybrid" className="bg-gray-900">Hybrid</option>
+							<option value="online" className="bg-(--surface)">Online</option>
+							<option value="offline" className="bg-(--surface)">Offline</option>
+							<option value="hybrid" className="bg-(--surface)">Hybrid</option>
 						</select>
 					</div>
 				</div>
 
 				<div className="grid grid-cols-3 gap-4">
-					<Input label="City" value={form.city} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('city', e.target.value)} className="bg-white/5 border-white/10 text-white placeholder-gray-500" />
-					<Input label="State" value={form.state} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('state', e.target.value)} className="bg-white/5 border-white/10 text-white placeholder-gray-500" />
-					<Input label="Country" value={form.country} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('country', e.target.value)} className="bg-white/5 border-white/10 text-white placeholder-gray-500" />
+					<Input label="City" value={form.city} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('city', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500" />
+					<Input label="State" value={form.state} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('state', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500" />
+					<Input label="Country" value={form.country} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('country', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500" />
 				</div>
 
 				<div className="grid grid-cols-2 gap-4">
@@ -134,14 +134,14 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						type="datetime-local"
 						value={form.startTime}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('startTime', e.target.value)}
-						className="bg-white/5 border-white/10 text-white"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary)"
 					/>
 					<Input
 						label="End Date & Time"
 						type="datetime-local"
 						value={form.endTime}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('endTime', e.target.value)}
-						className="bg-white/5 border-white/10 text-white"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary)"
 					/>
 				</div>
 
@@ -152,7 +152,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						placeholder="Leave empty for free event"
 						value={form.price}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('price', e.target.value)}
-						className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 					/>
 					<Input
 						label="Available Seats - Optional"
@@ -161,37 +161,37 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						placeholder="Leave empty for unlimited"
 						value={form.maxAttendees}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('maxAttendees', e.target.value)}
-						className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 					/>
 				</div>
 
 				<div className="grid grid-cols-2 gap-4">
 					<div>
-						<label className="block text-xs font-medium text-gray-400 mb-2">Pricing Type</label>
+						<label className="block text-xs font-medium text-(--secondary) mb-2">Pricing Type</label>
 						<select
 							value={form.pricingType}
 							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('pricingType', e.target.value)}
-							className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none"
+							className="w-full px-3 py-2 bg-(--accent-subtle) border border-(--border) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none"
 						>
-							<option value="free" className="bg-gray-900">Free</option>
-							<option value="paid" className="bg-gray-900">Paid</option>
-							<option value="freemium" className="bg-gray-900">Freemium</option>
-							<option value="sponsored" className="bg-gray-900">Sponsored</option>
+							<option value="free" className="bg-(--surface)">Free</option>
+							<option value="paid" className="bg-(--surface)">Paid</option>
+							<option value="freemium" className="bg-(--surface)">Freemium</option>
+							<option value="sponsored" className="bg-(--surface)">Sponsored</option>
 						</select>
 					</div>
 					<div>
-						<label className="block text-xs font-medium text-gray-400 mb-2">Organizer Type</label>
+						<label className="block text-xs font-medium text-(--secondary) mb-2">Organizer Type</label>
 						<select
 							value={form.organizerType}
 							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('organizerType', e.target.value)}
-							className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none"
+							className="w-full px-3 py-2 bg-(--accent-subtle) border border-(--border) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none"
 						>
-							<option value="institution" className="bg-gray-900">Institution</option>
-							<option value="incubator_accelerator" className="bg-gray-900">Incubator / Accelerator</option>
-							<option value="corporate" className="bg-gray-900">Corporate</option>
-							<option value="government" className="bg-gray-900">Government</option>
-							<option value="independent_mentor" className="bg-gray-900">Independent Mentor</option>
-							<option value="xentro" className="bg-gray-900">Xentro Hosted</option>
+							<option value="institution" className="bg-(--surface)">Institution</option>
+							<option value="incubator_accelerator" className="bg-(--surface)">Incubator / Accelerator</option>
+							<option value="corporate" className="bg-(--surface)">Corporate</option>
+							<option value="government" className="bg-(--surface)">Government</option>
+							<option value="independent_mentor" className="bg-(--surface)">Independent Mentor</option>
+							<option value="xentro" className="bg-(--surface)">Xentro Hosted</option>
 						</select>
 					</div>
 				</div>
@@ -202,14 +202,14 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						rows={3}
 						value={form.audienceTypes}
 						onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('audienceTypes', e.target.value)}
-						className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 					/>
 					<Textarea
 						label="Startup Stages (one per line)"
 						rows={3}
 						value={form.startupStages}
 						onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('startupStages', e.target.value)}
-						className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 					/>
 				</div>
 
@@ -219,53 +219,53 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						rows={3}
 						value={form.benefits}
 						onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('benefits', e.target.value)}
-						className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 					/>
 					<div className="space-y-4">
 						<div>
-							<label className="block text-xs font-medium text-gray-400 mb-2">Difficulty</label>
-							<select value={form.difficultyLevel} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('difficultyLevel', e.target.value)} className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none">
-								<option value="beginner" className="bg-gray-900">Beginner</option>
-								<option value="intermediate" className="bg-gray-900">Intermediate</option>
-								<option value="advanced" className="bg-gray-900">Advanced</option>
+							<label className="block text-xs font-medium text-(--secondary) mb-2">Difficulty</label>
+							<select value={form.difficultyLevel} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('difficultyLevel', e.target.value)} className="w-full px-3 py-2 bg-(--accent-subtle) border border-(--border) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none">
+								<option value="beginner" className="bg-(--surface)">Beginner</option>
+								<option value="intermediate" className="bg-(--surface)">Intermediate</option>
+								<option value="advanced" className="bg-(--surface)">Advanced</option>
 							</select>
 						</div>
 						<div>
-							<label className="block text-xs font-medium text-gray-400 mb-2">Application Requirement</label>
-							<select value={form.applicationRequirement} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('applicationRequirement', e.target.value)} className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none">
-								<option value="open_entry" className="bg-gray-900">Open Entry</option>
-								<option value="application_required" className="bg-gray-900">Application Required</option>
-								<option value="invite_only" className="bg-gray-900">Invite Only</option>
+							<label className="block text-xs font-medium text-(--secondary) mb-2">Application Requirement</label>
+							<select value={form.applicationRequirement} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('applicationRequirement', e.target.value)} className="w-full px-3 py-2 bg-(--accent-subtle) border border-(--border) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none">
+								<option value="open_entry" className="bg-(--surface)">Open Entry</option>
+								<option value="application_required" className="bg-(--surface)">Application Required</option>
+								<option value="invite_only" className="bg-(--surface)">Invite Only</option>
 							</select>
 						</div>
 						<div>
-							<label className="block text-xs font-medium text-gray-400 mb-2">Availability</label>
-							<select value={form.availabilityStatus} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('availabilityStatus', e.target.value)} className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none">
-								<option value="open" className="bg-gray-900">Open</option>
-								<option value="limited" className="bg-gray-900">Limited Seats</option>
-								<option value="waitlist" className="bg-gray-900">Waitlist</option>
+							<label className="block text-xs font-medium text-(--secondary) mb-2">Availability</label>
+							<select value={form.availabilityStatus} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('availabilityStatus', e.target.value)} className="w-full px-3 py-2 bg-(--accent-subtle) border border-(--border) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none">
+								<option value="open" className="bg-(--surface)">Open</option>
+								<option value="limited" className="bg-(--surface)">Limited Seats</option>
+								<option value="waitlist" className="bg-(--surface)">Waitlist</option>
 							</select>
 						</div>
 					</div>
 				</div>
 
-				<label className="flex items-center gap-2 text-sm text-white cursor-pointer bg-white/5 p-3 rounded-lg border border-white/10">
+				<label className="flex items-center gap-2 text-sm text-(--primary) cursor-pointer bg-(--accent-subtle) p-3 rounded-lg border border-(--border)">
 					<input
 						type="checkbox"
 						checked={form.isVirtual}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('isVirtual', e.target.checked)}
-						className="rounded border-white/20"
+						className="rounded border-(--border-hover)"
 					/>
 					This is a virtual event
 				</label>
 			</div>
 
 			{/* Advanced Options */}
-			<div className="border-t border-white/10 pt-4">
+			<div className="border-t border-(--border) pt-4">
 				<button
 					type="button"
 					onClick={() => setShowAdvanced(!showAdvanced)}
-					className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors"
+					className="flex items-center gap-2 text-sm text-(--primary-light) hover:text-(--primary) transition-colors"
 				>
 					<svg
 						className={`w-4 h-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`}
@@ -279,16 +279,16 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 				</button>
 
 				{showAdvanced && (
-					<div className="mt-4 space-y-4 p-4 bg-white/5 rounded-lg border border-white/10">
+					<div className="mt-4 space-y-4 p-4 bg-(--accent-subtle) rounded-lg border border-(--border)">
 						<div>
-							<label className="block text-xs font-medium text-gray-400 mb-2">Event Status</label>
+							<label className="block text-xs font-medium text-(--secondary) mb-2">Event Status</label>
 							<select
 								value={form.status}
 								onChange={(e: React.ChangeEvent<HTMLSelectElement>) => set('status', e.target.value as EventFormData['status'])}
-								className="w-full px-3 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:border-white/40 focus:outline-none"
+								className="w-full px-3 py-2 bg-(--accent-subtle) border border-(--border) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none"
 							>
 								{EVENT_STATUSES.map((s) => (
-									<option key={s} value={s} className="bg-gray-900 capitalize">
+									<option key={s} value={s} className="bg-(--surface) capitalize">
 										{s}
 									</option>
 								))}
@@ -296,7 +296,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						</div>
 
 						<div>
-							<label className="block text-xs font-medium text-gray-400 mb-2">Cover Image</label>
+							<label className="block text-xs font-medium text-(--secondary) mb-2">Cover Image</label>
 							<div className="flex gap-2">
 								<button
 									type="button"
@@ -329,25 +329,25 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 							min="0"
 							value={form.cancellationCutoffHours}
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('cancellationCutoffHours', e.target.value)}
-							className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 						/>
 
-						<details className="border-t border-white/10 pt-4">
-							<summary className="cursor-pointer text-sm text-gray-300 hover:text-white flex items-center gap-2">
+						<details className="border-t border-(--border) pt-4">
+							<summary className="cursor-pointer text-sm text-(--primary-light) hover:text-(--primary) flex items-center gap-2">
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
 								</svg>
 								More Options (Speakers, Agenda, Tickets)
 							</summary>
-							<div className="mt-4 space-y-4 pt-4 border-t border-white/10">
+							<div className="mt-4 space-y-4 pt-4 border-t border-(--border)">
 								<div className="space-y-2">
-									<label className="block text-xs font-medium text-gray-400">Speakers</label>
+									<label className="block text-xs font-medium text-(--secondary)">Speakers</label>
 									<div className="flex gap-2">
 										<Input
 											placeholder="Enter speaker name"
 											value={speakerEntry}
 											onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSpeakerEntry(e.target.value)}
-											className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+											className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 										/>
 										<Button
 											type="button"
@@ -363,7 +363,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 												key={`${item}-${idx}`}
 												type="button"
 												onClick={() => removeEntry('speakerLineupJson', idx)}
-												className="px-2 py-1 text-xs bg-white/10 border border-white/20 rounded text-gray-200 hover:text-white"
+												className="px-2 py-1 text-xs bg-(--accent-light) border border-(--border-hover) rounded text-(--primary-light) hover:text-(--primary)"
 											>
 												{item} x
 											</button>
@@ -372,13 +372,13 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 								</div>
 
 								<div className="space-y-2">
-									<label className="block text-xs font-medium text-gray-400">Agenda</label>
+									<label className="block text-xs font-medium text-(--secondary)">Agenda</label>
 									<div className="flex gap-2">
 										<Input
 											placeholder="Enter agenda item"
 											value={agendaEntry}
 											onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAgendaEntry(e.target.value)}
-											className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+											className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 										/>
 										<Button
 											type="button"
@@ -394,7 +394,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 												key={`${item}-${idx}`}
 												type="button"
 												onClick={() => removeEntry('agendaTimelineJson', idx)}
-												className="px-2 py-1 text-xs bg-white/10 border border-white/20 rounded text-gray-200 hover:text-white"
+												className="px-2 py-1 text-xs bg-(--accent-light) border border-(--border-hover) rounded text-(--primary-light) hover:text-(--primary)"
 											>
 												{item} x
 											</button>
@@ -403,13 +403,13 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 								</div>
 
 								<div className="space-y-2">
-									<label className="block text-xs font-medium text-gray-400">Ticket Types</label>
+									<label className="block text-xs font-medium text-(--secondary)">Ticket Types</label>
 									<div className="flex gap-2">
 										<Input
 											placeholder="Enter ticket type"
 											value={ticketEntry}
 											onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTicketEntry(e.target.value)}
-											className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+											className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
 										/>
 										<Button
 											type="button"
@@ -425,7 +425,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 												key={`${item}-${idx}`}
 												type="button"
 												onClick={() => removeEntry('ticketTypesJson', idx)}
-												className="px-2 py-1 text-xs bg-white/10 border border-white/20 rounded text-gray-200 hover:text-white"
+												className="px-2 py-1 text-xs bg-(--accent-light) border border-(--border-hover) rounded text-(--primary-light) hover:text-(--primary)"
 											>
 												{item} x
 											</button>
@@ -438,7 +438,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 				)}
 			</div>
 
-			<div className="flex gap-2 justify-end border-t border-white/10 pt-4">
+			<div className="flex gap-2 justify-end border-t border-(--border) pt-4">
 				<Button variant="ghost" onClick={onClose} disabled={saving}>
 					Cancel
 				</Button>

@@ -284,12 +284,12 @@ export interface ConnectBtnConfig {
 export function getConnectBtnConfig(status: string | null): ConnectBtnConfig {
 	switch (status) {
 		case 'pending':
-			return { label: 'Book Session', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90 border-white/20' };
+			return { label: 'Book Session', disabled: false, className: 'bg-(--primary) text-(--background) hover:opacity-90 border-(--border-hover)' };
 		case 'accepted':
-			return { label: 'Book a Session', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90 border-white/20' };
+			return { label: 'Book a Session', disabled: false, className: 'bg-(--primary) text-(--background) hover:opacity-90 border-(--border-hover)' };
 		case 'rejected':
-			return { label: 'Book Session', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90 border-white/20' };
+			return { label: 'Book Session', disabled: false, className: 'bg-(--primary) text-(--background) hover:opacity-90 border-(--border-hover)' };
 		default:
-			return { label: 'Book Session', disabled: false, className: 'bg-white text-[#0B0D10] hover:bg-white/90' };
+			return { label: 'Book Session', disabled: false, className: 'bg-(--primary) text-(--background) hover:opacity-90' };
 	}
 }

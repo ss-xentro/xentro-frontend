@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 const statusLabels: Record<string, { label: string; color: string }> = {
   planning: { label: 'Planning', color: 'bg-blue-500/20 text-blue-200' },
   active: { label: 'Active', color: 'bg-green-500/20 text-green-200' },
-  completed: { label: 'Completed', color: 'bg-white/10 text-gray-200' },
+  completed: { label: 'Completed', color: 'bg-(--accent-light) text-(--primary-light)' },
   'on-hold': { label: 'On Hold', color: 'bg-yellow-500/20 text-yellow-200' },
 };
 
@@ -66,11 +66,11 @@ export default function ProjectsPage() {
       <DashboardSidebar>
         <div className="p-8">
           <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-8 bg-(--border) rounded w-1/4"></div>
+            <div className="h-4 bg-(--border) rounded w-1/3"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
               {[1, 2].map(i => (
-                <div key={i} className="h-48 bg-gray-200 rounded"></div>
+                <div key={i} className="h-48 bg-(--border) rounded"></div>
               ))}
             </div>
           </div>
@@ -84,8 +84,8 @@ export default function ProjectsPage() {
       <div className="p-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">Projects</h1>
-            <p className="text-gray-400 mt-1">Manage your institution&apos;s research projects and collaborations</p>
+            <h1 className="text-3xl font-bold text-(--primary)">Projects</h1>
+            <p className="text-(--secondary) mt-1">Manage your institution&apos;s research projects and collaborations</p>
           </div>
           <Button onClick={() => router.push('/institution-dashboard/add-project')}>
             Add Project
@@ -93,14 +93,14 @@ export default function ProjectsPage() {
         </div>
 
         {projects.length === 0 ? (
-          <Card className="p-12 text-center bg-white/5 border-white/10">
-            <div className="w-16 h-16 rounded-full bg-white/10 mx-auto mb-4 flex items-center justify-center">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Card className="p-12 text-center bg-(--accent-subtle) border-(--border)">
+            <div className="w-16 h-16 rounded-full bg-(--accent-light) mx-auto mb-4 flex items-center justify-center">
+              <svg className="w-8 h-8 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">No projects yet</h3>
-            <p className="text-gray-400 mb-4">
+            <h3 className="text-lg font-semibold text-(--primary) mb-2">No projects yet</h3>
+            <p className="text-(--secondary) mb-4">
               Add research projects, collaborations, or institutional initiatives
             </p>
             <Button onClick={() => router.push('/institution-dashboard/add-project')}>
@@ -116,15 +116,15 @@ export default function ProjectsPage() {
               return (
                 <Card
                   key={project.id}
-                  className={`p-6 transition-opacity cursor-pointer bg-white/5 border-white/10 hover:border-white/20 ${isOptimistic ? 'opacity-70' : 'opacity-100'}`}
+                  className={`p-6 transition-opacity cursor-pointer bg-(--accent-subtle) border-(--border) hover:border-(--border-hover) ${isOptimistic ? 'opacity-70' : 'opacity-100'}`}
                   onClick={() => router.push(`/institution-dashboard/projects/${project.id}`)}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-lg text-white">{project.name}</h3>
+                        <h3 className="font-bold text-lg text-(--primary)">{project.name}</h3>
                         {isOptimistic && (
-                          <span className="text-xs text-gray-400 animate-pulse">Saving...</span>
+                          <span className="text-xs text-(--secondary) animate-pulse">Saving...</span>
                         )}
                       </div>
                       <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusInfo.color}`}>
@@ -134,12 +134,12 @@ export default function ProjectsPage() {
                   </div>
 
                   {project.description && (
-                    <p className="text-sm text-gray-400 mb-3 line-clamp-2">
+                    <p className="text-sm text-(--secondary) mb-3 line-clamp-2">
                       {project.description}
                     </p>
                   )}
 
-                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
+                  <div className="flex items-center gap-4 text-sm text-(--secondary) mb-4">
                     {project.startDate && (
                       <span className="flex items-center gap-1">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,7 +150,7 @@ export default function ProjectsPage() {
                     )}
                   </div>
 
-                  <div className="flex gap-2 border-t border-white/10 pt-4">
+                  <div className="flex gap-2 border-t border-(--border) pt-4">
                     <Button
                       variant="ghost"
                       size="sm"

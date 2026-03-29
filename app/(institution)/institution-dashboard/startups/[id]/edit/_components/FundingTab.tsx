@@ -12,24 +12,24 @@ interface FundingTabProps {
 export function FundingTab({ formData, onFieldChange }: FundingTabProps) {
 	return (
 		<Card className="p-6 space-y-6">
-			<h3 className="text-lg font-semibold text-gray-900">Funding Information</h3>
+			<h3 className="text-lg font-semibold text-(--primary)">Funding Information</h3>
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				<div>
-					<label className="block text-xs font-medium text-gray-500 mb-2">Latest Round</label>
+					<label className="block text-xs font-medium text-(--secondary-light) mb-2">Latest Round</label>
 					<Select value={formData.fundingRound} onChange={(val) => onFieldChange('fundingRound', val)} options={FUNDING_ROUND_OPTIONS} />
 				</div>
 				<div>
-					<label className="block text-xs font-medium text-gray-500 mb-2">Currency</label>
+					<label className="block text-xs font-medium text-(--secondary-light) mb-2">Currency</label>
 					<input type="text" value={formData.fundingCurrency} onChange={(e) => onFieldChange('fundingCurrency', e.target.value)} className={INPUT_CLASS} placeholder="USD" />
 				</div>
 			</div>
 
 			<div>
-				<label className="block text-xs font-medium text-gray-500 mb-2">Total Funds Raised</label>
+				<label className="block text-xs font-medium text-(--secondary-light) mb-2">Total Funds Raised</label>
 				<div className="relative">
-					<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-					<input type="number" value={formData.fundsRaised} onChange={(e) => onFieldChange('fundsRaised', e.target.value)} className="w-full pl-8 pr-4 py-3 text-sm bg-white border border-gray-300 rounded-lg focus:border-gray-900 focus:outline-none" placeholder="0.00" step="0.01" />
+					<span className="absolute left-4 top-1/2 -translate-y-1/2 text-(--secondary)">$</span>
+					<input type="number" value={formData.fundsRaised} onChange={(e) => onFieldChange('fundsRaised', e.target.value)} className="w-full pl-8 pr-4 py-3 text-sm bg-background border border-(--border) rounded-lg focus:border-(--primary) focus:outline-none" placeholder="0.00" step="0.01" />
 				</div>
 			</div>
 		</Card>

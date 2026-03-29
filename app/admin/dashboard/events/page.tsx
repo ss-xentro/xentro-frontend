@@ -311,7 +311,7 @@ export default function AdminEventsPage() {
 				<button
 					type="button"
 					onClick={openCreate}
-					className="px-4 py-2 rounded-md bg-(--primary) text-white text-sm font-medium hover:bg-(--primary-light)"
+					className="px-4 py-2 rounded-md bg-(--primary) text-(--primary) text-sm font-medium hover:bg-(--primary-light)"
 				>
 					+ New Event
 				</button>
@@ -336,8 +336,8 @@ export default function AdminEventsPage() {
 									<div className="absolute inset-x-0 bottom-0 p-3">
 										<div className="flex items-start justify-between gap-3">
 											<div>
-												<h3 className="font-semibold text-white">{event.name}</h3>
-												<p className="text-xs text-white/80 mt-1">by {event.organizerName || 'Xentro'}</p>
+												<h3 className="font-semibold text-(--primary)">{event.name}</h3>
+												<p className="text-xs text-(--primary)/80 mt-1">by {event.organizerName || 'Xentro'}</p>
 											</div>
 											<span className={`text-xs px-2 py-1 rounded border ${event.approved ? 'bg-green-500/25 text-green-100 border-green-300/30' : 'bg-yellow-500/25 text-yellow-100 border-yellow-300/30'}`}>
 												{event.approved ? 'Approved' : 'Pending'}

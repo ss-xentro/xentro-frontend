@@ -37,7 +37,7 @@ export function StagePicker({ selectedStage, onSelect }: StagePickerProps) {
 							<div>
 								<p className={cn(
 									'font-semibold text-sm',
-									isSelected ? 'text-slate-900' : 'text-(--primary)'
+									isSelected ? 'text-(--primary)' : 'text-(--primary)'
 								)}>{opt.label}</p>
 								<p className="text-xs text-(--secondary)">{opt.description}</p>
 							</div>

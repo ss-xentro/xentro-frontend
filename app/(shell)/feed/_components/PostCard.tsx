@@ -19,7 +19,7 @@ export default function PostCard({
 	return (
 		<div
 			className={cn(
-				"relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 transition-all duration-300 hover:bg-white/[0.07] hover:border-white/20",
+				"relative bg-(--accent-subtle) backdrop-blur-xl border border-(--border) rounded-2xl p-5 transition-all duration-300 hover:bg-(--surface-hover) hover:border-(--border-hover)",
 				"animate-fadeIn",
 				!isLast && "mb-3",
 			)}
@@ -27,8 +27,8 @@ export default function PostCard({
 			<div className="flex gap-3">
 				{/* Avatar */}
 				<div className="shrink-0">
-					<div className="w-12 h-12 rounded-full bg-white/8 border border-white/10 overflow-hidden">
-						<div className="w-full h-full bg-gray-700" />
+					<div className="w-12 h-12 rounded-full bg-(--accent-light) border border-(--border) overflow-hidden">
+						<div className="w-full h-full bg-(--surface)" />
 					</div>
 				</div>
 
@@ -36,18 +36,18 @@ export default function PostCard({
 				<div className="flex-1 min-w-0">
 					{/* Header */}
 					<div className="flex items-center gap-2 mb-2">
-						<span className="font-semibold text-white text-[15px]">
+						<span className="font-semibold text-(--primary) text-[15px]">
 							{post.author.name}
 						</span>
-						<span className="text-gray-500 text-[14px]">
+						<span className="text-(--secondary-light) text-[14px]">
 							@{post.author.username}
 						</span>
-						<span className="text-white/30 text-[14px]">·</span>
-						<span className="text-white/30 text-[14px]">{post.timestamp}</span>
+						<span className="text-(--secondary-light) text-[14px]">·</span>
+						<span className="text-(--secondary-light) text-[14px]">{post.timestamp}</span>
 					</div>
 
 					{/* Post Text */}
-					<p className="text-gray-200 text-[15px] leading-relaxed mb-3">
+					<p className="text-(--primary-light) text-[15px] leading-relaxed mb-3">
 						{post.content}
 					</p>
 
@@ -56,7 +56,7 @@ export default function PostCard({
 						{/* Reply */}
 						<button
 							onClick={() => onRequireAuth?.()}
-							className="group flex items-center gap-2 text-gray-500 hover:text-blue-400 transition-colors"
+							className="group flex items-center gap-2 text-(--secondary-light) hover:text-blue-400 transition-colors"
 						>
 							<div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-blue-500/10 transition-colors">
 								<svg
@@ -79,7 +79,7 @@ export default function PostCard({
 						{/* Repost */}
 						<button
 							onClick={() => onRequireAuth?.()}
-							className="group flex items-center gap-2 text-gray-500 hover:text-green-400 transition-colors"
+							className="group flex items-center gap-2 text-(--secondary-light) hover:text-green-400 transition-colors"
 						>
 							<div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-green-500/10 transition-colors">
 								<svg
@@ -110,7 +110,7 @@ export default function PostCard({
 							}}
 							className={cn(
 								"group flex items-center gap-2 transition-colors",
-								liked ? "text-pink-500" : "text-gray-500 hover:text-pink-400",
+								liked ? "text-pink-500" : "text-(--secondary-light) hover:text-pink-400",
 							)}
 						>
 							<div
@@ -153,7 +153,7 @@ export default function PostCard({
 								"group flex items-center gap-2 transition-colors",
 								bookmarked
 									? "text-blue-400"
-									: "text-gray-500 hover:text-blue-400",
+									: "text-(--secondary-light) hover:text-blue-400",
 							)}
 						>
 							<div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-blue-500/10 transition-colors">

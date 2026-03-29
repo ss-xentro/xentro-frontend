@@ -118,7 +118,7 @@ export default function StartupsAdminPage() {
             {/* Empty State */}
             {!loading && filteredStartups.length === 0 && (
                 <EmptyState
-                    icon={<AppIcon name="rocket" className="w-10 h-10 text-gray-400" />}
+                    icon={<AppIcon name="rocket" className="w-10 h-10 text-(--secondary)" />}
                     title="No startups found"
                     description={
                         searchQuery || stageFilter !== 'all' || statusFilter !== 'all'
@@ -135,7 +135,7 @@ export default function StartupsAdminPage() {
                         const stageInfo = startup.stage ? startupStageLabels[startup.stage] : null;
                         const statusInfo = startup.status && startupStatusLabels[startup.status]
                             ? startupStatusLabels[startup.status]
-                            : { label: 'Unknown', color: 'bg-gray-100 text-gray-800' };
+                            : { label: 'Unknown', color: 'bg-(--accent-light) text-(--primary)' };
                         const fundingInfo = startup.fundingRound ? fundingRoundLabels[startup.fundingRound] : null;
 
                         return (
@@ -246,7 +246,7 @@ export default function StartupsAdminPage() {
                                     const stageInfo = startup.stage ? startupStageLabels[startup.stage] : null;
                                     const statusInfo = startup.status && startupStatusLabels[startup.status]
                                         ? startupStatusLabels[startup.status]
-                                        : { label: 'Unknown', color: 'bg-gray-100 text-gray-800' };
+                                        : { label: 'Unknown', color: 'bg-(--accent-light) text-(--primary)' };
 
                                     return (
                                         <tr key={startup.id} className="hover:bg-(--surface-hover) transition-colors">

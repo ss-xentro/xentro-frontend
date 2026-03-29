@@ -214,7 +214,7 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
                   )}
                 </div>
               ) : (
-                <div className="p-4 bg-gray-50 rounded-lg text-center border border-gray-100 mt-4">
+                <div className="p-4 bg-(--accent-subtle) rounded-lg text-center border border-(--border-light) mt-4">
                   <p className="text-sm text-(--secondary)">This application has already been processed.</p>
                 </div>
               )}

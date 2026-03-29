@@ -45,12 +45,12 @@ export default function AddEventPage() {
           <button
             type="button"
             onClick={() => router.push('/institution-dashboard/events')}
-            className="text-sm text-gray-400 hover:text-white transition-colors"
+            className="text-sm text-(--secondary) hover:text-(--primary) transition-colors"
           >
             Back to events
           </button>
-          <h1 className="text-3xl font-bold text-white">Create Event</h1>
-          <p className="text-sm text-gray-400">Set up your event in three clear steps.</p>
+          <h1 className="text-3xl font-bold text-(--primary)">Create Event</h1>
+          <p className="text-sm text-(--secondary)">Set up your event in three clear steps.</p>
         </div>
 
         <EventWizardForm

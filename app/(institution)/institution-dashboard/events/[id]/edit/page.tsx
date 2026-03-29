@@ -91,18 +91,18 @@ export default function EditEventPage() {
 					<button
 						type="button"
 						onClick={() => router.push('/institution-dashboard/events')}
-						className="text-sm text-gray-400 hover:text-white transition-colors"
+						className="text-sm text-(--secondary) hover:text-(--primary) transition-colors"
 					>
 						Back to events
 					</button>
-					<h1 className="text-3xl font-bold text-white">Edit Event</h1>
-					<p className="text-sm text-gray-400">Update event details in a guided three-step flow.</p>
+					<h1 className="text-3xl font-bold text-(--primary)">Edit Event</h1>
+					<p className="text-sm text-(--secondary)">Update event details in a guided three-step flow.</p>
 				</div>
 
 				{loading ? (
 					<div className="space-y-4">
-						<div className="h-20 rounded-xl bg-white/5 border border-white/10 animate-pulse" />
-						<div className="h-[420px] rounded-xl bg-white/5 border border-white/10 animate-pulse" />
+						<div className="h-20 rounded-xl bg-(--accent-subtle) border border-(--border) animate-pulse" />
+						<div className="h-[420px] rounded-xl bg-(--accent-subtle) border border-(--border) animate-pulse" />
 					</div>
 				) : initialForm ? (
 					<EventWizardForm

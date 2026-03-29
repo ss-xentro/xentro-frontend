@@ -39,8 +39,8 @@ export default function ThemeSwitcher() {
 						type="button"
 						onClick={() => setTheme(opt.value)}
 						className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${active
-								? 'bg-(--background) text-(--primary) shadow-sm border border-(--border)'
-								: 'text-(--secondary) hover:text-(--primary) border border-transparent'
+							? 'bg-background text-(--primary) shadow-sm border border-(--border)'
+							: 'text-(--secondary) hover:text-(--primary) border border-transparent'
 							}`}
 					>
 						<Icon className="w-4 h-4" />

@@ -16,9 +16,9 @@ export function WhyXentroStep({ selectedValues, otherText, onToggle, onOtherChan
 	return (
 		<div className="p-6 md:p-8 space-y-7 md:space-y-8 animate-fadeIn">
 			<div>
-				<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">Intent</p>
-				<h2 className="text-xl md:text-2xl font-semibold tracking-tight mt-1 text-slate-900">Why are you joining Xentro?</h2>
-				<p className="text-sm text-slate-700 mt-1.5">Select one or more goals to personalize recommendations.</p>
+				<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--secondary)">Intent</p>
+				<h2 className="text-xl md:text-2xl font-semibold tracking-tight mt-1 text-(--primary)">Why are you joining Xentro?</h2>
+				<p className="text-sm text-(--primary-light) mt-1.5">Select one or more goals to personalize recommendations.</p>
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -55,7 +55,7 @@ export function WhyXentroStep({ selectedValues, otherText, onToggle, onOtherChan
 											<div>
 												<p className={cn(
 													'text-xs font-semibold',
-													isSelected ? 'text-slate-900' : 'text-(--primary)'
+													isSelected ? 'text-(--primary)' : 'text-(--primary)'
 												)}>
 													{opt.title}
 												</p>

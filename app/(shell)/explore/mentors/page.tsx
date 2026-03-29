@@ -159,11 +159,10 @@ export default function ExploreMentorsPage() {
 						<button
 							key={opt}
 							onClick={() => setExpertise(opt)}
-							className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${
-								expertise === opt
-									? "bg-white text-[#0B0D10] border-white/80 shadow-sm"
-									: "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-gray-200"
-							}`}
+							className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${expertise === opt
+									? "bg-(--primary) text-(--background) border-(--primary) shadow-sm"
+									: "bg-(--accent-subtle) text-(--secondary) border-(--border) hover:bg-(--accent-light) hover:text-(--primary-light)"
+								}`}
 						>
 							{opt === "all" ? "All" : opt}
 						</button>
@@ -177,19 +176,19 @@ export default function ExploreMentorsPage() {
 					{[1, 2, 3, 4, 5, 6].map((i) => (
 						<div
 							key={i}
-							className="rounded-2xl bg-white/3 border border-white/6 overflow-hidden"
+							className="rounded-2xl bg-(--accent-subtle) border border-(--border-light) overflow-hidden"
 						>
 							<div className="flex flex-col items-center pt-8 pb-4 px-5">
-								<div className="w-20 h-20 rounded-full bg-white/5 animate-pulse mb-4" />
-								<div className="h-4 w-32 bg-white/5 rounded animate-pulse mb-2" />
-								<div className="h-3 w-24 bg-white/5 rounded animate-pulse mb-4" />
+								<div className="w-20 h-20 rounded-full bg-(--accent-subtle) animate-pulse mb-4" />
+								<div className="h-4 w-32 bg-(--accent-subtle) rounded animate-pulse mb-2" />
+								<div className="h-3 w-24 bg-(--accent-subtle) rounded animate-pulse mb-4" />
 								<div className="flex gap-2">
-									<div className="h-6 w-16 bg-white/5 rounded-full animate-pulse" />
-									<div className="h-6 w-16 bg-white/5 rounded-full animate-pulse" />
+									<div className="h-6 w-16 bg-(--accent-subtle) rounded-full animate-pulse" />
+									<div className="h-6 w-16 bg-(--accent-subtle) rounded-full animate-pulse" />
 								</div>
 							</div>
 							<div className="px-5 pb-5">
-								<div className="h-10 bg-white/5 rounded-xl animate-pulse" />
+								<div className="h-10 bg-(--accent-subtle) rounded-xl animate-pulse" />
 							</div>
 						</div>
 					))}
@@ -203,13 +202,13 @@ export default function ExploreMentorsPage() {
 						<Link
 							key={mentor.id}
 							href={`/mentors/${mentor.id}`}
-							className="group relative bg-white/3 hover:bg-white/6 border border-white/6 hover:border-white/12 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col"
+							className="group relative bg-(--accent-subtle) hover:bg-(--accent-subtle) border border-(--border-light) hover:border-(--border) rounded-2xl overflow-hidden transition-all duration-300 flex flex-col"
 						>
 							{/* Card body */}
 							<div className="flex flex-col items-center pt-7 pb-2 px-5">
 								{/* Avatar + verified indicator */}
 								<div className="relative mb-4">
-									<div className="w-19 h-19 rounded-full bg-white/8 border-2 border-white/10 flex items-center justify-center overflow-hidden">
+									<div className="w-19 h-19 rounded-full bg-(--accent-light) border-2 border-(--border) flex items-center justify-center overflow-hidden">
 										{mentor.avatar ? (
 											<img
 												src={mentor.avatar}
@@ -217,15 +216,15 @@ export default function ExploreMentorsPage() {
 												className="w-full h-full object-cover"
 											/>
 										) : (
-											<span className="text-2xl font-bold text-gray-400">
+											<span className="text-2xl font-bold text-(--secondary)">
 												{mentor.name.charAt(0).toUpperCase()}
 											</span>
 										)}
 									</div>
 									{mentor.verified && (
-										<div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-[#0B0D10] flex items-center justify-center">
+										<div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-(--background) flex items-center justify-center">
 											<svg
-												className="w-2.5 h-2.5 text-white"
+												className="w-2.5 h-2.5 text-(--primary)"
 												fill="none"
 												stroke="currentColor"
 												viewBox="0 0 24 24"
@@ -243,7 +242,7 @@ export default function ExploreMentorsPage() {
 
 								{/* Name + badge */}
 								<div className="flex items-center gap-2 mb-1">
-									<h3 className="text-[15px] font-semibold text-white truncate max-w-45">
+									<h3 className="text-[15px] font-semibold text-(--primary) truncate max-w-45">
 										{mentor.name}
 									</h3>
 									<VerifiedBadge
@@ -254,7 +253,7 @@ export default function ExploreMentorsPage() {
 
 								{/* Occupation */}
 								{mentor.occupation && (
-									<p className="text-xs text-gray-500 mb-3 text-center line-clamp-1">
+									<p className="text-xs text-(--secondary-light) mb-3 text-center line-clamp-1">
 										{mentor.occupation}
 									</p>
 								)}
@@ -265,13 +264,13 @@ export default function ExploreMentorsPage() {
 										{mentor.expertise.slice(0, 4).map((tag) => (
 											<span
 												key={tag}
-												className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-white/6 text-gray-300 border border-white/8"
+												className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-(--accent-subtle) text-(--primary-light) border border-(--border-light)"
 											>
 												{tag}
 											</span>
 										))}
 										{mentor.expertise.length > 4 && (
-											<span className="text-[11px] text-white/40 px-1.5 py-0.5">
+											<span className="text-[11px] text-(--secondary) px-1.5 py-0.5">
 												+{mentor.expertise.length - 4}
 											</span>
 										)}
@@ -281,7 +280,7 @@ export default function ExploreMentorsPage() {
 								{/* Achievements */}
 								{mentor.achievements.length > 0 && (
 									<div className="w-full mt-1 mb-2">
-										<div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-white/3 border border-white/5">
+										<div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-(--accent-subtle) border border-(--border-light)">
 											<svg
 												className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0"
 												fill="currentColor"
@@ -289,7 +288,7 @@ export default function ExploreMentorsPage() {
 											>
 												<path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" />
 											</svg>
-											<p className="text-[11px] text-gray-400 line-clamp-1">
+											<p className="text-[11px] text-(--secondary) line-clamp-1">
 												{mentor.achievements[0]}
 											</p>
 										</div>
@@ -298,7 +297,7 @@ export default function ExploreMentorsPage() {
 
 								{/* Rate */}
 								{mentor.rate && (
-									<div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
+									<div className="flex items-center gap-1.5 text-xs text-(--secondary-light) mt-1">
 										<svg
 											className="w-3.5 h-3.5"
 											fill="none"
@@ -321,7 +320,7 @@ export default function ExploreMentorsPage() {
 
 							{/* Footer */}
 							<div className="mt-auto px-5 pb-5 pt-3">
-								<div className="text-center text-sm font-medium py-2.5 rounded-xl border border-white/10 text-gray-300 group-hover:text-white group-hover:border-white/20 transition-colors">
+								<div className="text-center text-sm font-medium py-2.5 rounded-xl border border-(--border) text-(--primary-light) group-hover:text-(--primary) group-hover:border-(--border-hover) transition-colors">
 									View Profile
 								</div>
 							</div>
@@ -333,13 +332,13 @@ export default function ExploreMentorsPage() {
 			{/* Empty state */}
 			{!loading && displayMentors.length === 0 && (
 				<div className="flex flex-col items-center justify-center py-24 text-center">
-					<div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-						<AppIcon name="brain" className="w-8 h-8 text-gray-500" />
+					<div className="w-16 h-16 rounded-full bg-(--accent-subtle) flex items-center justify-center mb-4">
+						<AppIcon name="brain" className="w-8 h-8 text-(--secondary-light)" />
 					</div>
-					<h3 className="text-lg font-semibold text-white mb-1">
+					<h3 className="text-lg font-semibold text-(--primary) mb-1">
 						No mentors found
 					</h3>
-					<p className="text-sm text-gray-500">
+					<p className="text-sm text-(--secondary-light)">
 						Mentors will appear here once they join the platform.
 					</p>
 				</div>

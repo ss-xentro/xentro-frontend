@@ -31,9 +31,9 @@ export function CompletionStepContent({ currentStep, data, updateData, toggleWhy
 		return (
 			<div className="p-6 md:p-8 space-y-7 md:space-y-8 animate-fadeIn">
 				<div>
-					<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">Identity</p>
-					<h2 className="text-xl md:text-2xl font-semibold tracking-tight mt-1 text-slate-900">Startup basics</h2>
-					<p className="text-sm text-slate-700 mt-1.5">Fill the minimum profile identity fields to continue.</p>
+					<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--secondary)">Identity</p>
+					<h2 className="text-xl md:text-2xl font-semibold tracking-tight mt-1 text-(--primary)">Startup basics</h2>
+					<p className="text-sm text-(--primary-light) mt-1.5">Fill the minimum profile identity fields to continue.</p>
 				</div>
 
 				<div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-6">
@@ -79,9 +79,9 @@ export function CompletionStepContent({ currentStep, data, updateData, toggleWhy
 		return (
 			<div className="p-6 md:p-8 space-y-7 md:space-y-8 animate-fadeIn">
 				<div>
-					<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">Team</p>
-					<h2 className="text-xl md:text-2xl font-semibold tracking-tight mt-1 text-slate-900">People behind the startup</h2>
-					<p className="text-sm text-slate-700 mt-1.5">Primary founder is required. Co-founders and team profiles are optional.</p>
+					<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--secondary)">Team</p>
+					<h2 className="text-xl md:text-2xl font-semibold tracking-tight mt-1 text-(--primary)">People behind the startup</h2>
+					<p className="text-sm text-(--primary-light) mt-1.5">Primary founder is required. Co-founders and team profiles are optional.</p>
 				</div>
 				<FoundersSection />
 			</div>
@@ -92,9 +92,9 @@ export function CompletionStepContent({ currentStep, data, updateData, toggleWhy
 		return (
 			<div className="p-6 md:p-8 space-y-7 md:space-y-8 animate-fadeIn">
 				<div>
-					<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">Market Position</p>
-					<h2 className="text-xl md:text-2xl font-semibold tracking-tight mt-1 text-slate-900">Sector and stage</h2>
-					<p className="text-sm text-slate-700 mt-1.5">Select one sector and one current stage for accurate discovery and matching.</p>
+					<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--secondary)">Market Position</p>
+					<h2 className="text-xl md:text-2xl font-semibold tracking-tight mt-1 text-(--primary)">Sector and stage</h2>
+					<p className="text-sm text-(--primary-light) mt-1.5">Select one sector and one current stage for accurate discovery and matching.</p>
 				</div>
 
 				<div className="grid grid-cols-1 xl:grid-cols-[1.35fr_1fr] gap-6">

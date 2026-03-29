@@ -60,12 +60,12 @@ export const ROLE_LABELS: Record<string, { label: string; color: string }> = {
 	owner: { label: 'Owner', color: 'bg-purple-100 text-purple-800' },
 	admin: { label: 'Admin', color: 'bg-blue-100 text-blue-800' },
 	manager: { label: 'Manager', color: 'bg-green-100 text-green-800' },
-	viewer: { label: 'Member', color: 'bg-gray-100 text-gray-800' },
+	viewer: { label: 'Member', color: 'bg-(--accent-light) text-(--primary)' },
 };
 
 export const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 	planning: { label: 'Planning', color: 'bg-blue-100 text-blue-800' },
 	active: { label: 'Active', color: 'bg-green-100 text-green-800' },
-	completed: { label: 'Completed', color: 'bg-gray-100 text-gray-800' },
+	completed: { label: 'Completed', color: 'bg-(--accent-light) text-(--primary)' },
 	'on-hold': { label: 'On Hold', color: 'bg-yellow-100 text-yellow-800' },
 };

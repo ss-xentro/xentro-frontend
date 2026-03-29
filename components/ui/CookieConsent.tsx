@@ -40,7 +40,7 @@ export default function CookieConsent() {
 			role="dialog"
 			aria-label="Cookie consent"
 		>
-			<div className="bg-[#13151A] border border-white/10 rounded-2xl shadow-2xl p-5 backdrop-blur-xl">
+			<div className="bg-(--surface) border border-(--border) rounded-2xl shadow-2xl p-5 backdrop-blur-xl">
 				{/* Header */}
 				<div className="flex items-center gap-2 mb-3">
 					<svg className="w-5 h-5 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,11 +51,11 @@ export default function CookieConsent() {
 							d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 						/>
 					</svg>
-					<h3 className="text-white font-semibold text-sm">Cookie Notice</h3>
+					<h3 className="text-(--primary) font-semibold text-sm">Cookie Notice</h3>
 				</div>
 
 				{/* Body */}
-				<p className="text-gray-400 text-xs leading-relaxed mb-4">
+				<p className="text-(--secondary) text-xs leading-relaxed mb-4">
 					We use cookies to keep you signed in, remember your preferences, and improve your experience.
 				</p>
 

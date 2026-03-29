@@ -129,7 +129,7 @@ export default function InvestorApprovalsPage() {
                                     <div className="flex items-center gap-2">
                                         <span className="font-medium text-base">{row.name || 'Unnamed investor'}</span>
                                         {row.firmName && (
-                                            <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{row.firmName}</span>
+                                            <span className="text-xs px-2 py-0.5 bg-(--accent-light) text-(--secondary-light) rounded-full">{row.firmName}</span>
                                         )}
                                     </div>
                                     <div className="text-sm text-muted-foreground">{row.email}</div>
@@ -173,9 +173,9 @@ export default function InvestorApprovalsPage() {
                             </div>
                             {rejectingId === row.userId && (
                                 <div className="flex flex-col gap-2 border-t pt-3">
-                                    <label className="text-sm font-medium text-gray-700">Rejection remark <span className="text-red-500">*</span></label>
+                                    <label className="text-sm font-medium text-(--primary-light)">Rejection remark <span className="text-red-500">*</span></label>
                                     <textarea
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 resize-none"
+                                        className="w-full border border-(--border-hover) rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 resize-none"
                                         rows={2}
                                         placeholder="Explain why this application is being rejected…"
                                         value={remark}

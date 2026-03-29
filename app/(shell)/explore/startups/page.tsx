@@ -82,16 +82,16 @@ function StartupsContent() {
                     <select
                         value={stage}
                         onChange={(e) => setStage(e.target.value)}
-                        className="h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-white/30"
+                        className="h-10 px-3 bg-(--accent-subtle) border border-(--border) rounded-xl text-sm text-(--primary-light) focus:outline-none focus:border-(--border-hover)"
                     >
-                        {stages.map((s) => <option key={s.value} value={s.value} className="bg-[#0B0D10]">{s.label}</option>)}
+                        {stages.map((s) => <option key={s.value} value={s.value} className="bg-(--surface)">{s.label}</option>)}
                     </select>
                     <select
                         value={funding}
                         onChange={(e) => setFunding(e.target.value)}
-                        className="h-10 px-3 bg-white/5 border border-white/10 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-white/30"
+                        className="h-10 px-3 bg-(--accent-subtle) border border-(--border) rounded-xl text-sm text-(--primary-light) focus:outline-none focus:border-(--border-hover)"
                     >
-                        {fundingRounds.map((f) => <option key={f.value} value={f.value} className="bg-[#0B0D10]">{f.label}</option>)}
+                        {fundingRounds.map((f) => <option key={f.value} value={f.value} className="bg-(--surface)">{f.label}</option>)}
                     </select>
                 </div>
             )}
@@ -100,7 +100,7 @@ function StartupsContent() {
             {loading && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="h-48 rounded-2xl bg-white/5 border border-white/10 animate-pulse" />
+                        <div key={i} className="h-48 rounded-2xl bg-(--accent-subtle) border border-(--border) animate-pulse" />
                     ))}
                 </div>
             )}
@@ -112,36 +112,36 @@ function StartupsContent() {
                         <button
                             key={startup.id}
                             onClick={() => router.push(`/startups/${startup.id}`)}
-                            className="group text-left bg-white/5 hover:bg-white/[0.08] border border-white/10 hover:border-white/20 rounded-2xl p-5 transition-all duration-300 flex flex-col"
+                            className="group text-left bg-(--accent-subtle) hover:bg-(--accent-light) border border-(--border) hover:border-(--border-hover) rounded-2xl p-5 transition-all duration-300 flex flex-col"
                             style={{ animationDelay: `${index * 40}ms` }}
                         >
                             <div className="flex items-start justify-between mb-4">
-                                <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                                <div className="w-12 h-12 rounded-xl bg-(--accent-light) border border-(--border) overflow-hidden flex items-center justify-center shrink-0">
                                     {startup.logo ? (
                                         <img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
                                     ) : (
-                                        <span className="text-base font-bold text-gray-400">{startup.name.substring(0, 2).toUpperCase()}</span>
+                                        <span className="text-base font-bold text-(--secondary)">{startup.name.substring(0, 2).toUpperCase()}</span>
                                     )}
                                 </div>
                                 {startup.stage && (
-                                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${stageColor[startup.stage] ?? 'bg-white/10 text-gray-300 border-white/10'}`}>
+                                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${stageColor[startup.stage] ?? 'bg-(--accent-light) text-(--primary-light) border-(--border)'}`}>
                                         {startup.stage.replace(/_/g, ' ')}
                                     </span>
                                 )}
                             </div>
 
                             <div className="flex-1 mb-4">
-                                <h3 className="text-[15px] font-semibold text-white group-hover:text-gray-100 transition-colors mb-1">
+                                <h3 className="text-[15px] font-semibold text-(--primary) group-hover:text-(--primary-light) transition-colors mb-1">
                                     {startup.name}
                                 </h3>
-                                <p className="text-sm text-gray-500 line-clamp-2">
+                                <p className="text-sm text-(--secondary-light) line-clamp-2">
                                     {startup.tagline || 'Building something innovative.'}
                                 </p>
                             </div>
 
-                            <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                            <div className="pt-3 border-t border-(--border) flex items-center justify-between text-xs">
                                 {startup.fundingRound && (
-                                    <span className="px-2 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/10">
+                                    <span className="px-2 py-0.5 rounded-full bg-(--accent-subtle) text-(--secondary) border border-(--border)">
                                         {startup.fundingRound.replace(/_/g, ' ')}
                                     </span>
                                 )}
@@ -159,9 +159,9 @@ function StartupsContent() {
             {/* Empty */}
             {!loading && startups.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-24 text-center">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4"><AppIcon name="rocket" className="w-8 h-8 text-gray-500" /></div>
-                    <h3 className="text-lg font-semibold text-white mb-1">No startups found</h3>
-                    <p className="text-sm text-gray-500">Try adjusting your search or filters.</p>
+                    <div className="w-16 h-16 rounded-full bg-(--accent-subtle) flex items-center justify-center mb-4"><AppIcon name="rocket" className="w-8 h-8 text-(--secondary-light)" /></div>
+                    <h3 className="text-lg font-semibold text-(--primary) mb-1">No startups found</h3>
+                    <p className="text-sm text-(--secondary-light)">Try adjusting your search or filters.</p>
                 </div>
             )}
         </div>
@@ -172,7 +172,7 @@ export default function ExploreStartupsPage() {
     return (
         <Suspense fallback={
             <div className="flex items-center justify-center py-24">
-                <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <div className="w-8 h-8 border-2 border-(--border) border-t-accent rounded-full animate-spin" />
             </div>
         }>
             <StartupsContent />

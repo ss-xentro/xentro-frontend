@@ -20,7 +20,7 @@ interface ProjectDetail {
 const statusLabels: Record<string, { label: string; color: string }> = {
 	planning: { label: 'Planning', color: 'bg-blue-500/20 text-blue-200' },
 	active: { label: 'Active', color: 'bg-green-500/20 text-green-200' },
-	completed: { label: 'Completed', color: 'bg-white/10 text-gray-100' },
+	completed: { label: 'Completed', color: 'bg-(--accent-light) text-gray-100' },
 	'on-hold': { label: 'On Hold', color: 'bg-yellow-500/20 text-yellow-200' },
 };
 
@@ -78,7 +78,7 @@ export default function ProjectDetailPage() {
 	if (loading) {
 		return (
 			<DashboardSidebar>
-				<div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-white/10 rounded w-1/4" /><div className="h-64 bg-white/10 rounded" /></div></div>
+				<div className="p-8"><div className="animate-pulse space-y-4"><div className="h-8 bg-(--accent-light) rounded w-1/4" /><div className="h-64 bg-(--accent-light) rounded" /></div></div>
 			</DashboardSidebar>
 		);
 	}
@@ -97,7 +97,7 @@ export default function ProjectDetailPage() {
 		<DashboardSidebar>
 			<div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
 				<div className="flex items-center justify-between">
-					<button onClick={() => router.push('/institution-dashboard/projects')} className="text-sm text-gray-400 hover:text-white flex items-center gap-1">
+					<button onClick={() => router.push('/institution-dashboard/projects')} className="text-sm text-(--secondary) hover:text-(--primary) flex items-center gap-1">
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
 						Back to Projects
 					</button>
@@ -109,33 +109,33 @@ export default function ProjectDetailPage() {
 					</div>
 				</div>
 
-				<Card className="p-8 bg-white/5 border border-white/10">
+				<Card className="p-8 bg-(--accent-subtle) border border-(--border)">
 					<div className="flex items-center gap-3 mb-4">
-						<h1 className="text-2xl font-bold text-white">{project.name}</h1>
+						<h1 className="text-2xl font-bold text-(--primary)">{project.name}</h1>
 						<span className={`px-2 py-1 rounded text-xs font-medium ${statusInfo.color}`}>{statusInfo.label}</span>
 					</div>
 
 					{project.description && (
-						<p className="text-gray-300 mb-6 whitespace-pre-wrap">{project.description}</p>
+						<p className="text-(--primary-light) mb-6 whitespace-pre-wrap">{project.description}</p>
 					)}
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-white/10 pt-6">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-(--border) pt-6">
 						{project.startDate && (
 							<div>
-								<p className="text-xs font-medium text-gray-400 mb-1">Start Date</p>
-								<p className="text-sm text-white">{new Date(project.startDate).toLocaleDateString()}</p>
+								<p className="text-xs font-medium text-(--secondary) mb-1">Start Date</p>
+								<p className="text-sm text-(--primary)">{new Date(project.startDate).toLocaleDateString()}</p>
 							</div>
 						)}
 						{project.endDate && (
 							<div>
-								<p className="text-xs font-medium text-gray-400 mb-1">End Date</p>
-								<p className="text-sm text-white">{new Date(project.endDate).toLocaleDateString()}</p>
+								<p className="text-xs font-medium text-(--secondary) mb-1">End Date</p>
+								<p className="text-sm text-(--primary)">{new Date(project.endDate).toLocaleDateString()}</p>
 							</div>
 						)}
 						{project.createdAt && (
 							<div>
-								<p className="text-xs font-medium text-gray-400 mb-1">Created</p>
-								<p className="text-sm text-white">{new Date(project.createdAt).toLocaleDateString()}</p>
+								<p className="text-xs font-medium text-(--secondary) mb-1">Created</p>
+								<p className="text-sm text-(--primary)">{new Date(project.createdAt).toLocaleDateString()}</p>
 							</div>
 						)}
 					</div>

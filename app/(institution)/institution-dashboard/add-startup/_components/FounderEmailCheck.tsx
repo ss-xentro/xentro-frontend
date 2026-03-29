@@ -11,7 +11,7 @@ export function FounderEmailCheck({ email }: { email: string }) {
 	return (
 		<div className="mt-1">
 			{checking && (
-				<p className="text-xs text-gray-400 flex items-center gap-1">
+				<p className="text-xs text-(--secondary) flex items-center gap-1">
 					<Spinner size="sm" className="h-3 w-3" />
 					Checking email...
 				</p>

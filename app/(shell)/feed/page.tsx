@@ -26,11 +26,11 @@ export default function FeedPage() {
 			<div className="flex-1 min-w-0 overflow-y-auto">
 				<div className="max-w-170 mx-auto">
 					{/* Sticky Header */}
-					<div className="sticky top-0 z-10 backdrop-blur-xl bg-[#0B0D10]/80 border-b border-white/10 p-4">
+					<div className="sticky top-0 z-10 backdrop-blur-xl bg-(--background)/80 border-b border-(--border) p-4">
 						{isAuthenticated ? (
 							<div className="flex gap-3">
-								<div className="w-12 h-12 rounded-full bg-white/8 border border-white/10 shrink-0" />
-								<button className="flex-1 text-left px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-500 hover:bg-white/[0.07] transition-colors text-[15px]">
+								<div className="w-12 h-12 rounded-full bg-(--accent-light) border border-(--border) shrink-0" />
+								<button className="flex-1 text-left px-4 py-3 rounded-xl bg-(--accent-subtle) border border-(--border) text-(--secondary-light) hover:bg-(--surface-hover) transition-colors text-[15px]">
 									What&apos;s happening?
 								</button>
 							</div>
@@ -44,11 +44,11 @@ export default function FeedPage() {
 										height={32}
 										className="rounded-lg"
 									/>
-									<span className="text-white font-bold text-lg">Feed</span>
+									<span className="text-(--primary) font-bold text-lg">Feed</span>
 								</div>
 								<Link
 									href="/join"
-									className="px-4 py-2 bg-white text-[#0B0D10] rounded-full text-sm font-semibold hover:bg-white/90 transition-colors"
+									className="px-4 py-2 bg-(--primary) text-(--background) rounded-full text-sm font-semibold hover:opacity-90 transition-colors"
 								>
 									Join Xentro
 								</Link>
@@ -73,7 +73,7 @@ export default function FeedPage() {
 			</div>
 
 			{/* Right Sidebar */}
-			<aside className="sticky top-0 h-full w-80 shrink-0 hidden xl:block p-4 overflow-y-auto border-l border-white/10">
+			<aside className="sticky top-0 h-full w-80 shrink-0 hidden xl:block p-4 overflow-y-auto border-l border-(--border)">
 				<RightSidebar onRequireAuth={() => requireAuth()} />
 			</aside>
 

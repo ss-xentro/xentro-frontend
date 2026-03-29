@@ -121,7 +121,7 @@ export default function ProfileView({
 							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-2 w-full md:w-auto md:min-w-[280px] md:self-start lg:self-auto">
 								<button
 									onClick={onEditClick}
-									className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-white bg-white text-slate-900 text-sm font-semibold hover:bg-white/90 transition-colors shadow-sm min-h-10"
+									className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-white bg-white text-(--primary) text-sm font-semibold hover:bg-(--primary)/90 transition-colors shadow-sm min-h-10"
 								>
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />

@@ -151,11 +151,11 @@ export default function AddStartupPage() {
     <DashboardSidebar>
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-12">
-          <h1 className="text-2xl font-semibold text-white mb-2">Add Startup</h1>
-          <p className="text-sm text-gray-300">Step {currentStep} of 2</p>
+          <h1 className="text-2xl font-semibold text-(--primary) mb-2">Add Startup</h1>
+          <p className="text-sm text-(--primary-light)">Step {currentStep} of 2</p>
         </div>
 
-        <Card className="p-10 bg-white/5 border border-white/10 shadow-sm">
+        <Card className="p-10 bg-(--accent-subtle) border border-(--border) shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-12">
             {currentStep === 1 && (
               <StartupDetailsStep
@@ -179,7 +179,7 @@ export default function AddStartupPage() {
                     type="button"
                     onClick={() => setCurrentStep(1)}
                     disabled={loading}
-                    className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50"
+                    className="px-4 py-2 text-sm text-(--primary-light) hover:text-(--primary) transition-colors disabled:opacity-50"
                   >
                     &larr; Back
                   </button>
@@ -189,7 +189,7 @@ export default function AddStartupPage() {
                     type="button"
                     onClick={() => router.back()}
                     disabled={loading}
-                    className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50"
+                    className="px-4 py-2 text-sm text-(--primary-light) hover:text-(--primary) transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -202,7 +202,7 @@ export default function AddStartupPage() {
                     type="button"
                     onClick={() => setCurrentStep(2)}
                     disabled={!canProceedToStep2()}
-                    className="px-6 py-3 text-sm font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                    className="px-6 py-3 text-sm font-medium bg-(--primary) text-(--background) rounded-lg hover:bg-(--primary-light) disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                   >
                     Next: Add Founders
                     <span className="text-base">&rarr;</span>
@@ -211,7 +211,7 @@ export default function AddStartupPage() {
                   <button
                     type="submit"
                     disabled={loading || !canSubmit()}
-                    className="px-6 py-3 text-sm font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                    className="px-6 py-3 text-sm font-medium bg-(--primary) text-(--background) rounded-lg hover:bg-(--primary-light) disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                   >
                     {loading ? 'Creating...' : (
                       <>

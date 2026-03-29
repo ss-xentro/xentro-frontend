@@ -438,21 +438,21 @@ export default function EventDetailPage() {
 
 	return (
 		<div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-			<div className="rounded-3xl overflow-hidden border border-white/10 bg-[linear-gradient(140deg,#111827,#1f2937_45%,#4c1d35)] text-white p-8 md:p-10">
+			<div className="rounded-3xl overflow-hidden border border-(--border) bg-[linear-gradient(140deg,#111827,#1f2937_45%,#4c1d35)] text-(--primary) p-8 md:p-10">
 				<p className="text-xs uppercase tracking-[0.2em] text-[#fecaca]">
 					{pretty(eventData.type || 'event')} · {pretty(eventData.mode || (eventData.isVirtual ? 'online' : 'offline'))}
 				</p>
 				<h1 className="text-3xl md:text-5xl font-bold mt-3 max-w-4xl">
 					{eventData.name}
 				</h1>
-				<p className="mt-4 text-white/90 max-w-3xl text-sm md:text-base">
+				<p className="mt-4 text-(--primary)/90 max-w-3xl text-sm md:text-base">
 					{eventData.description || "No event description provided."}
 				</p>
 				<div className="mt-6 flex flex-wrap gap-3 text-xs">
-					<span className="px-3 py-1 rounded-full bg-white/15">{formatDateTime(eventData.startTime)}</span>
-					<span className="px-3 py-1 rounded-full bg-white/15">{eventData.location || (eventData.isVirtual ? "Online event" : "Venue TBA")}</span>
-					<span className="px-3 py-1 rounded-full bg-white/15">Organizer: {pretty(eventData.organizerType || eventData.organizerName || 'xentro')}</span>
-					<span className="px-3 py-1 rounded-full bg-white/15">Pricing: {pretty(eventData.pricingType || 'free')}</span>
+					<span className="px-3 py-1 rounded-full bg-(--accent-light)">{formatDateTime(eventData.startTime)}</span>
+					<span className="px-3 py-1 rounded-full bg-(--accent-light)">{eventData.location || (eventData.isVirtual ? "Online event" : "Venue TBA")}</span>
+					<span className="px-3 py-1 rounded-full bg-(--accent-light)">Organizer: {pretty(eventData.organizerType || eventData.organizerName || 'xentro')}</span>
+					<span className="px-3 py-1 rounded-full bg-(--accent-light)">Pricing: {pretty(eventData.pricingType || 'free')}</span>
 				</div>
 			</div>
 
@@ -549,7 +549,7 @@ export default function EventDetailPage() {
 								type="button"
 								onClick={decrementQuantity}
 								disabled={hasBooked || quantity <= 1}
-								className="px-3 py-2 text-(--primary) hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
+								className="px-3 py-2 text-(--primary) hover:bg-(--accent-subtle) disabled:opacity-50 disabled:cursor-not-allowed"
 								aria-label="Decrease seats"
 							>
 								-
@@ -568,7 +568,7 @@ export default function EventDetailPage() {
 								type="button"
 								onClick={incrementQuantity}
 								disabled={hasBooked || quantity >= maxSelectableSeats}
-								className="px-3 py-2 text-(--primary) hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
+								className="px-3 py-2 text-(--primary) hover:bg-(--accent-subtle) disabled:opacity-50 disabled:cursor-not-allowed"
 								aria-label="Increase seats"
 							>
 								+

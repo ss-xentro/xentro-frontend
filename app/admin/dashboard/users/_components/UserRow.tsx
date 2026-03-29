@@ -37,10 +37,10 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 	};
 
 	return (
-		<tr className="border-b border-gray-100 hover:bg-gray-50/50">
+		<tr className="border-b border-(--border-light) hover:bg-(--accent-subtle)/50">
 			<td className="px-4 py-3">
 				<div className="flex items-center gap-3">
-					<div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-600">
+					<div className="w-8 h-8 rounded-full bg-(--accent-light) flex items-center justify-center text-xs font-semibold text-(--secondary-light)">
 						{user.avatar ? (
 							<img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
 						) : (
@@ -48,27 +48,27 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 						)}
 					</div>
 					<div>
-						<p className="font-medium text-gray-900">{user.name}</p>
-						<p className="text-xs text-gray-500">{user.email}</p>
+						<p className="font-medium text-(--primary)">{user.name}</p>
+						<p className="text-xs text-(--secondary-light)">{user.email}</p>
 					</div>
 				</div>
 			</td>
 			<td className="px-4 py-3">
-				<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_COLORS[user.accountType] || 'bg-gray-100 text-gray-600'}`}>
+				<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_COLORS[user.accountType] || 'bg-(--accent-light) text-(--secondary-light)'}`}>
 					{user.accountType}
 				</span>
 			</td>
-			<td className="px-4 py-3 text-gray-600">{user.activeContext || '—'}</td>
+			<td className="px-4 py-3 text-(--secondary-light)">{user.activeContext || '—'}</td>
 			<td className="px-4 py-3">
 				{user.emailVerified ? (
 					<span className="text-green-600"><AppIcon name="check" className="w-4 h-4" /></span>
 				) : (
-					<span className="text-gray-400"><AppIcon name="x" className="w-4 h-4" /></span>
+					<span className="text-(--secondary)"><AppIcon name="x" className="w-4 h-4" /></span>
 				)}
 			</td>
 			<td className="px-4 py-3">
 				<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${user.isDeleted
-					? 'bg-gray-100 text-gray-500'
+					? 'bg-(--accent-light) text-(--secondary-light)'
 					: user.isActive
 						? 'bg-green-100 text-green-700'
 						: 'bg-red-100 text-red-700'
@@ -76,17 +76,17 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 					{user.isDeleted ? 'Deleted' : user.isActive ? 'Active' : 'Disabled'}
 				</span>
 			</td>
-			<td className="px-4 py-3 text-xs text-gray-500">
+			<td className="px-4 py-3 text-xs text-(--secondary-light)">
 				{user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : '—'}
 			</td>
-			<td className="px-4 py-3 text-xs text-gray-500">
+			<td className="px-4 py-3 text-xs text-(--secondary-light)">
 				{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
 			</td>
 			<td className="px-4 py-3 text-right">
 				<div className="relative inline-block" ref={menuRef}>
 					<button
 						onClick={() => setMenuOpen(!menuOpen)}
-						className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
+						className="p-1.5 rounded-lg hover:bg-(--accent-light) transition-colors text-(--secondary-light) hover:text-(--primary-light)"
 						aria-label="Actions"
 					>
 						<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -95,7 +95,7 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 					</button>
 
 					{menuOpen && (
-						<div className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+						<div className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-(--border) py-1 z-50">
 							<button
 								onClick={handleToggle}
 								disabled={toggling === user.id}
@@ -117,8 +117,8 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 							</button>
 
 							{confirmDelete ? (
-								<div className="px-4 py-2 border-t border-gray-100">
-									<p className="text-xs text-gray-500 mb-2">Are you sure?</p>
+								<div className="px-4 py-2 border-t border-(--border-light)">
+									<p className="text-xs text-(--secondary-light) mb-2">Are you sure?</p>
 									<div className="flex gap-2">
 										<button
 											onClick={handleDelete}
@@ -129,7 +129,7 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 										</button>
 										<button
 											onClick={() => setConfirmDelete(false)}
-											className="flex-1 px-2 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 hover:bg-gray-50"
+											className="flex-1 px-2 py-1 rounded text-xs font-medium border border-(--border) text-(--secondary-light) hover:bg-(--accent-subtle)"
 										>
 											No
 										</button>

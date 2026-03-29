@@ -33,7 +33,7 @@ export default function ConnectModal({
 	return (
 		<Modal isOpen onClose={() => !submitting && onClose()} variant="dark" className="max-w-md">
 			<div className="flex items-center gap-3 mb-6 -mt-1">
-				<div className="w-12 h-12 rounded-full bg-white/8 border border-white/10 flex items-center justify-center overflow-hidden">
+				<div className="w-12 h-12 rounded-full bg-(--accent-light) border border-(--border) flex items-center justify-center overflow-hidden">
 					{mentorAvatar ? (
 						<img
 							src={mentorAvatar}
@@ -41,23 +41,23 @@ export default function ConnectModal({
 							className="w-full h-full object-cover"
 						/>
 					) : (
-						<span className="text-base font-bold text-gray-300">
+						<span className="text-base font-bold text-(--primary-light)">
 							{mentorName.charAt(0).toUpperCase()}
 						</span>
 					)}
 				</div>
 				<div>
-					<h3 className="text-lg font-semibold text-white">
+					<h3 className="text-lg font-semibold text-(--primary)">
 						Connect with {mentorName}
 					</h3>
 					{mentorOccupation && (
-						<p className="text-xs text-gray-500">{mentorOccupation}</p>
+						<p className="text-xs text-(--secondary-light)">{mentorOccupation}</p>
 					)}
 				</div>
 			</div>
 
 			<div className="mb-6">
-				<label className="block text-sm font-medium text-gray-300 mb-2">
+				<label className="block text-sm font-medium text-(--primary-light) mb-2">
 					Introduce yourself
 				</label>
 				<textarea
@@ -65,10 +65,10 @@ export default function ConnectModal({
 					onChange={(e) => setMessage(e.target.value)}
 					placeholder="Share why you'd like to connect, what you're working on, and how they can help..."
 					rows={4}
-					className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500/50 resize-none transition-colors"
+					className="w-full px-4 py-3 bg-(--accent-subtle) border border-(--border) rounded-xl text-sm text-(--primary) placeholder:text-(--secondary-light) focus:outline-none focus:border-violet-500/50 resize-none transition-colors"
 					maxLength={1000}
 				/>
-				<p className="text-xs text-gray-600 mt-1.5 text-right">
+				<p className="text-xs text-(--secondary-light) mt-1.5 text-right">
 					{message.length}/1000
 				</p>
 			</div>
@@ -76,7 +76,7 @@ export default function ConnectModal({
 			<div className="flex gap-3">
 				<button
 					onClick={() => !submitting && onClose()}
-					className="flex-1 px-4 py-2.5 rounded-xl border border-white/10 text-sm font-medium text-gray-400 hover:text-white hover:border-white/20 transition-colors"
+					className="flex-1 px-4 py-2.5 rounded-xl border border-(--border) text-sm font-medium text-(--secondary) hover:text-(--primary) hover:border-(--border-hover) transition-colors"
 					disabled={submitting}
 				>
 					Cancel

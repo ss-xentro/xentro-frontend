@@ -82,8 +82,8 @@ export default function AdminUsersPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-xl font-semibold text-gray-900">User Management</h1>
-                    <p className="text-sm text-gray-500 mt-1">{total} total users</p>
+                    <h1 className="text-xl font-semibold text-(--primary)">User Management</h1>
+                    <p className="text-sm text-(--secondary-light) mt-1">{total} total users</p>
                 </div>
             </div>
 
@@ -97,13 +97,13 @@ export default function AdminUsersPage() {
                             aria-label="Search by name or email"
                             value={search}
                             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                            className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                            className="w-full px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
                         />
                     </div>
                     <select
                         value={filterType}
                         onChange={(e) => { setFilterType(e.target.value); setPage(1); }}
-                        className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none bg-white"
+                        className="px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none bg-white"
                     >
                         <option value="">All Types</option>
                         {ACCOUNT_TYPES.map((t) => (
@@ -113,7 +113,7 @@ export default function AdminUsersPage() {
                     <select
                         value={filterStatus}
                         onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
-                        className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none bg-white"
+                        className="px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none bg-white"
                     >
                         <option value="">All Statuses</option>
                         <option value="active">Active</option>
@@ -128,9 +128,9 @@ export default function AdminUsersPage() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="border-b border-gray-200 bg-gray-50">
+                            <tr className="border-b border-(--border) bg-(--accent-subtle)">
                                 {TABLE_HEADERS.map((h, i) => (
-                                    <th key={h} className={`${i === TABLE_HEADERS.length - 1 ? 'text-right' : 'text-left'} px-4 py-3 font-medium text-gray-600`}>
+                                    <th key={h} className={`${i === TABLE_HEADERS.length - 1 ? 'text-right' : 'text-left'} px-4 py-3 font-medium text-(--secondary-light)`}>
                                         {h}
                                     </th>
                                 ))}
@@ -138,15 +138,15 @@ export default function AdminUsersPage() {
                         </thead>
                         <tbody>
                             {loading && [1, 2, 3, 4, 5].map((i) => (
-                                <tr key={i} className="border-b border-gray-100">
+                                <tr key={i} className="border-b border-(--border-light)">
                                     <td colSpan={8} className="px-4 py-4">
-                                        <div className="h-5 bg-gray-100 rounded animate-pulse" />
+                                        <div className="h-5 bg-(--accent-light) rounded animate-pulse" />
                                     </td>
                                 </tr>
                             ))}
                             {!loading && users.length === 0 && (
                                 <tr>
-                                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">No users found.</td>
+                                    <td colSpan={8} className="px-4 py-8 text-center text-(--secondary-light)">No users found.</td>
                                 </tr>
                             )}
                             {!loading && users.map((user) => (
@@ -164,20 +164,20 @@ export default function AdminUsersPage() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-                        <p className="text-xs text-gray-500">Page {page} of {totalPages} ({total} users)</p>
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-(--border)">
+                        <p className="text-xs text-(--secondary-light)">Page {page} of {totalPages} ({total} users)</p>
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                                 disabled={page <= 1}
-                                className="px-3 py-1 rounded border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+                                className="px-3 py-1 rounded border border-(--border) text-xs font-medium text-(--secondary-light) hover:bg-(--accent-subtle) disabled:opacity-40"
                             >
                                 Previous
                             </button>
                             <button
                                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                 disabled={page >= totalPages}
-                                className="px-3 py-1 rounded border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+                                className="px-3 py-1 rounded border border-(--border) text-xs font-medium text-(--secondary-light) hover:bg-(--accent-subtle) disabled:opacity-40"
                             >
                                 Next
                             </button>

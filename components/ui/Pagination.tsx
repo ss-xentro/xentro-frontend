@@ -95,7 +95,7 @@ export function Pagination({
 							key={item}
 							onClick={() => onPageChange(item)}
 							className={`min-w-[28px] px-2 py-1 rounded text-xs font-medium transition-colors ${item === page
-								? 'bg-(--primary) text-white'
+								? 'bg-(--primary) text-(--primary)'
 								: 'border border-(--border) text-(--secondary) hover:bg-(--surface-hover)'
 								}`}
 							aria-label={`Page ${item}`}

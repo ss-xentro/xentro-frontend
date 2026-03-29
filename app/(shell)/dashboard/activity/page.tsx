@@ -312,7 +312,7 @@ export default function ActivityPage() {
                     <button
                         onClick={() => setFilter('all')}
                         className={`px-3.5 py-1.5 text-sm rounded-full border transition-colors ${filter === 'all'
-                            ? 'bg-white/15 text-white border-white/25 font-medium'
+                            ? 'bg-(--accent-light) text-(--primary) border-(--border-hover) font-medium'
                             : 'bg-transparent text-(--secondary) border-(--border) hover:border-(--secondary-light)'
                             }`}
                     >
@@ -323,7 +323,7 @@ export default function ActivityPage() {
                             key={cat}
                             onClick={() => setFilter(cat)}
                             className={`px-3.5 py-1.5 text-sm rounded-full border transition-colors ${filter === cat
-                                ? 'bg-white/15 text-white border-white/25 font-medium'
+                                ? 'bg-(--accent-light) text-(--primary) border-(--border-hover) font-medium'
                                 : 'bg-transparent text-(--secondary) border-(--border) hover:border-(--secondary-light)'
                                 }`}
                         >

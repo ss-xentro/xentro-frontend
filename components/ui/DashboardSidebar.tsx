@@ -88,7 +88,7 @@ export function DashboardSidebar({ children, userType }: DashboardSidebarProps) 
               href={item.href}
               onClick={() => setIsMobileOpen(false)}
               className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg transition-colors ${active
-                ? 'bg-gray-900 text-white'
+                ? 'bg-(--surface-pressed) text-(--primary)'
                 : 'text-(--secondary) hover:bg-(--surface-hover) hover:text-(--primary)'
                 }`}
               title={isCollapsed ? item.name : undefined}

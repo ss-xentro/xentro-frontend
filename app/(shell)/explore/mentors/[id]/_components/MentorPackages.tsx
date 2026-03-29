@@ -51,17 +51,17 @@ export default function MentorPackages({
 		<div className="space-y-4">
 			{/* Structured pricing plans */}
 			{hasPricingPlans && validPlans.map((plan, i) => (
-				<div key={i} className="bg-white/3 border border-white/6 rounded-xl p-6">
-					<p className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
+				<div key={i} className="bg-(--accent-subtle) border border-(--border) rounded-xl p-6">
+					<p className="text-sm font-semibold text-(--secondary) uppercase tracking-wide mb-1.5">
 						{plan.sessionType}{plan.duration ? ` · ${plan.duration}` : ''}
 					</p>
 					{plan.price !== undefined && plan.price !== null && String(plan.price).trim() !== '' && (
-						<p className="text-2xl font-bold text-white mb-5">{formatPrice(plan.price)}</p>
+						<p className="text-2xl font-bold text-(--primary) mb-5">{formatPrice(plan.price)}</p>
 					)}
 					{plan.perks && plan.perks.length > 0 && (
 						<ul className="space-y-2 mb-5">
 							{plan.perks.map((perk, pi) => (
-								<li key={pi} className="flex items-center gap-2 text-sm text-gray-400">
+								<li key={pi} className="flex items-center gap-2 text-sm text-(--secondary)">
 									<CheckIcon />
 									{perk}
 								</li>
@@ -71,7 +71,7 @@ export default function MentorPackages({
 					<button
 						onClick={onConnectOrBook}
 						disabled={connectBtnDisabled}
-						className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-[#0B0D10] hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-default"
+						className="w-full py-2.5 rounded-xl text-sm font-semibold bg-(--primary) text-(--background) hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-default"
 					>
 						Book Session
 					</button>
@@ -80,13 +80,13 @@ export default function MentorPackages({
 
 			{/* Fallback: show hourly rate card when no structured plans exist */}
 			{!hasPricingPlans && hourlyRate !== null && hourlyRate !== undefined && (
-				<div className="bg-white/3 border border-white/6 rounded-xl p-6">
-					<p className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Hourly Rate</p>
-					<p className="text-2xl font-bold text-white mb-5">{Number(hourlyRate) === 0 ? 'Free' : `INR ${Number(hourlyRate).toLocaleString('en-IN')}`}</p>
+				<div className="bg-(--accent-subtle) border border-(--border) rounded-xl p-6">
+					<p className="text-sm font-semibold text-(--secondary) uppercase tracking-wide mb-1.5">Hourly Rate</p>
+					<p className="text-2xl font-bold text-(--primary) mb-5">{Number(hourlyRate) === 0 ? 'Free' : `INR ${Number(hourlyRate).toLocaleString('en-IN')}`}</p>
 					<button
 						onClick={onConnectOrBook}
 						disabled={connectBtnDisabled}
-						className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white text-[#0B0D10] hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-default"
+						className="w-full py-2.5 rounded-xl text-sm font-semibold bg-(--primary) text-(--background) hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-default"
 					>
 						Book Session
 					</button>
@@ -95,15 +95,15 @@ export default function MentorPackages({
 
 			{/* Plain-text package list */}
 			{hasPackages && (
-				<div className="bg-white/3 border border-white/6 rounded-xl p-6">
-					<h3 className="text-base font-semibold text-white mb-4">Highlights</h3>
+				<div className="bg-(--accent-subtle) border border-(--border) rounded-xl p-6">
+					<h3 className="text-base font-semibold text-(--primary) mb-4">Highlights</h3>
 					<ul className="space-y-2.5">
 						{packages.map((pkg, i) => (
-							<li key={i} className="flex items-start gap-2.5 text-sm text-gray-400">
+							<li key={i} className="flex items-start gap-2.5 text-sm text-(--secondary)">
 								<svg className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
 									<path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
 								</svg>
-								<RichTextDisplay html={pkg} compact className="text-sm text-gray-300" />
+								<RichTextDisplay html={pkg} compact className="text-sm text-(--primary-light)" />
 							</li>
 						))}
 					</ul>

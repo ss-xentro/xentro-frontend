@@ -62,23 +62,23 @@ export default function AddTeamMemberPage() {
     <DashboardSidebar>
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-12">
-          <h1 className="text-2xl font-semibold text-white mb-2">Add Team Member</h1>
-          <p className="text-sm text-gray-300">Invite someone to help manage your institution</p>
+          <h1 className="text-2xl font-semibold text-(--primary) mb-2">Add Team Member</h1>
+          <p className="text-sm text-(--primary-light)">Invite someone to help manage your institution</p>
         </div>
 
-        <Card className="p-10 bg-white/5 border border-white/10 shadow-sm">
+        <Card className="p-10 bg-(--accent-subtle) border border-(--border) shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Basic Information */}
             <div className="space-y-6">
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-2">
+                <label className="block text-xs font-medium text-(--secondary) mb-2">
                   Full Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors"
                   placeholder="e.g., Jane Smith"
                   required
                   aria-label="Team member name"
@@ -86,25 +86,25 @@ export default function AddTeamMemberPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-2">
+                <label className="block text-xs font-medium text-(--secondary) mb-2">
                   Email Address <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors"
                   placeholder="jane.smith@institution.edu"
                   required
                   aria-label="Team member email"
                 />
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-(--secondary) mt-1">
                   They will use this email to log in and access the dashboard
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-2">
+                <label className="block text-xs font-medium text-(--secondary) mb-2">
                   Access Level <span className="text-red-500">*</span>
                 </label>
                 <div className="space-y-3">
@@ -112,8 +112,8 @@ export default function AddTeamMemberPage() {
                     <label
                       key={option.value}
                       className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all ${formData.role === option.value
-                        ? 'border-gray-900 bg-white/5'
-                        : 'border-white/10 hover:border-white/20'
+                        ? 'border-gray-900 bg-(--accent-subtle)'
+                        : 'border-(--border) hover:border-(--border-hover)'
                         }`}
                     >
                       <input
@@ -124,21 +124,21 @@ export default function AddTeamMemberPage() {
                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                         className="mt-0.5"
                       />
-                      <span className="text-sm text-white">{option.label}</span>
+                      <span className="text-sm text-(--primary)">{option.label}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-2">
+                <label className="block text-xs font-medium text-(--secondary) mb-2">
                   Phone Number (optional)
                 </label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 text-white rounded-lg focus:border-white/40 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors"
                   placeholder="+1 (555) 123-4567"
                   aria-label="Phone number"
                 />
@@ -150,14 +150,14 @@ export default function AddTeamMemberPage() {
                 type="button"
                 onClick={() => router.back()}
                 disabled={loading}
-                className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm text-(--primary-light) hover:text-(--primary) transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading || !formData.name || !formData.email || !formData.role}
-                className="px-6 py-3 text-sm font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                className="px-6 py-3 text-sm font-medium bg-(--primary) text-(--background) rounded-lg hover:bg-(--primary-light) disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >
                 {loading ? 'Adding...' : (
                   <>

@@ -73,8 +73,8 @@ export default function InstitutionEventsPage() {
             <div className="p-8 space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-white">Events</h1>
-                        <p className="text-sm text-gray-400">Create and manage events for your institution community.</p>
+                        <h1 className="text-3xl font-bold text-(--primary)">Events</h1>
+                        <p className="text-sm text-(--secondary)">Create and manage events for your institution community.</p>
                     </div>
                     <Button onClick={goToCreatePage}>+ New Event</Button>
                 </div>
@@ -82,7 +82,7 @@ export default function InstitutionEventsPage() {
                 {loading ? (
                     <div className="grid gap-4 md:grid-cols-2">
                         {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="h-40 rounded-xl bg-white/5 border border-white/10 animate-pulse" />
+                            <div key={i} className="h-40 rounded-xl bg-(--accent-subtle) border border-(--border) animate-pulse" />
                         ))}
                     </div>
                 ) : events.length === 0 ? (

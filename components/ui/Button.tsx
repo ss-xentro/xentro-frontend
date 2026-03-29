@@ -39,7 +39,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         hover:text-(--primary)
       `,
             danger: `
-        bg-[var(--error)] text-white
+        bg-[var(--error)] text-(--primary)
         hover:bg-[#DC2626]
         shadow-[var(--shadow-sm)]
       `,

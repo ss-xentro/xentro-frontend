@@ -59,8 +59,8 @@ export default function SDGFocusSlide({ value, onChange, className }: SDGFocusSl
                                 }}
                                 title={fullName}
                             >
-                                <span className="text-white font-bold text-3xl mb-1">{label}</span>
-                                <span className="text-white text-[0.65rem] font-semibold text-center leading-tight">
+                                <span className="text-(--primary) font-bold text-3xl mb-1">{label}</span>
+                                <span className="text-(--primary) text-[0.65rem] font-semibold text-center leading-tight">
                                     {fullName.split(' ').slice(0, 3).join(' ')}
                                 </span>
                                 {isSelected && (
@@ -94,13 +94,13 @@ export default function SDGFocusSlide({ value, onChange, className }: SDGFocusSl
                             return (
                                 <div
                                     key={sdg}
-                                    className="px-3 py-1 rounded-full text-white text-sm font-medium flex items-center gap-2"
+                                    className="px-3 py-1 rounded-full text-(--primary) text-sm font-medium flex items-center gap-2"
                                     style={{ backgroundColor: labelData.color }}
                                 >
                                     <span>SDG {labelData.label}</span>
                                     <button
                                         onClick={() => handleToggle(sdg)}
-                                        className="hover:bg-white/20 rounded-full p-0.5"
+                                        className="hover:bg-(--accent) rounded-full p-0.5"
                                     >
                                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />

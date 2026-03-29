@@ -97,7 +97,7 @@ export default function SectorFocusSlide({ value, onChange, className }: SectorF
                                                     isSelected ? 'border-accent bg-accent' : 'border-(--secondary-light)',
                                                 )}>
                                                     {isSelected && (
-                                                        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                        <svg className="w-2.5 h-2.5 text-(--primary)" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                                         </svg>
                                                     )}
