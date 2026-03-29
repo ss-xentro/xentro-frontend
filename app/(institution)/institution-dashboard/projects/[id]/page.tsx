@@ -18,10 +18,10 @@ interface ProjectDetail {
 }
 
 const statusLabels: Record<string, { label: string; color: string }> = {
-	planning: { label: 'Planning', color: 'bg-blue-500/20 text-blue-200' },
-	active: { label: 'Active', color: 'bg-green-500/20 text-green-200' },
-	completed: { label: 'Completed', color: 'bg-(--accent-light) text-gray-100' },
-	'on-hold': { label: 'On Hold', color: 'bg-yellow-500/20 text-yellow-200' },
+	planning: { label: 'Planning', color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200' },
+	active: { label: 'Active', color: 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200' },
+	completed: { label: 'Completed', color: 'bg-(--accent-light) text-(--primary)' },
+	'on-hold': { label: 'On Hold', color: 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-200' },
 };
 
 export default function ProjectDetailPage() {
@@ -103,7 +103,7 @@ export default function ProjectDetailPage() {
 					</button>
 					<div className="flex items-center gap-2">
 						<Button onClick={() => router.push(`/institution-dashboard/projects/${projectId}/edit`)}>Edit Project</Button>
-						<Button variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={handleDelete} disabled={deleting}>
+						<Button variant="ghost" className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/10" onClick={handleDelete} disabled={deleting}>
 							{deleting ? 'Deleting...' : 'Delete'}
 						</Button>
 					</div>

@@ -20,15 +20,15 @@ interface Program {
 }
 
 const typeLabels: Record<string, { label: string; color: string }> = {
-    accelerator: { label: 'Accelerator', color: 'bg-purple-500/20 text-purple-200' },
-    incubator: { label: 'Incubator', color: 'bg-blue-500/20 text-blue-200' },
-    incubation: { label: 'Incubation', color: 'bg-blue-500/20 text-blue-200' },
-    acceleration: { label: 'Acceleration', color: 'bg-purple-500/20 text-purple-200' },
-    bootcamp: { label: 'Bootcamp', color: 'bg-orange-500/20 text-orange-200' },
-    fellowship: { label: 'Fellowship', color: 'bg-green-500/20 text-green-200' },
-    workshop: { label: 'Workshop', color: 'bg-yellow-500/20 text-yellow-200' },
-    mentorship: { label: 'Mentorship', color: 'bg-pink-500/20 text-pink-200' },
-    competition: { label: 'Competition', color: 'bg-indigo-500/20 text-indigo-200' },
+    accelerator: { label: 'Accelerator', color: 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200' },
+    incubator: { label: 'Incubator', color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200' },
+    incubation: { label: 'Incubation', color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200' },
+    acceleration: { label: 'Acceleration', color: 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200' },
+    bootcamp: { label: 'Bootcamp', color: 'bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-200' },
+    fellowship: { label: 'Fellowship', color: 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200' },
+    workshop: { label: 'Workshop', color: 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-200' },
+    mentorship: { label: 'Mentorship', color: 'bg-pink-100 dark:bg-pink-500/20 text-pink-700 dark:text-pink-200' },
+    competition: { label: 'Competition', color: 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-200' },
     other: { label: 'Other', color: 'bg-(--accent-light) text-(--primary-light)' },
 };
 
@@ -202,7 +202,7 @@ export default function ProgramsPage() {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                            className="flex-1 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/10"
                                             onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(program.id); }}
                                             disabled={deletingId === program.id}
                                         >

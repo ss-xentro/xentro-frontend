@@ -96,10 +96,10 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 
 				{/* Quick Stats */}
 				<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-					<StatCard icon="rocket" bg="bg-purple-100" label="Active Programs" value={stats.programsCount} />
-					<StatCard icon="users" bg="bg-blue-100" label="Team Members" value={stats.teamCount} />
-					<StatCard icon="briefcase" bg="bg-amber-100" label="Portfolio Startups" value={stats.startupsCount} />
-					<StatCard icon="bar-chart" bg="bg-green-100" label="Profile Views" value={stats.profileViews} />
+					<StatCard icon="rocket" bg="bg-purple-100 dark:bg-purple-500/20" label="Active Programs" value={stats.programsCount} />
+					<StatCard icon="users" bg="bg-blue-100 dark:bg-blue-500/20" label="Team Members" value={stats.teamCount} />
+					<StatCard icon="briefcase" bg="bg-amber-100 dark:bg-amber-500/20" label="Portfolio Startups" value={stats.startupsCount} />
+					<StatCard icon="bar-chart" bg="bg-green-100 dark:bg-green-500/20" label="Profile Views" value={stats.profileViews} />
 				</div>
 
 				{/* Institution Profile Card */}
@@ -110,9 +110,9 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 							<p className="text-sm text-(--secondary)">Your institution is live on the platform</p>
 						</div>
 						<div className="flex items-center gap-2">
-							<span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Published</span>
+							<span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-200 text-sm font-medium flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Published</span>
 							{institution?.verified && (
-								<span className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium flex items-center gap-1">
+								<span className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-200 text-sm font-medium flex items-center gap-1">
 									<AppIcon name="check" className="w-3.5 h-3.5" /> Verified Badge
 								</span>
 							)}

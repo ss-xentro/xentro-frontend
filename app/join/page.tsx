@@ -94,7 +94,7 @@ export default function JoinPage() {
                   onClick={() => setSelectedRole(role.id)}
                   className={`group relative border text-left transition-all duration-200 aspect-square sm:aspect-auto p-3 sm:p-4 md:p-8 flex-1 rounded-lg sm:rounded-none ${selectedRole === role.id
                     ? 'bg-(--primary) border-(--primary) scale-[1.02]'
-                    : 'bg-white border-(--border) hover:border-(--border-hover)'
+                    : 'bg-(--background) border-(--border) hover:border-(--border-hover)'
                     }`}
                 >
                   {/* Hover glow */}
@@ -106,13 +106,13 @@ export default function JoinPage() {
                   </div>
 
                   <div className="relative z-10 flex flex-col h-full">
-                    <div className={`mb-2 sm:mb-3 ${selectedRole === role.id ? 'text-(--primary)' : 'text-(--primary)'}`}>
+                    <div className={`mb-2 sm:mb-3 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}>
                       <div className="w-6 h-6 sm:w-8 sm:h-8 [&>svg]:w-full [&>svg]:h-full">
                         {role.icon}
                       </div>
                     </div>
 
-                    <h3 className={`text-sm sm:text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-(--primary)' : 'text-(--primary)'}`}>
+                    <h3 className={`text-sm sm:text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}>
                       {role.title}
                     </h3>
 

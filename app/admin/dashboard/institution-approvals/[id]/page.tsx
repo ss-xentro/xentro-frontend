@@ -10,9 +10,9 @@ import { use } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-green-100 text-green-800',
-  rejected: 'bg-red-100 text-red-800',
+  pending: 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-200',
+  approved: 'bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-200',
+  rejected: 'bg-red-100 dark:bg-red-500/20 text-red-800 dark:text-red-200',
 };
 
 export default function InstitutionApprovalDetailsPage({ params }: { params: Promise<{ id: string }> }) {

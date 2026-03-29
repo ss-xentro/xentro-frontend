@@ -52,8 +52,8 @@ export interface StatCardConfig {
 }
 
 export const STAT_CARDS: StatCardConfig[] = [
-	{ label: 'Sectors', icon: STAT_ICONS.sectors, bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
-	{ label: 'Portfolio Companies', icon: STAT_ICONS.portfolio, bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
-	{ label: 'Total Invested', icon: STAT_ICONS.invested, bgColor: 'bg-green-100', iconColor: 'text-green-600' },
-	{ label: 'Notable Investments', icon: STAT_ICONS.notable, bgColor: 'bg-amber-100', iconColor: 'text-amber-600' },
+	{ label: 'Sectors', icon: STAT_ICONS.sectors, bgColor: 'bg-blue-100 dark:bg-blue-500/20', iconColor: 'text-blue-600 dark:text-blue-300' },
+	{ label: 'Portfolio Companies', icon: STAT_ICONS.portfolio, bgColor: 'bg-purple-100 dark:bg-purple-500/20', iconColor: 'text-purple-600 dark:text-purple-300' },
+	{ label: 'Total Invested', icon: STAT_ICONS.invested, bgColor: 'bg-green-100 dark:bg-green-500/20', iconColor: 'text-green-600 dark:text-green-300' },
+	{ label: 'Notable Investments', icon: STAT_ICONS.notable, bgColor: 'bg-amber-100 dark:bg-amber-500/20', iconColor: 'text-amber-600 dark:text-amber-300' },
 ];

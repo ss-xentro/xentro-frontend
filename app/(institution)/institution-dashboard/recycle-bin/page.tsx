@@ -225,7 +225,7 @@ export default function RecycleBinPage() {
 								key={folder.key}
 								onClick={() => setActiveFolder(folder.key)}
 								className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-									? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+									? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-500/30'
 									: 'text-(--secondary) hover:bg-(--accent-subtle) hover:text-(--primary-light) border border-transparent'
 									}`}
 							>
@@ -271,10 +271,10 @@ export default function RecycleBinPage() {
 										</span>
 										<span
 											className={`px-2 py-0.5 rounded-full text-xs font-medium ${item.daysRemaining <= 7
-												? 'bg-red-500/20 text-red-300'
+												? 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300'
 												: item.daysRemaining <= 14
-													? 'bg-yellow-500/20 text-yellow-300'
-													: 'bg-green-500/20 text-green-300'
+													? 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300'
+													: 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300'
 												}`}
 										>
 											{item.daysRemaining} day{item.daysRemaining !== 1 ? 's' : ''} remaining
@@ -302,7 +302,7 @@ export default function RecycleBinPage() {
 									<Button
 										variant="ghost"
 										size="sm"
-										className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+										className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/10"
 										onClick={() => handlePermanentDelete(apiType, item.id)}
 										disabled={actionLoading === `delete-${item.id}`}
 									>

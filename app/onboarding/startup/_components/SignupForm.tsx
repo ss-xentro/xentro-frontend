@@ -81,7 +81,7 @@ export function SignupForm({
 			<div className="text-center py-4">
 				<div className={cn(
 					'inline-flex items-center justify-center w-16 h-16 rounded-full mb-4',
-					emailVerified ? 'bg-green-100' : 'bg-accent/10'
+					emailVerified ? 'bg-green-100 dark:bg-green-500/20' : 'bg-accent/10'
 				)}>
 					{emailVerified ? (
 						<svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

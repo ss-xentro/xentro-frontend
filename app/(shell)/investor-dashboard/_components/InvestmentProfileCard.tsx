@@ -39,7 +39,7 @@ export default function InvestmentProfileCard({ profile }: InvestmentProfileCard
 					<p className="text-xs text-(--secondary) uppercase tracking-wider mb-1">Stages</p>
 					<div className="flex flex-wrap gap-2">
 						{profile.investmentStages.map((stage) => (
-							<span key={stage} className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">
+							<span key={stage} className="px-2 py-0.5 text-xs rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200">
 								{stage}
 							</span>
 						))}
@@ -52,7 +52,7 @@ export default function InvestmentProfileCard({ profile }: InvestmentProfileCard
 					<p className="text-xs text-(--secondary) uppercase tracking-wider mb-1">Focus Sectors</p>
 					<div className="flex flex-wrap gap-2">
 						{profile.sectors.map((sector) => (
-							<span key={sector} className="px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-700">
+							<span key={sector} className="px-2 py-0.5 text-xs rounded-full bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200">
 								{sector}
 							</span>
 						))}

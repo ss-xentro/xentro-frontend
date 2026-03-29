@@ -19,12 +19,12 @@ interface AuditEntry {
 }
 
 const ACTION_COLORS: Record<string, string> = {
-	create: 'bg-green-100 text-green-700',
-	update: 'bg-blue-100 text-blue-700',
-	delete: 'bg-red-100 text-red-700',
-	approve: 'bg-emerald-100 text-emerald-700',
-	reject: 'bg-orange-100 text-orange-700',
-	login: 'bg-purple-100 text-purple-700',
+	create: 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200',
+	update: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200',
+	delete: 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-200',
+	approve: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-200',
+	reject: 'bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-200',
+	login: 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200',
 };
 
 function getActionColor(action: string): string {

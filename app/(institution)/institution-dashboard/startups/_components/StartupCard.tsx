@@ -19,14 +19,14 @@ export default function StartupCard({ startup, deleting, onDelete }: StartupCard
 			<div className="flex items-start justify-between mb-4">
 				<div className="flex-1">
 					<h3 className="font-bold text-lg text-(--primary) mb-1">{startup.name}</h3>
-					<span className="inline-block px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-300 rounded">
+					<span className="inline-block px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 rounded">
 						{formatStage(startup.stage)}
 					</span>
 				</div>
 				<div className="flex items-center gap-1">
 					<button
 						onClick={(e) => { e.stopPropagation(); router.push(`/institution-dashboard/startups/${startup.id}/edit`); }}
-						className="p-2 text-(--secondary) hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
+						className="p-2 text-(--secondary) hover:text-blue-600 dark:hover:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
 						aria-label="Edit startup"
 					>
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

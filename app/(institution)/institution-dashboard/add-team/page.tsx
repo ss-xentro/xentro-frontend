@@ -112,7 +112,7 @@ export default function AddTeamMemberPage() {
                     <label
                       key={option.value}
                       className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all ${formData.role === option.value
-                        ? 'border-gray-900 bg-(--accent-subtle)'
+                        ? 'border-(--primary) bg-(--accent-subtle)'
                         : 'border-(--border) hover:border-(--border-hover)'
                         }`}
                     >

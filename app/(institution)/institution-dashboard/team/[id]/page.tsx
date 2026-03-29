@@ -19,10 +19,10 @@ interface TeamMemberDetail {
 }
 
 const roleColors: Record<string, string> = {
-	admin: 'bg-purple-500/20 text-purple-200',
-	manager: 'bg-blue-500/20 text-blue-200',
-	ambassador: 'bg-green-500/20 text-green-200',
-	viewer: 'bg-(--accent-light) text-gray-100',
+	admin: 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200',
+	manager: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200',
+	ambassador: 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200',
+	viewer: 'bg-(--accent-light) text-(--primary)',
 };
 
 export default function TeamMemberDetailPage() {
@@ -103,7 +103,7 @@ export default function TeamMemberDetailPage() {
 						Back to Team
 					</button>
 					{member.role !== 'admin' && (
-						<Button variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={handleRemove} disabled={deleting}>
+						<Button variant="ghost" className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/10" onClick={handleRemove} disabled={deleting}>
 							{deleting ? 'Removing...' : 'Remove Member'}
 						</Button>
 					)}
@@ -118,10 +118,10 @@ export default function TeamMemberDetailPage() {
 							<h1 className="text-2xl font-bold text-(--primary)">{member.userName || 'Unknown'}</h1>
 							{member.userEmail && <p className="text-sm text-(--secondary) mt-1">{member.userEmail}</p>}
 							<div className="flex items-center gap-3 mt-3">
-								<span className={`px-3 py-1 rounded-full text-xs font-medium ${roleColors[member.role] || 'bg-(--accent-light) text-gray-100'}`}>
+								<span className={`px-3 py-1 rounded-full text-xs font-medium ${roleColors[member.role] || 'bg-(--accent-light) text-(--primary)'}`}>
 									{member.role}
 								</span>
-								<span className={`px-3 py-1 rounded-full text-xs font-medium ${member.isActive ? 'bg-green-500/20 text-green-200' : 'bg-red-500/20 text-red-200'}`}>
+								<span className={`px-3 py-1 rounded-full text-xs font-medium ${member.isActive ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200' : 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-200'}`}>
 									{member.isActive ? 'Active' : 'Inactive'}
 								</span>
 							</div>

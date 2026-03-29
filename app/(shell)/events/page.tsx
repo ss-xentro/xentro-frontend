@@ -316,7 +316,7 @@ export default function PublicEventsPage() {
 																	<p className="text-[11px] font-medium uppercase tracking-wide text-[#fca5a5]">{labelize(event.type || 'event')}</p>
 																	<h4 className="mt-1 line-clamp-2 text-sm sm:text-base font-semibold text-(--primary)">{event.name}</h4>
 																</div>
-																{isBooked && <span className="rounded-full bg-emerald-500/20 px-2 py-1 text-[10px] font-semibold text-emerald-300">Booked</span>}
+																{isBooked && <span className="rounded-full bg-emerald-100 dark:bg-emerald-500/20 px-2 py-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">Booked</span>}
 															</div>
 															<div className="mt-3 flex items-center gap-2 text-xs text-(--secondary)">
 																<span>{start ? `${start.month} ${start.day}` : 'TBA'}</span>

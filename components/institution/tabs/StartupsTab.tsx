@@ -23,7 +23,7 @@ export default function StartupsTab({ startups }: { startups: Startup[] }) {
 			{startups.map((startup) => (
 				<a key={startup.id} href={`/startups/${startup.slug || startup.id}`} className="block">
 					<Card className="flex gap-4 p-6 transition-all bg-(--accent-subtle) border border-(--border) hover:border-(--border-hover) cursor-pointer" hoverable>
-						<div className="w-12 h-12 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-300 shrink-0 overflow-hidden">
+						<div className="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center text-violet-700 dark:text-violet-300 shrink-0 overflow-hidden">
 							{startup.logo ? (
 								<img src={startup.logo} alt={startup.name} className="w-full h-full object-cover" />
 							) : (
