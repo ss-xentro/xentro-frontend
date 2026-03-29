@@ -47,6 +47,23 @@ function buildUrl(path: string, params?: RequestOptions['params']): string {
 	return qs ? `${url}?${qs}` : url;
 }
 
+// ── GET request deduplication cache ────────────────
+// Deduplicates identical in-flight GET requests so multiple components
+// requesting the same URL simultaneously share one network call.
+
+const inflightGets = new Map<string, Promise<unknown>>();
+
+function deduplicatedGet<T>(url: string, fetchFn: () => Promise<T>): Promise<T> {
+	const existing = inflightGets.get(url);
+	if (existing) return existing as Promise<T>;
+
+	const promise = fetchFn().finally(() => {
+		inflightGets.delete(url);
+	});
+	inflightGets.set(url, promise);
+	return promise;
+}
+
 // ── Core fetch wrapper ─────────────────────────────
 
 async function request<T = unknown>(
@@ -118,7 +135,10 @@ async function request<T = unknown>(
 
 export const api = {
 	get<T = unknown>(path: string, options?: RequestOptions) {
-		return request<T>(path, { ...options, method: 'GET' });
+		const url = buildUrl(path, options?.params);
+		return deduplicatedGet<T>(url, () =>
+			request<T>(path, { ...options, method: 'GET' })
+		);
 	},
 
 	post<T = unknown>(path: string, options?: RequestOptions) {

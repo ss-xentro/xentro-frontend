@@ -10,6 +10,7 @@ import { institutionTypeLabels, operatingModeLabels } from '@/lib/types';
 import { getSessionToken } from '@/lib/auth-utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
 import { toast } from 'sonner';
+import api from '@/lib/api-client';
 
 export default function EditInstitutionPage() {
   const router = useRouter();
@@ -19,10 +20,10 @@ export default function EditInstitutionPage() {
   const [formData, setFormData] = useState({
     name: '',
     tagline: '',
-    type: '' as InstitutionType,
+    type: '' as InstitutionType | '',
     city: '',
     country: '',
-    operatingMode: '' as OperatingMode,
+    operatingMode: '' as OperatingMode | '',
     website: '',
     linkedin: '',
     email: '',
@@ -39,15 +40,7 @@ export default function EditInstitutionPage() {
           return;
         }
 
-        const res = await fetch('/api/auth/me/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) {
-          throw new Error(await readApiErrorMessage(res, 'Failed to load institution'));
-        }
-
-        const data = await res.json();
+        const data = await api.get<{ institution: Institution }>('/api/auth/me/');
         setInstitution(data.institution);
         setFormData({
           name: data.institution.name || '',
