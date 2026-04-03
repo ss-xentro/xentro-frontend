@@ -1,51 +1,200 @@
 @import "tailwindcss";
 
 /* ========================================
+   Aptos Font Family
+======================================== */
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-Light-Italic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-SemiBold-Italic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-Bold-Italic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-ExtraBold-Italic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/fonts/ms-aptos/Aptos-Black-Italic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos Display';
+  src: url('/fonts/ms-aptos/Aptos-Display.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos Display';
+  src: url('/fonts/ms-aptos/Aptos-Display-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos Display';
+  src: url('/fonts/ms-aptos/Aptos-Display-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos Display';
+  src: url('/fonts/ms-aptos/Aptos-Display-Bold-Italic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos Mono';
+  src: url('/fonts/ms-aptos/Aptos-Mono.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aptos Mono';
+  src: url('/fonts/ms-aptos/Aptos-Mono-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ========================================
    XENTRO Design System
-   Apple × Google Quality Design Tokens
+   Dark-first Design Tokens
 ======================================== */
 
 :root {
   /* Primary Colors */
-  --primary: #111827;
-  --primary-light: #374151;
-  --secondary: #6B7280;
-  --secondary-light: #9CA3AF;
+  --primary: #F9FAFB;
+  --primary-light: #E5E7EB;
+  --secondary: #9CA3AF;
+  --secondary-light: #6B7280;
 
   /* Accent Colors */
-  --accent: #111827;
-  --accent-hover: #374151;
-  --accent-light: #F3F4F6;
-  --accent-subtle: #F9FAFB;
+  --accent: #F9FAFB;
+  --accent-hover: #E5E7EB;
+  --accent-light: rgba(255, 255, 255, 0.16);
+  --accent-subtle: rgba(255, 255, 255, 0.08);
 
   /* Status Colors */
   --success: #10B981;
-  --success-light: #D1FAE5;
+  --success-light: rgba(16, 185, 129, 0.15);
   --warning: #F59E0B;
-  --warning-light: #FEF3C7;
+  --warning-light: rgba(245, 158, 11, 0.15);
   --error: #EF4444;
-  --error-light: #FEE2E2;
+  --error-light: rgba(239, 68, 68, 0.15);
   --danger: #EF4444;
-  --danger-light: #FEE2E2;
+  --danger-light: rgba(239, 68, 68, 0.15);
 
   /* Backgrounds */
-  --background: #FFFFFF;
-  --surface: #FFFFFF;
-  --surface-hover: #F9FAFB;
-  --surface-pressed: #F3F4F6;
+  --background: #0B0D10;
+  --surface: #151922;
+  --surface-hover: #1B202A;
+  --surface-pressed: #242B37;
+  --surface-secondary: #1B202A;
 
   /* Borders */
-  --border: #E5E7EB;
-  --border-hover: #D1D5DB;
-  --border-light: #F3F4F6;
-  --border-focus: #111827;
+  --border: rgba(255, 255, 255, 0.16);
+  --border-hover: rgba(255, 255, 255, 0.28);
+  --border-light: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(255, 255, 255, 0.3);
 
   /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.15);
 
   /* Radius */
   --radius-sm: 8px;
@@ -62,7 +211,11 @@
   --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Aptos', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Aptos Display', 'Aptos', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Aptos Mono', ui-monospace, SFMono-Regular, monospace;
+
+  color: #F9FAFB;
 }
 
 @theme inline {
@@ -74,6 +227,7 @@
   --color-warning: var(--warning);
   --color-error: var(--error);
   --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 /* Base Styles */
@@ -139,30 +293,6 @@ body {
 button {
   font-family: inherit;
   cursor: pointer;
-}
-
-/* Dark theme */
-.dark {
-  --primary: #F9FAFB;
-  --primary-light: #E5E7EB;
-  --secondary: #9CA3AF;
-  --secondary-light: #6B7280;
-  --accent: #F9FAFB;
-  --accent-hover: #E5E7EB;
-  --accent-light: rgba(255, 255, 255, 0.16);
-  --accent-subtle: rgba(255, 255, 255, 0.08);
-  --background: #0B0D10;
-  --surface: #151922;
-  --surface-hover: #1B202A;
-  --surface-pressed: #242B37;
-  --border: rgba(255, 255, 255, 0.16);
-  --border-hover: rgba(255, 255, 255, 0.28);
-  --border-light: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(255, 255, 255, 0.3);
-  --error-light: rgba(239, 68, 68, 0.15);
-  --success-light: rgba(16, 185, 129, 0.15);
-  --warning-light: rgba(245, 158, 11, 0.15);
-  color: #F9FAFB;
 }
 
 /* Input Base */
@@ -308,13 +438,9 @@ select {
 
 /* Custom utilities */
 .glass {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-}
-
-.dark .glass {
-  background: rgba(255, 255, 255, 0.06);
 }
 
 .gradient-text {

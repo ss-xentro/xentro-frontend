@@ -27,13 +27,13 @@ export function SectorPicker({ selectedSectors, onSelect, expandedCategory, onTo
 							onClick={() => onToggleCategory(expandedCategory === catSlug ? null : catSlug)}
 							className={cn(
 								'w-full flex items-center gap-3 p-3 text-left transition-colors',
-								isExpanded ? 'bg-slate-100' : 'bg-(--surface) hover:bg-(--surface-hover)',
+								isExpanded ? 'bg-(--surface-pressed)' : 'bg-(--surface) hover:bg-(--surface-hover)',
 							)}
 						>
 							<AppIcon name={icon} className={cn('w-5 h-5 shrink-0', isExpanded ? 'text-(--primary)' : 'text-(--secondary)')} />
 							<span className="font-medium text-sm flex-1 text-(--primary)">{label}</span>
 							{selectedCount > 0 && (
-								<span className="w-2 h-2 rounded-full bg-slate-700"></span>
+								<span className="w-2 h-2 rounded-full bg-(--primary)"></span>
 							)}
 							<svg
 								className={cn('w-4 h-4 text-(--secondary) transition-transform', isExpanded && 'rotate-180')}
@@ -55,13 +55,13 @@ export function SectorPicker({ selectedSectors, onSelect, expandedCategory, onTo
 											className={cn(
 												'flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-all text-left',
 												isSelected
-													? 'border-slate-900 bg-slate-100 text-white font-medium'
-													: 'border-(--border) bg-(--surface) text-(--primary) hover:border-(--secondary-light)',
+													? 'border-(--border-focus) bg-(--surface-pressed) text-(--primary) font-medium'
+													: 'border-(--border) bg-(--surface) text-(--primary) hover:border-(--border-hover)',
 											)}
 										>
 											<div className={cn(
 												'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
-												isSelected ? 'border-slate-900 bg-slate-900' : 'border-(--secondary-light)',
+												isSelected ? 'border-(--primary) bg-(--primary)' : 'border-(--secondary-light)',
 											)}>
 												{isSelected && (
 													<div className="w-1.5 h-1.5 rounded-full bg-(--surface)"></div>

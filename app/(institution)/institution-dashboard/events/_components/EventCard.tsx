@@ -28,8 +28,8 @@ export default function EventCard({ event, onEdit, onDelete }: EventCardProps) {
 							<span className={cn(
 								'px-2 py-0.5 text-xs rounded-full font-medium border',
 								event.approved
-									? 'bg-green-500/25 text-green-100 border-green-300/35'
-									: 'bg-yellow-500/25 text-yellow-100 border-yellow-300/35'
+									? 'bg-green-500/25 text-green-100 border-green-500/30/35'
+									: 'bg-yellow-500/25 text-yellow-100 border-yellow-500/30/35'
 							)}>
 								{event.approved ? 'Approved' : 'Pending'}
 							</span>

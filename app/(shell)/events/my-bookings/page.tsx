@@ -155,7 +155,7 @@ export default function EventBookingsPage() {
 										{!event.isVirtual && event.qrCodeUrl && (
 											<div className="rounded-lg border border-(--border) p-3 bg-(--surface-hover)">
 												<p className="text-xs text-(--secondary) mb-2">Show this at venue check-in</p>
-												<img src={event.qrCodeUrl} alt="Booking QR" className="w-28 h-28 rounded-md bg-white p-1" />
+												<img src={event.qrCodeUrl} alt="Booking QR" className="w-28 h-28 rounded-md bg-(--surface) p-1" />
 											</div>
 										)}
 										{event.isVirtual && (

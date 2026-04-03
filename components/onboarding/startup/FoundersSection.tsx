@@ -129,7 +129,7 @@ export function FoundersSection() {
 						type="button"
 						variant="secondary"
 						onClick={addFounder}
-						className="w-full border-dashed border-slate-300 bg-slate-100 text-white hover:bg-slate-200 hover:border-slate-400"
+						className="w-full border-dashed border-(--border-hover) bg-(--surface-hover) text-(--primary) hover:bg-(--surface-pressed) hover:border-(--border-focus)"
 					>
 						<AppIcon name="plus" className="h-4 w-4 mr-1.5" />
 						Add Co-Founder
@@ -239,7 +239,7 @@ export function FoundersSection() {
 						type="button"
 						variant="secondary"
 						onClick={addTeamMember}
-						className="w-full border-dashed border-slate-300 bg-slate-100 text-white hover:bg-slate-200 hover:border-slate-400"
+						className="w-full border-dashed border-(--border-hover) bg-(--surface-hover) text-(--primary) hover:bg-(--surface-pressed) hover:border-(--border-focus)"
 					>
 						<AppIcon name="plus" className="h-4 w-4 mr-1.5" />
 						Add Team Member
@@ -248,7 +248,7 @@ export function FoundersSection() {
 			</div>
 
 			<aside className="space-y-4 xl:sticky xl:top-24 self-start">
-				<div className="rounded-2xl border border-(--border) bg-slate-50 p-4 md:p-5">
+				<div className="rounded-2xl border border-(--border) bg-(--surface-hover) p-4 md:p-5">
 					<div className="flex flex-wrap items-center justify-between gap-3">
 						<div>
 							<p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Part C</p>
@@ -265,7 +265,7 @@ export function FoundersSection() {
 						<div
 							className={cn(
 								'rounded-xl border px-3 py-2 text-xs',
-								hasPrimaryFounder ? 'border-emerald-200 bg-emerald-50/90 text-emerald-800' : 'border-amber-200 bg-amber-50/90 text-amber-800'
+								hasPrimaryFounder ? 'border-emerald-800 bg-emerald-900/30 text-emerald-400' : 'border-amber-800 bg-amber-900/30 text-amber-400'
 							)}
 						>
 							<p className="font-semibold uppercase tracking-wide">Primary founder</p>
@@ -274,7 +274,7 @@ export function FoundersSection() {
 						<div
 							className={cn(
 								'rounded-xl border px-3 py-2 text-xs',
-								incompleteCount === 0 ? 'border-emerald-200 bg-emerald-50/90 text-emerald-800' : 'border-amber-200 bg-amber-50/90 text-amber-800'
+								incompleteCount === 0 ? 'border-emerald-800 bg-emerald-900/30 text-emerald-400' : 'border-amber-800 bg-amber-900/30 text-amber-400'
 							)}
 						>
 							<p className="font-semibold uppercase tracking-wide">Profile completion</p>
@@ -283,7 +283,7 @@ export function FoundersSection() {
 						<div
 							className={cn(
 								'rounded-xl border px-3 py-2 text-xs',
-								invalidEmailCount === 0 ? 'border-emerald-200 bg-emerald-50/90 text-emerald-800' : 'border-rose-200 bg-rose-50/90 text-rose-800'
+								invalidEmailCount === 0 ? 'border-emerald-800 bg-emerald-900/30 text-emerald-400' : 'border-rose-800 bg-rose-900/30 text-rose-400'
 							)}
 						>
 							<p className="font-semibold uppercase tracking-wide">Email format</p>

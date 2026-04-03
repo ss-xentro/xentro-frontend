@@ -63,7 +63,7 @@ export default function CookieConsent() {
 				<div className="flex items-center gap-2">
 					<button
 						onClick={handleOkay}
-						className="w-full px-4 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
+						className="w-full px-4 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-500/150 rounded-lg transition-colors"
 					>
 						Okay
 					</button>

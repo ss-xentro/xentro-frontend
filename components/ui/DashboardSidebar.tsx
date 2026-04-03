@@ -104,7 +104,7 @@ export function DashboardSidebar({ children, userType }: DashboardSidebarProps) 
       <div className="p-3 border-t border-(--border) space-y-1 shrink-0">
         <Link
           href="mailto:support@xentro.io"
-          className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg text-(--secondary) hover:bg-blue-50 hover:text-blue-600 transition-colors`}
+          className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg text-(--secondary) hover:bg-blue-500/15 hover:text-blue-600 transition-colors`}
           title={isCollapsed ? 'Support' : undefined}
         >
           {icons.support}
@@ -112,7 +112,7 @@ export function DashboardSidebar({ children, userType }: DashboardSidebarProps) 
         </Link>
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg text-(--secondary) hover:bg-red-50 hover:text-red-600 transition-colors`}
+          className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg text-(--secondary) hover:bg-red-500/15 hover:text-red-600 transition-colors`}
           title={isCollapsed ? 'Logout' : undefined}
         >
           {icons.logout}

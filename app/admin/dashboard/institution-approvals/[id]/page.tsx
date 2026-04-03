@@ -107,7 +107,7 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
     }
 
     return (
-      <div className="mb-6 bg-white p-4 rounded-lg border border-(--border)">
+      <div className="mb-6 bg-(--surface) p-4 rounded-lg border border-(--border)">
         <h4 className="text-xs font-bold text-(--secondary) uppercase tracking-wider mb-2">{label}</h4>
         <div className="text-base text-(--primary)">{displayValue}</div>
       </div>
@@ -201,7 +201,7 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200"
+                    className="w-full text-red-600 hover:text-red-700 hover:bg-red-500/15 border border-red-500/30"
                     disabled={submitting}
                     onClick={() => handleAction('rejected')}
                   >

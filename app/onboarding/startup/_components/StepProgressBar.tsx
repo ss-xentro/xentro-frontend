@@ -19,9 +19,9 @@ export function StepProgressBar({ currentStep }: StepProgressBarProps) {
 						className={cn(
 							'relative rounded-xl border px-3 py-2.5 sm:px-3.5 sm:py-3 transition-all duration-200',
 							isActive
-								? 'border-slate-900 bg-slate-100 shadow-[0_6px_16px_rgba(15,23,42,0.08)]'
+								? 'border-(--border-focus) bg-(--surface-pressed) shadow-[0_6px_16px_rgba(0,0,0,0.2)]'
 								: isCompleted
-									? 'border-slate-300 bg-slate-50'
+									? 'border-(--border-hover) bg-(--surface-hover)'
 									: 'border-(--border) bg-(--surface)'
 						)}
 					>
@@ -30,9 +30,9 @@ export function StepProgressBar({ currentStep }: StepProgressBarProps) {
 								className={cn(
 									'w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-semibold text-xs transition-all duration-200 shrink-0',
 									isActive
-										? 'bg-slate-900 text-white'
+										? 'bg-(--primary) text-(--background)'
 										: isCompleted
-											? 'bg-slate-700 text-white'
+											? 'bg-(--primary-light) text-(--background)'
 											: 'bg-(--surface-hover) text-(--secondary)'
 								)}
 							>

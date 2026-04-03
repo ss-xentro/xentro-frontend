@@ -61,7 +61,7 @@ export default function RecycleBinCard({ user, actionLoading, onRestore, onDelet
 				<Button
 					variant="ghost"
 					size="sm"
-					className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+					className="text-blue-600 hover:text-blue-700 hover:bg-blue-500/15"
 					onClick={() => onRestore(user.id, user.name)}
 					disabled={actionLoading === `restore-${user.id}`}
 				>
@@ -77,7 +77,7 @@ export default function RecycleBinCard({ user, actionLoading, onRestore, onDelet
 				<Button
 					variant="ghost"
 					size="sm"
-					className="text-red-600 hover:text-red-700 hover:bg-red-50"
+					className="text-red-600 hover:text-red-700 hover:bg-red-500/15"
 					onClick={() => onDelete(user.id, user.name)}
 					disabled={actionLoading === `delete-${user.id}`}
 				>

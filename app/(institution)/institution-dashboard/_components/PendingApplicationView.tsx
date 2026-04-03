@@ -29,7 +29,7 @@ export default function PendingApplicationView({
 				</div>
 
 				{application && !application.description && (
-					<div className="rounded-lg border border-amber-200 bg-amber-50 p-4" role="status">
+					<div className="rounded-lg border border-amber-500/30 bg-amber-50 p-4" role="status">
 						<div className="flex items-start gap-3">
 							<div className="mt-0.5">
 								<AppIcon name="hourglass" className="w-4 h-4 text-amber-700" />

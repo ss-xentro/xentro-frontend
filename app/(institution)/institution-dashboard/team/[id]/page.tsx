@@ -103,7 +103,7 @@ export default function TeamMemberDetailPage() {
 						Back to Team
 					</button>
 					{member.role !== 'admin' && (
-						<Button variant="ghost" className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/10" onClick={handleRemove} disabled={deleting}>
+						<Button variant="ghost" className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/150/10" onClick={handleRemove} disabled={deleting}>
 							{deleting ? 'Removing...' : 'Remove Member'}
 						</Button>
 					)}

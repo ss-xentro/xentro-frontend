@@ -91,13 +91,13 @@ export default function AdminAuditLogPage() {
 							aria-label="Search by action, user name, or email"
 							value={search}
 							onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-							className="w-full px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+							className="w-full px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-(--border-focus)"
 						/>
 					</div>
 					<select
 						value={entityType}
 						onChange={(e) => { setEntityType(e.target.value); setPage(1); }}
-						className="px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none bg-white"
+						className="px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none bg-(--surface)"
 					>
 						<option value="">All Entity Types</option>
 						<option value="startup">Startup</option>

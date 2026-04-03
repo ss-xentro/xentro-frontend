@@ -171,7 +171,7 @@ export default function MentorDetailPage() {
 						<Button onClick={() => router.push(`/institution-dashboard/mentors/${mentorId}/edit`)}>
 							Edit Mentor
 						</Button>
-						<Button variant="ghost" className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/10" onClick={handleDelete} disabled={deleting}>
+						<Button variant="ghost" className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/150/10" onClick={handleDelete} disabled={deleting}>
 							{deleting ? 'Removing...' : 'Delete'}
 						</Button>
 					</div>

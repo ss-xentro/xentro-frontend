@@ -149,7 +149,7 @@ export default function StartupDetailPage() {
 					</button>
 					<div className="flex items-center gap-2">
 						<Button onClick={() => router.push(`/institution-dashboard/startups/${startupId}/edit`)}>Edit Startup</Button>
-						<Button variant="ghost" className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/10" onClick={handleDelete} disabled={deleting}>
+						<Button variant="ghost" className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/150/10" onClick={handleDelete} disabled={deleting}>
 							{deleting ? 'Deleting...' : 'Delete'}
 						</Button>
 					</div>

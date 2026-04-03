@@ -66,7 +66,7 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 		<DashboardSidebar>
 			<div className="p-8 space-y-6 animate-fadeIn">
 				{institution && !institution.verified && (
-					<Card className="p-4 border border-amber-200 bg-amber-50">
+					<Card className="p-4 border border-amber-500/30 bg-amber-50">
 						<div className="flex items-start justify-between gap-3">
 							<div>
 								<p className="text-sm font-semibold text-amber-900">Verified badge review</p>

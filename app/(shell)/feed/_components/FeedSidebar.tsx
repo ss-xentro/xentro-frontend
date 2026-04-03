@@ -184,7 +184,7 @@ export default function FeedSidebar() {
 									{item.label}
 								</span>
 								{isCollapsed && (
-									<div className="absolute left-full ml-3 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+									<div className="absolute left-full ml-3 px-3 py-1.5 bg-(--surface-pressed) text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
 										{item.label}
 									</div>
 								)}
@@ -252,7 +252,7 @@ export default function FeedSidebar() {
 							<div className="my-1 h-px bg-(--border)" />
 							<button
 								onClick={handleLogout}
-								className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-sm"
+								className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/150/10 hover:text-red-300 transition-colors text-sm"
 							>
 								<svg
 									className="w-4 h-4 shrink-0"
@@ -309,7 +309,7 @@ export default function FeedSidebar() {
 						</svg>
 					)}
 					{isCollapsed && (
-						<div className="absolute left-full ml-3 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+						<div className="absolute left-full ml-3 px-3 py-1.5 bg-(--surface-pressed) text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
 							{user?.name ?? "Guest"}
 						</div>
 					)}

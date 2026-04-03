@@ -164,7 +164,7 @@ export default function TeamPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="flex-1 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/10"
+                        className="flex-1 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/150/10"
                         onClick={(e: React.MouseEvent) => { e.preventDefault(); handleRemove(member.id); }}
                       >
                         Remove

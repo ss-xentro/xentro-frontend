@@ -164,7 +164,7 @@ export default function MentorVerificationPage() {
                         variant="secondary"
                         onClick={() => handleDecision(row.user, 'reject')}
                         disabled={actionLoading === `${row.user}-reject`}
-                        className="text-red-600 hover:bg-red-50 border-red-200"
+                        className="text-red-600 hover:bg-red-500/15 border-red-500/30"
                       >
                         {actionLoading === `${row.user}-reject` ? 'Rejecting…' : 'Reject'}
                       </Button>

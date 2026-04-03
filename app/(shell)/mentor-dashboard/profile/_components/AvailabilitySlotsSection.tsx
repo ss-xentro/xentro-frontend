@@ -890,7 +890,7 @@ export default function AvailabilitySlotsSection({
 										onClick={() => removeSlot(editingIndex)}
 										className="
 											h-10 px-3 rounded-lg border border-red-500/25 text-red-400 text-sm
-											hover:bg-red-500/10 hover:border-red-500/40 transition-colors
+											hover:bg-red-500/150/10 hover:border-red-500/40 transition-colors
 										"
 									>
 										<svg

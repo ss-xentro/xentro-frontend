@@ -223,7 +223,7 @@ export default function DashboardPage() {
                     </Link>
                     <Link
                         href="/admin/dashboard/institutions"
-                        className="p-4 rounded-lg border border-(--border) hover:border-green-600 hover:bg-green-50 transition-all duration-200 group"
+                        className="p-4 rounded-lg border border-(--border) hover:border-green-600 hover:bg-green-500/15 transition-all duration-200 group"
                     >
                         <div className="w-10 h-10 rounded-md bg-green-50 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,7 +235,7 @@ export default function DashboardPage() {
                     </Link>
                     <Link
                         href="/explore/institute"
-                        className="p-4 rounded-lg border border-(--border) hover:border-amber-600 hover:bg-amber-50 transition-all duration-200 group"
+                        className="p-4 rounded-lg border border-(--border) hover:border-amber-600 hover:bg-amber-500/15 transition-all duration-200 group"
                     >
                         <div className="w-10 h-10 rounded-md bg-amber-50 text-amber-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

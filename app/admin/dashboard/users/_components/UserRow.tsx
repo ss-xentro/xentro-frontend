@@ -95,13 +95,13 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 					</button>
 
 					{menuOpen && (
-						<div className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-(--border) py-1 z-50">
+						<div className="absolute right-0 mt-1 w-40 bg-(--surface) rounded-lg shadow-lg border border-(--border) py-1 z-50">
 							<button
 								onClick={handleToggle}
 								disabled={toggling === user.id}
 								className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors disabled:opacity-50 ${user.isActive
-									? 'text-amber-600 hover:bg-amber-50'
-									: 'text-green-600 hover:bg-green-50'
+									? 'text-amber-600 hover:bg-amber-500/15'
+									: 'text-green-600 hover:bg-green-500/15'
 									}`}
 							>
 								{user.isActive ? (
@@ -138,7 +138,7 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 							) : (
 								<button
 									onClick={() => setConfirmDelete(true)}
-									className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+									className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-500/15 flex items-center gap-2 transition-colors"
 								>
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

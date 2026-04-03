@@ -114,14 +114,14 @@ export default function StartupOnboardingPage() {
     if (!isMounted) return null;
     if (isInitializingFlow) {
         return (
-            <div className="min-h-screen bg-linear-to-br from-(--surface-hover) via-white to-cyan-50/40 flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-(--surface-hover) via-(--background) to-(--surface-pressed)/40 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-(--surface-hover) via-white to-(--surface-pressed)/70 flex flex-col">
+        <div className="min-h-screen bg-linear-to-br from-(--surface-hover) via-(--background) to-(--surface-pressed)/70 flex flex-col">
             <OnboardingNavbar showLogout={isCompletionFlow} />
 
             <div className="flex-1 py-5 sm:py-7 px-3 sm:px-6 lg:px-8 xl:px-10">

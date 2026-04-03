@@ -63,7 +63,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 					onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('name', e.target.value)}
 					required
 					autoFocus
-					className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+					className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 				/>
 
 				<Textarea
@@ -72,7 +72,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 					rows={3}
 					value={form.description}
 					onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('description', e.target.value)}
-					className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+					className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 				/>
 
 				<div className="grid grid-cols-2 gap-4">
@@ -96,7 +96,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						placeholder="Virtual or physical venue"
 						value={form.location}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('location', e.target.value)}
-						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 					/>
 				</div>
 
@@ -106,7 +106,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						placeholder="ai_ml, fintech, healthtech..."
 						value={form.domain}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('domain', e.target.value)}
-						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 					/>
 					<div>
 						<label className="block text-xs font-medium text-(--secondary) mb-2">Mode</label>
@@ -123,9 +123,9 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 				</div>
 
 				<div className="grid grid-cols-3 gap-4">
-					<Input label="City" value={form.city} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('city', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500" />
-					<Input label="State" value={form.state} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('state', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500" />
-					<Input label="Country" value={form.country} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('country', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500" />
+					<Input label="City" value={form.city} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('city', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)" />
+					<Input label="State" value={form.state} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('state', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)" />
+					<Input label="Country" value={form.country} onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('country', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)" />
 				</div>
 
 				<div className="grid grid-cols-2 gap-4">
@@ -152,7 +152,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						placeholder="Leave empty for free event"
 						value={form.price}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('price', e.target.value)}
-						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 					/>
 					<Input
 						label="Available Seats - Optional"
@@ -161,7 +161,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						placeholder="Leave empty for unlimited"
 						value={form.maxAttendees}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('maxAttendees', e.target.value)}
-						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 					/>
 				</div>
 
@@ -202,14 +202,14 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						rows={3}
 						value={form.audienceTypes}
 						onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('audienceTypes', e.target.value)}
-						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 					/>
 					<Textarea
 						label="Startup Stages (one per line)"
 						rows={3}
 						value={form.startupStages}
 						onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('startupStages', e.target.value)}
-						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 					/>
 				</div>
 
@@ -219,7 +219,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 						rows={3}
 						value={form.benefits}
 						onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => set('benefits', e.target.value)}
-						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+						className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 					/>
 					<div className="space-y-4">
 						<div>
@@ -329,7 +329,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 							min="0"
 							value={form.cancellationCutoffHours}
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('cancellationCutoffHours', e.target.value)}
-							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 						/>
 
 						<details className="border-t border-(--border) pt-4">
@@ -347,7 +347,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 											placeholder="Enter speaker name"
 											value={speakerEntry}
 											onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSpeakerEntry(e.target.value)}
-											className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+											className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 										/>
 										<Button
 											type="button"
@@ -378,7 +378,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 											placeholder="Enter agenda item"
 											value={agendaEntry}
 											onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAgendaEntry(e.target.value)}
-											className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+											className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 										/>
 										<Button
 											type="button"
@@ -409,7 +409,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 											placeholder="Enter ticket type"
 											value={ticketEntry}
 											onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTicketEntry(e.target.value)}
-											className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+											className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 										/>
 										<Button
 											type="button"

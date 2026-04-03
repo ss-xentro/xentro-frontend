@@ -176,7 +176,7 @@ export default function EventWizardForm({
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('name', e.target.value)}
 							required
 							autoFocus
-							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 						/>
 
 						<Textarea
@@ -185,7 +185,7 @@ export default function EventWizardForm({
 							rows={4}
 							value={form.description}
 							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setField('description', e.target.value)}
-							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 						/>
 
 						<div className="grid gap-4 md:grid-cols-2">
@@ -209,7 +209,7 @@ export default function EventWizardForm({
 								placeholder="Venue name or Online"
 								value={form.location}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('location', e.target.value)}
-								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 							/>
 						</div>
 
@@ -219,7 +219,7 @@ export default function EventWizardForm({
 								placeholder="fintech, healthtech, ai_ml"
 								value={form.domain}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('domain', e.target.value)}
-								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 							/>
 							<div>
 								<label className="block text-xs font-medium text-(--secondary) mb-2">Mode</label>
@@ -236,9 +236,9 @@ export default function EventWizardForm({
 						</div>
 
 						<div className="grid gap-4 md:grid-cols-3">
-							<Input label="City" value={form.city} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('city', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500" />
-							<Input label="State" value={form.state} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('state', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500" />
-							<Input label="Country" value={form.country} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('country', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500" />
+							<Input label="City" value={form.city} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('city', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)" />
+							<Input label="State" value={form.state} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('state', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)" />
+							<Input label="Country" value={form.country} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('country', e.target.value)} className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)" />
 						</div>
 					</div>
 				)}
@@ -269,7 +269,7 @@ export default function EventWizardForm({
 								placeholder="Leave empty for free"
 								value={form.price}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('price', e.target.value)}
-								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 							/>
 							<Input
 								label="Available Seats"
@@ -278,7 +278,7 @@ export default function EventWizardForm({
 								placeholder="Leave empty for unlimited"
 								value={form.maxAttendees}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('maxAttendees', e.target.value)}
-								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 							/>
 						</div>
 
@@ -320,14 +320,14 @@ export default function EventWizardForm({
 								rows={4}
 								value={form.audienceTypes}
 								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setField('audienceTypes', e.target.value)}
-								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 							/>
 							<Textarea
 								label="Startup Stages (one per line)"
 								rows={4}
 								value={form.startupStages}
 								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setField('startupStages', e.target.value)}
-								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 							/>
 						</div>
 
@@ -336,7 +336,7 @@ export default function EventWizardForm({
 							rows={4}
 							value={form.benefits}
 							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setField('benefits', e.target.value)}
-							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 						/>
 					</div>
 				)}
@@ -407,14 +407,14 @@ export default function EventWizardForm({
 								rows={4}
 								value={form.speakerLineupJson}
 								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setField('speakerLineupJson', e.target.value)}
-								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 							/>
 							<Textarea
 								label="Agenda Items (one per line)"
 								rows={4}
 								value={form.agendaTimelineJson}
 								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setField('agendaTimelineJson', e.target.value)}
-								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+								className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 							/>
 						</div>
 
@@ -423,7 +423,7 @@ export default function EventWizardForm({
 							rows={3}
 							value={form.ticketTypesJson}
 							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setField('ticketTypesJson', e.target.value)}
-							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 						/>
 
 						<Input
@@ -432,7 +432,7 @@ export default function EventWizardForm({
 							min="0"
 							value={form.cancellationCutoffHours}
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('cancellationCutoffHours', e.target.value)}
-							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-gray-500"
+							className="bg-(--accent-subtle) border-(--border) text-(--primary) placeholder-(--secondary)"
 						/>
 					</div>
 				)}

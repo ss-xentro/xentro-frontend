@@ -73,7 +73,7 @@ export function InstitutionTable({ institutions, onDelete }: InstitutionTablePro
 										</Link>
 										<button
 											onClick={() => onDelete(institution.id, institution.name)}
-											className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+											className="p-2 text-red-600 hover:text-red-700 hover:bg-red-500/15 rounded-md transition-colors"
 											aria-label="Delete institution"
 										>
 											<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

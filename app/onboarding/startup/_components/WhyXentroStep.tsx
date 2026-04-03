@@ -30,8 +30,8 @@ export function WhyXentroStep({ selectedValues, otherText, onToggle, onOtherChan
 							<label className={cn(
 								'group flex h-full cursor-pointer rounded-xl border p-3 transition-all duration-200',
 								isSelected
-									? 'border-slate-900 bg-slate-100 shadow-[0_8px_24px_rgba(16,24,40,0.08)] ring-1 ring-slate-900/10'
-									: 'border-(--border) bg-(--surface) hover:-translate-y-0.5 hover:border-slate-400 hover:shadow-[0_8px_24px_rgba(16,24,40,0.06)]'
+									? 'border-(--border-focus) bg-(--surface-pressed) shadow-[0_8px_24px_rgba(0,0,0,0.2)] ring-1 ring-(--border-hover)'
+									: 'border-(--border) bg-(--surface) hover:-translate-y-0.5 hover:border-(--border-hover) hover:shadow-[0_8px_24px_rgba(0,0,0,0.15)]'
 							)}>
 								<input
 									type="checkbox"
@@ -44,8 +44,8 @@ export function WhyXentroStep({ selectedValues, otherText, onToggle, onOtherChan
 									<div className={cn(
 										'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors',
 										isSelected
-											? 'border-slate-700 bg-slate-700 text-white'
-											: 'border-(--border) bg-(--surface-secondary) text-(--secondary) group-hover:text-slate-800'
+											? 'border-(--border-focus) bg-(--surface-pressed) text-(--primary)'
+											: 'border-(--border) bg-(--surface-secondary) text-(--secondary) group-hover:text-(--primary)'
 									)}>
 										<AppIcon name={opt.icon} className="h-4 w-4" />
 									</div>
@@ -65,7 +65,7 @@ export function WhyXentroStep({ selectedValues, otherText, onToggle, onOtherChan
 											<div className={cn(
 												'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors',
 												isSelected
-													? 'border-slate-900 bg-slate-900 text-white'
+													? 'border-(--border-focus) bg-(--primary) text-(--background)'
 													: 'border-(--secondary-light) bg-(--surface) text-transparent'
 											)}>
 												<AppIcon name="check" className="h-3 w-3" />

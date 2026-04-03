@@ -16,7 +16,7 @@ export function HeaderBanner({ institution }: HeaderBannerProps) {
 		<div className="bg-(--surface) border-b border-(--border)">
 			<div className="container mx-auto px-4 py-8 md:py-12">
 				<div className="flex flex-col md:flex-row gap-8 items-start">
-					<div className="w-24 h-24 md:w-32 md:h-32 rounded-xl bg-white border border-(--border) p-4 shadow-sm flex items-center justify-center shrink-0">
+					<div className="w-24 h-24 md:w-32 md:h-32 rounded-xl bg-(--surface) border border-(--border) p-4 shadow-sm flex items-center justify-center shrink-0">
 						{institution.logo ? (
 							<img src={institution.logo} alt={institution.name} className="w-full h-full object-contain" />
 						) : (

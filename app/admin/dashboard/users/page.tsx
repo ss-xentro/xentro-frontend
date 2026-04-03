@@ -97,13 +97,13 @@ export default function AdminUsersPage() {
                             aria-label="Search by name or email"
                             value={search}
                             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                            className="w-full px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                            className="w-full px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-(--border-focus)"
                         />
                     </div>
                     <select
                         value={filterType}
                         onChange={(e) => { setFilterType(e.target.value); setPage(1); }}
-                        className="px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none bg-white"
+                        className="px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none bg-(--surface)"
                     >
                         <option value="">All Types</option>
                         {ACCOUNT_TYPES.map((t) => (
@@ -113,7 +113,7 @@ export default function AdminUsersPage() {
                     <select
                         value={filterStatus}
                         onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
-                        className="px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none bg-white"
+                        className="px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none bg-(--surface)"
                     >
                         <option value="">All Statuses</option>
                         <option value="active">Active</option>

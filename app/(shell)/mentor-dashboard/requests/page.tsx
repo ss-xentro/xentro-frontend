@@ -192,7 +192,7 @@ export default function MentorRequestsPage() {
 												<button
 													onClick={() => handleRespond(req.id, 'accepted')}
 													disabled={actionLoading === req.id}
-													className="px-4 py-2 text-xs font-medium rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors disabled:opacity-50"
+													className="px-4 py-2 text-xs font-medium rounded-lg bg-green-600 hover:bg-green-500/150 text-white transition-colors disabled:opacity-50"
 												>
 													{actionLoading === req.id ? 'Processing...' : 'Accept'}
 												</button>

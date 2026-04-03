@@ -175,7 +175,7 @@ export default function InvestorApprovalsPage() {
                                 <div className="flex flex-col gap-2 border-t pt-3">
                                     <label className="text-sm font-medium text-(--primary-light)">Rejection remark <span className="text-red-500">*</span></label>
                                     <textarea
-                                        className="w-full border border-(--border-hover) rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 resize-none"
+                                        className="w-full border border-(--border-hover) rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-(--border-focus) resize-none"
                                         rows={2}
                                         placeholder="Explain why this application is being rejected…"
                                         value={remark}

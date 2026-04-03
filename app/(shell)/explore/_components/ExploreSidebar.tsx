@@ -150,7 +150,7 @@ export default function ExploreSidebar() {
 								aria-label="Search explore"
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
-								className="w-full px-4 py-2.5 pl-10 bg-(--accent-subtle) border border-(--border) rounded-xl text-(--primary) placeholder-gray-500 text-sm focus:outline-none focus:border-blue-500/50 focus:bg-(--accent-subtle) transition-all duration-200"
+								className="w-full px-4 py-2.5 pl-10 bg-(--accent-subtle) border border-(--border) rounded-xl text-(--primary) placeholder-(--secondary) text-sm focus:outline-none focus:border-blue-500/50 focus:bg-(--accent-subtle) transition-all duration-200"
 							/>
 							<svg
 								className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-(--secondary-light)"
@@ -201,7 +201,7 @@ export default function ExploreSidebar() {
 									{item.label}
 								</span>
 								{isCollapsed && (
-									<div className="absolute left-full ml-3 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+									<div className="absolute left-full ml-3 px-3 py-1.5 bg-(--surface-pressed) text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
 										{item.label}
 									</div>
 								)}
@@ -270,7 +270,7 @@ export default function ExploreSidebar() {
 							{isAuthenticated ? (
 								<button
 									onClick={handleLogout}
-									className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-sm"
+									className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/150/10 hover:text-red-300 transition-colors text-sm"
 								>
 									<svg
 										className="w-4 h-4 shrink-0"
@@ -291,7 +291,7 @@ export default function ExploreSidebar() {
 								<Link
 									href="/join"
 									onClick={() => setProfileOpen(false)}
-									className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 transition-colors text-sm"
+									className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-blue-400 hover:bg-blue-500/150/10 hover:text-blue-300 transition-colors text-sm"
 								>
 									<svg
 										className="w-4 h-4 shrink-0"
@@ -349,7 +349,7 @@ export default function ExploreSidebar() {
 						</svg>
 					)}
 					{isCollapsed && (
-						<div className="absolute left-full ml-3 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+						<div className="absolute left-full ml-3 px-3 py-1.5 bg-(--surface-pressed) text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
 							{user?.name ?? "Guest"}
 						</div>
 					)}

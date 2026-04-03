@@ -26,7 +26,7 @@ export default function StartupCard({ startup, deleting, onDelete }: StartupCard
 				<div className="flex items-center gap-1">
 					<button
 						onClick={(e) => { e.stopPropagation(); router.push(`/institution-dashboard/startups/${startup.id}/edit`); }}
-						className="p-2 text-(--secondary) hover:text-blue-600 dark:hover:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
+						className="p-2 text-(--secondary) hover:text-blue-600 dark:hover:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-500/150/10 rounded-lg transition-colors"
 						aria-label="Edit startup"
 					>
 						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,7 +36,7 @@ export default function StartupCard({ startup, deleting, onDelete }: StartupCard
 					<button
 						onClick={(e) => { e.stopPropagation(); onDelete(startup.id); }}
 						disabled={deleting}
-						className="p-2 text-(--secondary) hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+						className="p-2 text-(--secondary) hover:text-red-400 hover:bg-red-500/150/10 rounded-lg transition-colors disabled:opacity-50"
 						aria-label="Delete startup"
 					>
 						{deleting ? (

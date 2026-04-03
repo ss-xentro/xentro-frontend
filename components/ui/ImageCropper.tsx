@@ -607,7 +607,7 @@ export function ImageCropper({
                 [&::-webkit-slider-thumb]:w-[18px]
                 [&::-webkit-slider-thumb]:h-[18px]
                 [&::-webkit-slider-thumb]:rounded-full
-                [&::-webkit-slider-thumb]:bg-white
+                [&::-webkit-slider-thumb]:bg-(--surface)
                 [&::-webkit-slider-thumb]:shadow-sm
                 [&::-webkit-slider-thumb]:cursor-grab
                 [&::-webkit-slider-thumb]:active:cursor-grabbing
@@ -616,7 +616,7 @@ export function ImageCropper({
                 [&::-moz-range-thumb]:w-[18px]
                 [&::-moz-range-thumb]:h-[18px]
                 [&::-moz-range-thumb]:rounded-full
-                [&::-moz-range-thumb]:bg-white
+                [&::-moz-range-thumb]:bg-(--surface)
                 [&::-moz-range-thumb]:border-0
                 [&::-moz-range-thumb]:cursor-grab
               "

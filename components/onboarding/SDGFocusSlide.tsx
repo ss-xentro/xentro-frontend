@@ -64,7 +64,7 @@ export default function SDGFocusSlide({ value, onChange, className }: SDGFocusSl
                                     {fullName.split(' ').slice(0, 3).join(' ')}
                                 </span>
                                 {isSelected && (
-                                    <div className="absolute top-1 right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                                    <div className="absolute top-1 right-1 w-6 h-6 bg-(--surface) rounded-full flex items-center justify-center">
                                         <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </svg>

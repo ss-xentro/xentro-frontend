@@ -105,7 +105,7 @@ export default function InvestorDashboardPage() {
 
             {/* Status Banner */}
             {profile?.status === 'pending' && (
-                <div className="rounded-xl px-5 py-3 bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm">
+                <div className="rounded-xl px-5 py-3 bg-yellow-50 border border-yellow-500/30 text-yellow-800 text-sm">
                     Your investor profile is under review. You&apos;ll receive an email once approved.
                 </div>
             )}

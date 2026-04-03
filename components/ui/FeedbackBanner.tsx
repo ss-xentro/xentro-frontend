@@ -15,7 +15,7 @@ interface FeedbackBannerProps {
 const config: Record<FeedbackType, { bg: string; border: string; text: string; titleText: string; icon: React.ReactNode }> = {
 	success: {
 		bg: 'bg-green-50',
-		border: 'border-green-200',
+		border: 'border-green-500/30',
 		text: 'text-green-700',
 		titleText: 'text-green-800',
 		icon: (
@@ -26,7 +26,7 @@ const config: Record<FeedbackType, { bg: string; border: string; text: string; t
 	},
 	error: {
 		bg: 'bg-red-50',
-		border: 'border-red-200',
+		border: 'border-red-500/30',
 		text: 'text-red-700',
 		titleText: 'text-red-800',
 		icon: (
@@ -37,7 +37,7 @@ const config: Record<FeedbackType, { bg: string; border: string; text: string; t
 	},
 	warning: {
 		bg: 'bg-amber-50',
-		border: 'border-amber-200',
+		border: 'border-amber-500/30',
 		text: 'text-amber-700',
 		titleText: 'text-amber-800',
 		icon: (
@@ -106,8 +106,8 @@ export function InlineFeedback({ type, message, className }: { type: 'success' |
 			className={cn(
 				'rounded-lg px-4 py-3 text-sm border',
 				type === 'success'
-					? 'border-green-200 bg-green-50 text-green-700'
-					: 'border-red-200 bg-red-50 text-red-700',
+					? 'border-green-500/30 bg-green-50 text-green-700'
+					: 'border-red-500/30 bg-red-50 text-red-700',
 				className
 			)}
 		>

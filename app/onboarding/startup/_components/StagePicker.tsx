@@ -23,14 +23,14 @@ export function StagePicker({ selectedStage, onSelect }: StagePickerProps) {
 						className={cn(
 							'p-4 rounded-xl border text-left transition-all duration-200 group',
 							isSelected
-								? 'border-slate-900 bg-slate-100 ring-2 ring-slate-300/60'
-								: 'border-(--border) hover:border-slate-400 hover:bg-(--surface-hover)'
+								? 'border-(--border-focus) bg-(--surface-pressed) ring-2 ring-(--border-hover)'
+								: 'border-(--border) hover:border-(--border-hover) hover:bg-(--surface-hover)'
 						)}
 					>
 						<div className="flex items-center gap-3">
 							<div className={cn(
 								'flex h-9 w-9 items-center justify-center rounded-lg border',
-								isSelected ? 'border-slate-700 bg-slate-700 text-white' : 'border-(--border) bg-(--surface-secondary) text-(--secondary)'
+								isSelected ? 'border-(--border-focus) bg-(--surface-pressed) text-(--primary)' : 'border-(--border) bg-(--surface-secondary) text-(--secondary)'
 							)}>
 								<AppIcon name={opt.icon} className="w-4 h-4" />
 							</div>

@@ -274,7 +274,7 @@ export default function LegalDocumentsSlide({
 								</div>
 								<button
 									onClick={() => handleRemoveDocument(index)}
-									className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+									className="p-2 text-red-600 hover:bg-red-500/15 rounded-lg transition-colors"
 									aria-label="Remove document"
 								>
 									<svg
@@ -298,7 +298,7 @@ export default function LegalDocumentsSlide({
 			)}
 
 			{/* Info Note */}
-			<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+			<div className="bg-yellow-50 border border-yellow-500/30 rounded-lg p-4">
 				<p className="text-yellow-900 text-sm flex items-start gap-2">
 					<svg
 						className="w-5 h-5 shrink-0 mt-0.5"
