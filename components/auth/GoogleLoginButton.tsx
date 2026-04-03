@@ -40,7 +40,6 @@ export function GoogleLoginButton({ onSuccess, onError, isLoading }: GoogleLogin
         onError={() => {
           onError?.('Google Login Failed');
         }}
-        useOneTap
         theme={googleTheme}
         size="large"
         width="100%"
