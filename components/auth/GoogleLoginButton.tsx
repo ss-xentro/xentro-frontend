@@ -1,5 +1,6 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
 
 interface GoogleLoginButtonProps {
   onSuccess: (idToken: string, nonce: string) => void;
@@ -15,10 +16,15 @@ function generateNonce(): string {
 
 export function GoogleLoginButton({ onSuccess, onError, isLoading }: GoogleLoginButtonProps) {
   const [nonce, setNonce] = useState('');
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setNonce(generateNonce());
+    setMounted(true);
   }, []);
+
+  const googleTheme = mounted && resolvedTheme === 'light' ? 'outline' : 'filled_black';
 
   return (
     <div className={`w-full flex justify-center ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -35,7 +41,7 @@ export function GoogleLoginButton({ onSuccess, onError, isLoading }: GoogleLogin
           onError?.('Google Login Failed');
         }}
         useOneTap
-        theme="outline"
+        theme={googleTheme}
         size="large"
         width="100%"
         text="continue_with"
