@@ -71,7 +71,7 @@ export default function ProfilePage() {
                 <h2 className="text-lg font-semibold">Account</h2>
                 <p className="text-sm text-(--secondary)">Basics we know about you.</p>
               </div>
-              {joinState?.verified && <Badge className="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200">Verified</Badge>}
+              {joinState?.verified && <Badge className="bg-green-500/20 text-green-200">Verified</Badge>}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
               <div className="p-3 rounded-lg border border-(--border) bg-(--surface)">

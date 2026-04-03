@@ -47,11 +47,11 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_COLORS: Record<string, string> = {
-	startup: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200',
-	institution: 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200',
-	mentor: 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200',
-	investor: 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-200',
-	event: 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-200',
+	startup: 'bg-blue-500/20 text-blue-200',
+	institution: 'bg-purple-500/20 text-purple-200',
+	mentor: 'bg-green-500/20 text-green-200',
+	investor: 'bg-amber-500/20 text-amber-200',
+	event: 'bg-rose-500/20 text-rose-200',
 };
 
 const TYPE_ICONS: Record<string, string> = {

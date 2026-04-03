@@ -129,7 +129,7 @@ export function TeamTabContent({ startup }: TeamTabContentProps) {
 					<h3 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">Team</h3>
 					<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 						{combinedTeam.map((member) => (
-							<div key={member.id} className="rounded-2xl border border-(--border) bg-linear-to-b from-(--surface) to-white p-5 text-center shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md">
+							<div key={member.id} className="rounded-2xl border border-(--border) bg-linear-to-b from-(--surface) to-(--surface-hover) p-5 text-center shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md">
 								<div className="flex justify-center mb-4">
 									<div className="h-28 w-28 rounded-full border-2 border-(--border) overflow-hidden bg-(--surface-hover)">
 										{member.avatar ? (

@@ -9,9 +9,9 @@ import { AppIcon } from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-200',
-  approved: 'bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-200',
-  rejected: 'bg-red-100 dark:bg-red-500/20 text-red-800 dark:text-red-200',
+  pending: 'bg-yellow-500/20 text-yellow-200',
+  approved: 'bg-green-500/20 text-green-200',
+  rejected: 'bg-red-500/20 text-red-200',
 };
 
 export default function InstitutionApprovalsPage() {

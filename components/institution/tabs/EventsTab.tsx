@@ -9,7 +9,7 @@ export default function EventsTab({ events }: { events: Event[] }) {
 				<div className="space-y-4">
 					{events.map((event) => (
 						<Card key={event.id} className="flex gap-4 p-6 bg-(--accent-subtle) border-(--border) border" hoverable>
-							<div className="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center text-violet-700 dark:text-violet-300 shrink-0 font-bold text-center leading-none">
+							<div className="w-12 h-12 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-300 shrink-0 font-bold text-center leading-none">
 								<div>
 									<span className="block text-xs uppercase">{event.startTime ? new Date(event.startTime).toLocaleString('default', { month: 'short' }) : '--'}</span>
 									<span className="block text-xl">{event.startTime ? new Date(event.startTime).getDate() : '--'}</span>

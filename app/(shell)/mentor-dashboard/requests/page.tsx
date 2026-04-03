@@ -111,7 +111,7 @@ export default function MentorRequestsPage() {
 						>
 							{f.charAt(0).toUpperCase() + f.slice(1)}
 							{f === 'pending' && pendingCount > 0 && (
-								<span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-accent text-white rounded-full">
+								<span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-accent text-(--background) rounded-full">
 									{pendingCount}
 								</span>
 							)}
@@ -192,7 +192,7 @@ export default function MentorRequestsPage() {
 												<button
 													onClick={() => handleRespond(req.id, 'accepted')}
 													disabled={actionLoading === req.id}
-													className="px-4 py-2 text-xs font-medium rounded-lg bg-green-600 hover:bg-green-500/150 text-white transition-colors disabled:opacity-50"
+													className="px-4 py-2 text-xs font-medium rounded-lg bg-green-600 hover:bg-green-600 text-white transition-colors disabled:opacity-50"
 												>
 													{actionLoading === req.id ? 'Processing...' : 'Accept'}
 												</button>

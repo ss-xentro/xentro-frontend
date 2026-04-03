@@ -9,10 +9,10 @@ import { getSessionToken } from '@/lib/auth-utils';
 import { toast } from 'sonner';
 
 const statusLabels: Record<string, { label: string; color: string }> = {
-  planning: { label: 'Planning', color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200' },
-  active: { label: 'Active', color: 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200' },
+  planning: { label: 'Planning', color: 'bg-blue-500/20 text-blue-200' },
+  active: { label: 'Active', color: 'bg-green-500/20 text-green-200' },
   completed: { label: 'Completed', color: 'bg-(--accent-light) text-(--primary-light)' },
-  'on-hold': { label: 'On Hold', color: 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-200' },
+  'on-hold': { label: 'On Hold', color: 'bg-yellow-500/20 text-yellow-200' },
 };
 
 export default function ProjectsPage() {
@@ -170,7 +170,7 @@ export default function ProjectsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="flex-1 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/150/10"
+                      className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                       onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(project.id); }}
                       disabled={isOptimistic}
                     >

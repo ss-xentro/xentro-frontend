@@ -202,15 +202,15 @@ export default function MentorsPage() {
                   <Card key={endorsement.id} className="p-5 bg-(--accent-subtle) border border-(--border)">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-semibold text-blue-300">
                             {endorsement.requesterName?.charAt(0)?.toUpperCase() || '?'}
                           </span>
                         </div>
                         <div>
                           <h4 className="font-semibold text-(--primary)">{endorsement.requesterName}</h4>
                           <p className="text-xs text-(--secondary)">{endorsement.requesterEmail}</p>
-                          <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded capitalize">
+                          <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-300 rounded capitalize">
                             {endorsement.entityType}
                           </span>
                           {endorsement.message && (

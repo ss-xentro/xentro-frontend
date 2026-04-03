@@ -270,7 +270,7 @@ export default function ExploreSidebar() {
 							{isAuthenticated ? (
 								<button
 									onClick={handleLogout}
-									className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/150/10 hover:text-red-300 transition-colors text-sm"
+									className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-sm"
 								>
 									<svg
 										className="w-4 h-4 shrink-0"
@@ -291,7 +291,7 @@ export default function ExploreSidebar() {
 								<Link
 									href="/join"
 									onClick={() => setProfileOpen(false)}
-									className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-blue-400 hover:bg-blue-500/150/10 hover:text-blue-300 transition-colors text-sm"
+									className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 transition-colors text-sm"
 								>
 									<svg
 										className="w-4 h-4 shrink-0"

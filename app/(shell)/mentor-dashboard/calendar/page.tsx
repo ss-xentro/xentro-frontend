@@ -135,13 +135,13 @@ export default function MentorCalendarPage() {
           <div className="flex bg-(--surface) border border-(--border) rounded-lg overflow-hidden">
             <button
               onClick={() => setView('week')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${view === 'week' ? 'bg-accent text-white' : 'text-(--secondary) hover:bg-(--surface-hover)'}`}
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${view === 'week' ? 'bg-accent text-(--background)' : 'text-(--secondary) hover:bg-(--surface-hover)'}`}
             >
               Week
             </button>
             <button
               onClick={() => setView('availability')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${view === 'availability' ? 'bg-accent text-white' : 'text-(--secondary) hover:bg-(--surface-hover)'}`}
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${view === 'availability' ? 'bg-accent text-(--background)' : 'text-(--secondary) hover:bg-(--surface-hover)'}`}
             >
               Availability
             </button>

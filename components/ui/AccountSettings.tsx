@@ -308,7 +308,7 @@ export default function AccountSettings({
 											<button
 												type="button"
 												onClick={() => setAvatar("")}
-												className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg text-red-400 hover:bg-red-500/150/10 transition-colors"
+												className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
 											>
 												Remove
 											</button>

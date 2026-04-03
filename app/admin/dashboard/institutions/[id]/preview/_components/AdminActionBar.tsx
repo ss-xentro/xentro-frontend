@@ -40,7 +40,7 @@ export function AdminActionBar({ status, updating, onApprove, onReject }: AdminA
 								size="sm"
 								onClick={onReject}
 								disabled={updating}
-								className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/20"
+								className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
 							>
 								Reject
 							</Button>

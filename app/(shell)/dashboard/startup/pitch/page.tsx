@@ -352,10 +352,10 @@ export default function PitchEditorPage() {
 							<button
 								type="button"
 								onClick={() => setIsCreatingStep(true)}
-								className="mt-2 w-full rounded-xl border border-dashed border-gray-400/70 bg-(--surface-hover)/40 px-3 py-3 text-left transition-colors hover:bg-(--surface-hover)"
+								className="mt-2 w-full rounded-xl border border-dashed border-(--border-hover)/70 bg-(--surface-hover)/40 px-3 py-3 text-left transition-colors hover:bg-(--surface-hover)"
 							>
 								<div className="flex items-start gap-3">
-									<span className="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full border border-gray-400/70 text-(--secondary)">
+									<span className="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full border border-(--border-hover)/70 text-(--secondary)">
 										<PlusIcon />
 									</span>
 									<div className="min-w-0">
@@ -390,7 +390,7 @@ export default function PitchEditorPage() {
 							<button
 								type="button"
 								onClick={() => setIsCreatingStep(true)}
-								className="flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg border border-dashed border-gray-400/70 text-(--secondary) min-w-20 hover:bg-(--surface-hover) transition-colors"
+								className="flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg border border-dashed border-(--border-hover)/70 text-(--secondary) min-w-20 hover:bg-(--surface-hover) transition-colors"
 							>
 								<PlusIcon />
 								<span className="text-[10px] font-medium">New Section</span>

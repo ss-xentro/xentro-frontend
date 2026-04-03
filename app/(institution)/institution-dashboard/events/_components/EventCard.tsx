@@ -42,7 +42,7 @@ export default function EventCard({ event, onEdit, onDelete }: EventCardProps) {
 				<div className="flex-1 min-w-0">
 					{!event.coverImage && <h3 className="font-semibold text-(--primary) truncate">{event.name}</h3>}
 					{!event.coverImage && event.type && (
-						<span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300">
+						<span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-violet-500/20 text-violet-300">
 							{event.type}
 						</span>
 					)}
@@ -50,7 +50,7 @@ export default function EventCard({ event, onEdit, onDelete }: EventCardProps) {
 				{!event.coverImage && (
 					<span className={cn(
 						'px-2 py-0.5 text-xs rounded-full font-medium',
-						event.approved ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300' : 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300'
+						event.approved ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'
 					)}>
 						{event.approved ? 'Approved' : 'Pending'}
 					</span>

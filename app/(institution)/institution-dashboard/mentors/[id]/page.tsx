@@ -171,7 +171,7 @@ export default function MentorDetailPage() {
 						<Button onClick={() => router.push(`/institution-dashboard/mentors/${mentorId}/edit`)}>
 							Edit Mentor
 						</Button>
-						<Button variant="ghost" className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/150/10" onClick={handleDelete} disabled={deleting}>
+						<Button variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={handleDelete} disabled={deleting}>
 							{deleting ? 'Removing...' : 'Delete'}
 						</Button>
 					</div>
@@ -192,14 +192,14 @@ export default function MentorDetailPage() {
 							{mentor.occupation && <p className="text-(--primary-light) mt-1">{mentor.occupation}</p>}
 							{mentor.user_email && <p className="text-sm text-(--secondary) mt-1">{mentor.user_email}</p>}
 							<div className="flex items-center gap-3 mt-3">
-								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.verified ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200' : 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-200'}`}>
+								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.verified ? 'bg-green-500/20 text-green-200' : 'bg-yellow-500/20 text-yellow-200'}`}>
 									{mentor.verified ? 'Verified' : 'Pending'}
 								</span>
-								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.status === 'approved' || mentor.status === 'active' ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200' : 'bg-(--accent-light) text-(--primary)'}`}>
+								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.status === 'approved' || mentor.status === 'active' ? 'bg-blue-500/20 text-blue-200' : 'bg-(--accent-light) text-(--primary)'}`}>
 									{mentor.status}
 								</span>
 								{mentor.profile_completed && (
-									<span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200">
+									<span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-200">
 										Profile Complete
 									</span>
 								)}
@@ -223,7 +223,7 @@ export default function MentorDetailPage() {
 						<h3 className="text-sm font-semibold text-(--primary) mb-3">Expertise Areas</h3>
 						<div className="flex flex-wrap gap-2">
 							{expertiseList.map((exp, idx) => (
-								<span key={idx} className="px-3 py-1 text-sm font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200 rounded-full">{exp}</span>
+								<span key={idx} className="px-3 py-1 text-sm font-medium bg-blue-500/20 text-blue-200 rounded-full">{exp}</span>
 							))}
 						</div>
 					</Card>

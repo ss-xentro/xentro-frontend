@@ -560,7 +560,7 @@ export default function MentorProfilePage() {
 									<button
 										type="button"
 										onClick={() => removePricingPlan(idx)}
-										className="w-6 h-6 rounded-lg hover:bg-red-500/150/10 flex items-center justify-center text-red-400 transition-colors"
+										className="w-6 h-6 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-red-400 transition-colors"
 									>
 										<svg
 											className="w-3.5 h-3.5"
@@ -644,7 +644,7 @@ export default function MentorProfilePage() {
 												<button
 													type="button"
 													onClick={() => removePerk(idx, perkIdx)}
-													className="w-6 h-6 rounded-lg hover:bg-red-500/150/10 flex items-center justify-center text-red-400 shrink-0 transition-colors"
+													className="w-6 h-6 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-red-400 shrink-0 transition-colors"
 												>
 													<svg
 														className="w-3 h-3"

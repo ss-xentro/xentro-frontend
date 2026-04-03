@@ -339,7 +339,7 @@ export default function AdminEventsPage() {
 												<h3 className="font-semibold text-(--primary)">{event.name}</h3>
 												<p className="text-xs text-(--primary)/80 mt-1">by {event.organizerName || 'Xentro'}</p>
 											</div>
-											<span className={`text-xs px-2 py-1 rounded border ${event.approved ? 'bg-green-100 dark:bg-green-500/25 text-green-700 dark:text-green-100 border-green-500/30 dark:border-green-500/30/30' : 'bg-yellow-100 dark:bg-yellow-500/25 text-yellow-700 dark:text-yellow-100 border-yellow-500/30 dark:border-yellow-500/30/30'}`}>
+											<span className={`text-xs px-2 py-1 rounded border ${event.approved ? 'bg-green-500/25 text-green-100 border-green-500/30' : 'bg-yellow-500/25 text-yellow-100 border-yellow-500/30'}`}>
 												{event.approved ? 'Approved' : 'Pending'}
 											</span>
 										</div>
@@ -353,7 +353,7 @@ export default function AdminEventsPage() {
 									{!event.coverImage && <p className="text-xs text-(--secondary) mt-1">by {event.organizerName || 'Xentro'}</p>}
 								</div>
 								{!event.coverImage && (
-									<span className={`text-xs px-2 py-1 rounded ${event.approved ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200' : 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-200'}`}>
+									<span className={`text-xs px-2 py-1 rounded ${event.approved ? 'bg-green-500/20 text-green-200' : 'bg-yellow-500/20 text-yellow-200'}`}>
 										{event.approved ? 'Approved' : 'Pending'}
 									</span>
 								)}

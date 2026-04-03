@@ -116,7 +116,7 @@ export default function JoinPage() {
                       {role.title}
                     </h3>
 
-                    <p className={`text-[10px] sm:text-xs md:text-sm mb-0 md:mb-6 flex-1 leading-snug ${selectedRole === role.id ? 'text-(--primary-light)' : 'text-(--secondary-light)'}`}>
+                    <p className={`text-[10px] sm:text-xs md:text-sm mb-0 md:mb-6 flex-1 leading-snug ${selectedRole === role.id ? 'text-(--secondary-light)' : 'text-(--secondary-light)'}`}>
                       {role.description}
                     </p>
 
@@ -125,7 +125,7 @@ export default function JoinPage() {
                         e.stopPropagation();
                         router.push(PURPOSE_DESTINATIONS[role.id]);
                       }}
-                      className={`hidden md:flex items-center text-sm group-hover:translate-x-1 transition-transform duration-200 cursor-pointer hover:opacity-80 ${selectedRole === role.id ? 'text-(--primary-light)' : 'text-(--primary-light)'}`}
+                      className={`hidden md:flex items-center text-sm group-hover:translate-x-1 transition-transform duration-200 cursor-pointer hover:opacity-80 ${selectedRole === role.id ? 'text-(--secondary-light)' : 'text-(--primary-light)'}`}
                     >
                       <span className="mr-2">Continue</span>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>

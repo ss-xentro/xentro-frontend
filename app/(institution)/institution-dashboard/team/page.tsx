@@ -20,9 +20,9 @@ interface TeamMember {
 }
 
 const roleColors: Record<string, string> = {
-  admin: 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200',
-  manager: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-200',
-  ambassador: 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-200',
+  admin: 'bg-purple-500/20 text-purple-200',
+  manager: 'bg-blue-500/20 text-blue-200',
+  ambassador: 'bg-green-500/20 text-green-200',
   viewer: 'bg-(--accent-light) text-(--primary-light)',
 };
 
@@ -134,7 +134,7 @@ export default function TeamPage() {
                 <Card className="p-6 bg-(--accent-subtle) border-(--border) hover:border-(--border-hover) transition-colors">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center text-xl font-bold text-violet-700 dark:text-violet-300">
+                      <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center text-xl font-bold text-violet-300">
                         {member.userName?.[0]?.toUpperCase() || '?'}
                       </div>
                       <div>
@@ -164,7 +164,7 @@ export default function TeamPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="flex-1 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/150/10"
+                        className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                         onClick={(e: React.MouseEvent) => { e.preventDefault(); handleRemove(member.id); }}
                       >
                         Remove

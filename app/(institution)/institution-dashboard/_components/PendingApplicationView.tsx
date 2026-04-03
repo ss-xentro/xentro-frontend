@@ -56,10 +56,10 @@ export default function PendingApplicationView({
 								<p className="text-xs text-(--secondary) mt-1">Email: {application.email}</p>
 							</div>
 							<span className={`text-sm px-3 py-1.5 rounded-full font-medium ${application.status === 'approved'
-								? 'bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-200'
+								? 'bg-green-500/20 text-green-200'
 								: application.status === 'rejected'
-									? 'bg-red-100 dark:bg-red-500/20 text-red-800 dark:text-red-200'
-									: 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-200'
+									? 'bg-red-500/20 text-red-200'
+									: 'bg-yellow-500/20 text-yellow-200'
 								}`}>
 								{application.status === 'approved' ? <><AppIcon name="check" className="w-3.5 h-3.5 inline" /> Approved</> : application.status === 'rejected' ? <><AppIcon name="x" className="w-3.5 h-3.5 inline" /> Rejected</> : <><AppIcon name="hourglass" className="w-3.5 h-3.5 inline" /> Pending Review</>}
 							</span>

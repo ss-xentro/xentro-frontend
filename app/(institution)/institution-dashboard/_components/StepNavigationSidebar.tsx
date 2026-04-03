@@ -66,7 +66,7 @@ export default function StepNavigationSidebar({
 										className={`
 											w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold border transition-colors
 											${isCurrent
-												? 'bg-accent text-white border-accent'
+												? 'bg-accent text-(--background) border-accent'
 												: completed
 													? 'bg-green-500 text-white border-green-500'
 													: 'bg-(--surface) text-(--secondary) border-(--border) hover:bg-(--surface-hover)'
@@ -122,7 +122,7 @@ export default function StepNavigationSidebar({
 										className={`
                       shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold border transition-colors
                       ${isCurrent
-												? 'bg-accent text-white border-accent'
+												? 'bg-accent text-(--background) border-accent'
 												: completed
 													? 'bg-green-500 text-white border-green-500'
 													: 'bg-(--surface) text-(--secondary) border-(--border)'

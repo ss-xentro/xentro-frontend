@@ -63,7 +63,7 @@ export default function SectorFocusSlide({ value, onChange, className }: SectorF
                                 <AppIcon name={icon} className={cn('w-5 h-5 shrink-0', isExpanded ? 'text-accent' : 'text-(--secondary)')} />
                                 <span className="font-medium text-sm flex-1 text-(--primary)">{label}</span>
                                 {selectedCount > 0 && (
-                                    <span className="text-xs font-semibold bg-accent text-white rounded-full px-2 py-0.5">
+                                    <span className="text-xs font-semibold bg-accent text-(--background) rounded-full px-2 py-0.5">
                                         {selectedCount}
                                     </span>
                                 )}
