@@ -158,11 +158,11 @@ export default function InstitutionOnboardingPage() {
             {step === 1 && (
               <div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
                 <div className="text-center space-y-2 mb-6">
-                  <h2 className="text-xl font-semibold text-(--primary)">Tell us about yourself</h2>
+                  <h2 className="text-xl font-semibold text-(--primary)">Hello Admin, Tell us about yourself</h2>
                   <p className="text-sm text-(--secondary)">As the institution admin, we need your personal details.</p>
                 </div>
                 <Input
-                  label="Your Full Name"
+                  label="Admin Name"
                   value={adminName}
                   onChange={(e) => setAdminName(e.target.value)}
                   required
@@ -171,7 +171,7 @@ export default function InstitutionOnboardingPage() {
                   aria-required="true"
                 />
                 <Input
-                  label="Phone Number (optional)"
+                  label="Admin Phone Number (optional)"
                   type="tel"
 
                   value={adminPhone}
