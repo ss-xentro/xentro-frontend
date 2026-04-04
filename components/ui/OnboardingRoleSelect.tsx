@@ -3,9 +3,9 @@
 export type OnboardingRole = 'startup' | 'institution' | 'mentor';
 
 const ROLE_LABELS: Record<OnboardingRole, string> = {
-	startup: 'a Startup',
-	institution: 'an Institution',
-	mentor: 'a Mentor',
+	startup: 'Startup',
+	institution: 'Institution',
+	mentor: 'Mentor',
 };
 
 interface OnboardingRoleSelectProps {
@@ -17,7 +17,7 @@ interface OnboardingRoleSelectProps {
 
 export function OnboardingRoleSelect({ current, onChange, className }: OnboardingRoleSelectProps) {
 	return (
-		<span className={className}>
+		<span className={className} >
 			Join as{' '}
 			<select
 				value={current}

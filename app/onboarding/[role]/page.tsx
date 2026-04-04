@@ -280,7 +280,7 @@ export default function OnboardingPage() {
 				<div className={`${containerWidthClass} mx-auto space-y-6 sm:space-y-8`}>
 					<div className="text-center space-y-1.5 sm:space-y-2">
 						<h1 className="text-2xl sm:text-3xl font-bold text-(--primary)">
-							<OnboardingRoleSelect current={activeRole} onChange={handleRoleChange} />
+							<OnboardingRoleSelect current={activeRole} onChange={handleRoleChange} className='text-[#3B82F6]' />
 						</h1>
 						<p className="text-sm sm:text-base text-(--secondary) max-w-2xl mx-auto">
 							{ROLE_SUBTITLES[activeRole]}
