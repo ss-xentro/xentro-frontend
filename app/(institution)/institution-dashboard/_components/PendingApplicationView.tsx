@@ -63,7 +63,7 @@ export default function PendingApplicationView({
 						<div className="pt-4 border-t border-(--border) flex gap-3">
 							{application.status !== 'approved' && (
 								<Button onClick={onStartOnboarding} className="min-h-11">
-									{application.status === 'rejected' ? 'Update & Resubmit' : application.description ? 'Edit Details' : '→ Start Phase 2'}
+									{application.status === 'rejected' ? 'Update & Resubmit' : application.description ? 'Edit Details' : 'Complete Onboarding'}
 								</Button>
 							)}
 							{application.status === 'approved' && application.institutionId && (
