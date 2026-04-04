@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, Input, Button, ProgressIndicator } from '@/components/ui';
 import { toast } from 'sonner';
 import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
+import { useEmailCheck } from '@/lib/useEmailCheck';
 import { OnboardingFormData } from '@/lib/types';
 
 const steps = ['Name', 'Admin', 'Email', 'Verify'];
@@ -46,6 +47,10 @@ export function InstitutionSignupForm() {
 		name: form.name,
 		purpose: 'signup',
 	});
+
+	const { checking: emailChecking, result: emailCheckResult } = useEmailCheck(email, 'signup');
+	const emailTaken = emailCheckResult?.exists && !emailCheckResult?.canProceed;
+	const emailClear = email.trim().length > 4 && email.includes('@') && !emailChecking && emailCheckResult !== null && !emailTaken;
 
 	useEffect(() => {
 		if (emailVerification.verified) {
@@ -189,15 +194,31 @@ export function InstitutionSignupForm() {
 						aria-label="Work email address"
 						aria-required="true"
 					/>
+					{emailChecking && (
+						<p className="text-xs text-(--secondary) animate-pulse">Checking email availability...</p>
+					)}
+					{emailTaken && (
+						<div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-500/30 rounded-xl">
+							<svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+							</svg>
+							<div>
+								<p className="text-sm font-medium text-amber-800">{emailCheckResult?.message || 'This email is already associated with an account.'}</p>
+								<a href="/login" className="text-sm text-accent hover:underline font-medium mt-1 inline-block">
+									Go to Login &rarr;
+								</a>
+							</div>
+						</div>
+					)}
 					<div className="flex flex-wrap gap-3 pt-4">
 						<Button
 							onClick={goNext}
-							disabled={appCreating || !email || !form.name || !adminName}
+							disabled={appCreating || !emailClear || !form.name || !adminName}
 							isLoading={appCreating}
-							aria-label="Send verification link"
+							aria-label="Verify email"
 							className="min-h-11"
 						>
-							{appCreating ? 'Sending...' : 'Send Verification Link'}
+							{appCreating ? 'Sending email...' : 'Verify Email'}
 						</Button>
 						<Button variant="ghost" onClick={goPrev} disabled={appCreating} aria-label="Go back to previous step" className="min-h-11">
 							Back

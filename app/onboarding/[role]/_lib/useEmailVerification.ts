@@ -53,7 +53,7 @@ export function useEmailVerification(isCompletionFlow: boolean) {
 				if (resData.exists && !resData.canProceed) {
 					setEmailExists({ exists: true, message: resData.message });
 				} else {
-					setEmailExists(null);
+					setEmailExists({ exists: false, message: '' });
 				}
 			} catch (error) {
 				if ((error as Error).name === 'AbortError' || !isActive) return;

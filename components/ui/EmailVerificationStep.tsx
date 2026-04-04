@@ -167,7 +167,7 @@ export function EmailVerificationStep({
 				</div>
 			) : !magicLinkSent ? (
 				<Button onClick={onSendMagicLink} disabled={loading || !email.trim()} isLoading={loading} className="w-full">
-					{loading ? 'Sending…' : 'Send verification link'}
+					{loading ? 'Sending email...' : 'Verify Email'}
 				</Button>
 			) : (
 				<div className="space-y-3">

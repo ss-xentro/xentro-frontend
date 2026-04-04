@@ -119,7 +119,7 @@ describe('StartupOnboardingPage', () => {
 			{ timeout: 1500 }
 		);
 
-		fireEvent.click(await screen.findByRole('button', { name: 'Send verification link' }));
+		fireEvent.click(await screen.findByRole('button', { name: 'Verify Email' }));
 
 		await screen.findByRole('button', { name: "I've clicked the link" });
 		expect(screen.getByText('Check your inbox')).toBeInTheDocument();
@@ -128,7 +128,7 @@ describe('StartupOnboardingPage', () => {
 
 		await waitFor(
 			() => {
-				expect(screen.getByRole('button', { name: 'Send verification link' })).toBeInTheDocument();
+				expect(screen.getByRole('button', { name: 'Verify Email' })).toBeInTheDocument();
 			},
 			{ timeout: 1500 }
 		);
