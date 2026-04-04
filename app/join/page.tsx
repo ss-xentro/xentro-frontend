@@ -8,8 +8,8 @@ type Role = 'startup' | 'mentor' | 'institution' | null;
 
 const PURPOSE_DESTINATIONS: Record<Exclude<Role, null>, string> = {
   startup: '/onboarding/startup',
-  mentor: '/mentor-signup',
-  institution: '/institution-onboarding',
+  mentor: '/onboarding/mentor',
+  institution: '/onboarding/institution',
 };
 
 const LOGIN_DESTINATIONS: Record<Exclude<Role, null>, string> = {

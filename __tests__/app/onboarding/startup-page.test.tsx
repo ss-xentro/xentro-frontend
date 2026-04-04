@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import StartupOnboardingPage from '@/app/onboarding/startup/page';
+import StartupOnboardingPage from '@/app/onboarding/[role]/page';
 import { createInitialStartupData, useStartupOnboardingStore } from '@/stores/useStartupOnboardingStore';
 
 const router = {
@@ -13,6 +13,8 @@ const getSessionTokenMock = vi.fn();
 
 vi.mock('next/navigation', () => ({
 	useRouter: () => router,
+	useParams: () => ({ role: 'startup' }),
+	notFound: () => { throw new Error('notFound'); },
 }));
 
 vi.mock('@/lib/auth-utils', () => ({
