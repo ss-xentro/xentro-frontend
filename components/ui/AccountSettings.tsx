@@ -9,8 +9,6 @@ import { AppIcon } from "@/components/ui/AppIcon";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import { toast } from "sonner";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 interface Settings {
 	id: string;
 	name: string;
@@ -101,7 +99,7 @@ export default function AccountSettings({
 		if (!token) return;
 
 		try {
-			const res = await fetch(`${API}/api/account/settings/`, {
+			const res = await fetch(`/api/account/settings/`, {
 				method: "PATCH",
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -142,7 +140,7 @@ export default function AccountSettings({
 		if (!token) return;
 
 		try {
-			const res = await fetch(`${API}/api/account/change-password/`, {
+			const res = await fetch(`/api/account/change-password/`, {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,

@@ -6,8 +6,6 @@ import { Card, Button } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 import { toast } from 'sonner';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
 interface MentorVerificationState {
 	status: string;
 	verified: boolean;
@@ -28,7 +26,7 @@ export default function MentorSettingsPage() {
 				return;
 			}
 
-			const res = await fetch(`${API}/api/auth/mentor-profile/`, {
+			const res = await fetch(`/api/auth/mentor-profile/`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 
@@ -56,7 +54,7 @@ export default function MentorSettingsPage() {
 			const token = getSessionToken('mentor') || getSessionToken();
 			if (!token) throw new Error('Authentication required');
 
-			const res = await fetch(`${API}/api/auth/mentor-profile/request-verification/`, {
+			const res = await fetch(`/api/auth/mentor-profile/request-verification/`, {
 				method: 'POST',
 				headers: { Authorization: `Bearer ${token}` },
 			});
