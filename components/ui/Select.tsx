@@ -168,9 +168,9 @@ export function Select({
                                 className={cn(
                                     'w-full px-4 py-2.5 flex items-center gap-2 text-left transition-colors',
                                     option.value === value
-                                        ? 'bg-(--accent-subtle) text-accent'
+                                        ? 'bg-(--accent-subtle) text-accent font-medium'
                                         : 'text-(--primary) hover:bg-(--surface-hover)',
-                                    index === activeIndex && 'bg-(--surface-hover)'
+                                    index === activeIndex && option.value !== value && 'bg-(--surface-hover)'
                                 )}
                             >
                                 {option.icon && <span>{option.icon}</span>}

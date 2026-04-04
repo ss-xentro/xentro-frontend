@@ -163,8 +163,8 @@
   /* Accent Colors */
   --accent: #F9FAFB;
   --accent-hover: #E5E7EB;
-  --accent-light: rgba(255, 255, 255, 0.22);
-  --accent-subtle: rgba(255, 255, 255, 0.14);
+  --accent-light: #2E3A4E;
+  --accent-subtle: #252E3E;
 
   /* Status Colors */
   --success: #10B981;
@@ -229,8 +229,8 @@
   /* Accent Colors */
   --accent: #111827;
   --accent-hover: #1F2937;
-  --accent-light: rgba(0, 0, 0, 0.14);
-  --accent-subtle: rgba(0, 0, 0, 0.08);
+  --accent-light: #D4D7DD;
+  --accent-subtle: #E5E7EB;
 
   /* Status Colors */
   --success: #059669;
@@ -304,8 +304,8 @@ body {
 
 /* Selection */
 ::selection {
-  background: var(--accent-light);
-  color: var(--primary);
+  background: #3B82F6;
+  color: #FFFFFF;
 }
 
 /* Scrollbar Styling */
