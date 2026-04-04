@@ -107,7 +107,8 @@ export const ROLE_META: Record<DetectedRole, {
 			{ label: 'Sign Up', href: '/join', icon: 'rocket' },
 			{ label: 'Explore Institutions', href: '/explore/institute', icon: 'landmark' },
 			{ label: 'Browse Startups', href: '/explore/startups', icon: 'lightbulb' },
-			{ label: 'Browse Events', href: '/events', icon: 'calendar' },
+			// events hidden — re-enable in v2
+			// { label: 'Browse Events', href: '/events', icon: 'calendar' },
 		],
 	},
 };

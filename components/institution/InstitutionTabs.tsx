@@ -2,22 +2,23 @@
 
 import { useState } from 'react';
 import { TAB_LABELS, TabKey } from './institution-tabs-config';
-import type { Program, Event, Startup, TeamMember, Project } from './institution-tabs-config';
+import type { Program, Startup, TeamMember, Project } from './institution-tabs-config';
 import ProgramsTab from './tabs/ProgramsTab';
-import EventsTab from './tabs/EventsTab';
+// events hidden — re-enable in v2
+// import EventsTab from './tabs/EventsTab';
 import StartupsTab from './tabs/StartupsTab';
 import ProjectsTab from './tabs/ProjectsTab';
 import TeamTab from './tabs/TeamTab';
 
 interface InstitutionTabsProps {
     programs: Program[];
-    events: Event[];
+    events?: unknown[]; // events hidden — re-enable in v2
     startups: Startup[];
     team?: TeamMember[];
     projects?: Project[];
 }
 
-export function InstitutionTabs({ programs, events, startups, team = [], projects = [] }: InstitutionTabsProps) {
+export function InstitutionTabs({ programs, startups, team = [], projects = [] }: InstitutionTabsProps) {
     const [activeTab, setActiveTab] = useState<TabKey>('programs');
 
     return (
@@ -43,7 +44,8 @@ export function InstitutionTabs({ programs, events, startups, team = [], project
             {/* Tab Content */}
             <div className="animate-fadeIn">
                 {activeTab === 'programs' && <ProgramsTab programs={programs} />}
-                {activeTab === 'events' && <EventsTab events={events} />}
+                {/* events hidden — re-enable in v2 */}
+                {/* {activeTab === 'events' && <EventsTab events={events} />} */}
                 {activeTab === 'startups' && <StartupsTab startups={startups} />}
                 {activeTab === 'projects' && <ProjectsTab projects={projects} />}
                 {activeTab === 'team' && <TeamTab team={team} />}

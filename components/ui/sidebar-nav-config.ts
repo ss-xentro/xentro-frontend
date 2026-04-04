@@ -15,7 +15,8 @@ export function getNavItems(role: UserRole): NavItem[] {
 			return [
 				{ name: 'Overview', href: '/institution-dashboard', icon: icons.overview },
 				{ name: 'Edit Profile', href: '/institution-edit', icon: icons.edit },
-				{ name: 'Events', href: '/institution-dashboard/events', icon: icons.clock },
+				// events hidden — re-enable in v2
+				// { name: 'Events', href: '/institution-dashboard/events', icon: icons.clock },
 				{ name: 'Startups', href: '/institution-dashboard/startups', icon: icons.bolt },
 				{ name: 'Mentors', href: '/institution-dashboard/mentors', icon: icons.mentors },
 				{ name: 'Programs', href: '/institution-dashboard/programs', icon: icons.bolt },

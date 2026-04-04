@@ -46,11 +46,12 @@ export type Project = {
 	endDate: string | null;
 };
 
-export type TabKey = 'programs' | 'events' | 'startups' | 'projects' | 'team';
+// events hidden — re-enable in v2
+export type TabKey = 'programs' | 'startups' | 'projects' | 'team';
 
 export const TAB_LABELS: { key: TabKey; label: string }[] = [
 	{ key: 'programs', label: 'Programs' },
-	{ key: 'events', label: 'Events' },
+	// { key: 'events', label: 'Events' },
 	{ key: 'startups', label: 'Startups' },
 	{ key: 'projects', label: 'Projects' },
 	{ key: 'team', label: 'Team' },

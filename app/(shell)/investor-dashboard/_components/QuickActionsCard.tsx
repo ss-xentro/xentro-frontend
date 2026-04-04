@@ -4,7 +4,8 @@ import { AppIcon } from '@/components/ui/AppIcon';
 
 const ACTIONS = [
 	{ href: '/explore/institute', icon: 'landmark' as const, label: 'Explore Institutions', desc: 'Discover incubators & accelerators' },
-	{ href: '/events', icon: 'calendar' as const, label: 'Events', desc: 'Browse upcoming events' },
+	// events hidden — re-enable in v2
+	// { href: '/events', icon: 'calendar' as const, label: 'Events', desc: 'Browse upcoming events' },
 	{ href: '/explore/startups', icon: 'rocket' as const, label: 'Browse Startups', desc: 'Explore startup ecosystem' },
 	{ href: '/notifications', icon: 'bell' as const, label: 'Notifications', desc: 'Check your latest alerts' },
 ];

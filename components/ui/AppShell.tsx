@@ -23,7 +23,8 @@ export default function AppShell({ children }: AppShellProps) {
 
   function isActive(item: typeof navItems[number]) {
     if (item.href === '/explore/institute') return pathname.startsWith('/explore');
-    if (item.href === '/events') return pathname === '/events' || pathname.startsWith('/events/');
+    // events hidden — re-enable in v2
+    // if (item.href === '/events') return pathname === '/events' || pathname.startsWith('/events/');
     if (item.label === 'Dashboard') {
       const dashHref = item.href;
       return pathname === dashHref || pathname.startsWith(dashHref + '/');
