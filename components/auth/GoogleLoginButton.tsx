@@ -67,6 +67,7 @@ export function GoogleLoginButton({ onSuccess, onError, isLoading }: GoogleLogin
           width={btnWidth}
           text="continue_with"
           shape="rectangular"
+          use_fedcm_for_prompt={false}
         />
       )}
     </div>
