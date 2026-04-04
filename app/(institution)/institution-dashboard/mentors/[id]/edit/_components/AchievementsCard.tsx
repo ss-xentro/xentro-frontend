@@ -21,14 +21,13 @@ export function AchievementsCard({ achievements, setAchievements, achievementInp
 	return (
 		<Card className="p-6 space-y-4">
 			<h3 className="text-lg font-semibold text-(--primary)">Achievements &amp; Highlights</h3>
-			<p className="text-sm text-(--secondary-light)">Add key accomplishments one at a time</p>
 			<div className="flex gap-2">
 				<input
 					type="text"
 					value={achievementInput}
 					onChange={(e) => setAchievementInput(e.target.value)}
 					onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addAchievement(); } }}
-					placeholder="e.g., Mentored 50+ startups to Series A"
+					placeholder="e.g. Mentored 50+ startups"
 					className="flex-1 px-4 py-2 text-sm bg-background border border-(--border) rounded-lg focus:border-(--primary) focus:outline-none"
 					maxLength={300}
 				/>

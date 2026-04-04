@@ -58,12 +58,12 @@ export default function ConnectModal({
 
 			<div className="mb-6">
 				<label className="block text-sm font-medium text-(--primary-light) mb-2">
-					Introduce yourself
+					Your message
 				</label>
 				<textarea
 					value={message}
 					onChange={(e) => setMessage(e.target.value)}
-					placeholder="Share why you'd like to connect, what you're working on, and how they can help..."
+					placeholder="Tell them about yourself and your goals..."
 					rows={4}
 					className="w-full px-4 py-3 bg-(--accent-subtle) border border-(--border) rounded-xl text-sm text-(--primary) placeholder:text-(--secondary-light) focus:outline-none focus:border-violet-500/50 resize-none transition-colors"
 					maxLength={1000}

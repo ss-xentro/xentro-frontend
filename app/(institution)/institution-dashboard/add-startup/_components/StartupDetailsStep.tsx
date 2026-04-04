@@ -123,14 +123,14 @@ export function StartupDetailsStep({ formData, setFormData, locationSearch, setL
 			</div>
 
 			<div className="space-y-3">
-				<label className="block text-xs font-medium text-(--secondary-light)">What You&apos;re Building</label>
+				<label className="block text-xs font-medium text-(--secondary-light)">Description</label>
 				<textarea
 					value={formData.oneLiner}
 					onChange={(e) => setFormData({ ...formData, oneLiner: e.target.value })}
 					rows={4}
 					maxLength={280}
 					className="w-full px-4 py-4 text-sm border border-(--border-hover) rounded-lg focus:border-(--primary) focus:focus:outline-none transition-all resize-none"
-					placeholder="Describe your startup in one clear sentence"
+					placeholder="Describe in one sentence"
 					aria-label="Startup one-liner"
 				/>
 				<p className="text-xs text-(--secondary)">{formData.oneLiner.length} / 280</p>

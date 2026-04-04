@@ -17,10 +17,10 @@ export default function OperatingModeSlide({ value, onChange, className }: Opera
         <div className={cn('space-y-6', className)}>
             <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-(--primary) mb-2">
-                    How do they operate?
+                    What&apos;s your scope?
                 </h2>
                 <p className="text-(--secondary)">
-                    Select the geographical scope of their programs.
+                    Select your geographical scope.
                 </p>
             </div>
 

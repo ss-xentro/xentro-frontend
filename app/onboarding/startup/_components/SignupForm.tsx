@@ -39,7 +39,7 @@ export function SignupForm({
 		<div className="p-6 md:p-8 space-y-6 animate-fadeIn">
 			<div>
 				<h2 className="text-xl font-semibold text-(--primary)">Start with your startup name and email</h2>
-				<p className="text-sm text-(--secondary) mt-1">Verify your email first. The remaining onboarding steps will open after your first login.</p>
+				<p className="text-sm text-(--secondary) mt-1">Verify your email to continue.</p>
 			</div>
 
 			<Input
@@ -108,14 +108,14 @@ export function SignupForm({
 						<h3 className="text-lg font-semibold text-(--primary) mb-1">Check your inbox</h3>
 						<p className="text-sm text-(--secondary)">
 							We sent a verification link to <strong>{email}</strong>.<br />
-							Click the link in the email, then come back here.
+							Click the link, then come back here.
 						</p>
 					</div>
 				) : (
 					<div>
 						<h3 className="text-lg font-semibold text-(--primary) mb-1">Verify your email</h3>
 						<p className="text-sm text-(--secondary)">
-							We&apos;ll send a link to <strong>{email || 'your email'}</strong>
+							We&apos;ll email a verification link to <strong>{email || 'your email'}</strong>
 						</p>
 					</div>
 				)}
@@ -153,7 +153,7 @@ export function SignupForm({
 						disabled={emailLoading}
 						className="w-full text-sm text-accent hover:underline disabled:opacity-50"
 					>
-						Resend verification link
+						Resend link
 					</button>
 				</div>
 			)}

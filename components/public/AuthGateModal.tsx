@@ -27,10 +27,10 @@ export default function AuthGateModal({ isOpen, onClose }: AuthGateModalProps) {
 
                 {/* Heading */}
                 <h2 className="text-2xl font-bold text-(--primary) mb-2">
-                    Join the Community
+                    Sign Up
                 </h2>
                 <p className="text-(--secondary) text-sm mb-8 leading-relaxed">
-                    Sign up or log in to interact with posts, follow creators, and be part of the Xentro ecosystem.
+                    Create an account to get started.
                 </p>
 
                 {/* Sign up button */}
@@ -52,7 +52,7 @@ export default function AuthGateModal({ isOpen, onClose }: AuthGateModalProps) {
                 {/* Terms */}
                 <p className="text-[11px] text-(--secondary-light) mt-6 leading-relaxed">
                     By signing up, you agree to our{' '}
-                    <a href="/terms" className="text-(--secondary) hover:underline">Terms of Service</a>{' '}
+                    <a href="/terms" className="text-(--secondary) hover:underline">Terms</a>{' '}
                     and{' '}
                     <a href="/privacy" className="text-(--secondary) hover:underline">Privacy Policy</a>.
                 </p>

@@ -56,7 +56,7 @@ export default function CookieConsent() {
 
 				{/* Body */}
 				<p className="text-(--secondary) text-xs leading-relaxed mb-4">
-					We use cookies to keep you signed in, remember your preferences, and improve your experience.
+					We use cookies for sign-in and preferences.
 				</p>
 
 				{/* Actions */}

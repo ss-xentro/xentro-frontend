@@ -23,10 +23,10 @@ export default function ImpactMetricsSlide({
         <div className={cn('space-y-6', className)}>
             <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-(--primary) mb-2">
-                    What is their impact?
+                    What&apos;s your impact?
                 </h2>
                 <p className="text-(--secondary)">
-                    Share key metrics to highlight their achievements.
+                    Share your key metrics.
                 </p>
             </div>
 

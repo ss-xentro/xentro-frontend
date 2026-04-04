@@ -112,7 +112,7 @@ export default function MentorDashboardPage() {
                         Welcome back, Mentor
                     </h1>
                     <p className="text-(--secondary)">
-                        Here&apos;s your mentoring overview, requests, and calendar at a glance.
+                        Your mentoring activity.
                     </p>
                 </div>
                 <div className="flex gap-3">

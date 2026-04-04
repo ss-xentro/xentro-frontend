@@ -109,7 +109,7 @@ export default function MentorVerificationPage() {
           <div>
             <h1 className="text-2xl font-semibold">Mentor Verification</h1>
             <p className="text-sm text-muted-foreground">
-              Mentors who complete their profile are listed here for admin approval and verification.
+              Review mentor profiles.
             </p>
           </div>
           <Button variant="secondary" onClick={fetchMentors} disabled={loading}>

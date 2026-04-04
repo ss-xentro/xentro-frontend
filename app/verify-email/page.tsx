@@ -60,7 +60,7 @@ function VerifyEmailContent() {
 					</div>
 					<ErrorView
 						title="Invalid Link"
-						message="This verification link is incomplete or malformed. Please request a new one."
+						message="Invalid link. Please request a new one."
 					/>
 				</div>
 			</div>
@@ -81,7 +81,7 @@ function VerifyEmailContent() {
 				{state === 'already-used' && <AlreadyUsedView />}
 				{state === 'expired' && <ExpiredView />}
 				{state === 'invalid' && <ErrorView title="Invalid Link" message={errorMessage} />}
-				{state === 'error' && <ErrorView title="Verification Failed" message={errorMessage} />}
+				{state === 'error' && <ErrorView title="Email Not Verified" message={errorMessage} />}
 			</div>
 		</div>
 	);
@@ -188,7 +188,7 @@ function AlreadyUsedView() {
 			</div>
 			<h1 className="text-xl font-semibold text-(--primary) mb-2">Link Already Used</h1>
 			<p className="text-sm text-(--secondary) mb-6">
-				This verification link has already been used. If you&apos;ve already verified, you can sign in below.
+				This link was already used. You can sign in below.
 			</p>
 			<div className="flex items-center justify-center gap-3">
 				<Link
@@ -218,7 +218,7 @@ function ExpiredView() {
 			</div>
 			<h1 className="text-xl font-semibold text-(--primary) mb-2">Link Expired</h1>
 			<p className="text-sm text-(--secondary) mb-6">
-				This verification link has expired. Please go back and request a new one.
+				This link has expired. Request a new one.
 			</p>
 			<div className="flex items-center justify-center gap-3">
 				<Link

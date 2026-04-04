@@ -155,11 +155,11 @@ export default function UnifiedLoginPage() {
 
             if (!res.ok) {
                 if (data.code === 'USER_NOT_FOUND') {
-                    toast.error('Invalid credentials. Please check your email or sign up for an account.');
+                    toast.error('Invalid email or password');
                     return;
                 }
                 if (data.code === 'ACCESS_DENIED') {
-                    toast.error('Unable to sign in with this account. Please contact support if you need assistance.');
+                    toast.error('Sign-in unavailable for this account');
                     return;
                 }
                 throw new Error(getApiErrorMessageFromPayload(data, 'Failed to send verification code'));
@@ -195,7 +195,7 @@ export default function UnifiedLoginPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(getApiErrorMessageFromPayload(data, 'Incorrect or expired code. Please try again.'));
+                throw new Error(getApiErrorMessageFromPayload(data, 'Invalid or expired code'));
             }
 
             const role = await storeSession(data);
@@ -237,14 +237,14 @@ export default function UnifiedLoginPage() {
 
             if (!res.ok) {
                 if (data.code === 'USER_NOT_FOUND') {
-                    toast.error('Invalid credentials. Please check your email or sign up for an account.');
+                    toast.error('Invalid email or password');
                     return;
                 }
                 if (data.code === 'ACCESS_DENIED') {
-                    toast.error('Unable to sign in with this account. Please contact support if you need assistance.');
+                    toast.error('Sign-in unavailable for this account');
                     return;
                 }
-                throw new Error(getApiErrorMessageFromPayload(data, 'Google sign-in failed. Please try again.'));
+                throw new Error(getApiErrorMessageFromPayload(data, 'Google sign-in failed'));
             }
 
             const role = await storeSession(data);

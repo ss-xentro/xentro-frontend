@@ -32,7 +32,7 @@ export default function FundingImpactSlide({
                     Funding Facilitated
                 </h2>
                 <p className="text-(--secondary)">
-                    Total funding raised by startups or distributed as grants.
+                    Total funding raised or distributed.
                 </p>
             </div>
 
@@ -60,7 +60,7 @@ export default function FundingImpactSlide({
 
                 <p className="text-sm text-(--secondary) bg-(--surface-hover) p-4 rounded-lg flex items-start gap-2">
                     <AppIcon name="lightbulb" className="w-4 h-4 shrink-0 mt-0.5" />
-                    Including funding metrics increases trust and attracts high-quality startups to the program.
+                    Including funding metrics builds credibility with startups.
                 </p>
             </div>
         </div>

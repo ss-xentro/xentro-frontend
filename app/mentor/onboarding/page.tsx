@@ -181,7 +181,7 @@ export default function MentorOnboardingPage() {
 
 	const handleNext = async () => {
 		if (!canProceed()) {
-			toast.error('Please complete this step before continuing.');
+			toast.error('Complete this step first.');
 			return;
 		}
 

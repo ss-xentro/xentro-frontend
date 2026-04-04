@@ -25,7 +25,7 @@ export default function PendingApplicationView({
 				<div>
 					<p className="text-accent font-semibold text-sm uppercase tracking-wide flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Phase 1 Complete</p>
 					<h1 className="text-3xl font-bold text-(--primary)">Institution Dashboard</h1>
-					<p className="text-(--secondary)">Your email is verified. Complete Phase 2 to publish your institution. Verified badge review is optional.</p>
+					<p className="text-(--secondary)">Email verified. Finish Phase 2 to publish. Verified badge is optional.</p>
 				</div>
 
 				{application && !application.description && (
@@ -36,7 +36,7 @@ export default function PendingApplicationView({
 							</div>
 							<div className="flex-1">
 								<p className="text-sm font-semibold text-amber-900">Complete profile</p>
-								<p className="text-sm text-amber-800 mt-1">Finish Phase 2 onboarding to complete your institution profile.</p>
+								<p className="text-sm text-amber-800 mt-1">Finish Phase 2 to publish your profile.</p>
 							</div>
 							<Button onClick={onStartOnboarding} className="min-h-10" size="sm">
 								Complete Profile
@@ -78,12 +78,12 @@ export default function PendingApplicationView({
 									<svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
 										<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
 									</svg>
-									Complete Phase 2 onboarding to publish your institution profile.
+									Complete Phase 2 to publish your profile.
 								</span>
 							)}
 							{application.status === 'pending' && application.description && "Your institution details are submitted. Admin review is in progress for the verified badge."}
-							{application.status === 'approved' && 'Congratulations! Your institution has been approved and is now published on the platform.'}
-							{application.status === 'rejected' && 'Your verified badge request was denied. You can update details and nudge admin again.'}
+							{application.status === 'approved' && 'Your institution is published!'}
+							{application.status === 'rejected' && 'Request denied. Update and resubmit.'}
 						</p>
 
 						{application.logo && (

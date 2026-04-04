@@ -74,7 +74,7 @@ export default function InstitutionApprovalsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-(--primary)">Institution Verification Requests</h1>
-          <p className="text-(--secondary)">Institutions are already live after Phase 2. Review verified badge requests here.</p>
+          <p className="text-(--secondary)">Review verified badge requests.</p>
         </div>
         <div className="flex gap-2">
           <select
@@ -99,8 +99,8 @@ export default function InstitutionApprovalsPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-(--primary) mb-2">No pending verification requests</h3>
-            <p className="text-(--secondary)">All verification requests are processed. New requests will appear here.</p>
+            <h3 className="text-lg font-semibold text-(--primary) mb-2">No pending requests</h3>
+            <p className="text-(--secondary)">No requests at this time.</p>
           </div>
         </Card>
       )}

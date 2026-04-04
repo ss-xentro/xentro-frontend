@@ -108,10 +108,10 @@ function StartupsContent() {
             <div className="bg-linear-to-b from-surface-hover to-background pt-12 sm:pt-16 md:pt-20 pb-8 sm:pb-12 border-b border-(--border)">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-linear-to-r from-accent to-accent-hover mb-3 sm:mb-4">
-                        Discover Innovative Startups
+                        Browse Startups
                     </h1>
                     <p className="text-sm sm:text-base md:text-lg lg:text-xl text-(--secondary) max-w-2xl mx-auto">
-                        Explore the next generation of companies built on XENTRO.
+                        Browse startups on Xentro.
                     </p>
                 </div>
             </div>
@@ -121,7 +121,7 @@ function StartupsContent() {
                 <div className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8 bg-(--surface) p-3 sm:p-4 rounded-xl border border-(--border) shadow-sm">
                     <div className="w-full">
                         <Input
-                            placeholder="Search startups, taglines..."
+                            placeholder="Search..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full bg-background"

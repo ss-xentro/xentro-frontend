@@ -43,7 +43,7 @@ export function FoundersSection() {
 						<div>
 							<p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Part A</p>
 							<h3 className="text-lg font-semibold text-(--primary)">Founder Profiles</h3>
-							<p className="text-sm text-(--secondary) mt-1">Add your lead founder first. Co-founders are optional.</p>
+							<p className="text-sm text-(--secondary) mt-1">Add your lead founder first.</p>
 						</div>
 						<span className="rounded-full border border-(--border) bg-(--surface-secondary) px-3 py-1 text-xs font-medium text-(--secondary)">
 							{founderCount} founder{founderCount === 1 ? '' : 's'}
@@ -58,7 +58,7 @@ export function FoundersSection() {
 							<div className="flex items-center justify-between gap-3 mb-4">
 								<div>
 									<h4 className="text-sm font-semibold text-(--primary)">{index === 0 ? 'Primary Founder' : `Co-Founder ${index}`}</h4>
-									<p className="text-xs text-(--secondary) mt-1">{index === 0 ? 'Required to continue onboarding' : 'Optional public teammate profile'}</p>
+									<p className="text-xs text-(--secondary) mt-1">{index === 0 ? 'Required' : 'Optional — shown publicly'}</p>
 								</div>
 
 								{data.founders.length > 1 && (
@@ -170,7 +170,7 @@ export function FoundersSection() {
 							<div className="flex items-center justify-between gap-3 mb-4">
 								<div>
 									<h4 className="text-sm font-semibold text-(--primary)">Team Member {index + 1}</h4>
-									<p className="text-xs text-(--secondary) mt-1">Optional public teammate profile</p>
+									<p className="text-xs text-(--secondary) mt-1">Optional — shown publicly</p>
 								</div>
 
 								<button
@@ -197,7 +197,7 @@ export function FoundersSection() {
 									label="Email Address (Optional display)"
 									placeholder="alex@example.com"
 									type="email"
-									hint="Shown publicly if provided"
+									hint="Shown publicly"
 									value={member.email}
 									onChange={(e) => updateTeamMember(index, { email: e.target.value })}
 								/>
@@ -219,16 +219,16 @@ export function FoundersSection() {
 										enableCrop
 										aspectRatio={1}
 									/>
-									<p className="mt-1.5 text-xs text-(--secondary)">Square headshot recommended</p>
+									<p className="mt-1.5 text-xs text-(--secondary)">Square headshot</p>
 								</div>
 							</div>
 
 							<div className="mt-4">
-								<label className="block text-sm font-medium text-(--primary) mb-2">Profile Details (Optional)</label>
+								<label className="block text-sm font-medium text-(--primary) mb-2">Bio (Optional)</label>
 								<RichTextEditor
 									value={member.bio || ''}
 									onChange={(html) => updateTeamMember(index, { bio: html })}
-									placeholder="Add this member's role, skills, and short story for public profile viewers..."
+									placeholder="Share background and role..."
 									minimal
 								/>
 							</div>

@@ -120,7 +120,7 @@ export default function InstitutionOnboardingPage() {
           <div className="text-center space-y-1.5 sm:space-y-2">
             <p className="text-accent font-semibold text-xs sm:text-sm uppercase tracking-wide">Institution Onboarding</p>
             <h1 className="text-2xl sm:text-3xl font-bold text-(--primary)">Join Xentro as an Institution</h1>
-            <p className="text-sm sm:text-base text-(--secondary) max-w-2xl mx-auto">Publish your institution profile first. Request the verified badge anytime after setup.</p>
+            <p className="text-sm sm:text-base text-(--secondary) max-w-2xl mx-auto">Set up your profile. Request verification anytime after.</p>
           </div>
 
           <Card className="p-4 sm:p-6 space-y-4 sm:space-y-6">
@@ -130,7 +130,7 @@ export default function InstitutionOnboardingPage() {
               <div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
                 <div className="text-center space-y-2 mb-6">
                   <h2 className="text-xl font-semibold text-(--primary)">What&apos;s your institution name?</h2>
-                  <p className="text-sm text-(--secondary)">This helps us create your institution profile.</p>
+                  <p className="text-sm text-(--secondary)">We&apos;ll use this for your profile.</p>
                 </div>
                 <Input
                   label="Institution Name"

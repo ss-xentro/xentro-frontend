@@ -72,7 +72,7 @@ export default function InvestorApprovalsPage() {
 
     async function handleReject(userId: string) {
         if (!remark.trim()) {
-            toast.error('Please add a remark before rejecting.');
+            toast.error('A remark is required.');
             return;
         }
         if (!token) return;
@@ -115,7 +115,7 @@ export default function InvestorApprovalsPage() {
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div>
                         <h1 className="text-2xl font-semibold">Investor Approvals</h1>
-                        <p className="text-sm text-muted-foreground">Review and approve investor applications. Rejections require a remark.</p>
+                        <p className="text-sm text-muted-foreground">Review investor applications. Rejections need a remark.</p>
                     </div>
                     <Button variant="secondary" onClick={fetchPending} disabled={loading}>
                         Refresh
@@ -177,13 +177,13 @@ export default function InvestorApprovalsPage() {
                                     <textarea
                                         className="w-full border border-(--border-hover) rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-(--border-focus) resize-none"
                                         rows={2}
-                                        placeholder="Explain why this application is being rejected…"
+                                        placeholder="Reason for rejection"
                                         value={remark}
                                         onChange={(e) => setRemark(e.target.value)}
                                     />
                                     <div className="flex justify-end">
                                         <Button variant="secondary" onClick={() => handleReject(row.userId)} disabled={loading || !remark.trim()}>
-                                            Confirm Rejection
+                                            Reject
                                         </Button>
                                     </div>
                                 </div>

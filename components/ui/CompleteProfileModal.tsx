@@ -42,7 +42,7 @@ export default function CompleteProfileModal({ isOpen, onClose }: CompleteProfil
                     Complete your profile
                 </h2>
                 <p className="text-sm text-(--secondary) text-center mb-6">
-                    A complete profile helps mentees find you and builds trust in the community.
+                    Helps mentees find you.
                 </p>
 
                 {/* Incomplete sections */}

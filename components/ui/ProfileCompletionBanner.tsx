@@ -100,7 +100,7 @@ export default function ProfileCompletionBanner() {
                                 Complete your profile
                             </h3>
                             <p className="text-[11px] sm:text-xs text-(--secondary) mt-0.5 leading-snug">
-                                {pct}% done · {missing.length} section{missing.length !== 1 ? 's' : ''} remaining
+                                {missing.length} section{missing.length !== 1 ? 's' : ''} left
                             </p>
                         </div>
                     </div>

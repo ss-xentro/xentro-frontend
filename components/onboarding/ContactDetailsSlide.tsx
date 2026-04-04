@@ -25,7 +25,7 @@ export default function ContactDetailsSlide({
                     Contact Details
                 </h2>
                 <p className="text-(--secondary)">
-                    Provide official contact information for inquiries and partnerships.
+                    Provide your contact info.
                 </p>
             </div>
 
@@ -65,7 +65,7 @@ export default function ContactDetailsSlide({
                         </svg>
                         <div className="text-sm text-(--secondary)">
                             <p className="font-medium text-(--primary) mb-1">Why we need this</p>
-                            <p>This information will be displayed on your public profile so potential partners and startups can reach you directly.</p>
+                            <p>Shown on your public profile.</p>
                         </div>
                     </div>
                 </div>

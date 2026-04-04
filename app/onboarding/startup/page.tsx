@@ -16,38 +16,38 @@ import { CompletionStepContent } from './_components/CompletionStepContent';
 const STEP_GUIDANCE: Record<number, { title: string; intro: string; checklist: string[] }> = {
     1: {
         title: 'Identity Guidelines',
-        intro: 'Set the public brand basics for your startup profile.',
+        intro: 'Set the public brand basics.',
         checklist: [
-            'Use your exact registered or commonly used startup name.',
-            'Keep the tagline short and specific to your core value.',
-            'Upload a square logo for clean display across cards and profiles.',
+            'Use your registered or commonly used name.',
+            'Keep the tagline short and specific.',
+            'Upload a square logo.',
         ],
     },
     2: {
         title: 'Team Guidelines',
-        intro: 'Build credibility with clear founder and team representation.',
+        intro: 'Build credibility with clear team info.',
         checklist: [
-            'Primary founder name is required to continue.',
-            'Only add co-founders/team members you want visible publicly.',
-            'Use valid emails when provided and concise role titles.',
+            'Primary founder name is required.',
+            'Only add members you want visible publicly.',
+            'Use valid emails and concise titles.',
         ],
     },
     3: {
         title: 'Market Position Guidelines',
-        intro: 'Choose how investors, mentors, and institutions discover you.',
+        intro: 'Help investors and mentors find you.',
         checklist: [
-            'Select the sector that best matches your current product.',
-            'Pick your real current stage, not aspirational stage.',
-            'These fields influence recommendations and partner matching.',
+            'Select the sector matching your product.',
+            'Pick your actual current stage.',
+            'These fields affect recommendations.',
         ],
     },
     4: {
         title: 'Intent Guidelines',
-        intro: 'Tell Xentro what outcomes matter most for your startup.',
+        intro: 'Tell us what outcomes matter most.',
         checklist: [
-            'Select one or more reasons that reflect immediate goals.',
-            'If you choose Other, add concrete context.',
-            'These preferences personalize opportunities and outreach.',
+            'Select reasons that reflect your immediate goals.',
+            'If you choose Other, add context.',
+            'These personalize your opportunities.',
         ],
     },
 };

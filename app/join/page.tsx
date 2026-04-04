@@ -46,7 +46,7 @@ export default function JoinPage() {
     {
       id: 'mentor' as const,
       title: 'Mentor',
-      description: 'Support founders through guidance and expertise.',
+      description: 'Guide founders with your expertise.',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -56,7 +56,7 @@ export default function JoinPage() {
     {
       id: 'institution' as const,
       title: 'Institution',
-      description: 'Run programs, incubators, or accelerators.',
+      description: 'Run programs & accelerators.',
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -74,7 +74,7 @@ export default function JoinPage() {
           {/* Step Indicator */}
           <div className="text-center mb-6 sm:mb-8">
             <p className="text-xs font-medium text-(--secondary-light) tracking-[0.15em] uppercase mb-4 sm:mb-6">
-              STEP 1 OF 3
+              Step 1
             </p>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-(--primary) mb-3 sm:mb-4 tracking-tight">
@@ -82,7 +82,7 @@ export default function JoinPage() {
             </h1>
 
             <p className="text-base sm:text-lg text-(--secondary-light)">
-              Choose how you will participate in the Xentro ecosystem.
+              Choose your role.
             </p>
           </div>
 

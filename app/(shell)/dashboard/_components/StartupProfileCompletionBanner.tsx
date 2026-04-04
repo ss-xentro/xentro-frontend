@@ -78,10 +78,10 @@ export function StartupProfileCompletionBanner({ startup, canEdit }: StartupProf
 						</div>
 						<div className="min-w-0">
 							<h3 className="text-[13px] sm:text-sm font-semibold text-(--primary) leading-tight">
-								Complete your startup profile
+								Finish your profile
 							</h3>
 							<p className="text-[11px] sm:text-xs text-(--secondary-light) mt-0.5 leading-snug">
-								{pct}% done - {missingCount} section{missingCount !== 1 ? 's' : ''} remaining
+								{missingCount} section{missingCount !== 1 ? 's' : ''} left
 							</p>
 						</div>
 					</div>

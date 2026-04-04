@@ -17,7 +17,7 @@ export default function TaglineSlide({ value, onChange, className }: TaglineSlid
                     What&apos;s your tagline?
                 </h2>
                 <p className="text-(--secondary)">
-                    One sentence that captures your mission and inspires action.
+                    One sentence capturing your mission.
                 </p>
             </div>
 

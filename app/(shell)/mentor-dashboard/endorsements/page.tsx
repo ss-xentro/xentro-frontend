@@ -130,7 +130,7 @@ export default function EndorsementsPage() {
 			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 				<div>
 					<h1 className="text-2xl font-semibold text-(--primary) mb-2">Endorsements</h1>
-					<p className="text-sm text-(--secondary)">Request endorsement from institutions and track your requests.</p>
+					<p className="text-sm text-(--secondary)">Request and track endorsements.</p>
 				</div>
 				<Button onClick={() => setShowRequestForm(!showRequestForm)}>
 					Request Endorsement
@@ -140,8 +140,8 @@ export default function EndorsementsPage() {
 			{/* Request form */}
 			{showRequestForm && (
 				<Card className="p-6 bg-accent/10 border-accent/20 space-y-4">
-					<h3 className="font-semibold text-(--primary)">Request Endorsement from an Institution</h3>
-					<p className="text-sm text-(--secondary)">Search for an institution and send them an endorsement request.</p>
+					<h3 className="font-semibold text-(--primary)">Request Endorsement</h3>
+					<p className="text-sm text-(--secondary)">Search for an institution to send your request.</p>
 
 					<div>
 						<label className="block text-xs font-medium text-(--secondary) mb-2">Search Institution</label>

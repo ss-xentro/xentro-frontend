@@ -93,8 +93,8 @@ export default function AdminUsersPage() {
                     <div className="flex-1">
                         <input
                             type="text"
-                            placeholder="Search by name or email..."
-                            aria-label="Search by name or email"
+                            placeholder="Search..."
+                            aria-label="Search users"
                             value={search}
                             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                             className="w-full px-3 py-2 rounded-lg border border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-(--border-focus)"

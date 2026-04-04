@@ -69,7 +69,7 @@ export default function AddProgramPage() {
             <div className="max-w-2xl mx-auto px-6 py-12">
                 <div className="mb-12">
                     <h1 className="text-2xl font-semibold text-(--primary) mb-2">Create Program</h1>
-                    <p className="text-sm text-(--primary-light)">Launch a new program for your institution</p>
+                    <p className="text-sm text-(--primary-light)">Create a new program</p>
                 </div>
 
                 <Card className="p-10 bg-(--accent-subtle) border border-(--border) shadow-sm">

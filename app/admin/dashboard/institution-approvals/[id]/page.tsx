@@ -64,7 +64,7 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
   const handleAction = async (action: 'approved' | 'rejected') => {
     if (!app) return;
     if (!remark.trim()) {
-      setError('Please add a message before approving or denying verification.');
+      setError('A message is required.');
       return;
     }
     try {
@@ -127,7 +127,7 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-(--primary)">Verification Request: {app.name}</h1>
-          <p className="text-(--secondary)">Review institution details and decide verified badge status.</p>
+          <p className="text-(--secondary)">Review and approve or deny verification.</p>
         </div>
         <div className="ml-auto">
           <span className={`px-3 py-1 rounded-full text-sm font-semibold ${statusColors[app.status] ?? 'bg-(--surface-hover) text-(--primary)'}`}>

@@ -40,7 +40,7 @@ export default function SectorFocusSlide({ value, onChange, className }: SectorF
                     Sector Focus
                 </h2>
                 <p className="text-(--secondary)">
-                    Which industries does this institution specialize in? Select sub-sectors.
+                    Select your specialized industries.
                 </p>
             </div>
 

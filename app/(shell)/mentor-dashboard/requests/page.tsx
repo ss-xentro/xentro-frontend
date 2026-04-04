@@ -94,7 +94,7 @@ export default function MentorRequestsPage() {
 					<p className="text-sm text-(--secondary) mt-1">
 						{pendingCount > 0
 							? `You have ${pendingCount} pending request${pendingCount > 1 ? 's' : ''}`
-							: 'Manage connection requests from startups & mentees'}
+							: 'Manage requests'}
 					</p>
 				</div>
 
@@ -130,7 +130,7 @@ export default function MentorRequestsPage() {
 					icon={<AppIcon name="handshake" className="w-8 h-8 text-(--secondary)" />}
 					title={filter === 'all' ? 'No connection requests yet' : `No ${filter} requests`}
 					description={filter === 'all'
-						? 'When startups want to connect, their requests will appear here.'
+						? 'Requests will appear here.'
 						: `You don't have any ${filter} connection requests.`}
 				/>
 			) : (

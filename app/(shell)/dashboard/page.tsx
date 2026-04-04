@@ -85,7 +85,7 @@ export default function DashboardOverviewPage() {
                         Welcome back, {data.startup.name}
                     </h1>
                     <p className="text-(--secondary)">
-                        Here&apos;s what&apos;s happening with your startup today.
+                        Your startup overview.
                     </p>
                 </div>
                 <div className="flex gap-3">

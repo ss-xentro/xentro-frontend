@@ -17,7 +17,7 @@ export default function DescriptionSlide({ value, onChange, className }: Descrip
                     Describe your institution
                 </h2>
                 <p className="text-(--secondary)">
-                    Share your story, mission, and what makes you unique.
+                    Share your mission and what sets you apart.
                 </p>
             </div>
 
@@ -25,7 +25,7 @@ export default function DescriptionSlide({ value, onChange, className }: Descrip
                 <Textarea
                     id="description"
                     label="About"
-                    placeholder="Tell students and startups about your programs, impact, and values..."
+                    placeholder="Share your mission and impact..."
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     className="min-h-62.5 text-lg"

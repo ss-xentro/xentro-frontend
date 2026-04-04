@@ -135,14 +135,14 @@ export function EmailVerificationStep({
 						<h3 className="text-lg font-semibold text-(--primary) mb-1">Check your inbox</h3>
 						<p className="text-sm text-(--secondary)">
 							We sent a verification link to <strong>{email}</strong>.<br />
-							Click the link in the email, then come back here.
+							Click the link, then come back here.
 						</p>
 					</>
 				) : (
 					<>
 						<h3 className="text-lg font-semibold text-(--primary) mb-1">Verify your email</h3>
 						<p className="text-sm text-(--secondary)">
-							We&apos;ll send a verification link to <strong>{email || 'your email'}</strong>
+							We&apos;ll send a verification link to <strong>{email || 'your email'}</strong>.
 						</p>
 					</>
 				)}
@@ -180,7 +180,7 @@ export function EmailVerificationStep({
 						disabled={loading}
 						className="w-full text-sm text-accent hover:underline disabled:opacity-50"
 					>
-						Resend verification link
+						Resend link
 					</button>
 				</div>
 			)}
