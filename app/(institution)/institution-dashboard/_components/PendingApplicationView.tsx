@@ -23,27 +23,10 @@ export default function PendingApplicationView({
 		<main className="min-h-screen bg-background py-16 px-4" role="main">
 			<div className="max-w-5xl mx-auto space-y-6 animate-fadeIn">
 				<div>
-					<p className="text-accent font-semibold text-sm uppercase tracking-wide flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Phase 1 Complete</p>
-					<h1 className="text-3xl font-bold text-(--primary)">Institution Dashboard</h1>
-					<p className="text-(--secondary)">Email verified. Finish Phase 2 to publish. Verified badge is optional.</p>
+					<p className="text-accent font-semibold text-sm uppercase tracking-wide flex items-center gap-1"><AppIcon name="check" className="text-green-500 w-3.5 h-3.5" />Institute created successfully</p>
+					<h1 className="text-3xl font-bold text-(--primary)">Welcome to Xentro</h1>
+					<p className="text-(--secondary)">Email verified. Complete the following steps to publish your profile.</p>
 				</div>
-
-				{application && !application.description && (
-					<div className="rounded-lg border border-amber-500/30 bg-amber-50 p-4" role="status">
-						<div className="flex items-start gap-3">
-							<div className="mt-0.5">
-								<AppIcon name="hourglass" className="w-4 h-4 text-amber-700" />
-							</div>
-							<div className="flex-1">
-								<p className="text-sm font-semibold text-amber-900">Complete profile</p>
-								<p className="text-sm text-amber-800 mt-1">Finish Phase 2 to publish your profile.</p>
-							</div>
-							<Button onClick={onStartOnboarding} className="min-h-10" size="sm">
-								Complete Profile
-							</Button>
-						</div>
-					</div>
-				)}
 
 				{loading && <p className="text-(--secondary)">Loading your application…</p>}
 
@@ -51,9 +34,8 @@ export default function PendingApplicationView({
 					<Card className="p-6 space-y-4">
 						<div className="flex items-start justify-between">
 							<div>
-								<p className="text-sm text-(--secondary)">Institution Name</p>
 								<h2 className="text-xl font-semibold text-(--primary)">{application.name}</h2>
-								<p className="text-xs text-(--secondary) mt-1">Email: {application.email}</p>
+								<p className="text-xs text-(--secondary) mt-1"><strong>Email:</strong> {application.email}</p>
 							</div>
 							<span className={`text-sm px-3 py-1.5 rounded-full font-medium ${application.status === 'approved'
 								? 'bg-green-500/20 text-green-200'
@@ -71,20 +53,6 @@ export default function PendingApplicationView({
 								<p className="text-sm text-blue-800 mt-1">{application.remark}</p>
 							</div>
 						)}
-
-						<p className="text-(--secondary) text-sm">
-							{application.status === 'pending' && !application.description && (
-								<span className="flex items-center gap-2">
-									<svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-										<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-									</svg>
-									Complete Phase 2 to publish your profile.
-								</span>
-							)}
-							{application.status === 'pending' && application.description && "Your institution details are submitted. Admin review is in progress for the verified badge."}
-							{application.status === 'approved' && 'Your institution is published!'}
-							{application.status === 'rejected' && 'Request denied. Update and resubmit.'}
-						</p>
 
 						{application.logo && (
 							<div className="w-28 h-28 rounded-lg border border-(--border) bg-(--surface) flex items-center justify-center overflow-hidden">
