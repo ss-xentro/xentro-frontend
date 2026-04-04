@@ -1,166 +1,175 @@
 'use client';
 
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, Input, Button, ProgressIndicator } from '@/components/ui';
+import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
+import { useEmailCheck } from '@/lib/useEmailCheck';
+import { toast } from 'sonner';
 
-interface SignupFormProps {
-	name: string;
-	email: string;
-	onNameChange: (value: string) => void;
-	onEmailChange: (value: string) => void;
-	emailExists: { exists: boolean; message: string } | null;
-	emailChecking: boolean;
-	magicLinkSent: boolean;
-	emailVerified: boolean;
-	emailLoading: boolean;
-	isAutoCreating: boolean;
-	redirectSecondsLeft: number;
-	onSendMagicLink: () => void;
-	onCheckVerification: () => void;
-}
+const TOTAL_STEPS = 2;
 
-export function SignupForm({
-	name,
-	email,
-	onNameChange,
-	onEmailChange,
-	emailExists,
-	emailChecking,
-	magicLinkSent,
-	emailVerified,
-	emailLoading,
-	isAutoCreating,
-	redirectSecondsLeft,
-	onSendMagicLink,
-	onCheckVerification,
-}: SignupFormProps) {
+export function SignupForm() {
+	const router = useRouter();
+	const [step, setStep] = useState(1);
+	const [loading, setLoading] = useState(false);
+	const [form, setForm] = useState({ name: '', email: '' });
+
+	const emailVerification = useEmailVerification({
+		email: form.email,
+		name: form.name,
+		purpose: 'signup',
+	});
+
+	const { checking: emailChecking, result: emailCheckResult } = useEmailCheck(form.email, 'signup');
+	const emailTaken = emailCheckResult?.exists && !emailCheckResult?.canProceed;
+	const emailClear = form.email.trim().length > 4 && form.email.includes('@') && !emailChecking && emailCheckResult !== null && !emailTaken;
+
+	const updateField = (key: keyof typeof form, value: string) => {
+		setForm((prev) => ({ ...prev, [key]: value }));
+	};
+
+	const canProceed = () => {
+		switch (step) {
+			case 1: return form.name.trim().length > 0;
+			case 2: return form.email.trim().length > 0 && emailVerification.verified;
+			default: return false;
+		}
+	};
+
+	const handleNext = async () => {
+		if (!canProceed()) {
+			toast.error('Please complete this step before continuing.');
+			return;
+		}
+
+		if (step === 1) {
+			setStep((prev) => prev + 1);
+			return;
+		}
+
+		setLoading(true);
+		try {
+			const res = await fetch('/api/founder/startups/', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					name: form.name.trim(),
+					primaryContactEmail: form.email.trim().toLowerCase(),
+					status: 'public',
+				}),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.message || 'Failed to create startup');
+
+			toast.success('Account created. Continue to login to finish onboarding.');
+			setTimeout(() => router.push('/login'), 2000);
+		} catch (error) {
+			toast.error((error as Error).message);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleBack = () => {
+		setStep((prev) => Math.max(1, prev - 1));
+	};
+
+	const isLastStep = step === TOTAL_STEPS;
+	const primaryLabel = isLastStep
+		? (loading ? 'Creating account...' : 'Continue to login')
+		: 'Continue';
+
 	return (
-		<div className="p-6 md:p-8 space-y-6 animate-fadeIn">
-			<div>
-				<h2 className="text-xl font-semibold text-(--primary)">Start with your startup name and email</h2>
-				<p className="text-sm text-(--secondary) mt-1">Verify your email to continue.</p>
-			</div>
+		<Card className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+			<ProgressIndicator currentStep={step} totalSteps={TOTAL_STEPS} />
 
-			<Input
-				label="Startup Name"
-
-				value={name}
-				onChange={e => onNameChange(e.target.value)}
-				autoFocus
-				required
-			/>
-
-			<Input
-				label="Company Email"
-				type="email"
-
-				value={email}
-				onChange={e => onEmailChange(e.target.value)}
-				disabled={emailVerified}
-				required
-			/>
-
-			{emailExists?.exists && (
-				<div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-500/30 rounded-xl">
-					<svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-					</svg>
-					<div>
-						<p className="text-sm font-medium text-amber-800">{emailExists.message}</p>
-						<a href="/login" className="text-sm text-accent hover:underline font-medium mt-1 inline-block">
-							Go to Login &rarr;
-						</a>
+			{step === 1 && (
+				<div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
+					<div className="text-center space-y-2 mb-6">
+						<h2 className="text-xl font-semibold text-(--primary)">What&apos;s your startup called?</h2>
+						<p className="text-sm text-(--secondary)">We&apos;ll use this for your startup profile.</p>
+					</div>
+					<Input
+						label="Startup Name"
+						value={form.name}
+						onChange={(e) => updateField('name', e.target.value)}
+						autoFocus
+						required
+						aria-label="Startup Name"
+						aria-required="true"
+					/>
+					<div className="flex justify-end pt-4">
+						<Button
+							onClick={handleNext}
+							disabled={!canProceed()}
+							aria-label="Continue to email verification"
+							className="min-w-30 min-h-11"
+						>
+							Continue
+						</Button>
 					</div>
 				</div>
 			)}
-			{emailChecking && (
-				<p className="text-xs text-(--secondary) animate-pulse">Checking email...</p>
-			)}
 
-			{emailExists !== null && !emailExists.exists && !emailChecking && (
-				<>
-					<div className="text-center py-4">
-						<div className={cn(
-							'inline-flex items-center justify-center w-16 h-16 rounded-full mb-4',
-							emailVerified ? 'bg-green-500/20' : 'bg-accent/10'
-						)}>
-							{emailVerified ? (
-								<svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-								</svg>
-							) : (
-								<svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-								</svg>
-							)}
-						</div>
-
-						{emailVerified ? (
-							<div>
-								<h3 className="text-lg font-semibold text-green-700 mb-1">Email verified!</h3>
-								<p className="text-sm text-(--secondary)">
-									{isAutoCreating
-										? `Creating your account now. Redirecting to login in ${Math.max(redirectSecondsLeft, 0)}s...`
-										: 'Creating your account automatically...'}
-								</p>
-							</div>
-						) : magicLinkSent ? (
-							<div>
-								<h3 className="text-lg font-semibold text-(--primary) mb-1">Check your inbox</h3>
-								<p className="text-sm text-(--secondary)">
-									We sent a verification link to <strong>{email}</strong>.<br />
-									Click the link, then come back here.
-								</p>
-							</div>
-						) : (
-							<div>
-								<h3 className="text-lg font-semibold text-(--primary) mb-1">Verify your email</h3>
-								<p className="text-sm text-(--secondary)">
-									We&apos;ll email a verification link to <strong>{email || 'your email'}</strong>
-								</p>
-							</div>
-						)}
+			{step === 2 && (
+				<div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
+					<div className="text-center space-y-2 mb-6">
+						<h2 className="text-xl font-semibold text-(--primary)">Verify your email address</h2>
+						<p className="text-sm text-(--secondary)">We&apos;ll send you a secure link to confirm your identity.</p>
 					</div>
-
-					{emailVerified ? (
-						<div className="flex items-center justify-center gap-2 text-green-600 font-medium py-2">
-							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+					<Input
+						label="Company Email"
+						type="email"
+						value={form.email}
+						onChange={(e) => updateField('email', e.target.value)}
+						autoFocus
+						required
+						aria-label="Company Email"
+						aria-required="true"
+					/>
+					{emailChecking && (
+						<p className="text-xs text-(--secondary) animate-pulse">Checking email availability...</p>
+					)}
+					{emailTaken && (
+						<div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-500/30 rounded-xl">
+							<svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
 							</svg>
-							{isAutoCreating ? 'Verified - Account setup in progress' : 'Verified'}
-						</div>
-					) : !magicLinkSent ? (
-						<Button
-							onClick={onSendMagicLink}
-							disabled={emailLoading || !name.trim() || !email.trim()}
-							isLoading={emailLoading}
-							className="w-full"
-						>
-							{emailLoading ? 'Sending email...' : 'Verify Email'}
-						</Button>
-					) : (
-						<div className="space-y-3">
-							<Button
-								onClick={onCheckVerification}
-								disabled={emailLoading}
-								isLoading={emailLoading}
-								className="w-full"
-							>
-								{emailLoading ? 'Checking...' : "I've clicked the link"}
-							</Button>
-							<button
-								type="button"
-								onClick={onSendMagicLink}
-								disabled={emailLoading}
-								className="w-full text-sm text-accent hover:underline disabled:opacity-50"
-							>
-								Resend link
-							</button>
+							<div>
+								<p className="text-sm font-medium text-amber-800">{emailCheckResult?.message || 'This email is already associated with an account.'}</p>
+								<a href="/login" className="text-sm text-accent hover:underline font-medium mt-1 inline-block">
+									Go to Login &rarr;
+								</a>
+							</div>
 						</div>
 					)}
-				</>
+					{emailClear && (
+						<EmailVerificationStep
+							email={form.email}
+							verified={emailVerification.verified}
+							magicLinkSent={emailVerification.magicLinkSent}
+							loading={emailVerification.loading}
+							onSendMagicLink={emailVerification.sendMagicLink}
+							onCheckVerification={emailVerification.checkVerification}
+						/>
+					)}
+					<div className="flex flex-wrap gap-3 pt-4">
+						<Button
+							onClick={handleNext}
+							disabled={loading || !canProceed()}
+							isLoading={loading}
+							aria-label={primaryLabel}
+							className="min-h-11"
+						>
+							{primaryLabel}
+						</Button>
+						<Button variant="ghost" onClick={handleBack} aria-label="Go back to previous step" className="min-h-11">
+							Back
+						</Button>
+					</div>
+				</div>
 			)}
-		</div>
+		</Card>
 	);
 }

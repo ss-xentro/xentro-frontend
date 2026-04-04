@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { COMPLETION_STEPS } from './_lib/constants';
 import { useFlowInitialization } from './_lib/useFlowInitialization';
-import { useEmailVerification } from './_lib/useEmailVerification';
 import { useStepNavigation } from './_lib/useStepNavigation';
 import { SignupForm } from './_components/SignupForm';
 import { StepProgressBar } from './_components/StepProgressBar';
@@ -77,33 +76,20 @@ export default function OnboardingPage() {
 	// --- Startup-specific hooks (only active when role is startup) ---
 	const {
 		existingStartupId, isInitializingFlow, isMounted,
-		isCompletionFlow, setResetVerificationCallback,
+		isCompletionFlow,
 	} = useFlowInitialization();
-
-	const email = useEmailVerification(isCompletionFlow);
 
 	const nav = useStepNavigation({
 		isCompletionFlow,
 		existingStartupId,
-		emailVerified: email.emailVerified,
-		setFeedback: email.setFeedback,
+		emailVerified: false,
+		setFeedback: () => {},
 	});
-	const {
-		handleNext,
-		isSubmitting,
-		signupCompleted,
-		signupRedirectSecondsLeft,
-	} = nav;
 
 	const [mobilePanel, setMobilePanel] = useState<'form' | 'guide'>('form');
-	const autoCreateTriggeredRef = useRef(false);
 
 	const containerWidthClass = isCompletionFlow ? 'max-w-[1480px]' : 'max-w-2xl';
 	const currentGuide = useMemo(() => STEP_GUIDANCE[nav.currentStep], [nav.currentStep]);
-
-	useEffect(() => {
-		setResetVerificationCallback(email.resetVerificationState);
-	}, [setResetVerificationCallback, email.resetVerificationState]);
 
 	useEffect(() => {
 		if (nav.error) {
@@ -111,24 +97,6 @@ export default function OnboardingPage() {
 			nav.setError(null);
 		}
 	}, [nav.error]);
-
-	useEffect(() => {
-		if (email.feedback) {
-			if (email.feedback.type === 'success') toast.success(email.feedback.message);
-			else toast.error(email.feedback.message);
-			email.setFeedback(null);
-		}
-	}, [email.feedback]);
-
-	useEffect(() => {
-		if (!email.emailVerified) {
-			autoCreateTriggeredRef.current = false;
-			return;
-		}
-		if (autoCreateTriggeredRef.current || isSubmitting || signupCompleted) return;
-		autoCreateTriggeredRef.current = true;
-		handleNext();
-	}, [isCompletionFlow, email.emailVerified, isSubmitting, signupCompleted, handleNext]);
 
 	// --- Role switch handler ---
 	const handleRoleChange = (role: OnboardingRole) => {
@@ -287,35 +255,7 @@ export default function OnboardingPage() {
 						</p>
 					</div>
 
-					{activeRole === 'startup' && (
-						<div className="bg-(--surface) border border-(--border) rounded-2xl shadow-[0_14px_40px_rgba(15,23,42,0.08)] overflow-hidden">
-							<SignupForm
-								name={nav.data.name}
-								email={nav.data.primaryContactEmail}
-								onNameChange={value => nav.updateData({ name: value })}
-								onEmailChange={email.handleEmailChange}
-								emailExists={email.emailExists}
-								emailChecking={email.emailChecking}
-								magicLinkSent={email.magicLinkSent}
-								emailVerified={email.emailVerified}
-								emailLoading={email.emailLoading}
-								isAutoCreating={isSubmitting || signupCompleted}
-								redirectSecondsLeft={signupRedirectSecondsLeft}
-								onSendMagicLink={email.handleSendMagicLink}
-								onCheckVerification={email.handleCheckVerification}
-							/>
-							<div className="px-6 md:px-8 py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-(--surface-hover)/65">
-								<Button
-									type="button"
-									onClick={nav.handleNext}
-									disabled={isSubmitting || signupCompleted || !nav.canContinue()}
-									isLoading={isSubmitting}
-								>
-									{signupCompleted ? `Redirecting in ${Math.max(signupRedirectSecondsLeft, 0)}s` : 'Continue to Login'}
-								</Button>
-							</div>
-						</div>
-					)}
+					{activeRole === 'startup' && <SignupForm />}
 
 					{activeRole === 'institution' && <InstitutionSignupForm />}
 
