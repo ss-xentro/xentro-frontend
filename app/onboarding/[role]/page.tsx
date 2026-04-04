@@ -83,7 +83,7 @@ export default function OnboardingPage() {
 		isCompletionFlow,
 		existingStartupId,
 		emailVerified: false,
-		setFeedback: () => {},
+		setFeedback: () => { },
 	});
 
 	const [mobilePanel, setMobilePanel] = useState<'form' | 'guide'>('form');
@@ -109,11 +109,11 @@ export default function OnboardingPage() {
 	// Startup completion flow — completely different layout
 	if (activeRole === 'startup' && isCompletionFlow) {
 		return (
-			<div className="min-h-screen bg-linear-to-br from-(--surface-hover) via-(--background) to-(--surface-pressed)/70 flex flex-col">
+			<div className="min-h-screen bg-linear-to-br from-(--surface-hover) via-background to-(--surface-pressed)/70 flex flex-col">
 				<OnboardingNavbar showLogout />
 
 				<div className="flex-1 py-5 sm:py-7 px-3 sm:px-6 lg:px-8 xl:px-10">
-					<div className="max-w-[1480px] mx-auto w-full">
+					<div className="max-w-370 mx-auto w-full">
 						<div className="mb-4 sm:mb-6 rounded-2xl border border-(--border) bg-(--surface) px-4 py-4 sm:px-6 sm:py-5 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
 							<div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
 								<div className="max-w-3xl">
@@ -233,7 +233,7 @@ export default function OnboardingPage() {
 	// Startup initializing spinner
 	if (activeRole === 'startup' && isInitializingFlow) {
 		return (
-			<div className="min-h-screen bg-linear-to-br from-(--surface-hover) via-(--background) to-(--surface-pressed)/40 flex items-center justify-center">
+			<div className="min-h-screen bg-linear-to-br from-(--surface-hover) via-background to-(--surface-pressed)/40 flex items-center justify-center">
 				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
 			</div>
 		);
