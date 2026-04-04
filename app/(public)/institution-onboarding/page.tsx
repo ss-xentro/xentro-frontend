@@ -134,7 +134,7 @@ export default function InstitutionOnboardingPage() {
                 </div>
                 <Input
                   label="Institution Name"
-                  placeholder="Y Combinator"
+
                   value={form.name}
                   onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                   required
@@ -163,7 +163,6 @@ export default function InstitutionOnboardingPage() {
                 </div>
                 <Input
                   label="Your Full Name"
-                  placeholder="Jane Doe"
                   value={adminName}
                   onChange={(e) => setAdminName(e.target.value)}
                   required
@@ -174,7 +173,7 @@ export default function InstitutionOnboardingPage() {
                 <Input
                   label="Phone Number (optional)"
                   type="tel"
-                  placeholder="+1 234 567 8900"
+
                   value={adminPhone}
                   onChange={(e) => setAdminPhone(e.target.value)}
                   aria-label="Admin phone number"
@@ -209,7 +208,7 @@ export default function InstitutionOnboardingPage() {
                 <Input
                   label="Work Email Address"
                   type="email"
-                  placeholder="you@institution.edu"
+
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required

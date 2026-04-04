@@ -618,7 +618,6 @@ export default function MentorProfilePage() {
 											onChange={(e) =>
 												updatePricingPlan(idx, "price", e.target.value)
 											}
-											placeholder="0"
 											min="0"
 											className="w-full px-3 py-2 text-sm rounded-lg border border-(--border) bg-(--surface) text-(--primary) placeholder:text-(--secondary) focus:outline-none focus:ring-2 focus:ring-accent/40"
 										/>

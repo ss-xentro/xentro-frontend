@@ -44,7 +44,7 @@ export function SignupForm({
 
 			<Input
 				label="Startup Name"
-				placeholder="e.g. Acme Technologies"
+
 				value={name}
 				onChange={e => onNameChange(e.target.value)}
 				autoFocus
@@ -54,7 +54,7 @@ export function SignupForm({
 			<Input
 				label="Company Email"
 				type="email"
-				placeholder="you@company.com"
+
 				value={email}
 				onChange={e => onEmailChange(e.target.value)}
 				disabled={emailVerified}

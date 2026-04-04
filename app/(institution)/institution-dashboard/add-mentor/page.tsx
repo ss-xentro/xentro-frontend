@@ -77,7 +77,6 @@ export default function AddMentorPage() {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="John Doe"
                 required
               />
             </div>
@@ -87,7 +86,6 @@ export default function AddMentorPage() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="john@example.com"
                 required
               />
               {/* Email uniqueness indicator */}
@@ -128,7 +126,6 @@ export default function AddMentorPage() {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+1 555 123 4567"
                 required
               />
             </div>

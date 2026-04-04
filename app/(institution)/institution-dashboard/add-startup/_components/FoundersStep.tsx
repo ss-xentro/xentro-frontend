@@ -68,7 +68,7 @@ export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 							value={founder.name}
 							onChange={(e) => updateFounder(founder.id, 'name', e.target.value)}
 							className="w-full px-4 py-3 text-sm bg-background border border-(--border) rounded-lg focus:border-(--primary) focus:outline-none transition-colors"
-							placeholder="Full name"
+
 							aria-label="Founder name"
 						/>
 					</div>
@@ -80,7 +80,7 @@ export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 							value={founder.email}
 							onChange={(e) => updateFounder(founder.id, 'email', e.target.value)}
 							className="w-full px-4 py-3 text-sm bg-background border border-(--border) rounded-lg focus:border-(--primary) focus:outline-none transition-colors"
-							placeholder="founder@startup.com"
+
 							aria-label="Founder email"
 						/>
 						<FounderEmailCheck email={founder.email} />
@@ -93,7 +93,7 @@ export function FoundersStep({ founders, setFounders }: FoundersStepProps) {
 							value={founder.phone}
 							onChange={(e) => updateFounder(founder.id, 'phone', e.target.value)}
 							className="w-full px-4 py-3 text-sm bg-background border border-(--border) rounded-lg focus:border-(--primary) focus:outline-none transition-colors"
-							placeholder="+1 555 123 4567"
+
 							aria-label="Founder phone"
 						/>
 					</div>

@@ -89,7 +89,6 @@ export default function MentorSignupPage() {
           <div className="space-y-4">
             <Input
               label="Full name"
-              placeholder="Jordan Patel"
               value={form.name}
               onChange={(e) => updateField('name', e.target.value)}
               autoFocus
@@ -105,7 +104,6 @@ export default function MentorSignupPage() {
             <Input
               label="Work email"
               type="email"
-              placeholder="you@example.com"
               value={form.email}
               onChange={(e) => updateField('email', e.target.value)}
               autoFocus

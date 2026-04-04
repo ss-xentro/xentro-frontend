@@ -224,9 +224,9 @@ export default function EditMentorPage() {
 									value={pricingPerHour}
 									onChange={(e) => setPricingPerHour(e.target.value)}
 									className="w-full pl-8 pr-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none"
-									placeholder="0.00"
+
 									min="0"
-									step="0.01"
+									step="1"
 								/>
 							</div>
 						</div>
@@ -239,9 +239,9 @@ export default function EditMentorPage() {
 									value={rate}
 									onChange={(e) => setRate(e.target.value)}
 									className="w-full pl-8 pr-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none"
-									placeholder="0.00"
+
 									min="0"
-									step="0.01"
+									step="1"
 								/>
 							</div>
 						</div>

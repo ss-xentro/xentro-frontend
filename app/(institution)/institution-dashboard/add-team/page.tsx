@@ -79,7 +79,7 @@ export default function AddTeamMemberPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors"
-                  placeholder="e.g., Jane Smith"
+
                   required
                   aria-label="Team member name"
                 />
@@ -94,7 +94,7 @@ export default function AddTeamMemberPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors"
-                  placeholder="jane.smith@institution.edu"
+
                   required
                   aria-label="Team member email"
                 />
@@ -139,7 +139,7 @@ export default function AddTeamMemberPage() {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full px-4 py-3 text-sm bg-(--accent-subtle) border border-(--border-hover) text-(--primary) rounded-lg focus:border-(--border-focus) focus:outline-none transition-colors"
-                  placeholder="+1 (555) 123-4567"
+
                   aria-label="Phone number"
                 />
               </div>

@@ -331,7 +331,7 @@ export default function AccountSettings({
 										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 											setName(e.target.value)
 										}
-										placeholder="Your full name"
+
 									/>
 								</div>
 							)}
@@ -355,7 +355,7 @@ export default function AccountSettings({
 									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 										setPhone(e.target.value)
 									}
-									placeholder="+1 (555) 000-0000"
+
 								/>
 							</div>
 						</div>

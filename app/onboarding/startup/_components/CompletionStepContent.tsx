@@ -41,7 +41,7 @@ export function CompletionStepContent({ currentStep, data, updateData, toggleWhy
 						<p className="text-[11px] uppercase tracking-[0.14em] text-(--secondary)">Part A</p>
 						<Input
 							label="Startup Name"
-							placeholder="e.g. Acme Technologies"
+
 							value={data.name}
 							onChange={e => updateData({ name: e.target.value })}
 							autoFocus

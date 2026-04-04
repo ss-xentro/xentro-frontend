@@ -36,7 +36,7 @@ export function FundingSection() {
                 <div className="relative">
                     <Input
                         label="Total Funds Raised"
-                        placeholder="0.00"
+
                         type="number"
                         min="0"
                         value={data.fundsRaised}
@@ -51,7 +51,7 @@ export function FundingSection() {
                     label="Currency"
                     value={data.fundingCurrency}
                     onChange={(e) => updateData({ fundingCurrency: e.target.value.toUpperCase() })}
-                    placeholder="USD"
+
                     maxLength={3}
                 />
             </div>

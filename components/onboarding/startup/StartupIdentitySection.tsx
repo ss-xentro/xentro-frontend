@@ -13,7 +13,7 @@ export function StartupIdentitySection() {
             <div className="grid gap-6">
                 <Input
                     label="Startup Name"
-                    placeholder="e.g. Acme Inc."
+
                     value={data.name}
                     onChange={(e) => updateData({ name: e.target.value })}
                     required
@@ -21,7 +21,7 @@ export function StartupIdentitySection() {
 
                 <Input
                     label="Tagline"
-                    placeholder="e.g. The operating system for startups"
+
                     value={data.tagline}
                     onChange={(e) => updateData({ tagline: e.target.value })}
                     hint="A short, catchy phrase describing your business"

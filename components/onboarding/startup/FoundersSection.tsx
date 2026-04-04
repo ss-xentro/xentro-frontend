@@ -77,7 +77,7 @@ export function FoundersSection() {
 							<div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
 								<Input
 									label="Full Name"
-									placeholder="Jane Doe"
+
 									value={founder.name}
 									onChange={(e) => updateFounder(index, { name: e.target.value })}
 									required
@@ -85,7 +85,7 @@ export function FoundersSection() {
 
 								<Input
 									label="Email Address (Optional display)"
-									placeholder="jane@example.com"
+
 									type="email"
 									hint="Shown publicly if provided"
 									value={founder.email}
@@ -187,7 +187,7 @@ export function FoundersSection() {
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<Input
 									label="Full Name"
-									placeholder="Alex Doe"
+
 									value={member.name}
 									onChange={(e) => updateTeamMember(index, { name: e.target.value })}
 									required
@@ -195,7 +195,7 @@ export function FoundersSection() {
 
 								<Input
 									label="Email Address (Optional display)"
-									placeholder="alex@example.com"
+
 									type="email"
 									hint="Shown publicly"
 									value={member.email}

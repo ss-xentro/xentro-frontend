@@ -33,7 +33,7 @@ export default function ContactDetailsSlide({
                 <Input
                     label="Contact Email"
                     type="email"
-                    placeholder="contact@institution.com"
+
                     value={email}
                     onChange={(e) => onEmailChange(e.target.value)}
                     autoFocus
@@ -48,7 +48,7 @@ export default function ContactDetailsSlide({
                 <Input
                     label="Contact Phone"
                     type="tel"
-                    placeholder="+1 (555) 123-4567"
+
                     value={phone}
                     onChange={(e) => onPhoneChange(e.target.value)}
                     icon={

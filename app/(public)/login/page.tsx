@@ -307,7 +307,7 @@ export default function UnifiedLoginPage() {
                                     <Input
                                         type="email"
                                         label="Email Address"
-                                        placeholder="you@example.com"
+
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
@@ -343,7 +343,7 @@ export default function UnifiedLoginPage() {
                                 <Input
                                     type="text"
                                     label="One-Time Password"
-                                    placeholder="000000"
+
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                                     required

@@ -24,7 +24,7 @@ export default function InstitutionNameSlide({ value, onChange, className }: Ins
             <div className="max-w-md mx-auto">
                 <Input
                     label="Institution Name"
-                    placeholder="Y Combinator"
+
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     autoFocus

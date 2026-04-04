@@ -221,7 +221,7 @@ export default function EditInstitutionPage() {
                 type="url"
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                placeholder="https://example.com"
+
               />
 
               <Input
@@ -229,7 +229,7 @@ export default function EditInstitutionPage() {
                 type="url"
                 value={formData.linkedin}
                 onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                placeholder="https://linkedin.com/company/..."
+
               />
 
               <div className="md:col-span-2">

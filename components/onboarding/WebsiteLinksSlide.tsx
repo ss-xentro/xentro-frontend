@@ -32,7 +32,7 @@ export default function WebsiteLinksSlide({
             <div className="max-w-md mx-auto space-y-6">
                 <Input
                     label="Website URL"
-                    placeholder="https://example.com"
+
                     value={website}
                     onChange={(e) => onWebsiteChange(e.target.value)}
                     autoFocus
@@ -45,7 +45,7 @@ export default function WebsiteLinksSlide({
 
                 <Input
                     label="LinkedIn URL"
-                    placeholder="https://linkedin.com/company/..."
+
                     value={linkedin}
                     onChange={(e) => onLinkedinChange(e.target.value)}
                     icon={
