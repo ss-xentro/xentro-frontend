@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Input } from '@/components/ui';
-import { OnboardingWizardLayout } from '@/components/ui/OnboardingWizardLayout';
+import { Card, Input, Button, ProgressIndicator } from '@/components/ui';
 import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
 import { toast } from 'sonner';
 
@@ -76,68 +75,84 @@ export function MentorSignupForm() {
 		setStep((prev) => Math.max(1, prev - 1));
 	};
 
-	const renderStep = () => {
-		switch (step) {
-			case 1:
-				return (
-					<div className="space-y-4">
-						<Input
-							label="Full name"
-							value={form.name}
-							onChange={(e) => updateField('name', e.target.value)}
-							autoFocus
-							required
-						/>
-					</div>
-				);
-			case 2:
-				return (
-					<div className="space-y-4">
-						<Input
-							label="Work email"
-							type="email"
-							value={form.email}
-							onChange={(e) => updateField('email', e.target.value)}
-							autoFocus
-							required
-						/>
-						<EmailVerificationStep
-							email={form.email}
-							verified={emailVerification.verified}
-							magicLinkSent={emailVerification.magicLinkSent}
-							loading={emailVerification.loading}
-							onSendMagicLink={emailVerification.sendMagicLink}
-							onCheckVerification={emailVerification.checkVerification}
-						/>
-					</div>
-				);
-			default:
-				return null;
-		}
-	};
-
 	const stepTitles = ['Your name', 'Verify email'];
 	const isLastStep = step === TOTAL_STEPS;
 	const primaryLabel = isLastStep
 		? (loading ? 'Creating account...' : 'Continue to login')
 		: 'Continue';
 
-	const combinedFeedback = emailVerification.feedback || null;
-
 	return (
-		<OnboardingWizardLayout
-			title="Mentor Signup"
-			subtitle={stepTitles[step - 1]}
-			currentStep={step}
-			totalSteps={TOTAL_STEPS}
-			feedback={combinedFeedback}
-			onBack={handleBack}
-			onNext={handleNext}
-			primaryLabel={primaryLabel}
-			loading={loading}
-			canProceed={canProceed()}
-		>
-			{renderStep()}
-		</OnboardingWizardLayout>
+		<Card className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+			<ProgressIndicator currentStep={step} totalSteps={TOTAL_STEPS} />
+
+			{step === 1 && (
+				<div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
+					<div className="text-center space-y-2 mb-6">
+						<h2 className="text-xl font-semibold text-(--primary)">What&apos;s your name?</h2>
+						<p className="text-sm text-(--secondary)">We&apos;ll use this for your mentor profile.</p>
+					</div>
+					<Input
+						label="Full name"
+						value={form.name}
+						onChange={(e) => updateField('name', e.target.value)}
+						autoFocus
+						required
+						aria-label="Full name"
+						aria-required="true"
+					/>
+					<div className="flex justify-end pt-4">
+						<Button
+							onClick={handleNext}
+							disabled={!canProceed()}
+							aria-label="Continue to email verification"
+							className="min-w-30 min-h-11"
+						>
+							Continue
+						</Button>
+					</div>
+				</div>
+			)}
+
+			{step === 2 && (
+				<div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
+					<div className="text-center space-y-2 mb-6">
+						<h2 className="text-xl font-semibold text-(--primary)">Verify your email address</h2>
+						<p className="text-sm text-(--secondary)">We&apos;ll send you a secure link to confirm your identity.</p>
+					</div>
+					<Input
+						label="Work email"
+						type="email"
+						value={form.email}
+						onChange={(e) => updateField('email', e.target.value)}
+						autoFocus
+						required
+						aria-label="Work email address"
+						aria-required="true"
+					/>
+					<EmailVerificationStep
+						email={form.email}
+						verified={emailVerification.verified}
+						magicLinkSent={emailVerification.magicLinkSent}
+						loading={emailVerification.loading}
+						onSendMagicLink={emailVerification.sendMagicLink}
+						onCheckVerification={emailVerification.checkVerification}
+					/>
+					<div className="flex flex-wrap gap-3 pt-4">
+						<Button
+							onClick={handleNext}
+							disabled={loading || !canProceed()}
+							isLoading={loading}
+							aria-label={primaryLabel}
+							className="min-h-11"
+						>
+							{primaryLabel}
+						</Button>
+						<Button variant="ghost" onClick={handleBack} aria-label="Go back to previous step" className="min-h-11">
+							Back
+						</Button>
+					</div>
+				</div>
+			)}
+		</Card>
 	);
 }

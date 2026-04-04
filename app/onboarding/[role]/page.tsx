@@ -98,7 +98,7 @@ export default function OnboardingPage() {
 	const [mobilePanel, setMobilePanel] = useState<'form' | 'guide'>('form');
 	const autoCreateTriggeredRef = useRef(false);
 
-	const containerWidthClass = isCompletionFlow ? 'max-w-[1480px]' : 'max-w-4xl';
+	const containerWidthClass = isCompletionFlow ? 'max-w-[1480px]' : 'max-w-2xl';
 	const currentGuide = useMemo(() => STEP_GUIDANCE[nav.currentStep], [nav.currentStep]);
 
 	useEffect(() => {
@@ -288,33 +288,31 @@ export default function OnboardingPage() {
 					</div>
 
 					{activeRole === 'startup' && (
-						<div className="max-w-2xl mx-auto">
-							<div className="bg-(--surface) border border-(--border) rounded-2xl shadow-[0_14px_40px_rgba(15,23,42,0.08)] overflow-hidden">
-								<SignupForm
-									name={nav.data.name}
-									email={nav.data.primaryContactEmail}
-									onNameChange={value => nav.updateData({ name: value })}
-									onEmailChange={email.handleEmailChange}
-									emailExists={email.emailExists}
-									emailChecking={email.emailChecking}
-									magicLinkSent={email.magicLinkSent}
-									emailVerified={email.emailVerified}
-									emailLoading={email.emailLoading}
-									isAutoCreating={isSubmitting || signupCompleted}
-									redirectSecondsLeft={signupRedirectSecondsLeft}
-									onSendMagicLink={email.handleSendMagicLink}
-									onCheckVerification={email.handleCheckVerification}
-								/>
-								<div className="px-6 md:px-8 py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-(--surface-hover)/65">
-									<Button
-										type="button"
-										onClick={nav.handleNext}
-										disabled={isSubmitting || signupCompleted || !nav.canContinue()}
-										isLoading={isSubmitting}
-									>
-										{signupCompleted ? `Redirecting in ${Math.max(signupRedirectSecondsLeft, 0)}s` : 'Continue to Login'}
-									</Button>
-								</div>
+						<div className="bg-(--surface) border border-(--border) rounded-2xl shadow-[0_14px_40px_rgba(15,23,42,0.08)] overflow-hidden">
+							<SignupForm
+								name={nav.data.name}
+								email={nav.data.primaryContactEmail}
+								onNameChange={value => nav.updateData({ name: value })}
+								onEmailChange={email.handleEmailChange}
+								emailExists={email.emailExists}
+								emailChecking={email.emailChecking}
+								magicLinkSent={email.magicLinkSent}
+								emailVerified={email.emailVerified}
+								emailLoading={email.emailLoading}
+								isAutoCreating={isSubmitting || signupCompleted}
+								redirectSecondsLeft={signupRedirectSecondsLeft}
+								onSendMagicLink={email.handleSendMagicLink}
+								onCheckVerification={email.handleCheckVerification}
+							/>
+							<div className="px-6 md:px-8 py-5 md:py-6 flex items-center justify-between border-t border-(--border) bg-(--surface-hover)/65">
+								<Button
+									type="button"
+									onClick={nav.handleNext}
+									disabled={isSubmitting || signupCompleted || !nav.canContinue()}
+									isLoading={isSubmitting}
+								>
+									{signupCompleted ? `Redirecting in ${Math.max(signupRedirectSecondsLeft, 0)}s` : 'Continue to Login'}
+								</Button>
 							</div>
 						</div>
 					)}
