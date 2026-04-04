@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (!res.ok) {
                 setIsLoading(false);
-                return { success: false, error: data.message || 'Invalid email or password' };
+                return { success: false, error: data.message || 'Invalid email or password. Please try again.' };
             }
 
             const normalized = normalizeUser(data.user);
@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return { success: true };
         } catch (err) {
             setIsLoading(false);
-            return { success: false, error: 'Login failed. Please try again.' };
+            return { success: false, error: 'Something went wrong. Please check your connection and try again.' };
         }
     }, []);
 

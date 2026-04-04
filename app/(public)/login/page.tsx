@@ -155,14 +155,14 @@ export default function UnifiedLoginPage() {
 
             if (!res.ok) {
                 if (data.code === 'USER_NOT_FOUND') {
-                    toast.error('No account found with this email. Please sign up first.');
+                    toast.error('Invalid credentials. Please check your email or sign up for an account.');
                     return;
                 }
                 if (data.code === 'ACCESS_DENIED') {
-                    toast.error(data.error || 'Access restricted. Only startup founders, mentors, investors, institutions, and admins can log in.');
+                    toast.error('Unable to sign in with this account. Please contact support if you need assistance.');
                     return;
                 }
-                throw new Error(getApiErrorMessageFromPayload(data, 'Failed to send OTP'));
+                throw new Error(getApiErrorMessageFromPayload(data, 'Failed to send verification code'));
             }
 
             setSessionId(data.sessionId);
@@ -195,7 +195,7 @@ export default function UnifiedLoginPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(getApiErrorMessageFromPayload(data, 'Invalid OTP'));
+                throw new Error(getApiErrorMessageFromPayload(data, 'Incorrect or expired code. Please try again.'));
             }
 
             const role = await storeSession(data);
@@ -237,14 +237,14 @@ export default function UnifiedLoginPage() {
 
             if (!res.ok) {
                 if (data.code === 'USER_NOT_FOUND') {
-                    toast.error('No account found with this email. Please sign up first.');
+                    toast.error('Invalid credentials. Please check your email or sign up for an account.');
                     return;
                 }
                 if (data.code === 'ACCESS_DENIED') {
-                    toast.error(data.error || 'Access restricted. Only startup founders, mentors, investors, institutions, and admins can log in.');
+                    toast.error('Unable to sign in with this account. Please contact support if you need assistance.');
                     return;
                 }
-                throw new Error(getApiErrorMessageFromPayload(data, 'Google login failed'));
+                throw new Error(getApiErrorMessageFromPayload(data, 'Google sign-in failed. Please try again.'));
             }
 
             const role = await storeSession(data);
