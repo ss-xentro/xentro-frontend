@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (!res.ok) {
                 setIsLoading(false);
-                return { success: false, error: data.message || 'Invalid email or password. Please try again.' };
+                return { success: false, error: data.message || 'Invalid email. Please try again.' };
             }
 
             const normalized = normalizeUser(data.user);
