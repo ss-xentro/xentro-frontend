@@ -9,9 +9,10 @@ import TagInput from '@/components/ui/TagInput';
 import { getAuthCookie, getSessionToken, syncAuthCookie } from '@/lib/auth-utils';
 import { toast } from 'sonner';
 import { isMentorOnboardingComplete } from '@/lib/mentor-onboarding';
+import { WhyMentorStep } from './_components/WhyMentorStep';
 
 
-const TOTAL_STEPS = 2;
+const TOTAL_STEPS = 3;
 
 const FOCUS_SUGGESTIONS = [
 	{
@@ -63,6 +64,8 @@ export default function MentorOnboardingPage() {
 
 	const [occupation, setOccupation] = useState('');
 	const [focusTags, setFocusTags] = useState<string[]>([]);
+	const [motivation, setMotivation] = useState<string[]>([]);
+	const [motivationOther, setMotivationOther] = useState('');
 
 	const authUser = useMemo(() => getAuthCookie(), []);
 
@@ -102,6 +105,8 @@ export default function MentorOnboardingPage() {
 
 				setOccupation(data.occupation || '');
 				setFocusTags(toTagArray(data.expertise));
+				if (Array.isArray(data.motivation)) setMotivation(data.motivation);
+				if (data.motivation_other) setMotivationOther(data.motivation_other);
 			} catch {
 				if (!isActive) return;
 				toast.error('Could not load mentor onboarding details.');
@@ -120,6 +125,7 @@ export default function MentorOnboardingPage() {
 	const canProceed = () => {
 		if (step === 1) return occupation.trim().length > 0;
 		if (step === 2) return focusTags.length > 0;
+		if (step === 3) return motivation.length > 0;
 		return false;
 	};
 
@@ -155,6 +161,8 @@ export default function MentorOnboardingPage() {
 					lastName,
 					currentRole: occupation.trim(),
 					expertiseAreas: focusTags,
+					motivation,
+					motivationOther: motivationOther.trim(),
 				}),
 			});
 
@@ -201,7 +209,7 @@ export default function MentorOnboardingPage() {
 		);
 	}
 
-	const stepTitles = ['Current role', 'Focus areas'];
+	const stepTitles = ['Current role', 'Focus areas', 'Motivation'];
 
 	return (
 		<div className="min-h-screen bg-(--surface) flex flex-col">
@@ -229,7 +237,7 @@ export default function MentorOnboardingPage() {
 						autoFocus
 						required
 					/>
-				) : (
+				) : step === 2 ? (
 					<TagInput
 						label="Focus areas"
 						tags={focusTags}
@@ -238,6 +246,19 @@ export default function MentorOnboardingPage() {
 						}}
 						placeholder="Type a focus area and press Enter..."
 						suggestions={FOCUS_SUGGESTIONS}
+					/>
+				) : (
+					<WhyMentorStep
+						selectedValues={motivation}
+						otherText={motivationOther}
+						onToggle={(value) => {
+							setMotivation((prev) =>
+								prev.includes(value)
+									? prev.filter((v) => v !== value)
+									: [...prev, value]
+							);
+						}}
+						onOtherChange={setMotivationOther}
 					/>
 				)}
 			</OnboardingWizardLayout>
