@@ -155,7 +155,7 @@ export function ContextSwitcher({ token, currentContext = 'explorer', contexts =
                   className={cn(
                     'w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors',
                     'hover:bg-(--surface-hover)',
-                    isActive && 'bg-accent/10'
+                    isActive && 'bg-(--accent-subtle)'
                   )}
                 >
                   <AppIcon name={meta.icon} className="w-5 h-5" />

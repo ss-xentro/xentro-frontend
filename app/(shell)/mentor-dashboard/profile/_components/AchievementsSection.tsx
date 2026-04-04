@@ -193,14 +193,14 @@ export default function AchievementsSection({
 							<button
 								type="button"
 								onClick={() => setComposerType('achievement')}
-								className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${composerType === 'achievement' ? 'border-accent bg-accent/10 text-accent' : 'border-(--border) bg-(--surface-hover) text-(--secondary)'}`}
+								className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${composerType === 'achievement' ? 'border-accent bg-(--accent-subtle) text-accent' : 'border-(--border) bg-(--surface-hover) text-(--secondary)'}`}
 							>
 								Achievement
 							</button>
 							<button
 								type="button"
 								onClick={() => setComposerType('highlight')}
-								className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${composerType === 'highlight' ? 'border-accent bg-accent/10 text-accent' : 'border-(--border) bg-(--surface-hover) text-(--secondary)'}`}
+								className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${composerType === 'highlight' ? 'border-accent bg-(--accent-subtle) text-accent' : 'border-(--border) bg-(--surface-hover) text-(--secondary)'}`}
 							>
 								Highlight
 							</button>

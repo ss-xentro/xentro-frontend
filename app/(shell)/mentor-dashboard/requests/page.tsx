@@ -105,7 +105,7 @@ export default function MentorRequestsPage() {
 							key={f}
 							onClick={() => setFilter(f)}
 							className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${filter === f
-								? 'bg-accent/10 text-accent border border-accent/30'
+								? 'bg-(--accent-subtle) text-accent border border-accent/30'
 								: 'bg-(--surface) text-(--secondary) border border-(--border) hover:bg-(--surface-hover)'
 								}`}
 						>

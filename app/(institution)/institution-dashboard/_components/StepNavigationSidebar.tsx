@@ -110,7 +110,7 @@ export default function StepNavigationSidebar({
 									className={`
                     w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-colors
                     ${isCurrent
-											? 'bg-accent/10 text-accent font-semibold'
+											? 'bg-(--accent-subtle) text-accent font-semibold'
 											: completed
 												? 'text-(--primary) hover:bg-(--surface-hover)'
 												: 'text-(--secondary) hover:bg-(--surface-hover)'

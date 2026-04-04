@@ -61,7 +61,7 @@ export default function TagInput({
                 {tags.map((tag, index) => (
                     <span
                         key={`${tag}-${index}`}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent rounded-full text-sm font-medium animate-fadeIn"
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-(--accent-subtle) text-accent rounded-full text-sm font-medium animate-fadeIn"
                     >
                         {tag}
                         <button
@@ -108,7 +108,7 @@ export default function TagInput({
                                             className={cn(
                                                 'px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-150',
                                                 isAdded
-                                                    ? 'bg-accent/10 text-accent cursor-default'
+                                                    ? 'bg-(--accent-subtle) text-accent cursor-default'
                                                     : 'bg-(--surface-hover) text-(--secondary) hover:bg-accent/10 hover:text-accent cursor-pointer'
                                             )}
                                         >

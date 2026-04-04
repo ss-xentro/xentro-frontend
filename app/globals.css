@@ -163,8 +163,8 @@
   /* Accent Colors */
   --accent: #F9FAFB;
   --accent-hover: #E5E7EB;
-  --accent-light: rgba(255, 255, 255, 0.16);
-  --accent-subtle: rgba(255, 255, 255, 0.08);
+  --accent-light: rgba(255, 255, 255, 0.22);
+  --accent-subtle: rgba(255, 255, 255, 0.14);
 
   /* Status Colors */
   --success: #10B981;
@@ -229,8 +229,8 @@
   /* Accent Colors */
   --accent: #111827;
   --accent-hover: #1F2937;
-  --accent-light: rgba(0, 0, 0, 0.08);
-  --accent-subtle: rgba(0, 0, 0, 0.04);
+  --accent-light: rgba(0, 0, 0, 0.14);
+  --accent-subtle: rgba(0, 0, 0, 0.08);
 
   /* Status Colors */
   --success: #059669;
