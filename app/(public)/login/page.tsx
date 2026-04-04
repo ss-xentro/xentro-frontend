@@ -155,7 +155,7 @@ export default function UnifiedLoginPage() {
 
             if (!res.ok) {
                 if (data.code === 'USER_NOT_FOUND') {
-                    toast.error('Invalid email or password');
+                    toast.error('No account found with this email');
                     return;
                 }
                 if (data.code === 'ACCESS_DENIED') {
