@@ -1,8 +1,13 @@
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { RichTextEditor } from '@/components/ui/RichTextEditor';
+
+const RichTextEditor = dynamic(
+	() => import('@/components/ui/RichTextEditor').then(m => m.RichTextEditor ?? m.default),
+	{ ssr: false, loading: () => <div className="h-32 bg-(--surface) rounded-lg animate-pulse" /> }
+);
 import { FileUpload } from '@/components/ui/FileUpload';
 import { VideoUpload } from '@/components/ui/VideoUpload';
 import {

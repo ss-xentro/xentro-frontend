@@ -6,7 +6,11 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
-import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import dynamic from 'next/dynamic';
+const RichTextEditor = dynamic(
+    () => import('@/components/ui/RichTextEditor').then(m => m.RichTextEditor ?? m.default),
+    { ssr: false, loading: () => <div className="h-32 bg-(--surface) rounded-lg animate-pulse" /> }
+);
 import { FileUpload } from '@/components/ui/FileUpload';
 import { MediaPreview } from '@/components/ui/MediaPreview';
 import { Modal } from '@/components/ui/Modal';

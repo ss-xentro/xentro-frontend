@@ -10,6 +10,9 @@ const CANONICAL_ONBOARDING_PATH = '/startup/onboarding';
 const ALLOWED_PATHS = new Set([CANONICAL_ONBOARDING_PATH, '/onboarding/startup']);
 const CACHE_KEY = 'xentro_onboarding_ok';
 
+/** Paths that definitely don't belong to startup users — skip the guard entirely. */
+const IRRELEVANT_PREFIXES = ['/institution', '/mentor/', '/admin', '/join', '/verify-'];
+
 export default function StartupOnboardingGuard({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
 	const router = useRouter();
@@ -24,6 +27,9 @@ export default function StartupOnboardingGuard({ children }: { children: React.R
 		if (!isAuthenticated || !isStartupUser || ALLOWED_PATHS.has(pathname)) {
 			return;
 		}
+
+		// Skip guard for paths unrelated to startups
+		if (IRRELEVANT_PREFIXES.some(p => pathname.startsWith(p))) return;
 
 		// If we already verified onboarding this session, skip the API call
 		if (sessionStorage.getItem(CACHE_KEY) === 'true') {

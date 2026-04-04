@@ -1,5 +1,9 @@
 import { Button } from '@/components/ui/Button';
-import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import dynamic from 'next/dynamic';
+const RichTextEditor = dynamic(
+	() => import('@/components/ui/RichTextEditor').then(m => m.RichTextEditor ?? m.default),
+	{ ssr: false, loading: () => <div className="h-32 bg-(--surface) rounded-lg animate-pulse" /> }
+);
 import RichTextDisplay from '@/components/ui/RichTextDisplay';
 import { useMemo, useState } from 'react';
 

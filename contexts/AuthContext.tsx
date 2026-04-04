@@ -46,24 +46,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     setUser(hydratedUser);
                     setToken(null);
 
-                    // M1: Fetch full user data (including email) from the server
-                    try {
-                        const res = await fetch('/api/auth/me/');
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (!cancelled && data.user) {
-                                const full = normalizeUser(data.user);
-                                setUser({
-                                    id: full.id || hydratedUser.id,
-                                    email: full.email || '',
-                                    name: full.name || hydratedUser.name,
-                                    avatar: full.avatar || hydratedUser.avatar,
-                                    role: (full.role || hydratedUser.role) as User['role'],
-                                    unlockedContexts: full.contexts?.length ? full.contexts : hydratedUser.unlockedContexts,
-                                });
+                    // M1: Fetch full user data (including email) from the server.
+                    // Skip if we recently fetched (within 60s) to avoid redundant
+                    // calls on soft navigations.
+                    const AUTH_ME_CACHE_KEY = 'xentro_auth_me_ts';
+                    const lastFetch = Number(sessionStorage.getItem(AUTH_ME_CACHE_KEY) || 0);
+                    const stale = Date.now() - lastFetch > 60_000;
+
+                    if (stale) {
+                        try {
+                            const res = await fetch('/api/auth/me/');
+                            if (res.ok) {
+                                const data = await res.json();
+                                if (!cancelled && data.user) {
+                                    const full = normalizeUser(data.user);
+                                    setUser({
+                                        id: full.id || hydratedUser.id,
+                                        email: full.email || '',
+                                        name: full.name || hydratedUser.name,
+                                        avatar: full.avatar || hydratedUser.avatar,
+                                        role: (full.role || hydratedUser.role) as User['role'],
+                                        unlockedContexts: full.contexts?.length ? full.contexts : hydratedUser.unlockedContexts,
+                                    });
+                                    sessionStorage.setItem(AUTH_ME_CACHE_KEY, String(Date.now()));
+                                }
                             }
-                        }
-                    } catch { /* Non-critical — UI works without email */ }
+                        } catch { /* Non-critical — UI works without email */ }
+                    }
                 }
             } catch {
                 clearAuthCookie();

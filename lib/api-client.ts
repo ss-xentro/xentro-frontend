@@ -47,21 +47,60 @@ function buildUrl(path: string, params?: RequestOptions['params']): string {
 	return qs ? `${url}?${qs}` : url;
 }
 
-// ── GET request deduplication cache ────────────────
-// Deduplicates identical in-flight GET requests so multiple components
-// requesting the same URL simultaneously share one network call.
+// ── GET request deduplication + short-lived response cache ─────
+// Deduplicates identical in-flight GET requests AND caches resolved
+// responses for a short TTL so rapid re-mounts / navigations don't
+// trigger redundant network calls.
 
 const inflightGets = new Map<string, Promise<unknown>>();
 
+interface CachedResponse { data: unknown; expiry: number }
+const responseCache = new Map<string, CachedResponse>();
+
+/** Default TTL for cached GET responses (ms). */
+const DEFAULT_CACHE_TTL = 5_000; // 5 seconds
+
+/** Endpoints that benefit from a longer cache window. */
+const LONG_CACHE_URLS = ['/api/auth/me'];
+const LONG_CACHE_TTL = 30_000; // 30 seconds
+
+function getCacheTTL(url: string): number {
+	if (LONG_CACHE_URLS.some(prefix => url.startsWith(prefix))) return LONG_CACHE_TTL;
+	return DEFAULT_CACHE_TTL;
+}
+
 function deduplicatedGet<T>(url: string, fetchFn: () => Promise<T>): Promise<T> {
+	// 1. Return cached response if still fresh
+	const cached = responseCache.get(url);
+	if (cached && Date.now() < cached.expiry) {
+		return Promise.resolve(cached.data as T);
+	}
+
+	// 2. Deduplicate in-flight requests
 	const existing = inflightGets.get(url);
 	if (existing) return existing as Promise<T>;
 
-	const promise = fetchFn().finally(() => {
-		inflightGets.delete(url);
-	});
+	const promise = fetchFn()
+		.then((data) => {
+			responseCache.set(url, { data, expiry: Date.now() + getCacheTTL(url) });
+			return data;
+		})
+		.finally(() => {
+			inflightGets.delete(url);
+		});
 	inflightGets.set(url, promise);
 	return promise;
+}
+
+/** Invalidate cached GET responses (call after mutations). */
+export function invalidateCache(urlPrefix?: string) {
+	if (!urlPrefix) {
+		responseCache.clear();
+		return;
+	}
+	for (const key of responseCache.keys()) {
+		if (key.startsWith(urlPrefix)) responseCache.delete(key);
+	}
 }
 
 // ── Core fetch wrapper ─────────────────────────────

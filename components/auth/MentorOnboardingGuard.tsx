@@ -10,6 +10,9 @@ const CANONICAL_ONBOARDING_PATH = '/mentor/onboarding';
 const ALLOWED_PATHS = new Set([CANONICAL_ONBOARDING_PATH]);
 const CACHE_KEY = 'xentro_mentor_onboarding_ok';
 
+/** Paths that definitely don't belong to mentor users — skip the guard entirely. */
+const IRRELEVANT_PREFIXES = ['/institution', '/startup/', '/admin', '/join', '/verify-'];
+
 export default function MentorOnboardingGuard({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
 	const router = useRouter();
@@ -22,6 +25,9 @@ export default function MentorOnboardingGuard({ children }: { children: React.Re
 		if (!isAuthenticated || role !== 'mentor' || ALLOWED_PATHS.has(pathname)) {
 			return;
 		}
+
+		// Skip guard for paths unrelated to mentors
+		if (IRRELEVANT_PREFIXES.some(p => pathname.startsWith(p))) return;
 
 		if (sessionStorage.getItem(CACHE_KEY) === 'true') {
 			return;
