@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
 import { Card, Button, Input } from "@/components/ui";
 import { getSessionToken } from "@/lib/auth-utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,15 +31,12 @@ interface AccountSettingsProps {
 	contactOnly?: boolean;
 	/** When false, hides the profile/contact editing card from Settings and keeps only preferences/security sections. */
 	showProfileSection?: boolean;
-	/** Optional route to dedicated profile editor page. When provided, shows an Edit Profile action in the header. */
-	editProfileHref?: string;
 }
 
 export default function AccountSettings({
 	showPasswordSection = false,
 	contactOnly = false,
 	showProfileSection = true,
-	editProfileHref,
 }: AccountSettingsProps) {
 	const { user, setSession, token: authToken } = useAuth();
 	const [settings, setSettings] = useState<Settings | null>(null);
@@ -71,7 +67,7 @@ export default function AccountSettings({
 		if (!token) return;
 
 		try {
-			const res = await fetch(`${API}/api/account/settings/`, {
+			const res = await fetch(`/api/account/settings/`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			if (!res.ok) throw new Error("Failed to load settings");
@@ -167,6 +163,15 @@ export default function AccountSettings({
 		? !phone?.trim()
 		: !name?.trim() || !phone?.trim());
 
+	const isDirty = settings != null && (
+		name !== (settings.name || "") ||
+		phone !== (settings.phone || "") ||
+		avatar !== (settings.avatar || "") ||
+		notifications.emailNotifications !== settings.notifications.emailNotifications ||
+		notifications.pushNotifications !== settings.notifications.pushNotifications ||
+		notifications.inAppNotifications !== settings.notifications.inAppNotifications
+	);
+
 	if (loading) {
 		return (
 			<div className="flex items-center justify-center py-20">
@@ -178,21 +183,11 @@ export default function AccountSettings({
 	return (
 		<div className="space-y-8 max-w-3xl">
 			{/* Header */}
-			<div className="flex items-start justify-between gap-3">
-				<div>
-					<h1 className="text-2xl font-bold text-(--primary)">Settings</h1>
-					<p className="text-(--secondary) mt-1">
-						Manage your account preferences
-					</p>
-				</div>
-				{editProfileHref && (
-					<Link
-						href={editProfileHref}
-						className="inline-flex min-h-11 h-11 items-center justify-center rounded-lg border border-(--border) bg-(--surface) px-4 text-sm font-medium text-(--primary) transition-colors hover:bg-(--surface-hover)"
-					>
-						Edit Profile
-					</Link>
-				)}
+			<div>
+				<h1 className="text-2xl font-bold text-(--primary)">Settings</h1>
+				<p className="text-(--secondary) mt-1">
+					Manage your account preferences
+				</p>
 			</div>
 
 			{/* Profile Completion Banner */}
@@ -507,12 +502,14 @@ export default function AccountSettings({
 				)
 			}
 
-			{/* Save Button */}
-			<div className="flex justify-end">
-				<Button onClick={handleSave} disabled={saving}>
-					{saving ? "Saving..." : "Save Settings"}
-				</Button>
-			</div>
+			{/* Save Button — only visible when something changed */}
+			{isDirty && (
+				<div className="flex justify-end">
+					<Button onClick={handleSave} disabled={saving}>
+						{saving ? "Saving..." : "Save Settings"}
+					</Button>
+				</div>
+			)}
 		</div >
 	);
 }

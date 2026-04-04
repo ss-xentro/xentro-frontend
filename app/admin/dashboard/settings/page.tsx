@@ -6,7 +6,7 @@ import { Card } from '@/components/ui';
 export default function AdminSettingsPage() {
 	return (
 		<div className="space-y-8 max-w-3xl">
-			<AccountSettings showPasswordSection showProfileSection={false} editProfileHref="/profile" />
+			<AccountSettings showPasswordSection showProfileSection={false} />
 
 			{/* Platform Info */}
 			<Card className="p-6 space-y-4">

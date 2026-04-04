@@ -3,5 +3,5 @@
 import AccountSettings from '@/components/ui/AccountSettings';
 
 export default function InvestorSettingsPage() {
-	return <AccountSettings showProfileSection={false} editProfileHref="/profile" />;
+	return <AccountSettings showProfileSection={false} />;
 }
