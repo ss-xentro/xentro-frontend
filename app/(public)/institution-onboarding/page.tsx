@@ -167,16 +167,16 @@ export default function InstitutionOnboardingPage() {
                   onChange={(e) => setAdminName(e.target.value)}
                   required
                   autoFocus
-                  aria-label="Admin full name"
+                  aria-label="Admin name"
                   aria-required="true"
                 />
                 <Input
-                  label="Admin Phone Number (optional)"
+                  label="Admin Contact Number (optional)"
                   type="tel"
 
                   value={adminPhone}
                   onChange={(e) => setAdminPhone(e.target.value)}
-                  aria-label="Admin phone number"
+                  aria-label="Admin contact number"
                 />
                 <div className="flex flex-wrap gap-3 pt-4">
                   <Button
