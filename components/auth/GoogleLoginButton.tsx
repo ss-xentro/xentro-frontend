@@ -14,6 +14,9 @@ function generateNonce(): string {
   return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Google Identity Services hard-caps button width at 400px
+const GOOGLE_BTN_MAX_WIDTH = 400;
+
 export function GoogleLoginButton({ onSuccess, onError, isLoading }: GoogleLoginButtonProps) {
   const [nonce, setNonce] = useState('');
   const { resolvedTheme } = useTheme();
@@ -28,7 +31,8 @@ export function GoogleLoginButton({ onSuccess, onError, isLoading }: GoogleLogin
 
   const measureWidth = useCallback(() => {
     if (containerRef.current) {
-      setBtnWidth(containerRef.current.offsetWidth);
+      const w = containerRef.current.offsetWidth;
+      setBtnWidth(Math.min(w, GOOGLE_BTN_MAX_WIDTH));
     }
   }, []);
 
@@ -43,7 +47,7 @@ export function GoogleLoginButton({ onSuccess, onError, isLoading }: GoogleLogin
   return (
     <div
       ref={containerRef}
-      className={`w-full ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
+      className={`w-full flex justify-center overflow-hidden ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
     >
       {btnWidth && (
         <GoogleLogin
