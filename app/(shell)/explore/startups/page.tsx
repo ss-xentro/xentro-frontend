@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { startupStageLabels, fundingRoundLabels } from '@/lib/types/labels';
+import type { StartupStage, FundingRound } from '@/lib/types/startups';
 
 const stages = [
     { value: 'all', label: 'All Stages' },
@@ -125,7 +127,7 @@ function StartupsContent() {
                                 </div>
                                 {startup.stage && (
                                     <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${stageColor[startup.stage] ?? 'bg-(--accent-light) text-(--primary-light) border-(--border)'}`}>
-                                        {startup.stage.replace(/_/g, ' ')}
+                                        {startupStageLabels[startup.stage as StartupStage]?.label ?? startup.stage}
                                     </span>
                                 )}
                             </div>
@@ -142,7 +144,7 @@ function StartupsContent() {
                             <div className="pt-3 border-t border-(--border) flex items-center justify-between text-xs">
                                 {startup.fundingRound && (
                                     <span className="px-2 py-0.5 rounded-full bg-(--accent-subtle) text-(--secondary) border border-(--border)">
-                                        {startup.fundingRound.replace(/_/g, ' ')}
+                                        {fundingRoundLabels[startup.fundingRound as FundingRound]?.label ?? startup.fundingRound}
                                     </span>
                                 )}
                                 {Number(startup.fundsRaised) > 0 && (

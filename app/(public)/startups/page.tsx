@@ -9,6 +9,8 @@ import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { startupStageLabels, fundingRoundLabels } from '@/lib/types/labels';
+import type { StartupStage, FundingRound } from '@/lib/types/startups';
 
 // Reusing options (should be shared)
 const stages = [
@@ -205,7 +207,7 @@ function StartupsContent() {
                                                 </span>
                                             )}
                                         </div>
-                                        {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
+                                        {startup.stage && <Badge variant="info">{startupStageLabels[startup.stage as StartupStage]?.label ?? startup.stage}</Badge>}
                                     </div>
 
                                     <div className="mb-3 sm:mb-4 flex-1">
@@ -221,7 +223,7 @@ function StartupsContent() {
                                         <div className="flex items-center gap-2">
                                             {startup.fundingRound && (
                                                 <Badge variant="outline" size="sm" className="bg-(--surface)">
-                                                    {startup.fundingRound.replace(/_/g, ' ')}
+                                                    {fundingRoundLabels[startup.fundingRound as FundingRound]?.label ?? startup.fundingRound}
                                                 </Badge>
                                             )}
                                         </div>
@@ -257,14 +259,14 @@ function StartupsContent() {
                                             <p className="text-(--secondary) truncate text-xs sm:text-sm">{startup.tagline || 'Building something amazing'}</p>
                                         </div>
                                         <div className="hidden sm:flex items-center gap-2 md:gap-4 shrink-0">
-                                            {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
-                                            {startup.fundingRound && <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>}
+                                            {startup.stage && <Badge variant="info">{startupStageLabels[startup.stage as StartupStage]?.label ?? startup.stage}</Badge>}
+                                            {startup.fundingRound && <Badge variant="outline">{fundingRoundLabels[startup.fundingRound as FundingRound]?.label ?? startup.fundingRound}</Badge>}
                                         </div>
                                     </div>
                                     {/* Mobile badges row */}
                                     <div className="flex sm:hidden items-center gap-2 mt-2 pl-15">
-                                        {startup.stage && <Badge variant="info">{startup.stage.replace('_', ' ')}</Badge>}
-                                        {startup.fundingRound && <Badge variant="outline">{startup.fundingRound.replace(/_/g, ' ')}</Badge>}
+                                        {startup.stage && <Badge variant="info">{startupStageLabels[startup.stage as StartupStage]?.label ?? startup.stage}</Badge>}
+                                        {startup.fundingRound && <Badge variant="outline">{fundingRoundLabels[startup.fundingRound as FundingRound]?.label ?? startup.fundingRound}</Badge>}
                                     </div>
                                 </Card>
                             </Link>

@@ -2,6 +2,8 @@
 
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { startupStageLabels, fundingRoundLabels } from '@/lib/types/labels';
+import type { StartupStage, FundingRound } from '@/lib/types/startups';
 import type { StartupData } from './types';
 
 export function StartupInfoCard({ startup, founderRole }: { startup: StartupData; founderRole: string }) {
@@ -26,8 +28,8 @@ export function StartupInfoCard({ startup, founderRole }: { startup: StartupData
 							<Badge variant={startup.status === 'active' ? 'success' : 'secondary'}>
 								{startup.status}
 							</Badge>
-							<Badge variant="info">{startup.stage}</Badge>
-							<Badge variant="outline">{startup.fundingRound}</Badge>
+							<Badge variant="info">{startupStageLabels[startup.stage as StartupStage]?.label ?? startup.stage}</Badge>
+							<Badge variant="outline">{fundingRoundLabels[startup.fundingRound as FundingRound]?.label ?? startup.fundingRound}</Badge>
 						</div>
 					</div>
 

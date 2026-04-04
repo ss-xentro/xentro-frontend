@@ -1,5 +1,7 @@
 import { Card, Badge } from '@/components/ui';
 import { Startup } from '../institution-tabs-config';
+import { startupStageLabels } from '@/lib/types/labels';
+import type { StartupStage } from '@/lib/types/startups';
 
 export default function StartupsTab({ startups }: { startups: Startup[] }) {
 	if (startups.length === 0) {
@@ -43,7 +45,7 @@ export default function StartupsTab({ startups }: { startups: Startup[] }) {
 								<p className="text-(--secondary) mt-1 mb-3 line-clamp-2">{startup.oneLiner || startup.tagline}</p>
 							)}
 							<div className="flex gap-3 flex-wrap">
-								{startup.stage && <Badge variant="outline" className="border-(--border) text-(--primary-light)">{startup.stage}</Badge>}
+								{startup.stage && <Badge variant="outline" className="border-(--border) text-(--primary-light)">{startupStageLabels[startup.stage as StartupStage]?.label ?? startup.stage}</Badge>}
 								{startup.location && (
 									<span className="text-sm text-(--secondary) flex items-center gap-1">
 										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

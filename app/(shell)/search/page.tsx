@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, Input, Button, Badge, EmptyState } from '@/components/ui';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { startupStageLabels } from '@/lib/types/labels';
+import type { StartupStage } from '@/lib/types/startups';
 
 interface SearchResult {
 	id: string;
@@ -245,7 +247,7 @@ export default function SearchPage() {
 												<span className="px-1.5 py-0.5 text-[10px] rounded bg-(--accent-light) text-(--secondary-light)">{item.industry}</span>
 											)}
 											{item.stage && (
-												<span className="px-1.5 py-0.5 text-[10px] rounded bg-(--accent-light) text-(--secondary-light)">{item.stage}</span>
+												<span className="px-1.5 py-0.5 text-[10px] rounded bg-(--accent-light) text-(--secondary-light)">{startupStageLabels[item.stage as StartupStage]?.label ?? item.stage}</span>
 											)}
 											{item.investorType && (
 												<span className="px-1.5 py-0.5 text-[10px] rounded bg-(--accent-light) text-(--secondary-light)">{item.investorType}</span>
