@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
 import { OnboardingWizardLayout } from '@/components/ui/OnboardingWizardLayout';
+import { OnboardingRoleSelect } from '@/components/ui/OnboardingRoleSelect';
 import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
 import { toast } from 'sonner';
 
@@ -138,7 +139,7 @@ export default function MentorSignupPage() {
       <OnboardingNavbar />
 
       <OnboardingWizardLayout
-        title="Mentor onboarding"
+        title={<OnboardingRoleSelect current="mentor" />}
         subtitle={stepTitles[step - 1]}
         currentStep={step}
         totalSteps={TOTAL_STEPS}

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { OnboardingNavbar } from '@/components/ui/OnboardingNavbar';
+import { OnboardingRoleSelect } from '@/components/ui/OnboardingRoleSelect';
 import { toast } from 'sonner';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { COMPLETION_STEPS } from './_lib/constants';
@@ -132,7 +133,7 @@ export default function StartupOnboardingPage() {
                             <div className="max-w-3xl">
                                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--secondary)">Startup Onboarding</p>
                                 <h1 className="mt-1.5 text-xl sm:text-3xl lg:text-4xl font-semibold text-(--primary) tracking-tight leading-tight">
-                                    {isCompletionFlow ? 'Complete your Startup Profile' : 'Create your Startup Account'}
+                                    {isCompletionFlow ? 'Complete your Startup Profile' : <OnboardingRoleSelect current="startup" />}
                                 </h1>
                                 <p className="mt-2 text-xs sm:text-base text-(--secondary)">
                                     {isCompletionFlow

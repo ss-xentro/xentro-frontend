@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, Input, Button, ProgressIndicator, OnboardingNavbar } from '@/components/ui';
 import { toast } from 'sonner';
 import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
+import { OnboardingRoleSelect } from '@/components/ui/OnboardingRoleSelect';
 import { OnboardingFormData } from '@/lib/types';
 
 const steps = ['Name', 'Admin', 'Email', 'Verify'];
@@ -118,8 +119,9 @@ export default function InstitutionOnboardingPage() {
       <main className="flex-1 py-8 sm:py-12 md:py-16 px-3 sm:px-4" role="main">
         <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
           <div className="text-center space-y-1.5 sm:space-y-2">
-            <p className="text-accent font-semibold text-xs sm:text-sm uppercase tracking-wide">Institution Onboarding</p>
-            <h1 className="text-2xl sm:text-3xl font-bold text-(--primary)">Join Xentro as an Institution</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-(--primary)">
+              <OnboardingRoleSelect current="institution" />
+            </h1>
             <p className="text-sm sm:text-base text-(--secondary) max-w-2xl mx-auto">Set up your profile. Request verification anytime after.</p>
           </div>
 

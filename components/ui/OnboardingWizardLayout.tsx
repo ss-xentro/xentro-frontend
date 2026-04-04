@@ -10,7 +10,7 @@ type Feedback = { type: 'success' | 'error'; message: string } | null;
 
 interface OnboardingWizardLayoutProps {
 	/** Main title, e.g. "Investor onboarding" */
-	title: string;
+	title: React.ReactNode;
 	/** Current step subtitle */
 	subtitle?: string;
 	/** 1-based current step index */
