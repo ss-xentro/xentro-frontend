@@ -102,12 +102,6 @@ export default function PendingApplicationView({
 						</div>
 					</Card>
 				)}
-
-				<div className="flex gap-3">
-					<Link href="/">
-						<Button variant="ghost">Back home</Button>
-					</Link>
-				</div>
 			</div>
 		</main>
 	);
