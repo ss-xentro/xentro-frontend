@@ -242,12 +242,12 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
         <div className="px-4 sm:px-8 py-8">
           {/* ── About Tab ── */}
           {activeTab === 'about' && (
-            <div className="animate-fadeIn lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 items-start">
-              <div className="hidden lg:block">
+            <div className="animate-fadeIn lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-16 items-start">
+              <div className="hidden lg:block sticky top-24">
                 <StartupAboutSidebar startup={startup} sections={aboutSidebarSections} />
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-12 max-w-[740px]">
                 <div className="lg:hidden">
                   <StartupAboutSidebar startup={startup} sections={aboutSidebarSections} />
                 </div>
