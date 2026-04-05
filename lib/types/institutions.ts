@@ -6,7 +6,7 @@ import type { OperatingMode, SDGFocus, SectorFocus } from './common';
 
 export type InstitutionType = 'incubator' | 'accelerator' | 'university' | 'vc' | 'csr' | string;
 
-export type InstitutionStatus = 'draft' | 'published' | 'archived' | 'pending';
+export type InstitutionStatus = 'draft' | 'pending' | 'approved' | 'rejected' | 'suspended';
 
 export type InstitutionRole = 'admin' | 'manager' | 'ambassador' | 'viewer';
 
