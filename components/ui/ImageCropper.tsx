@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface ImageCropperProps {
 	imageSrc: string;
@@ -48,6 +48,17 @@ export function ImageCropper({
 	const CROP_PADDING = 48;
 	const MIN_ZOOM = 1;
 	const MAX_ZOOM = 4;
+
+	/* Crop canvas height adapts to aspect ratio — avoids large empty dark areas */
+	const cropCanvasHeight = useMemo(() => {
+		const P = 48; // CROP_PADDING
+		const approxModalW = aspectRatio >= 1.2 ? 512 : 448; // max-w-lg vs max-w-md
+		const rawH = (approxModalW - P * 2) / aspectRatio;
+		return Math.round(P * 2 + Math.max(160, Math.min(300, rawH)));
+	}, [aspectRatio]);
+
+	/* Widen the modal for landscape aspect ratios so crop area has room */
+	const modalWidthClass = aspectRatio >= 1.2 ? "max-w-lg" : "max-w-md";
 
 	/* ══════════════════════════════════════════════════════════════════════
 	 * 1. Layout calculation — runs once after image loads + on resize
@@ -376,7 +387,7 @@ export function ImageCropper({
 		>
 			{/* modal card */}
 			<div
-				className="relative w-full max-w-md bg-(--surface) border border-(--border) rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+				className={`relative w-full ${modalWidthClass} bg-(--surface) border border-(--border) rounded-2xl shadow-2xl flex flex-col overflow-hidden`}
 				onPointerDown={(e) => e.stopPropagation()}
 			>
 				{/* ── header ── */}
@@ -414,10 +425,9 @@ export function ImageCropper({
 					ref={containerRef}
 					className={[
 						"relative w-full bg-[#0d0f14] overflow-hidden select-none",
-						"h-[320px] sm:h-[360px]",
 						isDragging ? "cursor-grabbing" : "cursor-grab",
 					].join(" ")}
-					style={{ touchAction: "none" }}
+					style={{ touchAction: "none", height: cropCanvasHeight }}
 					onPointerDown={onPointerDown}
 					onPointerMove={onPointerMove}
 					onPointerUp={onPointerUp}

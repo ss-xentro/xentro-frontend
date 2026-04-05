@@ -200,28 +200,44 @@ export function FileUpload({
 	]);
 
 	if (preview) {
+		const isSquareCrop = Math.abs(aspectRatio - 1) < 0.01;
 		return (
 			<div className={cn("w-full", className)}>
-				<div className="relative w-40 h-40 mx-auto rounded-xl overflow-hidden border-2 border-(--border) bg-(--secondary)">
+				<div
+					className={cn(
+						"relative overflow-hidden rounded-xl border-2 border-(--border) bg-(--surface-hover) group",
+						isSquareCrop ? "w-28 h-28 mx-auto" : "w-full",
+					)}
+					style={!isSquareCrop ? { aspectRatio } : undefined}
+				>
 					<MediaPreview
 						src={preview}
 						alt="Preview"
-						className="h-full w-full rounded-none border-0 bg-(--secondary)"
-						mediaClassName="object-contain"
+						className="h-full w-full rounded-none border-0 bg-(--surface-hover)"
+						mediaClassName="object-cover"
 					/>
+					{isUploading && (
+						<div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+							<svg className="w-5 h-5 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+								<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+								<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+							</svg>
+						</div>
+					)}
 					<button
 						type="button"
 						onClick={handleRemove}
-						className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-(--primary) text-(--background) hover:bg-(--primary-light) transition-colors"
+						className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors backdrop-blur-sm"
 						aria-label="Remove image"
 					>
 						<svg
-							className="w-4 h-4"
+							className="w-3.5 h-3.5"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
 						>
 							<path
+								strokeDasharray="round"
 								strokeLinecap="round"
 								strokeLinejoin="round"
 								strokeWidth={2}
@@ -230,9 +246,14 @@ export function FileUpload({
 						</svg>
 					</button>
 				</div>
-				<p className="mt-3 text-sm text-(--secondary) text-center">
-					{isUploading ? "Uploading..." : "Logo uploaded successfully"}
-				</p>
+				{!isUploading && (
+					<p className="mt-2 text-xs text-(--secondary) text-center flex items-center justify-center gap-1">
+						<svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+						</svg>
+						Uploaded
+					</p>
+				)}
 			</div>
 		);
 	}
@@ -278,7 +299,7 @@ export function FileUpload({
 							</svg>
 						</div>
 						<p className="text-sm font-medium text-(--primary)">
-							{isDragging ? "Drop your logo here" : "Drag & drop your logo"}
+							{isDragging ? "Drop image here" : "Drag & drop image"}
 						</p>
 						<p className="mt-1 text-sm text-(--secondary)">
 							or <span className="text-accent font-medium">browse files</span>
