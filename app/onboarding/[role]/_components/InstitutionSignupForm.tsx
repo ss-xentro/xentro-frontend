@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Input, Button, ProgressIndicator } from '@/components/ui';
 import { toast } from 'sonner';
-import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
 import { useEmailCheck } from '@/lib/useEmailCheck';
 import { OnboardingFormData } from '@/lib/types';
 
-const steps = ['Name', 'Admin', 'Email', 'Verify'];
+const steps = ['Name', 'Admin', 'Email'];
 
 const initialForm: OnboardingFormData = {
 	type: null,
@@ -42,31 +41,15 @@ export function InstitutionSignupForm() {
 	const [adminPhone, setAdminPhone] = useState('');
 	const [appCreating, setAppCreating] = useState(false);
 
-	const emailVerification = useEmailVerification({
-		email,
-		name: form.name,
-		purpose: 'signup',
-	});
-
 	const { checking: emailChecking, result: emailCheckResult } = useEmailCheck(email, 'signup');
 	const emailTaken = emailCheckResult?.exists && !emailCheckResult?.canProceed;
 	const emailClear = email.trim().length > 4 && email.includes('@') && !emailChecking && emailCheckResult !== null && !emailTaken;
-
-	useEffect(() => {
-		if (emailVerification.verified) {
-			const timer = setTimeout(() => {
-				router.push('/institution-login');
-			}, 2000);
-			return () => clearTimeout(timer);
-		}
-	}, [emailVerification.verified, router]);
 
 	const canProceed = () => {
 		switch (step) {
 			case 0: return form.name.trim().length > 0;
 			case 1: return adminName.trim().length > 0;
-			case 2: return email.trim().length > 3;
-			case 3: return emailVerification.verified;
+			case 2: return emailClear && !!form.name && !!adminName;
 			default: return false;
 		}
 	};
@@ -90,8 +73,18 @@ export function InstitutionSignupForm() {
 				const payload = await res.json();
 				if (!res.ok) throw new Error(payload.message || 'Failed to create application');
 
-				await emailVerification.sendMagicLink();
-				setStep((s) => s + 1);
+				// Send verification link (non-blocking)
+				await fetch('/api/auth/magic-link/send/', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						email: email.trim().toLowerCase(),
+						name: form.name.trim(),
+						purpose: 'signup',
+					}),
+				}).catch(() => undefined);
+				toast.success('Application submitted! Check your email to verify your address, then log in.');
+				router.push('/login');
 			} catch (err) {
 				toast.error((err as Error).message);
 			} finally {
@@ -227,23 +220,7 @@ export function InstitutionSignupForm() {
 				</div>
 			)}
 
-			{step === 3 && (
-				<div className="space-y-6 animate-fadeIn max-w-xl mx-auto">
-					<EmailVerificationStep
-						email={email}
-						verified={emailVerification.verified}
-						magicLinkSent={emailVerification.magicLinkSent}
-						loading={emailVerification.loading}
-						onSendMagicLink={emailVerification.sendMagicLink}
-						onCheckVerification={emailVerification.checkVerification}
-					/>
-					<div className="flex gap-3 pt-4">
-						<Button variant="ghost" onClick={goPrev} aria-label="Go back to previous step" className="min-h-11">
-							Back
-						</Button>
-					</div>
-				</div>
-			)}
+
 		</Card>
 	);
 }

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Input, Button, ProgressIndicator } from '@/components/ui';
-import { EmailVerificationStep, useEmailVerification } from '@/components/ui/EmailVerificationStep';
 import { useEmailCheck } from '@/lib/useEmailCheck';
 import { toast } from 'sonner';
 
@@ -14,12 +13,6 @@ export function MentorSignupForm() {
 	const [step, setStep] = useState(1);
 	const [loading, setLoading] = useState(false);
 	const [form, setForm] = useState({ name: '', email: '' });
-
-	const emailVerification = useEmailVerification({
-		email: form.email,
-		name: form.name,
-		purpose: 'signup',
-	});
 
 	const { checking: emailChecking, result: emailCheckResult } = useEmailCheck(form.email, 'signup');
 	const emailTaken = emailCheckResult?.exists && !emailCheckResult?.canProceed;
@@ -32,7 +25,7 @@ export function MentorSignupForm() {
 	const canProceed = () => {
 		switch (step) {
 			case 1: return form.name.trim().length > 0;
-			case 2: return form.email.trim().length > 0 && emailVerification.verified;
+			case 2: return emailClear;
 			default: return false;
 		}
 	};
@@ -67,8 +60,19 @@ export function MentorSignupForm() {
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.message || 'Application failed');
 
-			toast.success('Account created. Continue to login to finish mentor onboarding.');
-			setTimeout(() => router.push('/login'), 2000);
+			// Send verification link (non-blocking)
+			await fetch('/api/auth/magic-link/send/', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					email: form.email.trim().toLowerCase(),
+					name: form.name.trim(),
+					purpose: 'signup',
+				}),
+			}).catch(() => undefined);
+
+			toast.success('Account created! Check your email to verify your address, then log in.');
+			router.push('/login');
 		} catch (error) {
 			toast.error((error as Error).message);
 		} finally {
@@ -149,16 +153,6 @@ export function MentorSignupForm() {
 								</a>
 							</div>
 						</div>
-					)}
-					{emailClear && (
-						<EmailVerificationStep
-							email={form.email}
-							verified={emailVerification.verified}
-							magicLinkSent={emailVerification.magicLinkSent}
-							loading={emailVerification.loading}
-							onSendMagicLink={emailVerification.sendMagicLink}
-							onCheckVerification={emailVerification.checkVerification}
-						/>
 					)}
 					<div className="flex flex-wrap gap-3 pt-4">
 						<Button

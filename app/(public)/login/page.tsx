@@ -121,7 +121,7 @@ export default function UnifiedLoginPage() {
     const OTP_RESEND_COOLDOWN_SECONDS = 30;
     const router = useRouter();
     const { setSession } = useAuth();
-    const [step, setStep] = useState<'email' | 'otp'>('email');
+    const [step, setStep] = useState<'email' | 'otp' | 'unverified'>('email');
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
@@ -156,6 +156,10 @@ export default function UnifiedLoginPage() {
             if (!res.ok) {
                 if (data.code === 'USER_NOT_FOUND') {
                     toast.error('No account found with this email');
+                    return;
+                }
+                if (data.code === 'EMAIL_NOT_VERIFIED') {
+                    setStep('unverified');
                     return;
                 }
                 if (data.code === 'ACCESS_DENIED') {
@@ -285,7 +289,7 @@ export default function UnifiedLoginPage() {
                     </div>
 
                     <Card className="p-4 sm:p-6 md:p-8">
-                        {step === 'email' ? (
+                        {step === 'email' && (
                             <div className="space-y-6">
                                 {/* Google Sign-In */}
                                 <GoogleLoginButton
@@ -331,7 +335,8 @@ export default function UnifiedLoginPage() {
                                     </p>
                                 </form>
                             </div>
-                        ) : (
+                        )}
+                        {step === 'otp' && (
                             <form onSubmit={handleVerifyOTP} className="space-y-6">
                                 <div className="space-y-2">
                                     <h2 className="text-xl font-semibold text-(--primary)">Enter OTP</h2>
@@ -381,6 +386,53 @@ export default function UnifiedLoginPage() {
                                     {otpCooldown > 0 ? `Resend OTP in ${otpCooldown}s` : 'Resend OTP'}
                                 </button>
                             </form>
+                        )}
+                        {step === 'unverified' && (
+                            <div className="space-y-6 text-center">
+                                <div className="w-14 h-14 bg-amber-50 rounded-full flex items-center justify-center mx-auto">
+                                    <svg className="w-7 h-7 text-amber-500" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div className="space-y-2">
+                                    <h2 className="text-xl font-semibold text-(--primary)">Verify your email first</h2>
+                                    <p className="text-sm text-(--secondary)">
+                                        We&apos;ve sent a verification link to <strong>{email}</strong>.<br />
+                                        Click the link in your inbox to activate your account, then come back to log in.
+                                    </p>
+                                </div>
+                                <div className="space-y-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={async () => {
+                                            setLoading(true);
+                                            try {
+                                                await fetch('/api/auth/magic-link/send/', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({ email, purpose: 'signup' }),
+                                                });
+                                                toast.success('Verification link resent. Check your inbox.');
+                                            } catch {
+                                                toast.error('Could not resend link. Please try again.');
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }}
+                                        disabled={loading}
+                                        className="w-full text-sm text-accent hover:underline disabled:opacity-50"
+                                    >
+                                        {loading ? 'Sending...' : 'Resend verification link'}
+                                    </button>
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full"
+                                        onClick={() => { setStep('email'); setOtp(''); }}
+                                    >
+                                        Back to login
+                                    </Button>
+                                </div>
+                            </div>
                         )}
                     </Card>
                 </div>

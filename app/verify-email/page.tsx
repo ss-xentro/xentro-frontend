@@ -103,10 +103,10 @@ function LoadingView() {
 }
 
 function SuccessView() {
-	const [countdown, setCountdown] = useState(5);
+	const [countdown, setCountdown] = useState(3);
 
 	useEffect(() => {
-		const CLOSE_AFTER_MS = 5000;
+		const CLOSE_AFTER_MS = 3000;
 		const deadline = Date.now() + CLOSE_AFTER_MS;
 		let closed = false;
 
