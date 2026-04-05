@@ -15,10 +15,19 @@ const PROFILE_FIELDS: { key: string; label: string; icon: string; check: (p: Rec
     { key: 'expertise', label: 'Expertise', icon: 'target', check: (p) => !!(p.expertise && String(p.expertise).trim()) },
     { key: 'occupation', label: 'Role', icon: 'briefcase', check: (p) => !!(p.occupation && String(p.occupation).trim()) },
     {
-        key: 'pricing_per_hour', label: 'Pricing', icon: 'coins',
+        key: 'pricing', label: 'Pricing', icon: 'coins',
         check: (p) => {
             const rate = String(p.pricing_per_hour || p.rate || '').trim();
-            return !!(rate && rate !== '0' && rate !== '0.00');
+            const hasRate = !!(rate && rate !== '0' && rate !== '0.00');
+            const hasPlans = Array.isArray(p.pricing_plans) && p.pricing_plans.length > 0;
+            return hasRate || hasPlans;
+        },
+    },
+    {
+        key: 'packages', label: 'Highlights', icon: 'list',
+        check: (p) => {
+            if (Array.isArray(p.packages)) return p.packages.length > 0;
+            return !!(p.packages && String(p.packages).trim());
         },
     },
     {
