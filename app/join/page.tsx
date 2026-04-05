@@ -85,7 +85,7 @@ export default function JoinPage() {
         </Link>
       </nav>
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
+      <main className="flex-1 flex flex-col items-center justify-start sm:justify-center px-4 sm:px-6 py-8 sm:py-12 overflow-y-auto pb-28 sm:pb-12">
         <div className="w-full max-w-250">
           {/* Step Indicator */}
           <div className="text-center mb-6 sm:mb-8">
@@ -108,7 +108,7 @@ export default function JoinPage() {
               <div key={role.id} className="flex flex-col">
                 <button
                   onClick={() => setSelectedRole(selectedRole === role.id ? null : role.id)}
-                  className={`group relative border text-left transition-all duration-200 aspect-square sm:aspect-auto p-3 sm:p-4 md:p-8 flex-1 rounded-lg sm:rounded-none
+                  className={`group relative border text-left transition-all duration-200 p-4 sm:p-4 md:p-8 flex-1 rounded-lg sm:rounded-none
                     ${selectedRole === role.id
                       ? 'bg-(--primary) border-(--primary) scale-105'
                       : 'bg-(--background) border-(--border) hover:border-(--border-hover)'}
@@ -140,16 +140,16 @@ export default function JoinPage() {
 
                   <div className="relative z-10 flex flex-col h-full">
                     <div className={`mb-2 sm:mb-3 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}> 
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 [&>svg]:w-full [&>svg]:h-full">
+                      <div className="w-8 h-8 sm:w-8 sm:h-8 [&>svg]:w-full [&>svg]:h-full">
                         {role.icon}
                       </div>
                     </div>
 
-                    <h3 className={`text-sm sm:text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}> 
+                    <h3 className={`text-lg sm:text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}> 
                       {role.title}
                     </h3>
 
-                    <p className={`text-[10px] sm:text-xs md:text-sm mb-0 md:mb-6 flex-1 leading-snug ${selectedRole === role.id ? 'text-(--secondary-light)' : 'text-(--secondary-light)'}`}> 
+                    <p className={`text-sm sm:text-xs md:text-sm mb-0 md:mb-6 flex-1 leading-snug ${selectedRole === role.id ? 'text-(--secondary-light)' : 'text-(--secondary-light)'}`}> 
                       {role.description}
                     </p>
                   </div>
@@ -167,27 +167,26 @@ export default function JoinPage() {
             ))}
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-center mt-8 sm:mt-12">
+          {/* Action Buttons — desktop only (inline) */}
+          <div className="hidden sm:flex items-center justify-center mt-12">
             <button
               onClick={handleContinue}
               disabled={!selectedRole}
-              className={`px-6 sm:px-8 py-2.5 sm:py-3 text-sm font-medium transition-all duration-200 rounded-lg sm:rounded-none relative flex items-center justify-center overflow-hidden group
+              className={`w-auto px-8 py-3 text-sm font-medium transition-all duration-200 rounded-none relative flex items-center justify-center overflow-hidden group
                 ${selectedRole ? 'bg-(--primary) text-(--background) hover:bg-(--primary-light) cursor-pointer' : 'bg-(--border) text-(--secondary) cursor-not-allowed'}`}
             >
               <span
-                className={`transition-all duration-300 ease-out
-                  ${selectedRole ? 'translate-x-[-0.75rem] opacity-100' : 'translate-x-0 opacity-100'}
-                  mx-auto
-                `}
+                className={`transition-all duration-300 ease-out ${
+                  selectedRole ? 'translate-x-[-0.75rem] opacity-100' : 'translate-x-0 opacity-100'
+                } mx-auto`}
                 style={{ display: 'block', minWidth: '80px', textAlign: 'center', willChange: 'transform, opacity' }}
               >
                 Continue
               </span>
               <span
-                className={`absolute right-5 top-1/2 -translate-y-1/2 transition-all duration-300 ease-out
-                  ${selectedRole ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'}
-                `}
+                className={`absolute right-5 top-1/2 -translate-y-1/2 transition-all duration-300 ease-out ${
+                  selectedRole ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'
+                }`}
                 style={{ willChange: 'transform, opacity' }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -198,6 +197,35 @@ export default function JoinPage() {
           </div>
         </div>
       </main>
+
+      {/* Fixed bottom Continue button — mobile only */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 px-4 py-4 bg-background border-t border-(--border)">
+        <button
+          onClick={handleContinue}
+          disabled={!selectedRole}
+          className={`w-full py-4 text-base font-medium transition-all duration-200 rounded-lg relative flex items-center justify-center overflow-hidden group
+            ${selectedRole ? 'bg-(--primary) text-(--background) cursor-pointer' : 'bg-(--border) text-(--secondary) cursor-not-allowed'}`}
+        >
+          <span
+            className={`transition-all duration-300 ease-out ${
+              selectedRole ? 'translate-x-[-0.75rem] opacity-100' : 'translate-x-0 opacity-100'
+            } mx-auto`}
+            style={{ display: 'block', minWidth: '80px', textAlign: 'center', willChange: 'transform, opacity' }}
+          >
+            Continue
+          </span>
+          <span
+            className={`absolute right-5 top-1/2 -translate-y-1/2 transition-all duration-300 ease-out ${
+              selectedRole ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'
+            }`}
+            style={{ willChange: 'transform, opacity' }}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </span>
+        </button>
+      </div>
     </div>
   );
 }
