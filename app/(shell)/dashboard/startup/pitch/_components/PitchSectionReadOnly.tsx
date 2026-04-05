@@ -41,7 +41,7 @@ function MediaAndDescription({ imageUrl, description }: { imageUrl?: string | nu
 	return (
 		<div className="space-y-3">
 			{imageUrl ? (
-				<MediaPreview src={imageUrl} alt="Section media" className="w-full aspect-video" mediaClassName="object-cover" />
+				<img src={imageUrl} alt="Section media" className="w-full h-auto rounded-xl" />
 			) : null}
 			<RichTextDisplay html={description || ''} className="text-sm text-(--primary)" compact />
 		</div>
@@ -232,7 +232,7 @@ export default function PitchSectionReadOnly({
 						</p>
 						{item.imageUrl ? (
 							<div className="mt-3">
-								<MediaPreview src={item.imageUrl} alt={item.title || 'Certification image'} className="w-full aspect-4/3" mediaClassName="object-cover" />
+								<img src={item.imageUrl} alt={item.title || 'Certification image'} className="w-full h-auto rounded-xl" />
 							</div>
 						) : null}
 					</Card>

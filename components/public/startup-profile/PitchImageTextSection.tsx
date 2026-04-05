@@ -33,7 +33,7 @@ export function PitchImageTextSection({ title, items }: PitchImageTextSectionPro
 					)}>
 						{item.imageUrl && (
 							<div className="w-full rounded-lg overflow-hidden bg-(--surface-hover) shrink-0">
-								<img src={item.imageUrl} alt={item.title} className="w-full h-44 object-cover" />
+								<img src={item.imageUrl} alt={item.title} className="w-full h-auto" />
 							</div>
 						)}
 						<div className="w-full">
