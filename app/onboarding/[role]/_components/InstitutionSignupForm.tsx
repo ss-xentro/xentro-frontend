@@ -73,8 +73,8 @@ export function InstitutionSignupForm() {
 				const payload = await res.json();
 				if (!res.ok) throw new Error(payload.message || 'Failed to create application');
 
-				// Send verification link (non-blocking)
-				await fetch('/api/auth/magic-link/send/', {
+				// Send verification link
+				const linkRes = await fetch('/api/auth/magic-link/send/', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
@@ -82,7 +82,16 @@ export function InstitutionSignupForm() {
 						name: form.name.trim(),
 						purpose: 'signup',
 					}),
-				}).catch(() => undefined);
+				}).catch(() => null);
+
+				if (linkRes && !linkRes.ok) {
+					const linkData = await linkRes.json().catch(() => ({}));
+					if (linkData.code === 'EMAIL_ALREADY_REGISTERED') {
+						toast.error('An account with this email already exists. Please log in instead.');
+						router.push('/login');
+						return;
+					}
+				}
 				toast.success('Application submitted! Check your email to verify your address, then log in.');
 				router.push('/login');
 			} catch (err) {

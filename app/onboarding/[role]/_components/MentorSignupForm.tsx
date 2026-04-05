@@ -60,8 +60,8 @@ export function MentorSignupForm() {
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.message || 'Application failed');
 
-			// Send verification link (non-blocking)
-			await fetch('/api/auth/magic-link/send/', {
+			// Send verification link
+			const linkRes = await fetch('/api/auth/magic-link/send/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -69,7 +69,16 @@ export function MentorSignupForm() {
 					name: form.name.trim(),
 					purpose: 'signup',
 				}),
-			}).catch(() => undefined);
+			}).catch(() => null);
+
+			if (linkRes && !linkRes.ok) {
+				const linkData = await linkRes.json().catch(() => ({}));
+				if (linkData.code === 'EMAIL_ALREADY_REGISTERED') {
+					toast.error('An account with this email already exists. Please log in instead.');
+					router.push('/login');
+					return;
+				}
+			}
 
 			toast.success('Account created! Check your email to verify your address, then log in.');
 			router.push('/login');

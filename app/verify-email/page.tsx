@@ -26,7 +26,15 @@ function VerifyEmailContent() {
 					body: JSON.stringify({ session, code }),
 				});
 
-				const data = await res.json();
+				let data: { valid?: boolean; error?: string } = {};
+				try {
+					data = await res.json();
+				} catch {
+					// Server returned a non-JSON response (e.g. 500 HTML page)
+					setState('error');
+					setErrorMessage('Something went wrong on our end. Please try clicking the link again or request a new one.');
+					return;
+				}
 
 				if (res.ok && data.valid) {
 					setState('success');
