@@ -28,10 +28,6 @@ export default function JoinPage() {
     }
   };
 
-  const handleBack = () => {
-    router.back();
-  };
-
   const roles = [
     {
       id: 'startup' as const,
@@ -68,6 +64,26 @@ export default function JoinPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Navbar */}
+      <nav className="w-full flex items-center justify-between px-6 py-4 border-b border-(--border) bg-background">
+        {/* Logo (consistent with rest of app) */}
+        <div className="flex items-center pl-8">
+          <div className="h-12 w-12 flex items-center justify-center bg-background rounded-full mr-2">
+            <img src="/xentro-logo.png" alt="Xentro" className="h-7 w-7 rounded-full" />
+          </div>
+        </div>
+        <Link
+          href="/login"
+          className="px-4 py-2 rounded-lg border border-(--border) text-white font-medium relative overflow-hidden transition-colors duration-200 group"
+          style={{ position: 'relative' }}
+        >
+          <span className="relative z-10 transition-colors duration-200 group-hover:text-black">Log in</span>
+          <span
+            className="absolute inset-0 z-0 bg-(--primary) opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-lg group-hover:rounded-2xl"
+            style={{ transitionProperty: 'opacity, background-color, border-radius' }}
+          ></span>
+        </Link>
+      </nav>
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
         <div className="w-full max-w-250">
@@ -87,16 +103,33 @@ export default function JoinPage() {
           </div>
 
           {/* Role Cards Grid */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8 mt-8 sm:mt-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8 mt-8 sm:mt-12">
             {roles.map((role) => (
               <div key={role.id} className="flex flex-col">
                 <button
-                  onClick={() => setSelectedRole(role.id)}
-                  className={`group relative border text-left transition-all duration-200 aspect-square sm:aspect-auto p-3 sm:p-4 md:p-8 flex-1 rounded-lg sm:rounded-none ${selectedRole === role.id
-                    ? 'bg-(--primary) border-(--primary) scale-[1.02]'
-                    : 'bg-(--background) border-(--border) hover:border-(--border-hover)'
-                    }`}
+                  onClick={() => setSelectedRole(selectedRole === role.id ? null : role.id)}
+                  className={`group relative border text-left transition-all duration-200 aspect-square sm:aspect-auto p-3 sm:p-4 md:p-8 flex-1 rounded-lg sm:rounded-none
+                    ${selectedRole === role.id
+                      ? 'bg-(--primary) border-(--primary) scale-105'
+                      : 'bg-(--background) border-(--border) hover:border-(--border-hover)'}
+                    ${selectedRole && selectedRole !== role.id ? 'opacity-50' : 'opacity-100'}
+                    ${selectedRole === role.id ? 'z-10' : ''}
+                    transition-transform
+                  `}
                 >
+                  {/* Radio button icon top right */}
+                  <span className="absolute top-3 right-3 z-20">
+                    {selectedRole === role.id ? (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="8" fill="#fff" stroke="#000" strokeWidth="2" />
+                        <circle cx="10" cy="10" r="4" fill="#000" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="8" fill="#fff" stroke="#000" strokeWidth="2" />
+                      </svg>
+                    )}
+                  </span>
                   {/* Hover glow */}
                   <div
                     className={`absolute inset-0 opacity-0 transition-opacity duration-200 pointer-events-none ${selectedRole === role.id ? 'opacity-5' : 'group-hover:opacity-5'
@@ -106,32 +139,19 @@ export default function JoinPage() {
                   </div>
 
                   <div className="relative z-10 flex flex-col h-full">
-                    <div className={`mb-2 sm:mb-3 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}>
+                    <div className={`mb-2 sm:mb-3 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}> 
                       <div className="w-6 h-6 sm:w-8 sm:h-8 [&>svg]:w-full [&>svg]:h-full">
                         {role.icon}
                       </div>
                     </div>
 
-                    <h3 className={`text-sm sm:text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}>
+                    <h3 className={`text-sm sm:text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}> 
                       {role.title}
                     </h3>
 
-                    <p className={`text-[10px] sm:text-xs md:text-sm mb-0 md:mb-6 flex-1 leading-snug ${selectedRole === role.id ? 'text-(--secondary-light)' : 'text-(--secondary-light)'}`}>
+                    <p className={`text-[10px] sm:text-xs md:text-sm mb-0 md:mb-6 flex-1 leading-snug ${selectedRole === role.id ? 'text-(--secondary-light)' : 'text-(--secondary-light)'}`}> 
                       {role.description}
                     </p>
-
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(PURPOSE_DESTINATIONS[role.id]);
-                      }}
-                      className={`hidden md:flex items-center text-sm group-hover:translate-x-1 transition-transform duration-200 cursor-pointer hover:opacity-80 ${selectedRole === role.id ? 'text-(--secondary-light)' : 'text-(--primary-light)'}`}
-                    >
-                      <span className="mr-2">Continue</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </div>
                   </div>
                 </button>
 
@@ -148,23 +168,32 @@ export default function JoinPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-center gap-3 sm:gap-4 mt-8 sm:mt-12">
-            <button
-              onClick={handleBack}
-              className="px-4 sm:px-6 py-2.5 sm:py-3 border border-(--border-hover) text-(--primary) text-sm font-medium hover:bg-(--accent-subtle) transition-all duration-200 rounded-lg sm:rounded-none"
-            >
-              Back
-            </button>
-
+          <div className="flex items-center justify-center mt-8 sm:mt-12">
             <button
               onClick={handleContinue}
               disabled={!selectedRole}
-              className={`px-6 sm:px-8 py-2.5 sm:py-3 text-sm font-medium transition-all duration-200 rounded-lg sm:rounded-none ${selectedRole
-                ? 'bg-(--primary) text-(--background) hover:bg-(--primary-light)'
-                : 'bg-(--border) text-(--secondary) cursor-not-allowed'
-                }`}
+              className={`px-6 sm:px-8 py-2.5 sm:py-3 text-sm font-medium transition-all duration-200 rounded-lg sm:rounded-none relative flex items-center justify-center overflow-hidden group
+                ${selectedRole ? 'bg-(--primary) text-(--background) hover:bg-(--primary-light) cursor-pointer' : 'bg-(--border) text-(--secondary) cursor-not-allowed'}`}
             >
-              Continue
+              <span
+                className={`transition-all duration-300 ease-out
+                  ${selectedRole ? 'translate-x-[-0.75rem] opacity-100' : 'translate-x-0 opacity-100'}
+                  mx-auto
+                `}
+                style={{ display: 'block', minWidth: '80px', textAlign: 'center', willChange: 'transform, opacity' }}
+              >
+                Continue
+              </span>
+              <span
+                className={`absolute right-5 top-1/2 -translate-y-1/2 transition-all duration-300 ease-out
+                  ${selectedRole ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'}
+                `}
+                style={{ willChange: 'transform, opacity' }}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
             </button>
           </div>
         </div>
