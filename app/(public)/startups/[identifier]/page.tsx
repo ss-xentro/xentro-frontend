@@ -220,7 +220,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
 
         {/* Tab bar */}
         <div className="border-b border-(--border) sticky top-0 bg-background z-10">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 flex gap-6">
+          <div className="px-4 sm:px-8 flex gap-6">
             {tabs.map(tab => (
               <button
                 key={tab.key}
@@ -239,7 +239,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
         </div>
 
         {/* Tab content */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        <div className="px-4 sm:px-8 py-8">
           {/* ── About Tab ── */}
           {activeTab === 'about' && (
             <div className="animate-fadeIn lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 items-start">
