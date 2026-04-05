@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { sdgLabels, SDGFocus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -33,12 +34,13 @@ export default function SDGFocusSlide({ value, onChange, className }: SDGFocusSl
                 </p>
             </div>
 
-            {/* SDG Grid - 17 squares in rows */}
+            {/* SDG Grid - icon images as buttons */}
             <div className="max-w-5xl mx-auto">
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 mb-6">
-                    {sdgOptions.map(([sdg, { label, fullName, color }]) => {
+                    {sdgOptions.map(([sdg, { label, fullName }]) => {
                         const isSelected = value.includes(sdg);
                         const isDisabled = !isSelected && value.length >= 5;
+                        const num = label;
 
                         return (
                             <button
@@ -46,28 +48,30 @@ export default function SDGFocusSlide({ value, onChange, className }: SDGFocusSl
                                 onClick={() => !isDisabled && handleToggle(sdg)}
                                 disabled={isDisabled}
                                 className={cn(
-                                    'relative aspect-square rounded-lg transition-all duration-200',
-                                    'flex flex-col items-center justify-center p-3',
-                                    'border-2 hover:scale-105 active:scale-95',
-                                    isSelected && 'ring-4 ring-offset-2 ring-offset-white scale-105 shadow-lg',
+                                    'relative aspect-square rounded-lg overflow-hidden transition-all duration-200',
+                                    'hover:scale-105 active:scale-95',
+                                    isSelected && 'ring-4 ring-white ring-offset-2 ring-offset-transparent scale-105 shadow-lg',
                                     isDisabled && 'opacity-40 cursor-not-allowed hover:scale-100',
                                     !isDisabled && 'cursor-pointer'
                                 )}
-                                style={{
-                                    backgroundColor: color,
-                                    borderColor: isSelected ? '#000' : color,
-                                }}
                                 title={fullName}
+                                aria-label={`SDG ${num}: ${fullName}`}
+                                aria-pressed={isSelected}
                             >
-                                <span className="text-(--primary) font-bold text-3xl mb-1">{label}</span>
-                                <span className="text-(--primary) text-[0.65rem] font-semibold text-center leading-tight">
-                                    {fullName.split(' ').slice(0, 3).join(' ')}
-                                </span>
+                                <Image
+                                    src={`/unsdg-icons/unsdg-${num}.jpg`}
+                                    alt={`SDG ${num}: ${fullName}`}
+                                    fill
+                                    sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 16vw"
+                                    className="object-cover"
+                                />
                                 {isSelected && (
-                                    <div className="absolute top-1 right-1 w-6 h-6 bg-(--surface) rounded-full flex items-center justify-center">
-                                        <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
+                                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow">
+                                            <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
                                     </div>
                                 )}
                             </button>
@@ -94,13 +98,14 @@ export default function SDGFocusSlide({ value, onChange, className }: SDGFocusSl
                             return (
                                 <div
                                     key={sdg}
-                                    className="px-3 py-1 rounded-full text-(--primary) text-sm font-medium flex items-center gap-2"
+                                    className="px-3 py-1 rounded-full text-white text-sm font-medium flex items-center gap-2"
                                     style={{ backgroundColor: labelData.color }}
                                 >
                                     <span>SDG {labelData.label}</span>
                                     <button
                                         onClick={() => handleToggle(sdg)}
-                                        className="hover:bg-(--accent) rounded-full p-0.5"
+                                        className="hover:bg-white/20 rounded-full p-0.5"
+                                        aria-label={`Remove SDG ${labelData.label}`}
                                     >
                                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
