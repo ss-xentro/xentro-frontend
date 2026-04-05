@@ -89,7 +89,7 @@ export default function JoinPage() {
         <div className="w-full max-w-250">
           {/* Step Indicator */}
           <div className="text-center mb-6 sm:mb-8">
-            <p className="text-xs font-medium text-(--secondary-light) tracking-[0.15em] uppercase mb-4 sm:mb-6">
+            <p className="text-base sm:text-lg font-bold text-(--secondary-light) tracking-[0.15em] uppercase mb-4 sm:mb-6">
               Step 1
             </p>
 
@@ -97,9 +97,7 @@ export default function JoinPage() {
               Select Your Role
             </h1>
 
-            <p className="text-base sm:text-lg text-(--secondary-light)">
-              Choose your role.
-            </p>
+            {/* Removed subtitle 'Choose your role.' as requested */}
           </div>
 
           {/* Role Cards Grid */}
@@ -155,14 +153,16 @@ export default function JoinPage() {
                   </div>
                 </button>
 
-                {/* Login Link */}
-                <Link
-                  href={LOGIN_DESTINATIONS[role.id]}
-                  className="mt-2 text-center text-xs text-(--secondary-light) hover:text-(--primary) transition-colors duration-200"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Already have an account? <span className="font-medium underline">Log in →</span>
-                </Link>
+                {/* Login Link — only show when this card is selected */}
+                <div className={`transition-all duration-300 overflow-hidden ${selectedRole === role.id ? 'max-h-10 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'}`}>
+                  <Link
+                    href={LOGIN_DESTINATIONS[role.id]}
+                    className="block text-center text-xs text-white hover:text-(--primary) transition-colors duration-200"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <span className="text-(--secondary-light)">Already have an account?</span> <span className="font-medium underline text-white">Log in →</span>
+                  </Link>
+                </div>
               </div>
             ))}
           </div>

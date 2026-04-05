@@ -57,12 +57,26 @@ export function VerifiedBadge({ className }: { className?: string }) {
 }
 
 // Status Badge Component
-export function StatusBadge({ status }: { status: 'draft' | 'published' | 'archived' | 'pending' }) {
-    const statusConfig = {
-        draft: { label: 'Draft', variant: 'warning' as const },
-        published: { label: 'Published', variant: 'success' as const },
-        archived: { label: 'Archived', variant: 'default' as const },
-        pending: { label: 'Pending', variant: 'info' as const },
+type StatusBadgeStatus =
+    | 'draft'
+    | 'pending'
+    | 'approved'
+    | 'rejected'
+    | 'suspended'
+    | 'published'
+    | 'archived'
+    | 'active';
+
+export function StatusBadge({ status }: { status: StatusBadgeStatus }) {
+    const statusConfig: Record<StatusBadgeStatus, { label: string; variant: BadgeProps['variant'] }> = {
+        draft: { label: 'Draft', variant: 'warning' },
+        pending: { label: 'Pending', variant: 'info' },
+        approved: { label: 'Approved', variant: 'success' },
+        rejected: { label: 'Rejected', variant: 'error' },
+        suspended: { label: 'Suspended', variant: 'secondary' },
+        published: { label: 'Published', variant: 'success' },
+        archived: { label: 'Archived', variant: 'default' },
+        active: { label: 'Active', variant: 'success' },
     };
 
     const config = statusConfig[status];
