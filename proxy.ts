@@ -17,7 +17,7 @@ const securityHeaders = {
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' https: data: blob:",
     "connect-src 'self' https://accounts.google.com https://*.sentry.io wss:",
-    "frame-src https://accounts.google.com",
+    "frame-src https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
