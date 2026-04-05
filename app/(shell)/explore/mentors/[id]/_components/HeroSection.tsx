@@ -70,7 +70,7 @@ export function HeroSection({
 								</p>
 							)}
 						</div>
-						<div className="flex gap-2 shrink-0">
+						<div className="flex gap-2 shrink-0 items-start">
 							{connectionStatus === "accepted" && (
 								<span className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
 									<svg
@@ -87,13 +87,47 @@ export function HeroSection({
 									Connected
 								</span>
 							)}
-							<button
-								onClick={onAction}
-								disabled={btnConfig.disabled}
-								className={`px-5 py-2.5 rounded-xl text-sm font-semibold border transition-colors ${btnConfig.className}`}
-							>
-								{btnConfig.label}
-							</button>
+							{mentor.institutionId ? (
+								<div className="flex flex-col items-center gap-1 min-w-16">
+									<div className="w-14 h-14 rounded-xl border border-(--border) bg-(--accent-light) overflow-hidden flex items-center justify-center">
+										{mentor.institutionLogo ? (
+											<img
+												src={mentor.institutionLogo}
+												alt={mentor.institutionName ?? "Institution"}
+												className="w-full h-full object-contain p-1.5"
+											/>
+										) : (
+											<svg
+												className="w-7 h-7 text-(--secondary-light)"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth={1.5}
+													d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1v1H9V7zm5 0h1v1h-1V7zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1z"
+												/>
+											</svg>
+										)}
+									</div>
+									<p className="text-[10px] text-(--secondary-light) text-center leading-tight">
+										Endorsed by
+									</p>
+									<p className="text-[11px] font-semibold text-(--secondary) text-center leading-tight max-w-20 truncate">
+										{mentor.institutionName}
+									</p>
+								</div>
+							) : (
+								<button
+									onClick={onAction}
+									disabled={btnConfig.disabled}
+									className={`px-5 py-2.5 rounded-xl text-sm font-semibold border transition-colors ${btnConfig.className}`}
+								>
+									{btnConfig.label}
+								</button>
+							)}
 						</div>
 					</div>
 				</div>

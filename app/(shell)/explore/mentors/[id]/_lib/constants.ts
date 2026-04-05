@@ -21,6 +21,7 @@ export interface MentorDetail {
 	documents?: Array<{ name?: string; url?: string; type?: string }>;
 	institutionId?: string | null;
 	institutionName?: string | null;
+	institutionLogo?: string | null;
 	mentoredStartups: Array<{
 		id: string;
 		name: string;
@@ -269,6 +270,7 @@ export function parseMentorData(found: Record<string, unknown>): MentorDetail {
 		documents: Array.isArray(found.documents) ? found.documents as MentorDetail['documents'] : [],
 		institutionId: (found.institutionId as string) || null,
 		institutionName: (found.institutionName as string) || null,
+		institutionLogo: (found.institutionLogo as string) || null,
 		mentoredStartups: Array.isArray(found.mentored_startups)
 			? (found.mentored_startups as MentorDetail['mentoredStartups'])
 			: [],
