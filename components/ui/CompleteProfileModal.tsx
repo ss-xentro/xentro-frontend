@@ -3,25 +3,40 @@
 import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/Modal';
 
+interface MissingSections {
+    packagesAndPricing: boolean;
+    achievementsAndHighlights: boolean;
+    profilePhoto: boolean;
+}
+
 interface CompleteProfileModalProps {
     isOpen: boolean;
     onClose: () => void;
+    missingSections?: MissingSections;
 }
 
-export default function CompleteProfileModal({ isOpen, onClose }: CompleteProfileModalProps) {
+const SECTION_LABELS: Record<keyof MissingSections, string> = {
+    packagesAndPricing: 'Packages & Pricing',
+    achievementsAndHighlights: 'Achievements & Highlights',
+    profilePhoto: 'Profile Photo',
+};
+
+export default function CompleteProfileModal({ isOpen, onClose, missingSections }: CompleteProfileModalProps) {
     const router = useRouter();
 
     const handleComplete = () => {
         onClose();
-        // Navigate to profile form
         router.push('/mentor-dashboard/profile');
     };
 
     const handleLater = () => {
-        // Mark as dismissed for this session
         sessionStorage.setItem('profile_prompt_dismissed', 'true');
         onClose();
     };
+
+    const missingList = missingSections
+        ? (Object.keys(missingSections) as Array<keyof MissingSections>).filter((k) => missingSections[k])
+        : (['packagesAndPricing', 'achievementsAndHighlights', 'profilePhoto'] as Array<keyof MissingSections>);
 
     return (
         <Modal isOpen={isOpen} onClose={handleLater} className="max-w-md">
@@ -48,24 +63,14 @@ export default function CompleteProfileModal({ isOpen, onClose }: CompleteProfil
                 {/* Incomplete sections */}
                 <div className="bg-(--surface-hover) rounded-xl p-4 mb-6 space-y-3">
                     <p className="text-xs font-medium text-(--secondary) uppercase tracking-wide">Missing sections</p>
-                    <div className="flex items-center gap-3 text-sm text-(--primary)">
-                        <div className="w-5 h-5 rounded-full border-2 border-(--border) flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-full bg-(--border)" />
+                    {missingList.map((key) => (
+                        <div key={key} className="flex items-center gap-3 text-sm text-(--primary)">
+                            <div className="w-5 h-5 rounded-full border-2 border-(--border) flex items-center justify-center">
+                                <div className="w-2 h-2 rounded-full bg-(--border)" />
+                            </div>
+                            {SECTION_LABELS[key]}
                         </div>
-                        Packages & Pricing
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-(--primary)">
-                        <div className="w-5 h-5 rounded-full border-2 border-(--border) flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-full bg-(--border)" />
-                        </div>
-                        Achievements & Highlights
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-(--primary)">
-                        <div className="w-5 h-5 rounded-full border-2 border-(--border) flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-full bg-(--border)" />
-                        </div>
-                        Profile Photo
-                    </div>
+                    ))}
                 </div>
 
                 {/* Actions */}

@@ -5,11 +5,22 @@ import { useRouter } from 'next/navigation';
 import { getRoleFromSession, getUnlockedContexts } from '@/lib/auth-utils';
 import CompleteProfileModal from '@/components/ui/CompleteProfileModal';
 
+interface MissingSections {
+    packagesAndPricing: boolean;
+    achievementsAndHighlights: boolean;
+    profilePhoto: boolean;
+}
+
 export default function MentorDashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [showProfileModal, setShowProfileModal] = useState(false);
+    const [missingSections, setMissingSections] = useState<MissingSections>({
+        packagesAndPricing: false,
+        achievementsAndHighlights: false,
+        profilePhoto: false,
+    });
 
     useEffect(() => {
         const role = getRoleFromSession();
@@ -28,11 +39,28 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
         setIsAuthenticated(true);
         setIsLoading(false);
 
-        // Show profile completion prompt if not dismissed
+        // Only show profile completion modal if there are actually missing sections
         const dismissed = sessionStorage.getItem('profile_prompt_dismissed');
-        if (!dismissed) {
-            setShowProfileModal(true);
-        }
+        if (dismissed) return;
+
+        fetch('/api/auth/mentor-profile')
+            .then((res) => res.ok ? res.json() : null)
+            .then((data) => {
+                if (!data || data.profile_completed) return;
+
+                const missing: MissingSections = {
+                    packagesAndPricing: !data.pricing_plans?.length && !data.pricing_per_hour,
+                    achievementsAndHighlights: !data.achievements?.length && !data.packages?.length,
+                    profilePhoto: !data.avatar,
+                };
+
+                const hasAnythingMissing = Object.values(missing).some(Boolean);
+                if (hasAnythingMissing) {
+                    setMissingSections(missing);
+                    setShowProfileModal(true);
+                }
+            })
+            .catch(() => { /* silently skip modal on fetch error */ });
     }, [router]);
 
     if (isLoading) {
@@ -61,6 +89,7 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
             <CompleteProfileModal
                 isOpen={showProfileModal}
                 onClose={() => setShowProfileModal(false)}
+                missingSections={missingSections}
             />
         </>
     );

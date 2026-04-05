@@ -102,14 +102,9 @@ export default function ProfileView({
 											Verified
 										</span>
 									)}
-									{!profileData.verified && profileData.status === 'approved' && (
+									{profileData.profile_completed && !profileData.verified && (
 										<span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-600 border border-blue-500/30">
-											Approved
-										</span>
-									)}
-									{profileData.status === 'pending' && profileData.profile_completed && (
-										<span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600 border border-amber-500/30">
-											Pending Review
+											Active
 										</span>
 									)}
 								</div>
