@@ -9,7 +9,6 @@ const RichTextEditor = dynamic(
 	{ ssr: false, loading: () => <div className="h-32 bg-(--surface) rounded-lg animate-pulse" /> }
 );
 import { FileUpload } from '@/components/ui/FileUpload';
-import { VideoUpload } from '@/components/ui/VideoUpload';
 import {
 	PitchAbout,
 	PitchCompetitor,
@@ -76,6 +75,11 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 
 	/* ─── Video Pitch ─── */
 	if (activeSection === 'videoPitch') {
+		const youTubeRegExp = /^.*((youtu\.be\/)|(v\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+		const youTubeMatch = demoVideoUrl ? demoVideoUrl.match(youTubeRegExp) : null;
+		const youTubeEmbedId = youTubeMatch && youTubeMatch[6]?.length === 11 ? youTubeMatch[6] : null;
+		const urlIsInvalid = !!demoVideoUrl && !youTubeEmbedId;
+
 		return (
 			<div className="space-y-5 animate-fadeInUp">
 				<Card padding="none" className="overflow-hidden">
@@ -84,10 +88,43 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 							<div className="w-2 h-2 rounded-full bg-(--primary)" />
 							<span className="text-sm font-medium text-(--primary)">Video Pitch</span>
 						</div>
-						<p className="text-xs text-(--secondary) mt-0.5 ml-4">Record a short video introducing your startup. Max duration: 3 mins 5 secs.</p>
+						<p className="text-xs text-(--secondary) mt-0.5 ml-4">Paste a YouTube video URL to showcase your pitch.</p>
 					</div>
-					<div className="p-6">
-						<VideoUpload value={demoVideoUrl} onChange={setDemoVideoUrl} folder="startup-demo-videos" maxDuration={185} />
+					<div className="p-6 space-y-4">
+						<Input
+							label="YouTube Video URL"
+							type="url"
+							value={demoVideoUrl || ''}
+							onChange={e => setDemoVideoUrl(e.target.value || null)}
+							placeholder="https://www.youtube.com/watch?v=..."
+							error={urlIsInvalid ? 'Please enter a valid YouTube video URL.' : undefined}
+							disabled={!canEdit}
+							icon={
+								<svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+									<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+								</svg>
+							}
+						/>
+						{youTubeEmbedId && (
+							<div className="rounded-xl overflow-hidden border border-(--border) aspect-video">
+								<iframe
+									src={`https://www.youtube.com/embed/${youTubeEmbedId}?rel=0&modestbranding=1`}
+									className="w-full h-full"
+									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+									allowFullScreen
+									title="Video pitch preview"
+								/>
+							</div>
+						)}
+						{demoVideoUrl && canEdit && (
+							<button
+								type="button"
+								onClick={() => setDemoVideoUrl(null)}
+								className="text-xs text-error hover:underline"
+							>
+								Remove video
+							</button>
+						)}
 					</div>
 				</Card>
 			</div>

@@ -14,7 +14,7 @@ function getYouTubeEmbedUrl(url: string): string {
   const match = url.match(regExp);
   const videoId = match && match[7].length === 11 ? match[7] : null;
   // adding autoplay=1 & mute=0 typically to force autoplay if allowed
-  return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : url;
+  return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1` : url;
 }
 
 function getVimeoEmbedUrl(url: string): string {
@@ -98,14 +98,14 @@ export function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm animate-fadeIn"
       onClick={onClose}
     >
       {/* Close Button */}
       <button
         type="button"
         onClick={onClose}
-        className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-(--accent-light) hover:bg-(--accent) text-(--primary) transition-colors z-50 focus:outline-hidden"
+        className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-(--surface-hover) hover:bg-(--surface-pressed) border border-(--border) text-(--primary) transition-colors z-50 focus:outline-none focus:ring-2 focus:ring-(--border-focus)"
         aria-label="Close video"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,7 +115,7 @@ export function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProps) {
 
       {/* Video Container */}
       <div
-        className="relative w-full max-w-5xl aspect-video mx-4 shadow-2xl rounded-2xl overflow-hidden bg-black ring-1 ring-white/10"
+        className="relative w-full max-w-5xl aspect-video mx-4 shadow-2xl rounded-2xl overflow-hidden bg-black ring-1 ring-(--border)"
         onClick={(e) => e.stopPropagation()} // Prevent clicks inside video from closing modal
       >
         {isYouTube ? (
@@ -146,9 +146,9 @@ export function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProps) {
       {/* Keyboard hints */}
       {!isIframe && (
         <div className="absolute bottom-8 text-(--secondary-light) text-sm hidden md:flex items-center gap-6">
-          <span className="flex items-center gap-2"><kbd className="px-2 py-1 bg-(--accent-light) rounded-md">Space</kbd> Play / Pause</span>
-          <span className="flex items-center gap-2"><kbd className="px-2 py-1 bg-(--accent-light) rounded-md">←</kbd> <kbd className="px-2 py-1 bg-(--accent-light) rounded-md">→</kbd> Seek 5s</span>
-          <span className="flex items-center gap-2"><kbd className="px-2 py-1 bg-(--accent-light) rounded-md">↑</kbd> <kbd className="px-2 py-1 bg-(--accent-light) rounded-md">↓</kbd> Volume</span>
+          <span className="flex items-center gap-2"><kbd className="px-2 py-1 bg-(--surface-hover) border border-(--border) rounded-md">Space</kbd> Play / Pause</span>
+          <span className="flex items-center gap-2"><kbd className="px-2 py-1 bg-(--surface-hover) border border-(--border) rounded-md">←</kbd> <kbd className="px-2 py-1 bg-(--surface-hover) border border-(--border) rounded-md">→</kbd> Seek 5s</span>
+          <span className="flex items-center gap-2"><kbd className="px-2 py-1 bg-(--surface-hover) border border-(--border) rounded-md">↑</kbd> <kbd className="px-2 py-1 bg-(--surface-hover) border border-(--border) rounded-md">↓</kbd> Volume</span>
         </div>
       )}
     </div>,

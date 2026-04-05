@@ -62,11 +62,25 @@ export default function PitchSectionReadOnly({
 	activeCustomSection,
 }: PitchSectionReadOnlyProps) {
 	if (activeSection === 'videoPitch') {
-		if (!demoVideoUrl) return <EmptyContent text="No video pitch uploaded yet." />;
+		if (!demoVideoUrl) return <EmptyContent text="No video pitch added yet." />;
+
+		const ytRegExp = /^.*((youtu\.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+		const ytMatch = demoVideoUrl.match(ytRegExp);
+		const ytEmbedId = ytMatch && ytMatch[7]?.length === 11 ? ytMatch[7] : null;
+
+		if (!ytEmbedId) return <EmptyContent text="Video pitch URL is not a valid YouTube link." />;
 
 		return (
 			<Card>
-				<MediaPreview src={demoVideoUrl} kind="video" className="aspect-video w-full" mediaClassName="object-contain" />
+				<div className="aspect-video rounded-lg overflow-hidden">
+					<iframe
+						src={`https://www.youtube.com/embed/${ytEmbedId}?rel=0&modestbranding=1`}
+						className="w-full h-full"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+						allowFullScreen
+						title="Video pitch"
+					/>
+				</div>
 			</Card>
 		);
 	}
