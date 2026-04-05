@@ -160,8 +160,8 @@ export default function ExploreMentorsPage() {
 							key={opt}
 							onClick={() => setExpertise(opt)}
 							className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${expertise === opt
-									? "bg-(--primary) text-(--background) border-(--primary) shadow-sm"
-									: "bg-(--accent-subtle) text-(--secondary) border-(--border) hover:bg-(--accent-light) hover:text-(--primary-light)"
+								? "bg-(--primary) text-(--background) border-(--primary) shadow-sm"
+								: "bg-(--accent-subtle) text-(--secondary) border-(--border) hover:bg-(--accent-light) hover:text-(--primary-light)"
 								}`}
 						>
 							{opt === "all" ? "All" : opt}
@@ -289,7 +289,7 @@ export default function ExploreMentorsPage() {
 												<path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" />
 											</svg>
 											<p className="text-[11px] text-(--secondary) line-clamp-1">
-												{mentor.achievements[0]}
+												{mentor.achievements[0].replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/\s+/g, ' ').trim()}
 											</p>
 										</div>
 									</div>
