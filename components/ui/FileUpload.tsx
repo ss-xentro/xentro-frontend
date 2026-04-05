@@ -200,7 +200,8 @@ export function FileUpload({
 	]);
 
 	if (preview) {
-		const isSquareCrop = Math.abs(aspectRatio - 1) < 0.01;
+		const isSquareCrop = enableCrop && Math.abs(aspectRatio - 1) < 0.01;
+		const isFreeform = !enableCrop;
 		return (
 			<div className={cn("w-full", className)}>
 				<div
@@ -208,13 +209,22 @@ export function FileUpload({
 						"relative overflow-hidden rounded-xl border-2 border-(--border) bg-(--surface-hover) group",
 						isSquareCrop ? "w-28 h-28 mx-auto" : "w-full",
 					)}
-					style={!isSquareCrop ? { aspectRatio } : undefined}
+					style={
+						isFreeform
+							? undefined
+							: !isSquareCrop
+								? { aspectRatio }
+								: undefined
+					}
 				>
 					<MediaPreview
 						src={preview}
 						alt="Preview"
-						className="h-full w-full rounded-none border-0 bg-(--surface-hover)"
-						mediaClassName="object-cover"
+						className={cn(
+							"w-full rounded-none border-0 bg-(--surface-hover)",
+							isFreeform ? "h-auto max-h-64" : "h-full",
+						)}
+						mediaClassName={isFreeform ? "object-contain max-h-64" : "object-cover"}
 					/>
 					{isUploading && (
 						<div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
