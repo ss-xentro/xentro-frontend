@@ -28,9 +28,9 @@ export function PitchAboutCards({ pitchAbout, description }: PitchAboutCardsProp
 				<div>
 					<h2 className="text-sm sm:text-base font-semibold uppercase tracking-wide text-(--secondary) mb-3">About</h2>
 					{isHtml(about) ? (
-						<RichTextDisplay html={about} className="text-base sm:text-lg leading-relaxed max-w-3xl" />
+						<RichTextDisplay html={about} className="text-base sm:text-lg leading-relaxed" />
 					) : (
-						<p className="text-base sm:text-lg text-(--primary) leading-relaxed max-w-3xl">{about}</p>
+						<p className="text-base sm:text-lg text-(--primary) leading-relaxed">{about}</p>
 					)}
 				</div>
 			)}
@@ -40,9 +40,9 @@ export function PitchAboutCards({ pitchAbout, description }: PitchAboutCardsProp
 				<div>
 					<h2 className="text-sm sm:text-base font-semibold uppercase tracking-wide text-(--secondary) mb-3">Problem</h2>
 					{isHtml(problem) ? (
-						<RichTextDisplay html={problem} className="text-base sm:text-lg leading-relaxed max-w-3xl" />
+						<RichTextDisplay html={problem} className="text-base sm:text-lg leading-relaxed" />
 					) : (
-						<p className="text-base sm:text-lg text-(--primary) leading-relaxed max-w-3xl">{problem}</p>
+						<p className="text-base sm:text-lg text-(--primary) leading-relaxed">{problem}</p>
 					)}
 				</div>
 			)}
@@ -51,9 +51,9 @@ export function PitchAboutCards({ pitchAbout, description }: PitchAboutCardsProp
 				<div>
 					<h2 className="text-sm sm:text-base font-semibold uppercase tracking-wide text-(--secondary) mb-3">Solution</h2>
 					{isHtml(solution) ? (
-						<RichTextDisplay html={solution} className="text-base sm:text-lg leading-relaxed max-w-3xl" />
+						<RichTextDisplay html={solution} className="text-base sm:text-lg leading-relaxed" />
 					) : (
-						<p className="text-base sm:text-lg text-(--primary) leading-relaxed max-w-3xl">{solution}</p>
+						<p className="text-base sm:text-lg text-(--primary) leading-relaxed">{solution}</p>
 					)}
 				</div>
 			)}
