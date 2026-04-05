@@ -268,12 +268,31 @@ export default function PitchSectionReadOnly({
 		return (
 			<ItemGrid>
 				{certifications.map((item, idx) => (
-					<PitchItemCard
-						key={`${item.title}-${idx}`}
-						title={item.title || `Certification ${idx + 1}`}
-						imageUrl={item.imageUrl}
-						meta={[item.issuer, item.dateAwarded].filter(Boolean).join(' • ') || undefined}
-					/>
+					<Card padding="none" key={`${item.title}-${idx}`} className="overflow-hidden flex flex-col">
+						<div className="flex-1 p-5 space-y-2">
+							<h3 className="text-xl font-bold text-(--primary) leading-snug">
+								{item.title || `Certification ${idx + 1}`}
+							</h3>
+							{(item.issuer || item.dateAwarded) && (
+								<div className="text-xs text-(--secondary)">
+									{[item.issuer, item.dateAwarded].filter(Boolean).join(' • ')}
+								</div>
+							)}
+							{item.imageUrl && (
+								<a
+									href={item.imageUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="inline-flex items-center gap-2 mt-1 px-3 py-2 rounded-lg border border-(--border) bg-(--surface-hover) text-sm text-accent hover:bg-(--accent-subtle) transition-colors"
+								>
+									<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+										<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z" />
+									</svg>
+									View Certificate
+								</a>
+							)}
+						</div>
+					</Card>
 				))}
 			</ItemGrid>
 		);

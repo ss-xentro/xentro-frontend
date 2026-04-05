@@ -77,8 +77,18 @@ export function FileUpload({
 				return;
 			}
 
-			if (!file.type.startsWith("image/")) {
-				setError("Please upload an image file");
+			const isPdfMode = accept === 'application/pdf';
+			if (isPdfMode) {
+				if (file.type !== 'application/pdf') {
+					setError('Please upload a PDF file');
+					return;
+				}
+				await uploadFile(file);
+				return;
+			}
+
+			if (!file.type.startsWith('image/')) {
+				setError('Please upload an image file');
 				return;
 			}
 
@@ -93,7 +103,7 @@ export function FileUpload({
 				await uploadFile(file);
 			}
 		},
-		[enableCrop, maxSize],
+		[enableCrop, maxSize, accept],
 	);
 
 	const uploadFile = async (file: File) => {
@@ -200,6 +210,46 @@ export function FileUpload({
 	]);
 
 	if (preview) {
+		const isPdfPreview = accept === 'application/pdf' || preview.toLowerCase().endsWith('.pdf');
+		if (isPdfPreview) {
+			return (
+				<div className={cn('w-full', className)}>
+					<div className="relative flex items-center gap-3 p-4 rounded-xl border-2 border-(--border) bg-(--surface-hover)">
+						<div className="w-10 h-10 flex items-center justify-center rounded-lg bg-red-100 shrink-0">
+							<svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+								<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8.5 17v-1h7v1h-7zm0-3v-1h7v1h-7zm0-3V10h4v1h-4z" />
+							</svg>
+						</div>
+						<div className="flex-1 min-w-0">
+							<p className="text-sm font-medium text-(--primary) truncate">
+								{preview.split('/').pop()?.split('?')[0] || 'certificate.pdf'}
+							</p>
+							<a href={preview} target="_blank" rel="noopener noreferrer" className="text-xs text-accent hover:underline">
+								View PDF
+							</a>
+						</div>
+						<button
+							type="button"
+							onClick={handleRemove}
+							className="w-7 h-7 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors backdrop-blur-sm shrink-0"
+							aria-label="Remove file"
+						>
+							<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+							</svg>
+						</button>
+					</div>
+					{!isUploading && (
+						<p className="mt-2 text-xs text-(--secondary) text-center flex items-center justify-center gap-1">
+							<svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+							</svg>
+							Uploaded
+						</p>
+					)}
+				</div>
+			);
+		}
 		const isSquareCrop = enableCrop && Math.abs(aspectRatio - 1) < 0.01;
 		const isFreeform = !enableCrop;
 		return (

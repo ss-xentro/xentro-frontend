@@ -8,7 +8,6 @@ interface PitchAboutCardsProps {
 	description?: string | null;
 }
 
-/** Check if a string contains HTML tags */
 function isHtml(str: string | null | undefined): boolean {
 	if (!str) return false;
 	return /<[a-z][\s\S]*>/i.test(str);
@@ -22,38 +21,34 @@ export function PitchAboutCards({ pitchAbout, description }: PitchAboutCardsProp
 	if (!about && !problem && !solution) return null;
 
 	return (
-		<section className="space-y-8">
-			{/* About */}
+		<section className="divide-y divide-(--border)">
 			{about && (
-				<div>
-					<h2 className="text-sm sm:text-base font-semibold uppercase tracking-wide text-(--secondary) mb-3">About</h2>
+				<div className="py-8 first:pt-0">
+					<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">About</h2>
 					{isHtml(about) ? (
-						<RichTextDisplay html={about} className="text-base sm:text-lg leading-relaxed" />
+						<RichTextDisplay html={about} className="text-lg leading-8 text-(--primary)" />
 					) : (
-						<p className="text-base sm:text-lg text-(--primary) leading-relaxed">{about}</p>
+						<p className="text-lg leading-8 text-(--primary)">{about}</p>
 					)}
 				</div>
 			)}
-
-
 			{problem && (
-				<div>
-					<h2 className="text-sm sm:text-base font-semibold uppercase tracking-wide text-(--secondary) mb-3">Problem</h2>
+				<div className="py-8">
+					<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">Problem</h2>
 					{isHtml(problem) ? (
-						<RichTextDisplay html={problem} className="text-base sm:text-lg leading-relaxed" />
+						<RichTextDisplay html={problem} className="text-lg leading-8 text-(--primary)" />
 					) : (
-						<p className="text-base sm:text-lg text-(--primary) leading-relaxed">{problem}</p>
+						<p className="text-lg leading-8 text-(--primary)">{problem}</p>
 					)}
 				</div>
 			)}
-
 			{solution && (
-				<div>
-					<h2 className="text-sm sm:text-base font-semibold uppercase tracking-wide text-(--secondary) mb-3">Solution</h2>
+				<div className="py-8 last:pb-0">
+					<h2 className="text-xs font-semibold uppercase tracking-widest text-(--secondary) mb-4">Solution</h2>
 					{isHtml(solution) ? (
-						<RichTextDisplay html={solution} className="text-base sm:text-lg leading-relaxed" />
+						<RichTextDisplay html={solution} className="text-lg leading-8 text-(--primary)" />
 					) : (
-						<p className="text-base sm:text-lg text-(--primary) leading-relaxed">{solution}</p>
+						<p className="text-lg leading-8 text-(--primary)">{solution}</p>
 					)}
 				</div>
 			)}

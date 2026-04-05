@@ -403,8 +403,8 @@ export default function PitchSectionContent(props: PitchSectionContentProps) {
 								<Input label="Date Awarded" type="date" value={item.dateAwarded || ''} onChange={e => updateItem(setCertifications, idx, { dateAwarded: e.target.value })} />
 							</div>
 							<div className="mt-4">
-								<label className="block text-sm font-medium text-(--primary) mb-2">Certificate Image</label>
-								<FileUpload value={item.imageUrl || ''} onChange={url => updateItem(setCertifications, idx, { imageUrl: url })} folder="pitch-certifications" accept="image/*" />
+								<label className="block text-sm font-medium text-(--primary) mb-2">Certificate PDF</label>
+								<FileUpload value={item.imageUrl || ''} onChange={url => updateItem(setCertifications, idx, { imageUrl: url })} folder="pitch-certifications" accept="application/pdf" maxSize={20} />
 							</div>
 						</>
 					),
