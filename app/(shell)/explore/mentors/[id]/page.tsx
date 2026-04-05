@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSessionToken } from "@/lib/auth-utils";
+import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/Modal";
 import { AppIcon } from "@/components/ui/AppIcon";
@@ -347,7 +348,7 @@ export default function MentorDetailPage() {
 								</svg>
 							}
 							label="Hourly Rate"
-							value={`INR ${Number(hourlyRate).toLocaleString("en-IN")}`}
+							value={formatCurrency(Number(hourlyRate), 'INR')}
 						/>
 						<StatCard
 							icon={

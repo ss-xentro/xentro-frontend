@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { startupStageLabels, fundingRoundLabels } from '@/lib/types/labels';
+import { formatCurrency } from '@/lib/utils';
 import type { StartupStage, FundingRound } from '@/lib/types/startups';
 
 const stages = [
@@ -149,7 +150,7 @@ function StartupsContent() {
                                 )}
                                 {Number(startup.fundsRaised) > 0 && (
                                     <span className="font-medium text-green-400">
-                                        ${Number(startup.fundsRaised).toLocaleString()}
+                                        {formatCurrency(Number(startup.fundsRaised), startup.fundingCurrency || 'USD')}
                                     </span>
                                 )}
                             </div>

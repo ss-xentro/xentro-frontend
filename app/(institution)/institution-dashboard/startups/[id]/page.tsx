@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 
 interface StartupDetail {
@@ -228,7 +229,7 @@ export default function StartupDetailPage() {
 						<h3 className="text-sm font-semibold text-(--primary) mb-4">Funding & Financials</h3>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<InfoRow label="Latest Round" value={startup.fundingRound ? (fundingLabels[startup.fundingRound] || startup.fundingRound) : null} />
-							<InfoRow label="Funds Raised" value={startup.fundsRaised ? `${startup.fundingCurrency || 'USD'} ${Number(startup.fundsRaised).toLocaleString()}` : null} />
+							<InfoRow label="Funds Raised" value={startup.fundsRaised ? formatCurrency(Number(startup.fundsRaised), startup.fundingCurrency || 'USD') : null} />
 						</div>
 					</Card>
 				)}

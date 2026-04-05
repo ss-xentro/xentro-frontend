@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, Button, Textarea } from '@/components/ui';
 import { InstitutionApplication } from '@/lib/types';
-import { formatNumber } from '@/lib/utils';
+import { formatNumber, formatCurrency } from '@/lib/utils';
 import { use } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -156,7 +156,7 @@ export default function InstitutionApprovalDetailsPage({ params }: { params: Pro
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {renderField('Startups Supported', app.startupsSupported)}
               {renderField('Students Mentored', app.studentsMentored)}
-              {renderField('Funding Facilitated', `${app.fundingCurrency || ''} ${formatNumber(Number(app.fundingFacilitated || 0))}`)}
+              {renderField('Funding Facilitated', formatCurrency(Number(app.fundingFacilitated || 0), app.fundingCurrency || 'USD'))}
               <div className="sm:col-span-2">{renderField('Sector Focus', app.sectorFocus)}</div>
               <div className="sm:col-span-2">{renderField('SDG Focus', app.sdgFocus)}</div>
             </div>

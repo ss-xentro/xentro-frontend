@@ -4,14 +4,23 @@ export function cn(...classes: (string | undefined | null | false)[]): string {
     return classes.filter(Boolean).join(' ');
 }
 
-export function formatCurrency(amount: number, currency: string = 'INR'): string {
-    const formatter = new Intl.NumberFormat('en-IN', {
+export function formatCurrency(amount: number, currency: string = 'USD'): string {
+    const locale = currency === 'INR' ? 'en-IN' : 'en-US';
+    const formatter = new Intl.NumberFormat(locale, {
         style: 'currency',
         currency,
         notation: amount >= 1000000 ? 'compact' : 'standard',
         maximumFractionDigits: amount >= 1000000 ? 1 : 0,
     });
     return formatter.format(amount);
+}
+
+export function getCurrencySymbol(currency: string = 'USD'): string {
+    const symbols: Record<string, string> = {
+        USD: '$', EUR: '€', GBP: '£', INR: '₹', SGD: 'S$', AED: 'د.إ',
+        AUD: 'A$', CAD: 'C$', JPY: '¥', KRW: '₩', CHF: 'CHF', SEK: 'kr',
+    };
+    return symbols[currency] ?? currency;
 }
 
 export function formatNumber(num: number): string {

@@ -31,10 +31,14 @@ export interface InvestorProfile {
 	createdAt: string;
 }
 
-export function formatCurrency(amount: number) {
-	if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
-	if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
-	return `$${amount.toLocaleString()}`;
+export function formatCurrency(amount: number, currency: string = 'USD') {
+	const symbols: Record<string, string> = {
+		USD: '$', EUR: '€', GBP: '£', INR: '₹', SGD: 'S$', AED: 'د.إ',
+	};
+	const sym = symbols[currency] ?? currency;
+	if (amount >= 1_000_000) return `${sym}${(amount / 1_000_000).toFixed(1)}M`;
+	if (amount >= 1_000) return `${sym}${(amount / 1_000).toFixed(0)}K`;
+	return `${sym}${amount.toLocaleString()}`;
 }
 
 export const STAT_ICONS = {

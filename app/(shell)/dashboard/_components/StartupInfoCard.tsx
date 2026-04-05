@@ -3,6 +3,7 @@
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { startupStageLabels, fundingRoundLabels } from '@/lib/types/labels';
+import { formatCurrency } from '@/lib/utils';
 import type { StartupStage, FundingRound } from '@/lib/types/startups';
 import type { StartupData } from './types';
 
@@ -44,7 +45,7 @@ export function StartupInfoCard({ startup, founderRole }: { startup: StartupData
 						</div>
 						<div>
 							<span className="font-medium text-(--primary)">Funds Raised:</span>{' '}
-							${Number(startup.fundsRaised || 0).toLocaleString()}
+							{formatCurrency(Number(startup.fundsRaised || 0), startup.fundingCurrency || 'USD')}
 						</div>
 						<div>
 							<span className="font-medium text-(--primary)">Role:</span>{' '}

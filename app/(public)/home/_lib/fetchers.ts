@@ -1,4 +1,5 @@
 import { StatCard, ActivityItem, DetectedRole, defaultCards } from './constants';
+import { formatCurrency } from '@/lib/utils';
 
 function timeAgo(dateStr: string): string {
 	const diff = Date.now() - new Date(dateStr).getTime();
@@ -26,7 +27,7 @@ export async function fetchAdminData(token: string): Promise<{ cards: StatCard[]
 				{ label: 'Total Institutions', value: count, icon: 'landmark', href: '/admin/dashboard' },
 				{ label: 'Startups Supported', value: startups, icon: 'rocket' },
 				{ label: 'Students Mentored', value: students, icon: 'graduation-cap' },
-				{ label: 'Funding Facilitated', value: funding > 0 ? `$${(funding / 1e6).toFixed(1)}M` : '$0', icon: 'coins' },
+				{ label: 'Funding Facilitated', value: funding > 0 ? formatCurrency(funding) : '$0', icon: 'coins' },
 			],
 			activity: [],
 		};
@@ -54,7 +55,7 @@ export async function fetchFounderData(token: string): Promise<{ cards: StatCard
 				{ label: 'Status', value: startup?.status ?? '—', icon: 'rocket', href: '/dashboard' },
 				{ label: 'Stage', value: startup?.stage ?? '—', icon: 'trending-up' },
 				{ label: 'Team Size', value: startup?.teamMembers?.length ?? 0, icon: 'users' },
-				{ label: 'Funds Raised', value: startup?.fundsRaised ? `$${Number(startup.fundsRaised).toLocaleString()}` : '$0', icon: 'coins' },
+				{ label: 'Funds Raised', value: startup?.fundsRaised ? formatCurrency(Number(startup.fundsRaised), startup?.fundingCurrency || 'USD') : '$0', icon: 'coins' },
 			],
 			activity,
 			name: startup?.name,

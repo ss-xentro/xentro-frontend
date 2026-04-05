@@ -26,10 +26,9 @@ export default function InvestmentProfileCard({ profile }: InvestmentProfileCard
 				<div>
 					<p className="text-xs text-(--secondary) uppercase tracking-wider">Check Size</p>
 					<p className="text-sm font-medium text-(--primary)">
-						{profile.checkSizeMin ? formatCurrency(Number(profile.checkSizeMin)) : '—'}
+						{profile.checkSizeMin ? formatCurrency(Number(profile.checkSizeMin), profile?.currency || 'USD') : '—'}
 						{' — '}
-						{profile.checkSizeMax ? formatCurrency(Number(profile.checkSizeMax)) : '—'}
-						{' '}{profile?.currency || 'USD'}
+						{profile.checkSizeMax ? formatCurrency(Number(profile.checkSizeMax), profile?.currency || 'USD') : '—'}
 					</p>
 				</div>
 			)}

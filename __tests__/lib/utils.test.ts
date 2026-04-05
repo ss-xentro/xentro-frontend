@@ -32,17 +32,22 @@ describe("cn", () => {
 // ── formatCurrency ───────────────────────────────────────
 
 describe("formatCurrency", () => {
-	it("formats small INR amounts", () => {
+	it("formats small USD amounts (default)", () => {
 		const result = formatCurrency(5000);
 		expect(result).toContain("5,000");
-		expect(result).toContain("₹");
+		expect(result).toContain("$");
 	});
 
 	it("uses compact notation for millions", () => {
 		const result = formatCurrency(2500000);
-		expect(result).toContain("₹");
+		expect(result).toContain("$");
 		// compact notation renders as $2.5M or similar
 		expect(result.length).toBeLessThan(10);
+	});
+
+	it("supports INR currency", () => {
+		const result = formatCurrency(5000, "INR");
+		expect(result).toContain("₹");
 	});
 
 	it("supports other currencies", () => {

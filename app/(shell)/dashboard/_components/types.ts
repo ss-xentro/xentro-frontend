@@ -16,6 +16,7 @@ export interface StartupData {
 	stage: string;
 	status: string;
 	fundingRound: string;
+	fundingCurrency?: string;
 	foundedDate: string;
 	fundsRaised: string;
 	primaryContactEmail: string;

@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
+import { formatCurrency } from '@/lib/utils';
 import { readApiErrorMessage } from '@/lib/error-utils';
 
 interface SlotEntry { day: string; startTime: string; endTime: string; }
@@ -210,8 +211,8 @@ export default function MentorDetailPage() {
 					{/* Details Grid */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-(--border) pt-6">
 						<InfoRow label="Institution" value={mentor.institutionName} />
-						<InfoRow label="Base Rate" value={mentor.rate ? `INR ${Number(mentor.rate).toLocaleString('en-IN')}` : null} />
-						<InfoRow label="Pricing / Hour" value={mentor.pricing_per_hour ? `INR ${Number(mentor.pricing_per_hour).toLocaleString('en-IN')}/hr` : null} />
+						<InfoRow label="Base Rate" value={mentor.rate ? formatCurrency(Number(mentor.rate), 'INR') : null} />
+						<InfoRow label="Pricing / Hour" value={mentor.pricing_per_hour ? `${formatCurrency(Number(mentor.pricing_per_hour), 'INR')}/hr` : null} />
 						<InfoRow label="Joined" value={new Date(mentor.created_at).toLocaleDateString()} />
 						<InfoRow label="Last Updated" value={new Date(mentor.updated_at).toLocaleDateString()} />
 					</div>

@@ -1,6 +1,7 @@
 'use client';
 
 import RichTextDisplay from '@/components/ui/RichTextDisplay';
+import { formatCurrency } from '@/lib/utils';
 import { ProfileData, DocumentEntry, PricingPlan } from '../_lib/constants';
 
 interface ProfileViewProps {
@@ -288,7 +289,7 @@ export default function ProfileView({
 									)}
 								</div>
 								<p className="text-2xl font-bold text-(--primary) mb-4">
-									{!plan.price || plan.price === '0' ? 'Free' : `₹${Number(plan.price).toLocaleString('en-IN')}`}
+									{!plan.price || plan.price === '0' ? 'Free' : formatCurrency(Number(plan.price), 'INR')}
 								</p>
 								{plan.perks.filter(Boolean).length > 0 && (
 									<ul className="space-y-2">

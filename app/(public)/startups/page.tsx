@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { startupStageLabels, fundingRoundLabels } from '@/lib/types/labels';
+import { formatCurrency } from '@/lib/utils';
 import type { StartupStage, FundingRound } from '@/lib/types/startups';
 
 // Reusing options (should be shared)
@@ -229,7 +230,7 @@ function StartupsContent() {
                                         </div>
                                         {Number(startup.fundsRaised) > 0 && (
                                             <span className="text-sm font-medium text-success">
-                                                ${Number(startup.fundsRaised).toLocaleString()}
+                                                {formatCurrency(Number(startup.fundsRaised), startup.fundingCurrency || 'USD')}
                                             </span>
                                         )}
                                     </div>

@@ -10,6 +10,8 @@ import { FileUpload } from '@/components/ui/FileUpload';
 import { Badge } from '@/components/ui/Badge';
 import { MediaPreview } from '@/components/ui/MediaPreview';
 import { getSessionToken } from '@/lib/auth-utils';
+import { currencies } from '@/lib/types';
+import { getCurrencySymbol } from '@/lib/utils';
 import { toast } from 'sonner';
 
 // Reusing options from onboarding (should be shared constants)
@@ -377,13 +379,17 @@ export default function StartupSettingsPage() {
                                         type="number"
                                         value={data.fundsRaised || ''}
                                         onChange={(e) => setData({ ...data, fundsRaised: e.target.value })}
-                                        icon={<span>$</span>}
+                                        icon={<span>{getCurrencySymbol(data.fundingCurrency)}</span>}
                                     />
 
-                                    <Input
+                                    <Select
                                         label="Currency"
                                         value={data.fundingCurrency}
-                                        onChange={(e) => setData({ ...data, fundingCurrency: e.target.value })}
+                                        onChange={(val) => setData({ ...data, fundingCurrency: val })}
+                                        options={currencies.map((c) => ({
+                                            value: c.code,
+                                            label: `${c.code} (${c.symbol})`,
+                                        }))}
                                     />
                                 </div>
 

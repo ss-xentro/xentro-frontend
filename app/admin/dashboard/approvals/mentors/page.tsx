@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button, Card } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 
 type MentorRow = {
@@ -15,6 +15,7 @@ type MentorRow = {
   expertise: string | null;
   rate: string | number | null;
   pricing_per_hour: string | number | null;
+  currency?: string | null;
   achievements: string | string[] | null;
   availability: string | null;
   documents: { name: string; url: string }[] | null;
@@ -139,7 +140,7 @@ export default function MentorVerificationPage() {
                     )}
                     {(row.pricing_per_hour || row.rate) && (
                       <div className="text-xs text-muted-foreground">
-                        Rate: INR {Number(row.pricing_per_hour || row.rate).toLocaleString('en-IN')}/hr
+                        Rate: {formatCurrency(Number(row.pricing_per_hour || row.rate), row.currency || 'INR')}/hr
                       </div>
                     )}
                   </div>

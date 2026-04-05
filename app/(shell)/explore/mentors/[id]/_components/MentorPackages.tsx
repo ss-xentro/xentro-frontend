@@ -1,6 +1,7 @@
 'use client';
 
 import RichTextDisplay from '@/components/ui/RichTextDisplay';
+import { formatCurrency } from '@/lib/utils';
 
 interface PricingPlan {
 	sessionType?: string;
@@ -21,7 +22,7 @@ interface MentorPackagesProps {
 function formatPrice(price: string | number): string {
 	const n = Number(price);
 	if (!isNaN(n) && n === 0) return 'Free';
-	if (!isNaN(n) && n > 0) return `INR ${n.toLocaleString('en-IN')}`;
+	if (!isNaN(n) && n > 0) return formatCurrency(n, 'INR');
 	return String(price).trim();
 }
 
@@ -82,7 +83,7 @@ export default function MentorPackages({
 			{!hasPricingPlans && hourlyRate !== null && hourlyRate !== undefined && (
 				<div className="bg-(--accent-subtle) border border-(--border) rounded-xl p-6">
 					<p className="text-sm font-semibold text-(--secondary) uppercase tracking-wide mb-1.5">Hourly Rate</p>
-					<p className="text-2xl font-bold text-(--primary) mb-5">{Number(hourlyRate) === 0 ? 'Free' : `INR ${Number(hourlyRate).toLocaleString('en-IN')}`}</p>
+					<p className="text-2xl font-bold text-(--primary) mb-5">{Number(hourlyRate) === 0 ? 'Free' : formatCurrency(Number(hourlyRate), 'INR')}</p>
 					<button
 						onClick={onConnectOrBook}
 						disabled={connectBtnDisabled}

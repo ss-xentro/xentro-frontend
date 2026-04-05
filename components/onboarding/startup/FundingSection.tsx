@@ -4,6 +4,8 @@ import { useStartupOnboardingStore, FundingRound } from '@/stores/useStartupOnbo
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { currencies } from '@/lib/types';
+import { getCurrencySymbol } from '@/lib/utils';
 
 const fundingRoundOptions: { value: FundingRound; label: string }[] = [
     { value: 'bootstrapped', label: 'Bootstrapped' },
@@ -33,27 +35,25 @@ export function FundingSection() {
                     options={fundingRoundOptions}
                 />
 
-                <div className="relative">
+                <div className="grid grid-cols-[auto_1fr] gap-3 items-end">
+                    <Select
+                        label="Currency"
+                        value={data.fundingCurrency}
+                        onChange={(value) => updateData({ fundingCurrency: value })}
+                        options={currencies.map((c) => ({
+                            value: c.code,
+                            label: `${c.code} (${c.symbol})`,
+                        }))}
+                    />
                     <Input
                         label="Total Funds Raised"
-
                         type="number"
                         min="0"
                         value={data.fundsRaised}
                         onChange={(e) => updateData({ fundsRaised: e.target.value })}
-                        icon={<span className="text-(--secondary) font-semibold">$</span>}
+                        icon={<span className="text-(--secondary) font-semibold">{getCurrencySymbol(data.fundingCurrency)}</span>}
                     />
                 </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Input
-                    label="Currency"
-                    value={data.fundingCurrency}
-                    onChange={(e) => updateData({ fundingCurrency: e.target.value.toUpperCase() })}
-
-                    maxLength={3}
-                />
             </div>
 
             <Textarea
