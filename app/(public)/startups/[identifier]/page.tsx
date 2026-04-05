@@ -247,17 +247,19 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                 <StartupAboutSidebar startup={startup} sections={aboutSidebarSections} />
               </div>
 
-              <div className="space-y-12 max-w-[740px]">
+              <div className="space-y-12 max-w-185">
                 <div className="lg:hidden">
                   <StartupAboutSidebar startup={startup} sections={aboutSidebarSections} />
                 </div>
 
                 {/* Pitch quote */}
                 {hasPitchQuote && (
-                  <section id="pitch-quote" className="scroll-mt-28 border-l-2 border-(--primary) pl-5">
-                    <p className="text-lg sm:text-xl text-(--primary) leading-relaxed font-medium italic">
-                      &ldquo;{startup.pitch}&rdquo;
-                    </p>
+                  <section id="pitch-quote" className="scroll-mt-28">
+                    <blockquote className="border-l-4 border-(--primary) pl-6">
+                      <p className="text-xl sm:text-2xl text-(--primary) leading-relaxed font-medium italic">
+                        &ldquo;{startup.pitch}&rdquo;
+                      </p>
+                    </blockquote>
                   </section>
                 )}
 
@@ -358,7 +360,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
 
           {/* ── Reviews Tab ── */}
           {activeTab === 'reviews' && (
-            <div className="animate-fadeIn">
+            <div className="animate-fadeIn max-w-185">
               {hasCustomers ? (
                 <PitchCustomers customers={customers} />
               ) : (
