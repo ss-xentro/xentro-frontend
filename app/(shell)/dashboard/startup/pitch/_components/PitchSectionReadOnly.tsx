@@ -37,13 +37,41 @@ function EmptyContent({ text }: { text: string }) {
 	);
 }
 
-function MediaAndDescription({ imageUrl, description }: { imageUrl?: string | null; description?: string | null }) {
+/** Card where image bleeds edge-to-edge at top, text content padded below */
+function PitchItemCard({
+	title,
+	meta,
+	imageUrl,
+	children,
+}: {
+	title: string;
+	meta?: React.ReactNode;
+	imageUrl?: string | null;
+	children?: React.ReactNode;
+}) {
 	return (
-		<div className="space-y-3">
-			{imageUrl ? (
-				<img src={imageUrl} alt="Section media" className="w-full h-auto rounded-xl" />
-			) : null}
-			<RichTextDisplay html={description || ''} className="text-sm text-(--primary)" compact />
+		<Card padding="none" className="overflow-hidden flex flex-col">
+			{imageUrl && (
+				<img src={imageUrl} alt={title} className="w-full h-auto" />
+			)}
+			<div className="flex-1 p-5 space-y-2">
+				<h3 className="text-xl font-bold text-(--primary) leading-snug">{title}</h3>
+				{meta && <div className="text-xs text-(--secondary)">{meta}</div>}
+				{children && (
+					<div className="text-sm text-(--secondary) leading-relaxed pt-1">
+						{children}
+					</div>
+				)}
+			</div>
+		</Card>
+	);
+}
+
+/** Two-column responsive grid for item lists */
+function ItemGrid({ children }: { children: React.ReactNode }) {
+	return (
+		<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+			{children}
 		</div>
 	);
 }
@@ -71,8 +99,8 @@ export default function PitchSectionReadOnly({
 		if (!ytEmbedId) return <EmptyContent text="Video pitch URL is not a valid YouTube link." />;
 
 		return (
-			<Card>
-				<div className="aspect-video rounded-lg overflow-hidden">
+			<Card padding="none" className="overflow-hidden">
+				<div className="aspect-video">
 					<iframe
 						src={`https://www.youtube.com/embed/${ytEmbedId}?rel=0&modestbranding=1`}
 						className="w-full h-full"
@@ -90,23 +118,35 @@ export default function PitchSectionReadOnly({
 		if (!hasAny) return <EmptyContent text="No story details added yet." />;
 
 		return (
-			<div className="space-y-4">
+			<div className="space-y-5">
 				{aboutData.about ? (
-					<Card>
-						<h3 className="mb-2 text-sm font-semibold text-(--primary)">About</h3>
-						<RichTextDisplay html={aboutData.about} compact />
+					<Card padding="none" className="overflow-hidden">
+						<div className="px-5 py-3 border-b border-(--border) bg-(--surface-hover)">
+							<h3 className="text-xs font-semibold uppercase tracking-widest text-(--secondary)">About</h3>
+						</div>
+						<div className="p-5 text-sm text-(--secondary) leading-relaxed">
+							<RichTextDisplay html={aboutData.about} compact />
+						</div>
 					</Card>
 				) : null}
 				{aboutData.problemStatement ? (
-					<Card>
-						<h3 className="mb-2 text-sm font-semibold text-(--primary)">Problem Statement</h3>
-						<RichTextDisplay html={aboutData.problemStatement} compact />
+					<Card padding="none" className="overflow-hidden">
+						<div className="px-5 py-3 border-b border-(--border) bg-(--surface-hover)">
+							<h3 className="text-xs font-semibold uppercase tracking-widest text-(--secondary)">Problem Statement</h3>
+						</div>
+						<div className="p-5 text-sm text-(--secondary) leading-relaxed">
+							<RichTextDisplay html={aboutData.problemStatement} compact />
+						</div>
 					</Card>
 				) : null}
 				{aboutData.solutionProposed ? (
-					<Card>
-						<h3 className="mb-2 text-sm font-semibold text-(--primary)">Proposed Solution</h3>
-						<RichTextDisplay html={aboutData.solutionProposed} compact />
+					<Card padding="none" className="overflow-hidden">
+						<div className="px-5 py-3 border-b border-(--border) bg-(--surface-hover)">
+							<h3 className="text-xs font-semibold uppercase tracking-widest text-(--secondary)">Proposed Solution</h3>
+						</div>
+						<div className="p-5 text-sm text-(--secondary) leading-relaxed">
+							<RichTextDisplay html={aboutData.solutionProposed} compact />
+						</div>
 					</Card>
 				) : null}
 			</div>
@@ -117,22 +157,28 @@ export default function PitchSectionReadOnly({
 		if (competitors.length === 0) return <EmptyContent text="No competitors added yet." />;
 
 		return (
-			<div className="space-y-4">
+			<ItemGrid>
 				{competitors.map((item, idx) => (
-					<Card key={`${item.name}-${idx}`}>
-						<div className="mb-2 flex items-center gap-3">
-							{item.logo ? (
-								<MediaPreview src={item.logo} alt={item.name || 'Competitor logo'} className="h-12 w-12 rounded-lg" mediaClassName="object-cover" />
-							) : null}
-							<div>
-								<h3 className="text-sm font-semibold text-(--primary)">{item.name || `Competitor ${idx + 1}`}</h3>
-								{item.website ? <p className="text-xs text-(--secondary)">{item.website}</p> : null}
-							</div>
+					<Card padding="none" key={`${item.name}-${idx}`} className="overflow-hidden flex flex-col">
+						{item.logo && (
+							<img src={item.logo} alt={item.name || 'Competitor logo'} className="w-full h-auto" />
+						)}
+						<div className="flex-1 p-5 space-y-1">
+							<h3 className="text-xl font-bold text-(--primary) leading-snug">
+								{item.name || `Competitor ${idx + 1}`}
+							</h3>
+							{item.website && (
+								<p className="text-xs text-(--secondary)">{item.website}</p>
+							)}
+							{item.description && (
+								<div className="text-sm text-(--secondary) leading-relaxed pt-1">
+									<RichTextDisplay html={item.description} compact />
+								</div>
+							)}
 						</div>
-						<RichTextDisplay html={item.description || ''} compact />
 					</Card>
 				))}
-			</div>
+			</ItemGrid>
 		);
 	}
 
@@ -140,104 +186,96 @@ export default function PitchSectionReadOnly({
 		if (customers.length === 0) return <EmptyContent text="No customer testimonials added yet." />;
 
 		return (
-			<div className="space-y-4">
+			<ItemGrid>
 				{customers.map((item, idx) => (
-					<Card key={`${item.name}-${idx}`}>
-						<div className="mb-2 flex items-center gap-3">
-							{item.avatar ? (
-								<MediaPreview src={item.avatar} alt={item.name || 'Customer avatar'} className="h-12 w-12 rounded-full" mediaClassName="object-cover" />
-							) : null}
-							<div>
-								<h3 className="text-sm font-semibold text-(--primary)">{item.name || `Customer ${idx + 1}`}</h3>
-								<p className="text-xs text-(--secondary)">{[item.role, item.company].filter(Boolean).join(' at ') || 'Customer'}</p>
-							</div>
+					<Card padding="none" key={`${item.name}-${idx}`} className="overflow-hidden flex flex-col">
+						{item.avatar && (
+							<img src={item.avatar} alt={item.name || 'Customer avatar'} className="w-full h-auto" />
+						)}
+						<div className="flex-1 p-5 space-y-1">
+							<h3 className="text-xl font-bold text-(--primary) leading-snug">
+								{item.name || `Customer ${idx + 1}`}
+							</h3>
+							<p className="text-xs text-(--secondary)">
+								{[item.role, item.company].filter(Boolean).join(' at ') || 'Customer'}
+							</p>
+							{item.testimonial && (
+								<div className="text-sm text-(--secondary) leading-relaxed pt-1">
+									<RichTextDisplay html={item.testimonial} compact />
+								</div>
+							)}
 						</div>
-						<RichTextDisplay html={item.testimonial} compact />
 					</Card>
 				))}
-			</div>
+			</ItemGrid>
 		);
 	}
 
 	if (activeSection === 'businessModels') {
 		if (businessModels.length === 0) return <EmptyContent text="No business model blocks added yet." />;
-
 		return (
-			<div className="space-y-4">
+			<ItemGrid>
 				{businessModels.map((item, idx) => (
-					<Card key={`${item.title}-${idx}`}>
-						<h3 className="mb-2 text-sm font-semibold text-(--primary)">{item.title || `Block ${idx + 1}`}</h3>
-						<MediaAndDescription imageUrl={item.imageUrl} description={item.description} />
-					</Card>
+					<PitchItemCard key={`${item.title}-${idx}`} title={item.title || `Block ${idx + 1}`} imageUrl={item.imageUrl}>
+						{item.description && <RichTextDisplay html={item.description} compact />}
+					</PitchItemCard>
 				))}
-			</div>
+			</ItemGrid>
 		);
 	}
 
 	if (activeSection === 'marketSizes') {
 		if (marketSizes.length === 0) return <EmptyContent text="No market size data added yet." />;
-
 		return (
-			<div className="space-y-4">
+			<ItemGrid>
 				{marketSizes.map((item, idx) => (
-					<Card key={`${item.title}-${idx}`}>
-						<h3 className="mb-2 text-sm font-semibold text-(--primary)">{item.title || `Data point ${idx + 1}`}</h3>
-						<MediaAndDescription imageUrl={item.imageUrl} description={item.description} />
-					</Card>
+					<PitchItemCard key={`${item.title}-${idx}`} title={item.title || `Data point ${idx + 1}`} imageUrl={item.imageUrl}>
+						{item.description && <RichTextDisplay html={item.description} compact />}
+					</PitchItemCard>
 				))}
-			</div>
+			</ItemGrid>
 		);
 	}
 
 	if (activeSection === 'visionStrategies') {
 		if (visionStrategies.length === 0) return <EmptyContent text="No vision cards added yet." />;
-
 		return (
-			<div className="space-y-4">
+			<ItemGrid>
 				{visionStrategies.map((item, idx) => (
-					<Card key={`${item.title}-${idx}`}>
-						<h3 className="mb-2 text-sm font-semibold text-(--primary)">{item.title || `Vision ${idx + 1}`}</h3>
-						<MediaAndDescription imageUrl={item.icon} description={item.description} />
-					</Card>
+					<PitchItemCard key={`${item.title}-${idx}`} title={item.title || `Vision ${idx + 1}`} imageUrl={item.icon}>
+						{item.description && <RichTextDisplay html={item.description} compact />}
+					</PitchItemCard>
 				))}
-			</div>
+			</ItemGrid>
 		);
 	}
 
 	if (activeSection === 'impacts') {
 		if (impacts.length === 0) return <EmptyContent text="No impact blocks added yet." />;
-
 		return (
-			<div className="space-y-4">
+			<ItemGrid>
 				{impacts.map((item, idx) => (
-					<Card key={`${item.title}-${idx}`}>
-						<h3 className="mb-2 text-sm font-semibold text-(--primary)">{item.title || `Impact ${idx + 1}`}</h3>
-						<MediaAndDescription imageUrl={item.imageUrl} description={item.description} />
-					</Card>
+					<PitchItemCard key={`${item.title}-${idx}`} title={item.title || `Impact ${idx + 1}`} imageUrl={item.imageUrl}>
+						{item.description && <RichTextDisplay html={item.description} compact />}
+					</PitchItemCard>
 				))}
-			</div>
+			</ItemGrid>
 		);
 	}
 
 	if (activeSection === 'certifications') {
 		if (certifications.length === 0) return <EmptyContent text="No certifications added yet." />;
-
 		return (
-			<div className="space-y-4">
+			<ItemGrid>
 				{certifications.map((item, idx) => (
-					<Card key={`${item.title}-${idx}`}>
-						<h3 className="text-sm font-semibold text-(--primary)">{item.title || `Certification ${idx + 1}`}</h3>
-						<p className="mt-1 text-xs text-(--secondary)">
-							{[item.issuer, item.dateAwarded].filter(Boolean).join(' • ') || 'Certification details'}
-						</p>
-						{item.imageUrl ? (
-							<div className="mt-3">
-								<img src={item.imageUrl} alt={item.title || 'Certification image'} className="w-full h-auto rounded-xl" />
-							</div>
-						) : null}
-					</Card>
+					<PitchItemCard
+						key={`${item.title}-${idx}`}
+						title={item.title || `Certification ${idx + 1}`}
+						imageUrl={item.imageUrl}
+						meta={[item.issuer, item.dateAwarded].filter(Boolean).join(' • ') || undefined}
+					/>
 				))}
-			</div>
+			</ItemGrid>
 		);
 	}
 
@@ -245,16 +283,14 @@ export default function PitchSectionReadOnly({
 		if (!activeCustomSection || !activeCustomSection.items || activeCustomSection.items.length === 0) {
 			return <EmptyContent text="No items added in this custom step yet." />;
 		}
-
 		return (
-			<div className="space-y-4">
+			<ItemGrid>
 				{activeCustomSection.items.map((item, idx) => (
-					<Card key={`${item.title}-${idx}`}>
-						<h3 className="mb-2 text-sm font-semibold text-(--primary)">{item.title || `Block ${idx + 1}`}</h3>
-						<MediaAndDescription imageUrl={item.imageUrl} description={item.description} />
-					</Card>
+					<PitchItemCard key={`${item.title}-${idx}`} title={item.title || `Block ${idx + 1}`} imageUrl={item.imageUrl}>
+						{item.description && <RichTextDisplay html={item.description} compact />}
+					</PitchItemCard>
 				))}
-			</div>
+			</ItemGrid>
 		);
 	}
 
