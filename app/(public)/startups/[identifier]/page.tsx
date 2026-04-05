@@ -20,7 +20,7 @@ import type { StartupWithDetails } from '@/components/public/startup-profile';
 import { cn, hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
 import { getAuthCookie, getSessionToken } from '@/lib/auth-utils';
 
-type Tab = 'about' | 'team' | 'activity';
+type Tab = 'about' | 'reviews' | 'team' | 'activity';
 
 export default function StartupProfilePage({ params }: { params: Promise<{ identifier: string }> }) {
   const router = useRouter();
@@ -120,7 +120,6 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
   const aboutSidebarSections: AboutSidebarSection[] = [
     hasPitchQuote ? { id: 'pitch-quote', label: 'Pitch' } : null,
     hasAboutContent ? { id: 'about', label: 'About' } : null,
-    hasCustomers ? { id: 'customers', label: 'Customers' } : null,
     hasBusinessModels ? { id: 'business-model', label: 'Business Model' } : null,
     hasMarketSizes ? { id: 'market-size', label: 'Market Size' } : null,
     hasCompetitors ? { id: 'competitive-landscape', label: 'Competitive Landscape' } : null,
@@ -135,6 +134,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'about', label: 'About' },
+    ...(hasCustomers ? [{ key: 'reviews' as Tab, label: 'Reviews' }] : []),
     { key: 'team', label: 'Team' },
     { key: 'activity', label: 'Activity' },
   ];
@@ -267,12 +267,6 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                   </section>
                 )}
 
-                {hasCustomers && (
-                  <section id="customers" className="scroll-mt-28">
-                    <PitchCustomers customers={customers} />
-                  </section>
-                )}
-
                 {hasBusinessModels && (
                   <section id="business-model" className="scroll-mt-28">
                     <PitchImageTextSection title="Business Model" items={businessModels} />
@@ -359,6 +353,20 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
                 )}
               </div>
 
+            </div>
+          )}
+
+          {/* ── Reviews Tab ── */}
+          {activeTab === 'reviews' && (
+            <div className="animate-fadeIn">
+              {hasCustomers ? (
+                <PitchCustomers customers={customers} />
+              ) : (
+                <section className="rounded-xl border border-(--border) bg-(--surface) p-6 sm:p-8 text-center">
+                  <p className="text-sm font-medium text-(--primary) mb-1">No reviews yet</p>
+                  <p className="text-xs text-(--secondary)">Customer testimonials will appear here once added by the startup.</p>
+                </section>
+              )}
             </div>
           )}
 
