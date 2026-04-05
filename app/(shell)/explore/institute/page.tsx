@@ -32,8 +32,7 @@ export default function ExploreInstitutionsPage() {
     }, []);
 
     const filtered = institutions.filter((inst) => {
-        const matchType = selectedType === 'all' || inst.type === selectedType;
-        return matchType && inst.status === 'published';
+        return selectedType === 'all' || inst.type === selectedType;
     });
     const hasActiveFilter = selectedType !== 'all';
 
