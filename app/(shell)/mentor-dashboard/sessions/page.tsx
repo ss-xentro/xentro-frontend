@@ -50,30 +50,31 @@ export default function SessionsPage() {
     useEffect(() => {
         if (!token) return;
 
-        Promise.all([
+        // Use allSettled so a slots fetch failure does not discard bookings data
+        Promise.allSettled([
             fetch('/api/mentor-bookings', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
-            fetch(`/api/mentor-slots?mentorId=${getMentorId()}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
-        ]).then(([bookingsRes, slotsRes]) => {
-            setBookings(bookingsRes.data || []);
-            const slotsData = slotsRes.data || [];
-            setSlots(slotsData);
-            // Pre-select existing slots
-            const existing = new Set<string>();
-            for (const s of slotsData) {
-                existing.add(`${s.dayOfWeek}-${s.startTime}`);
+            fetch('/api/mentor-slots', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        ]).then(([bookingsResult, slotsResult]) => {
+            if (bookingsResult.status === 'fulfilled') {
+                setBookings(bookingsResult.value.data || []);
+            } else {
+                console.error('Bookings fetch failed:', bookingsResult.reason);
             }
-            setSelectedSlots(existing);
-        }).catch(console.error).finally(() => setLoading(false));
+            if (slotsResult.status === 'fulfilled') {
+                const slotsData = slotsResult.value.data || [];
+                setSlots(slotsData);
+                // Pre-select existing slots
+                const existing = new Set<string>();
+                for (const s of slotsData) {
+                    existing.add(`${s.dayOfWeek}-${s.startTime}`);
+                }
+                setSelectedSlots(existing);
+            } else {
+                console.error('Slots fetch failed:', slotsResult.reason);
+            }
+        }).finally(() => setLoading(false));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    function getMentorId(): string {
-        try {
-            if (!token) return '';
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            return payload.sub || '';
-        } catch { return ''; }
-    }
 
     function checkForOverlaps(slotList: Array<{ dayOfWeek: string; startTime: string; endTime: string }>): string | null {
         const byDay: Record<string, Array<{ start: number; end: number; label: string }>> = {};
@@ -187,9 +188,15 @@ export default function SessionsPage() {
             });
             if (res.ok) {
                 setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status } : b));
+                const label = status === 'confirmed' ? 'Session confirmed!' : status === 'cancelled' ? 'Session cancelled' : status === 'completed' ? 'Session marked complete' : 'Booking updated';
+                toast.success(label);
+            } else {
+                const data = await res.json().catch(() => ({}));
+                toast.error(data.error || 'Failed to update booking');
             }
         } catch (err) {
             console.error(err);
+            toast.error('Failed to update booking');
         }
     }
 

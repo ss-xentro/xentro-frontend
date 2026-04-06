@@ -31,10 +31,21 @@ export interface ChatRoom {
 	created_at: string;
 }
 
-const WS_BASE =
-	typeof window !== 'undefined'
-		? `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.hostname}:8000`
-		: '';
+/**
+ * WebSocket base URL.
+ * In production (Vercel → Railway) set NEXT_PUBLIC_WS_URL in Vercel env vars,
+ * e.g. wss://your-backend.up.railway.app
+ * In local dev it falls back to the same host on port 8000.
+ */
+function getWsBase(): string {
+	if (typeof window === 'undefined') return '';
+	// Explicit override wins (production / staging)
+	const envUrl = process.env.NEXT_PUBLIC_WS_URL;
+	if (envUrl) return envUrl.replace(/\/$/, '');
+	// Local dev fallback
+	const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+	return `${proto}://${window.location.hostname}:8000`;
+}
 
 const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000, 30000];
 
@@ -70,13 +81,14 @@ export function useChat({ roomId, onPresenceUpdate }: UseChatOptions) {
 	}, [onPresenceUpdate]);
 
 	const connect = useCallback(async () => {
-		if (!roomId || !WS_BASE) return;
+		const wsBase = getWsBase();
+		if (!roomId || !wsBase) return;
 		if (wsRef.current && (wsRef.current.readyState === WebSocket.CONNECTING || wsRef.current.readyState === WebSocket.OPEN)) return;
 
 		const token = await fetchWsToken();
 		if (!token) return;
 
-		const ws = new WebSocket(`${WS_BASE}/ws/chat/${roomId}/`);
+		const ws = new WebSocket(`${wsBase}/ws/chat/${roomId}/`);
 
 		ws.onopen = () => {
 			// First message must be auth handshake
