@@ -157,6 +157,8 @@
   /* Primary Colors */
   --primary: #F9FAFB;
   --primary-light: #E5E7EB;
+  --foreground: #F9FAFB;
+  /* alias for --primary — used by text-(--foreground) */
   --secondary: #9CA3AF;
   --secondary-light: #6B7280;
 
@@ -223,6 +225,8 @@
   /* Primary Colors */
   --primary: #111827;
   --primary-light: #374151;
+  --foreground: #111827;
+  /* alias for --primary — used by text-(--foreground) */
   --secondary: #6B7280;
   --secondary-light: #9CA3AF;
 
