@@ -266,7 +266,7 @@ function ChatPanel({
 					onKeyDown={handleKeyDown}
 					rows={1}
 					placeholder="Type a message…"
-					className="flex-1 resize-none rounded-2xl border border-(--border) bg-background text-(--foreground) px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-(--primary)/20 max-h-32 overflow-y-auto"
+					className="flex-1 resize-none rounded-2xl border border-(--border) bg-background text-(--foreground) px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-(--brand)/30 max-h-32 overflow-y-auto"
 				/>
 				<button
 					onClick={handleSend}
