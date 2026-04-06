@@ -8,6 +8,10 @@ import {
 	useChat,
 	fetchChatRooms,
 	createOrGetRoom,
+	fetchMessageRequests,
+	acceptMessageRequest,
+	declineMessageRequest,
+	fetchFollowingWithStatus,
 	type ChatRoom,
 	type ChatMessage,
 	type PresenceInfo,
@@ -16,23 +20,15 @@ import { AppIcon } from '@/components/ui/AppIcon';
 
 /* ─── helpers ─── */
 
-interface MutualUser {
+interface FollowingUser {
 	id: string;
 	name: string;
 	avatar: string | null;
 	activeContext: string | null;
+	isMutual: boolean;
 }
 
-async function fetchMutualFollowers(): Promise<MutualUser[]> {
-	try {
-		const res = await fetch('/api/mutual-followers/', { cache: 'no-store' });
-		if (!res.ok) return [];
-		const data = await res.json();
-		return data.mutuals ?? [];
-	} catch {
-		return [];
-	}
-}
+/* (fetchFollowingWithStatus is imported from useChat) */
 
 function formatTime(iso: string) {
 	return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -136,20 +132,20 @@ function NewChatModal({
 	onRoomCreated: (room: ChatRoom) => void;
 	existingPeerIds: Set<string>;
 }) {
-	const [mutuals, setMutuals] = useState<MutualUser[]>([]);
+	const [users, setUsers] = useState<FollowingUser[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [creating, setCreating] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [search, setSearch] = useState('');
 
 	useEffect(() => {
-		fetchMutualFollowers().then((data) => {
-			setMutuals(data);
+		fetchFollowingWithStatus().then((data) => {
+			setUsers(data as FollowingUser[]);
 			setLoading(false);
 		});
 	}, []);
 
-	const filtered = mutuals.filter((u) =>
+	const filtered = users.filter((u) =>
 		u.name.toLowerCase().includes(search.toLowerCase()),
 	);
 
@@ -158,6 +154,8 @@ function NewChatModal({
 			const aHasChat = existingPeerIds.has(a.id);
 			const bHasChat = existingPeerIds.has(b.id);
 			if (aHasChat !== bHasChat) return aHasChat ? 1 : -1;
+			// Mutuals first, then non-mutuals
+			if (a.isMutual !== b.isMutual) return a.isMutual ? -1 : 1;
 			return a.name.localeCompare(b.name);
 		});
 	}, [filtered, existingPeerIds]);
@@ -215,9 +213,9 @@ function NewChatModal({
 					) : sorted.length === 0 ? (
 						<div className="flex flex-col items-center justify-center py-16 gap-2 text-(--secondary) text-sm px-6 text-center">
 							<AppIcon name="users" className="w-8 h-8 opacity-30" />
-							<p className="font-medium">{search ? 'No results' : 'No mutual followers yet'}</p>
+							<p className="font-medium">{search ? 'No results' : 'Not following anyone yet'}</p>
 							<p className="text-xs text-(--secondary-light)">
-								{search ? 'Try a different search term.' : 'Follow someone and wait for them to follow back to start chatting.'}
+								{search ? 'Try a different search term.' : 'Follow someone to send them a message or message request.'}
 							</p>
 						</div>
 					) : (
@@ -241,6 +239,8 @@ function NewChatModal({
 										<AppIcon name="loader-2" className="w-4 h-4 animate-spin text-(--secondary)" />
 									) : hasChat ? (
 										<span className="text-[10px] text-(--secondary-light) bg-(--accent-subtle) px-2 py-0.5 rounded-full">Existing</span>
+									) : !user.isMutual ? (
+										<span className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full font-medium">Request</span>
 									) : (
 										<AppIcon name="message-circle" className="w-4 h-4 text-brand" />
 									)}
@@ -414,10 +414,18 @@ function ChatPanel({
 	room,
 	currentUserId,
 	onNewMessage,
+	onAcceptRequest,
+	onDeclineRequest,
+	acceptingId,
+	decliningId,
 }: {
 	room: ChatRoom;
 	currentUserId: string;
 	onNewMessage?: (roomId: string, message: { body: string; sentAt: string; senderId: string }) => void;
+	onAcceptRequest?: (roomId: string) => void;
+	onDeclineRequest?: (roomId: string) => void;
+	acceptingId?: string | null;
+	decliningId?: string | null;
 }) {
 	const router = useRouter();
 	const [input, setInput] = useState('');
@@ -596,31 +604,63 @@ function ChatPanel({
 			</div>
 
 			{/* Input */}
-			<div className="px-4 py-3 border-t border-(--border) bg-(--surface)">
-				<div className="flex items-end gap-2">
-					<textarea
-						ref={textareaRef}
-						value={input}
-						onChange={handleInput}
-						onKeyDown={handleKeyDown}
-						rows={1}
-						placeholder="Type a message…"
-						className="flex-1 resize-none rounded-2xl border border-(--border) bg-background text-(--foreground) px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-(--brand)/30 focus:border-(--brand)/50 max-h-32 overflow-y-auto transition-all"
-					/>
-					<button
-						onClick={handleSend}
-						disabled={!input.trim() || !connected}
-						className={cn(
-							'w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all',
-							input.trim() && connected
-								? 'bg-brand text-white hover:opacity-90 shadow-md shadow-brand/20'
-								: 'bg-accent-subtle text-secondary-light cursor-not-allowed',
-						)}
-					>
-						<AppIcon name="send" className="w-4 h-4" />
-					</button>
+			{room.isRequest && room.requestSenderId !== currentUserId ? (
+				/* Recipient sees accept/decline bar instead of input */
+				<div className="px-4 py-3 border-t border-(--border) bg-amber-500/5">
+					<p className="text-xs text-(--secondary) text-center mb-2.5">
+						<span className="font-medium text-(--foreground)">{isP1 ? room.participant2Name : room.participant1Name}</span> wants to send you a message
+					</p>
+					<div className="flex gap-2 justify-center">
+						<button
+							onClick={() => onAcceptRequest?.(room.id)}
+							disabled={acceptingId === room.id}
+							className="flex-1 max-w-32 py-2 text-sm font-medium rounded-xl bg-brand text-white hover:opacity-90 transition-opacity disabled:opacity-60"
+						>
+							{acceptingId === room.id ? 'Accepting…' : 'Accept'}
+						</button>
+						<button
+							onClick={() => onDeclineRequest?.(room.id)}
+							disabled={decliningId === room.id}
+							className="flex-1 max-w-32 py-2 text-sm font-medium rounded-xl bg-(--accent-subtle) text-(--secondary) hover:bg-red-500/10 hover:text-red-400 transition-colors disabled:opacity-60"
+						>
+							{decliningId === room.id ? 'Declining…' : 'Decline'}
+						</button>
+					</div>
 				</div>
-			</div>
+			) : room.isRequest && room.requestSenderId === currentUserId ? (
+				/* Sender sees a pending notice */
+				<div className="px-4 py-3 border-t border-(--border) bg-amber-500/5">
+					<p className="text-xs text-(--secondary) text-center">
+						Message request sent. Waiting for <span className="font-medium text-(--foreground)">{peerName}</span> to accept.
+					</p>
+				</div>
+			) : (
+				<div className="px-4 py-3 border-t border-(--border) bg-(--surface)">
+					<div className="flex items-end gap-2">
+						<textarea
+							ref={textareaRef}
+							value={input}
+							onChange={handleInput}
+							onKeyDown={handleKeyDown}
+							rows={1}
+							placeholder="Type a message…"
+							className="flex-1 resize-none rounded-2xl border border-(--border) bg-background text-(--foreground) px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-(--brand)/50 max-h-32 overflow-y-auto transition-all"
+						/>
+						<button
+							onClick={handleSend}
+							disabled={!input.trim() || !connected}
+							className={cn(
+								'w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all',
+								input.trim() && connected
+									? 'bg-brand text-white hover:opacity-90 shadow-md shadow-brand/20'
+									: 'bg-accent-subtle text-secondary-light cursor-not-allowed',
+							)}
+						>
+							<AppIcon name="send" className="w-4 h-4" />
+						</button>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
@@ -631,13 +671,18 @@ export default function ChatPage() {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const [rooms, setRooms] = useState<ChatRoom[]>([]);
+	const [requests, setRequests] = useState<ChatRoom[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [presenceMap, setPresenceMap] = useState<Record<string, PresenceInfo>>({});
 	const [showNewChat, setShowNewChat] = useState(false);
 	const [sidebarSearch, setSidebarSearch] = useState('');
+	const [tab, setTab] = useState<'chats' | 'requests'>('chats');
+	const [acceptingId, setAcceptingId] = useState<string | null>(null);
+	const [decliningId, setDecliningId] = useState<string | null>(null);
 
 	const roomIdParam = searchParams.get('room');
-	const activeRoom = rooms.find((r) => r.id === roomIdParam) ?? null;
+	const allRooms = [...rooms, ...requests];
+	const activeRoom = allRooms.find((r) => r.id === roomIdParam) ?? null;
 
 	const sortedRooms = useMemo(() => {
 		return [...rooms].sort((a, b) => {
@@ -660,22 +705,26 @@ export default function ChatPage() {
 	const existingPeerIds = useMemo(() => {
 		const ids = new Set<string>();
 		const uid = user?.id ?? '';
-		for (const r of rooms) {
+		for (const r of [...rooms, ...requests]) {
 			ids.add(r.participant1Id === uid ? r.participant2Id : r.participant1Id);
 		}
 		return ids;
-	}, [rooms, user?.id]);
+	}, [rooms, requests, user?.id]);
 
 	useEffect(() => {
-		fetchChatRooms().then((data) => {
-			setRooms(data);
+		Promise.all([fetchChatRooms(), fetchMessageRequests()]).then(([roomsData, reqsData]) => {
+			setRooms(roomsData);
+			setRequests(reqsData);
 			setLoading(false);
 		});
 	}, []);
 
 	useEffect(() => {
 		if (!roomIdParam) {
-			fetchChatRooms().then(setRooms);
+			Promise.all([fetchChatRooms(), fetchMessageRequests()]).then(([roomsData, reqsData]) => {
+				setRooms(roomsData);
+				setRequests(reqsData);
+			});
 		}
 	}, [roomIdParam]);
 
@@ -693,14 +742,51 @@ export default function ChatPage() {
 	const currentUserId = user?.id ?? '';
 
 	const handleRoomCreated = useCallback((room: ChatRoom) => {
-		setRooms((prev) => {
-			const exists = prev.find((r) => r.id === room.id);
-			if (exists) return prev;
-			return [room, ...prev];
-		});
+		if (room.isRequest) {
+			setRequests((prev) => {
+				const exists = prev.find((r) => r.id === room.id);
+				if (exists) return prev;
+				return [room, ...prev];
+			});
+			setTab('requests');
+		} else {
+			setRooms((prev) => {
+				const exists = prev.find((r) => r.id === room.id);
+				if (exists) return prev;
+				return [room, ...prev];
+			});
+		}
 		setShowNewChat(false);
 		router.push(`/chat?room=${room.id}`);
 	}, [router]);
+
+	const handleAcceptRequest = useCallback(async (roomId: string) => {
+		setAcceptingId(roomId);
+		try {
+			const updatedRoom = await acceptMessageRequest(roomId);
+			setRequests((prev) => prev.filter((r) => r.id !== roomId));
+			setRooms((prev) => [updatedRoom, ...prev]);
+		} catch {
+			// fail silently
+		} finally {
+			setAcceptingId(null);
+		}
+	}, []);
+
+	const handleDeclineRequest = useCallback(async (roomId: string) => {
+		setDecliningId(roomId);
+		try {
+			await declineMessageRequest(roomId);
+			setRequests((prev) => prev.filter((r) => r.id !== roomId));
+			if (roomIdParam === roomId) {
+				router.push('/chat');
+			}
+		} catch {
+			// fail silently
+		} finally {
+			setDecliningId(null);
+		}
+	}, [roomIdParam, router]);
 
 	const handleNewMessage = useCallback((roomId: string, message: { body: string; sentAt: string; senderId: string }) => {
 		setRooms((prev) =>
@@ -748,6 +834,36 @@ export default function ChatPage() {
 							<AppIcon name="pencil" className="w-4 h-4" />
 						</button>
 					</div>
+					{/* Tab switcher */}
+					<div className="flex gap-1 bg-(--accent-subtle) rounded-xl p-1 mb-3">
+						<button
+							onClick={() => setTab('chats')}
+							className={cn(
+								'flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors',
+								tab === 'chats'
+									? 'bg-(--surface) text-(--foreground) shadow-sm'
+									: 'text-(--secondary) hover:text-(--foreground)',
+							)}
+						>
+							Chats
+						</button>
+						<button
+							onClick={() => setTab('requests')}
+							className={cn(
+								'flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors relative',
+								tab === 'requests'
+									? 'bg-(--surface) text-(--foreground) shadow-sm'
+									: 'text-(--secondary) hover:text-(--foreground)',
+							)}
+						>
+							Requests
+							{requests.length > 0 && (
+								<span className="ml-1.5 inline-flex items-center justify-center min-w-4 h-4 text-[10px] font-bold bg-amber-500 text-white rounded-full px-1">
+									{requests.length}
+								</span>
+							)}
+						</button>
+					</div>
 					{rooms.length > 3 && (
 						<div className="flex items-center gap-2 bg-(--accent-subtle) rounded-xl px-3 py-2">
 							<AppIcon name="search" className="w-3.5 h-3.5 text-(--secondary) shrink-0" />
@@ -767,44 +883,102 @@ export default function ChatPage() {
 				</div>
 
 				<div className="flex-1 overflow-y-auto">
-					{filteredRooms.length === 0 ? (
-						<div className="flex flex-col items-center justify-center h-60 gap-3 text-(--secondary) text-sm px-6 text-center">
-							{sidebarSearch ? (
-								<>
-									<AppIcon name="search" className="w-8 h-8 opacity-30" />
-									<p>No conversations match your search</p>
-								</>
-							) : (
-								<>
-									<div className="w-14 h-14 rounded-full bg-(--accent-subtle) flex items-center justify-center">
-										<AppIcon name="message-circle" className="w-7 h-7 opacity-30" />
-									</div>
-									<div>
-										<p className="font-medium text-(--foreground)">No conversations yet</p>
-										<p className="text-xs text-(--secondary-light) mt-1">
-											Follow someone and when they follow you back, you can start chatting.
-										</p>
-									</div>
-									<button
-										onClick={() => setShowNewChat(true)}
-										className="mt-1 px-4 py-2 rounded-xl bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity"
-									>
-										Start a conversation
-									</button>
-								</>
-							)}
-						</div>
+					{tab === 'chats' ? (
+						filteredRooms.length === 0 ? (
+							<div className="flex flex-col items-center justify-center h-60 gap-3 text-(--secondary) text-sm px-6 text-center">
+								{sidebarSearch ? (
+									<>
+										<AppIcon name="search" className="w-8 h-8 opacity-30" />
+										<p>No conversations match your search</p>
+									</>
+								) : (
+									<>
+										<div className="w-14 h-14 rounded-full bg-(--accent-subtle) flex items-center justify-center">
+											<AppIcon name="message-circle" className="w-7 h-7 opacity-30" />
+										</div>
+										<div>
+											<p className="font-medium text-(--foreground)">No conversations yet</p>
+											<p className="text-xs text-(--secondary-light) mt-1">
+												Follow someone to start a conversation or send a message request.
+											</p>
+										</div>
+										<button
+											onClick={() => setShowNewChat(true)}
+											className="mt-1 px-4 py-2 rounded-xl bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity"
+										>
+											Start a conversation
+										</button>
+									</>
+								)}
+							</div>
+						) : (
+							filteredRooms.map((room) => (
+								<RoomListItem
+									key={room.id}
+									room={room}
+									isActive={room.id === roomIdParam}
+									currentUserId={currentUserId}
+									presence={getPeerPresence(room)}
+									onClick={() => router.push(`/chat?room=${room.id}`)}
+								/>
+							))
+						)
 					) : (
-						filteredRooms.map((room) => (
-							<RoomListItem
-								key={room.id}
-								room={room}
-								isActive={room.id === roomIdParam}
-								currentUserId={currentUserId}
-								presence={getPeerPresence(room)}
-								onClick={() => router.push(`/chat?room=${room.id}`)}
-							/>
-						))
+						requests.length === 0 ? (
+							<div className="flex flex-col items-center justify-center h-60 gap-3 text-(--secondary) text-sm px-6 text-center">
+								<div className="w-14 h-14 rounded-full bg-(--accent-subtle) flex items-center justify-center">
+									<AppIcon name="mail" className="w-7 h-7 opacity-30" />
+								</div>
+								<div>
+									<p className="font-medium text-(--foreground)">No message requests</p>
+									<p className="text-xs text-(--secondary-light) mt-1">
+										When someone you don&apos;t follow sends you a message, it will appear here.
+									</p>
+								</div>
+							</div>
+						) : (
+							requests.map((room) => {
+								const isP1 = room.participant1Id === currentUserId;
+								const peerName = isP1 ? room.participant2Name : room.participant1Name;
+								const peerAvatar = isP1 ? room.participant2Avatar : room.participant1Avatar;
+								return (
+									<div
+										key={room.id}
+										className={cn(
+											'flex items-center gap-3 px-4 py-3 transition-all cursor-pointer',
+											room.id === roomIdParam
+												? 'bg-(--accent-light) border-l-2 border-l-amber-500'
+												: 'hover:bg-(--accent-subtle) border-l-2 border-l-transparent',
+										)}
+										onClick={() => router.push(`/chat?room=${room.id}`)}
+									>
+										<Avatar name={peerName} avatar={peerAvatar} size="w-11 h-11" />
+										<div className="flex-1 min-w-0">
+											<p className="text-sm font-semibold text-(--foreground) truncate">{peerName}</p>
+											<p className="text-xs text-(--secondary) truncate">
+												{room.lastMessage?.body ?? 'Message request'}
+											</p>
+										</div>
+										<div className="flex gap-1.5 shrink-0">
+											<button
+												onClick={(e) => { e.stopPropagation(); handleAcceptRequest(room.id); }}
+												disabled={acceptingId === room.id}
+												className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-brand text-white hover:opacity-90 transition-opacity disabled:opacity-60"
+											>
+												{acceptingId === room.id ? '…' : 'Accept'}
+											</button>
+											<button
+												onClick={(e) => { e.stopPropagation(); handleDeclineRequest(room.id); }}
+												disabled={decliningId === room.id}
+												className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-(--accent-subtle) text-(--secondary) hover:bg-red-500/10 hover:text-red-400 transition-colors disabled:opacity-60"
+											>
+												{decliningId === room.id ? '…' : 'Decline'}
+											</button>
+										</div>
+									</div>
+								);
+							})
+						)
 					)}
 				</div>
 			</div>
@@ -817,7 +991,15 @@ export default function ChatPage() {
 				)}
 			>
 				{activeRoom ? (
-					<ChatPanel room={activeRoom} currentUserId={currentUserId} onNewMessage={handleNewMessage} />
+					<ChatPanel
+						room={activeRoom}
+						currentUserId={currentUserId}
+						onNewMessage={handleNewMessage}
+						onAcceptRequest={handleAcceptRequest}
+						onDeclineRequest={handleDeclineRequest}
+						acceptingId={acceptingId}
+						decliningId={decliningId}
+					/>
 				) : (
 					<div className="flex flex-col items-center justify-center h-full text-(--secondary) gap-4">
 						<div className="w-20 h-20 rounded-full bg-(--accent-subtle) flex items-center justify-center">

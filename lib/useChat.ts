@@ -27,6 +27,8 @@ export interface ChatRoom {
 	unreadCount: number;
 	participant1Presence: PresenceInfo;
 	participant2Presence: PresenceInfo;
+	isRequest: boolean;
+	requestSenderId: string | null;
 	created_at: string;
 }
 
@@ -216,4 +218,40 @@ export async function createOrGetRoom(targetUserId: string): Promise<ChatRoom> {
 		throw new Error((err as { error?: string }).error ?? 'Failed to create chat room');
 	}
 	return res.json();
+}
+
+/** Fetches pending message requests received by the current user. */
+export async function fetchMessageRequests(): Promise<ChatRoom[]> {
+	const res = await fetch('/api/chat/rooms/requests/', { cache: 'no-store' });
+	if (!res.ok) return [];
+	return res.json();
+}
+
+/** Accept a message request. */
+export async function acceptMessageRequest(roomId: string): Promise<ChatRoom> {
+	const res = await fetch(`/api/chat/rooms/${roomId}/accept/`, { method: 'POST' });
+	if (!res.ok) {
+		const err = await res.json().catch(() => ({}));
+		throw new Error((err as { error?: string }).error ?? 'Failed to accept request');
+	}
+	return res.json();
+}
+
+/** Decline (delete) a message request. */
+export async function declineMessageRequest(roomId: string): Promise<void> {
+	const res = await fetch(`/api/chat/rooms/${roomId}/decline/`, { method: 'POST' });
+	if (!res.ok) {
+		const err = await res.json().catch(() => ({}));
+		throw new Error((err as { error?: string }).error ?? 'Failed to decline request');
+	}
+}
+
+/** Fetch users the current user follows, with isMutual flag. */
+export async function fetchFollowingWithStatus(): Promise<
+	Array<{ id: string; name: string; email: string; avatar: string | null; activeContext: string | null; isMutual: boolean }>
+> {
+	const res = await fetch('/api/following-with-status/', { cache: 'no-store' });
+	if (!res.ok) return [];
+	const data = await res.json();
+	return data.users ?? [];
 }
