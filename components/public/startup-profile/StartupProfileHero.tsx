@@ -36,7 +36,7 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 					<img src={startup.coverImage} alt="Cover" className="w-full h-full object-cover" />
 					{/* Stronger layered scrim keeps foreground readable on very bright covers */}
 					<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/5 pointer-events-none" />
-					<div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/10 pointer-events-none" />
+					<div className="absolute inset-0 bg-linear-to-r from-black/20 via-transparent to-black/10 pointer-events-none" />
 				</div>
 			)}
 			<div className={cn("max-w-5xl mx-auto px-4 sm:px-6 pb-8", startup.coverImage ? "" : "pt-10")}>

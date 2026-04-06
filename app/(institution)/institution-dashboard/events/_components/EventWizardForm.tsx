@@ -161,7 +161,7 @@ export default function EventWizardForm({
 					<span>{STEP_TITLES[step]}</span>
 				</div>
 				<div className="h-2 w-full rounded-full bg-(--accent-light) overflow-hidden">
-					<div className="h-full bg-gradient-to-r from-sky-500 to-cyan-400 transition-all duration-300" style={{ width: `${progress}%` }} />
+					<div className="h-full bg-linear-to-r from-sky-500 to-cyan-400 transition-all duration-300" style={{ width: `${progress}%` }} />
 				</div>
 			</Card>
 

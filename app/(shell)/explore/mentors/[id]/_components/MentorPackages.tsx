@@ -52,7 +52,7 @@ export default function MentorPackages({
 		<div className="space-y-4">
 			{/* Structured pricing plans */}
 			{hasPricingPlans && validPlans.map((plan, i) => (
-				<div key={i} className="bg-(--accent-subtle) border border-(--border) rounded-xl p-6">
+				<div key={i} className="bg-(--surface) border border-(--border) rounded-xl p-6">
 					<p className="text-sm font-semibold text-(--secondary) uppercase tracking-wide mb-1.5">
 						{plan.sessionType}{plan.duration ? ` · ${plan.duration}` : ''}
 					</p>
@@ -72,7 +72,7 @@ export default function MentorPackages({
 					<button
 						onClick={onConnectOrBook}
 						disabled={connectBtnDisabled}
-						className="w-full py-2.5 rounded-xl text-sm font-semibold bg-(--primary) text-(--background) hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-default"
+						className="w-full py-2.5 rounded-xl text-sm font-semibold bg-(--primary) text-background hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-default"
 					>
 						Book Session
 					</button>
@@ -81,13 +81,13 @@ export default function MentorPackages({
 
 			{/* Fallback: show hourly rate card when no structured plans exist */}
 			{!hasPricingPlans && hourlyRate !== null && hourlyRate !== undefined && (
-				<div className="bg-(--accent-subtle) border border-(--border) rounded-xl p-6">
+				<div className="bg-(--surface) border border-(--border) rounded-xl p-6">
 					<p className="text-sm font-semibold text-(--secondary) uppercase tracking-wide mb-1.5">Hourly Rate</p>
 					<p className="text-2xl font-bold text-(--primary) mb-5">{Number(hourlyRate) === 0 ? 'Free' : formatCurrency(Number(hourlyRate), 'INR')}</p>
 					<button
 						onClick={onConnectOrBook}
 						disabled={connectBtnDisabled}
-						className="w-full py-2.5 rounded-xl text-sm font-semibold bg-(--primary) text-(--background) hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-default"
+						className="w-full py-2.5 rounded-xl text-sm font-semibold bg-(--primary) text-background hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-default"
 					>
 						Book Session
 					</button>
@@ -96,7 +96,7 @@ export default function MentorPackages({
 
 			{/* Plain-text package list */}
 			{hasPackages && (
-				<div className="bg-(--accent-subtle) border border-(--border) rounded-xl p-6">
+				<div className="bg-(--surface) border border-(--border) rounded-xl p-6">
 					<h3 className="text-base font-semibold text-(--primary) mb-4">Highlights</h3>
 					<ul className="space-y-2.5">
 						{packages.map((pkg, i) => (

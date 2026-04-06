@@ -4,18 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSessionToken } from "@/lib/auth-utils";
-import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/Modal";
 import { AppIcon } from "@/components/ui/AppIcon";
 import RichTextDisplay from "@/components/ui/RichTextDisplay";
 import { StartupProfileNavbar } from "@/components/public/StartupProfileNavbar";
-import { StatCard, Section } from "./_components/MentorProfileHelpers";
+import { Section, ORDERED_DAYS, DAY_LABELS, FULL_DAY } from "./_components/MentorProfileHelpers";
 import ConnectModal from "./_components/ConnectModal";
 import MentorPackages from "./_components/MentorPackages";
 import { HeroSection } from "./_components/HeroSection";
 import {
-	AboutSection,
 	ExperienceSection,
 	EducationSection,
 	CertificationsSection,
@@ -158,10 +156,9 @@ export default function MentorDetailPage() {
 				);
 				if (match) {
 					setConnectionStatus(match.status);
-					if (match.status === "accepted") {
-						await loadSlots();
-					}
 				}
+				// Always try to pre-load slots for authenticated users
+				await loadSlots();
 			} catch {
 				/* ignore */
 			}
@@ -195,9 +192,9 @@ export default function MentorDetailPage() {
 
 	const btnConfig = getConnectBtnConfig(connectionStatus);
 
-	const openSlotBookingModal = async () => {
-		await loadSlots();
+	const openSlotBookingModal = () => {
 		setShowSlotsModal(true);
+		loadSlots();
 	};
 
 	const handlePickSlot = (slot: MentorSlot) => {
@@ -208,32 +205,59 @@ export default function MentorDetailPage() {
 		setShowRequestModal(true);
 	};
 
+	const handlePickAvailabilitySlot = (day: string, startTime: string, endTime: string) => {
+		// Create a pseudo-slot for availability-based booking (no formal MentorSlot record)
+		setSelectedSlot({
+			id: "__availability__",
+			dayOfWeek: day,
+			startTime: startTime,
+			endTime: endTime,
+			isActive: true,
+		});
+		setSelectedDate(getNextDateForDay(day));
+		setRequestMessage("");
+		setShowSlotsModal(false);
+		setShowRequestModal(true);
+	};
+
 	const handleSubmitBookingRequest = async () => {
 		const token = getSessionToken();
 		if (!selectedSlot || !selectedDate) return;
-		const uuidRegex =
-			/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-		if (!uuidRegex.test(selectedSlot.id)) {
-			toast.error(
-				"Selected slot is invalid. Please refresh and choose an available slot again.",
-			);
-			return;
+
+		const isAvailabilitySlot = selectedSlot.id === "__availability__";
+		if (!isAvailabilitySlot) {
+			const uuidRegex =
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+			if (!uuidRegex.test(selectedSlot.id)) {
+				toast.error(
+					"Selected slot is invalid. Please refresh and choose an available slot again.",
+				);
+				return;
+			}
 		}
 
 		setBookingSubmitting(true);
 		try {
+			const body: Record<string, string> = {
+				scheduledDate: selectedDate,
+				notes: requestMessage,
+				mentorUserId: mentorId,
+			};
+			if (isAvailabilitySlot) {
+				body.dayOfWeek = selectedSlot.dayOfWeek;
+				body.startTime = selectedSlot.startTime;
+				body.endTime = selectedSlot.endTime;
+			} else {
+				body.slotId = selectedSlot.id;
+			}
+
 			const res = await fetch("/api/mentor-bookings/", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 					...(token ? { Authorization: `Bearer ${token}` } : {}),
 				},
-				body: JSON.stringify({
-					slotId: selectedSlot.id,
-					scheduledDate: selectedDate,
-					notes: requestMessage,
-					mentorUserId: mentorId,
-				}),
+				body: JSON.stringify(body),
 			});
 			const payload = await res.json().catch(() => ({}));
 			if (!res.ok) {
@@ -256,23 +280,25 @@ export default function MentorDetailPage() {
 		return (
 			<div className="min-h-screen bg-background text-(--primary)">
 				<StartupProfileNavbar />
-				<div className="p-6 max-w-5xl mx-auto animate-pulse space-y-5">
+				<div className="px-4 sm:px-6 max-w-5xl mx-auto py-6 animate-pulse space-y-5">
 					<div className="h-5 w-36 bg-(--accent-subtle) rounded-lg" />
-					<div className="h-48 bg-(--accent-subtle) border border-(--border-light) rounded-xl" />
-					<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-						{[1, 2, 3, 4].map((i) => (
-							<div
-								key={i}
-								className="h-20 bg-(--accent-subtle) border border-(--border-light) rounded-xl"
-							/>
-						))}
-					</div>
-					<div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-						<div className="lg:col-span-2 space-y-5">
-							<div className="h-40 bg-(--accent-subtle) border border-(--border-light) rounded-xl" />
-							<div className="h-28 bg-(--accent-subtle) border border-(--border-light) rounded-xl" />
+					<div className="border border-(--border) rounded-xl overflow-hidden">
+						<div className="h-28 sm:h-36 bg-(--surface-hover)" />
+						<div className="px-6 sm:px-8 pb-6">
+							<div className="flex items-end -mt-12 sm:-mt-16 mb-3">
+								<div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-(--surface) border-4 border-(--surface)" />
+							</div>
+							<div className="h-6 w-48 bg-(--surface-hover) rounded mb-2" />
+							<div className="h-4 w-64 bg-(--surface-hover) rounded mb-4" />
+							<div className="h-9 w-28 bg-(--surface-hover) rounded-full" />
 						</div>
-						<div className="h-64 bg-(--accent-subtle) border border-(--border-light) rounded-xl" />
+					</div>
+					<div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
+						<div className="lg:col-span-2 space-y-4">
+							<div className="h-32 bg-(--surface) border border-(--border) rounded-xl" />
+							<div className="h-48 bg-(--surface) border border-(--border) rounded-xl" />
+						</div>
+						<div className="h-48 bg-(--surface) border border-(--border) rounded-xl" />
 					</div>
 				</div>
 			</div>
@@ -283,7 +309,7 @@ export default function MentorDetailPage() {
 		return (
 			<div className="min-h-screen bg-background text-(--primary)">
 				<StartupProfileNavbar />
-				<div className="p-6 flex flex-col items-center justify-center py-24 text-center">
+				<div className="px-4 sm:px-6 flex flex-col items-center justify-center py-24 text-center">
 					<div className="w-16 h-16 rounded-full bg-(--accent-subtle) flex items-center justify-center mb-4">
 						<AppIcon name="brain" className="w-8 h-8 text-(--secondary-light)" />
 					</div>
@@ -309,23 +335,13 @@ export default function MentorDetailPage() {
 	return (
 		<div className="min-h-screen bg-background text-(--primary)">
 			<StartupProfileNavbar />
-			<div className="p-6 max-w-5xl mx-auto">
+			<div className="px-4 sm:px-6 max-w-5xl mx-auto py-6">
 				<Link
 					href="/explore/mentors"
-					className="inline-flex items-center gap-1.5 text-sm text-(--secondary-light) hover:text-(--primary) mb-6 transition-colors"
+					className="inline-flex items-center gap-1.5 text-sm text-(--secondary-light) hover:text-(--primary) mb-5 transition-colors"
 				>
-					<svg
-						className="w-4 h-4"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M15 19l-7-7 7-7"
-						/>
+					<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
 					</svg>
 					Back to Mentors
 				</Link>
@@ -333,105 +349,18 @@ export default function MentorDetailPage() {
 				<HeroSection
 					mentor={mentor}
 					connectionStatus={connectionStatus}
-					btnConfig={btnConfig}
 					onAction={openSlotBookingModal}
 				/>
 
-				{hourlyRate && (
-					<div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-						<StatCard
-							icon={
-								<svg
-									className="w-4 h-4"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-									strokeWidth={2}
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-									/>
-								</svg>
-							}
-							label="Hourly Rate"
-							value={formatCurrency(Number(hourlyRate), 'INR')}
-						/>
-						<StatCard
-							icon={
-								<svg
-									className="w-4 h-4"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-									strokeWidth={2}
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-									/>
-								</svg>
-							}
-							label="Status"
-							value={
-								mentor.verified
-									? "Verified"
-									: mentor.status === "approved"
-										? "Approved"
-										: "Pending"
-							}
-						/>
-						<StatCard
-							icon={
-								<svg
-									className="w-4 h-4"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-									strokeWidth={2}
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-									/>
-								</svg>
-							}
-							label="Expertise Areas"
-							value={String(mentor.expertise.length)}
-						/>
-						<StatCard
-							icon={
-								<svg
-									className="w-4 h-4"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-									strokeWidth={2}
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-									/>
-								</svg>
-							}
-							label="Achievements"
-							value={String(mentor.achievements.length)}
-						/>
-					</div>
-				)}
-
-				<div className="mb-5">
-					<div className="inline-flex items-center p-1 rounded-xl bg-(--accent-subtle) border border-(--border-light)">
+				{/* LinkedIn-style underline tabs */}
+				<div className="border-b border-(--border) mt-5 mb-6">
+					<div className="flex gap-6">
 						<button
 							type="button"
 							onClick={() => setActiveTab("overview")}
-							className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "overview"
-								? "bg-(--primary) text-(--background)"
-								: "text-(--primary-light) hover:text-(--primary)"
+							className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === "overview"
+								? "border-violet-500 text-(--primary)"
+								: "border-transparent text-(--secondary-light) hover:text-(--primary)"
 								}`}
 						>
 							Overview
@@ -439,35 +368,22 @@ export default function MentorDetailPage() {
 						<button
 							type="button"
 							onClick={() => setActiveTab("mentoredStartups")}
-							className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "mentoredStartups"
-								? "bg-(--primary) text-(--background)"
-								: "text-(--primary-light) hover:text-(--primary)"
+							className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === "mentoredStartups"
+								? "border-violet-500 text-(--primary)"
+								: "border-transparent text-(--secondary-light) hover:text-(--primary)"
 								}`}
 						>
-							Previously Mentored Startups
+							Mentored Startups
+							{mentor.mentoredStartups.length > 0 && (
+								<span className="ml-1.5 text-xs text-(--secondary-light)">({mentor.mentoredStartups.length})</span>
+							)}
 						</button>
 					</div>
 				</div>
 
 				{activeTab === "overview" && (
 					<div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-						<div className="lg:col-span-2 space-y-5">
-							{mentor.about && <AboutSection about={mentor.about} />}
-
-							{mentor.expertise.length > 0 && (
-								<Section title="Areas of Expertise">
-									<div className="flex flex-wrap gap-2">
-										{mentor.expertise.map((tag) => (
-											<span
-												key={tag}
-												className="text-sm px-4 py-1.5 rounded-full bg-(--accent-subtle) text-(--primary-light) border border-(--border)"
-											>
-												{tag}
-											</span>
-										))}
-									</div>
-								</Section>
-							)}
+						<div className="lg:col-span-2 space-y-4">
 
 							{mentor.experience && mentor.experience.length > 0 && (
 								<ExperienceSection items={mentor.experience} />
@@ -485,6 +401,18 @@ export default function MentorDetailPage() {
 								<SkillsSection items={mentor.skills} />
 							)}
 
+							{(mentor.expertise.length > 0 && !(mentor.skills && mentor.skills.length > 0)) && (
+								<Section title="Areas of Expertise">
+									<div className="flex flex-wrap gap-2">
+										{mentor.expertise.map((tag) => (
+											<span key={tag} className="text-sm px-3.5 py-1.5 rounded-full bg-(--accent-light) text-(--primary-light) border border-(--border)">
+												{tag}
+											</span>
+										))}
+									</div>
+								</Section>
+							)}
+
 							{mentor.honorsAwards && mentor.honorsAwards.length > 0 && (
 								<HonorsAwardsSection items={mentor.honorsAwards} />
 							)}
@@ -492,68 +420,17 @@ export default function MentorDetailPage() {
 							{mentor.achievements.length > 0 && (
 								<Section
 									title="Achievements"
-									icon={
-										<svg
-											className="w-4 h-4 text-amber-500"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" />
-										</svg>
-									}
+									icon={<svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" /></svg>}
 								>
-									<ul className="space-y-3">
+									<ul className="divide-y divide-(--border-light)">
 										{mentor.achievements.map((a, i) => (
-											<li
-												key={i}
-												className="flex items-start gap-3 text-sm text-(--secondary)"
-											>
-												<div className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
-													<svg
-														className="w-3 h-3 text-amber-500"
-														fill="currentColor"
-														viewBox="0 0 20 20"
-													>
+											<li key={i} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+												<div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+													<svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
 														<path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" />
 													</svg>
 												</div>
-												<RichTextDisplay
-													html={a}
-													compact
-													className="text-sm text-(--primary-light)"
-												/>
-											</li>
-										))}
-									</ul>
-								</Section>
-							)}
-
-							{mentor.packages.length > 0 && (
-								<Section title="Highlights">
-									<ul className="space-y-2.5">
-										{mentor.packages.map((pkg, i) => (
-											<li
-												key={i}
-												className="flex items-start gap-2.5 text-sm text-(--secondary)"
-											>
-												<svg
-													className="w-4 h-4 text-violet-400 shrink-0 mt-0.5"
-													fill="none"
-													stroke="currentColor"
-													viewBox="0 0 24 24"
-													strokeWidth={2}
-												>
-													<path
-														strokeLinecap="round"
-														strokeLinejoin="round"
-														d="M9 5l7 7-7 7"
-													/>
-												</svg>
-												<RichTextDisplay
-													html={pkg}
-													compact
-													className="text-sm text-(--primary-light)"
-												/>
+												<RichTextDisplay html={a} compact className="text-sm text-(--primary-light) pt-1" />
 											</li>
 										))}
 									</ul>
@@ -575,19 +452,35 @@ export default function MentorDetailPage() {
 							/>
 						</div>
 
-						<MentorPackages
-							hourlyRate={hourlyRate ?? null}
-							packages={[]}
-							pricingPlans={mentor.pricingPlans}
-							connectionStatus={connectionStatus}
-							connectBtnDisabled={btnConfig.disabled}
-							onConnectOrBook={openSlotBookingModal}
-						/>
+						<div className="space-y-4">
+							<MentorPackages
+								hourlyRate={hourlyRate ?? null}
+								packages={[]}
+								pricingPlans={mentor.pricingPlans}
+								connectionStatus={connectionStatus}
+								connectBtnDisabled={btnConfig.disabled}
+								onConnectOrBook={openSlotBookingModal}
+							/>
+
+							{/* Expertise sidebar card (when skills section already shows) */}
+							{mentor.expertise.length > 0 && mentor.skills && mentor.skills.length > 0 && (
+								<div className="border border-(--border) rounded-xl p-5 bg-(--surface)">
+									<h3 className="text-sm font-semibold text-(--primary) mb-3">Areas of Expertise</h3>
+									<div className="flex flex-wrap gap-1.5">
+										{mentor.expertise.map((tag) => (
+											<span key={tag} className="text-xs px-2.5 py-1 rounded-full bg-(--accent-light) text-(--secondary) border border-(--border)">
+												{tag}
+											</span>
+										))}
+									</div>
+								</div>
+							)}
+						</div>
 					</div>
 				)}
 
 				{activeTab === "mentoredStartups" && (
-					<div className="bg-(--accent-subtle) border border-(--border-light) rounded-xl p-5">
+					<div className="bg-(--surface) border border-(--border) rounded-xl p-5">
 						<div className="flex items-start justify-between gap-3 mb-4">
 							<div>
 								<h3 className="text-lg font-semibold text-(--primary)">
@@ -698,17 +591,16 @@ export default function MentorDetailPage() {
 				{showSlotsModal && (
 					<Modal isOpen={showSlotsModal} onClose={() => setShowSlotsModal(false)} variant="dark" title="Select an Available Slot" className="max-w-2xl max-h-[80vh] overflow-y-auto">
 						{slotsLoading ? (
-							<p className="text-sm text-(--secondary)">Loading slots...</p>
-						) : slots.length === 0 ? (
-							<p className="text-sm text-(--secondary)">
-								This mentor has not published any slots yet.
-							</p>
-						) : (
+							<div className="flex items-center gap-3 py-4">
+								<div className="w-5 h-5 border-2 border-(--secondary-light) border-t-transparent rounded-full animate-spin" />
+								<p className="text-sm text-(--secondary)">Loading available slots...</p>
+							</div>
+						) : slots.length > 0 ? (
 							<div className="space-y-3">
 								{Object.entries(slotsByDay).map(([day, daySlots]) => (
 									<div
 										key={day}
-										className="rounded-xl border border-(--border-light) p-3 bg-(--accent-subtle)"
+										className="rounded-xl border border-(--border-light) p-3 bg-(--surface-hover)"
 									>
 										<p className="text-sm font-semibold text-(--primary) mb-2 capitalize">
 											{day}
@@ -718,7 +610,7 @@ export default function MentorDetailPage() {
 												<button
 													key={slot.id}
 													onClick={() => handlePickSlot(slot)}
-													className="text-xs px-3 py-1.5 rounded-lg border border-(--border) text-(--primary-light) hover:text-white hover:border-violet-500/40 hover:bg-violet-500/10"
+													className="text-xs px-3 py-1.5 rounded-lg border border-(--border) text-(--primary-light) hover:text-white hover:border-violet-500/40 hover:bg-violet-500/10 transition-colors"
 												>
 													{formatTime(slot.startTime)} –{" "}
 													{formatTime(slot.endTime)}
@@ -728,6 +620,33 @@ export default function MentorDetailPage() {
 									</div>
 								))}
 							</div>
+						) : mentor.availability && Object.keys(mentor.availability).length > 0 ? (
+							<div className="space-y-3">
+								<p className="text-xs text-(--secondary-light) mb-2">Available time windows for this mentor:</p>
+								{ORDERED_DAYS.filter((d) => mentor.availability?.[d]?.length).map((day) => (
+									<div key={day} className="rounded-xl border border-(--border-light) p-3 bg-(--surface-hover)">
+										<p className="text-sm font-semibold text-(--primary) mb-2">{FULL_DAY[day] || day}</p>
+										<div className="flex flex-wrap gap-2">
+											{mentor.availability![day].map((timeRange, ti) => {
+												const [start, end] = timeRange.split("-");
+												return (
+													<button
+														key={ti}
+														onClick={() => handlePickAvailabilitySlot(day, start?.trim(), end?.trim())}
+														className="text-xs px-3 py-1.5 rounded-lg border border-(--border) text-(--primary-light) hover:text-white hover:border-violet-500/40 hover:bg-violet-500/10 transition-colors"
+													>
+														{formatTime(start?.trim())} – {formatTime(end?.trim())}
+													</button>
+												);
+											})}
+										</div>
+									</div>
+								))}
+							</div>
+						) : (
+							<p className="text-sm text-(--secondary)">
+								This mentor has not published any slots yet.
+							</p>
 						)}
 					</Modal>
 				)}

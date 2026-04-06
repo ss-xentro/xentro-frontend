@@ -222,7 +222,7 @@ export default function ExploreMentorsPage() {
 										)}
 									</div>
 									{mentor.verified && (
-										<div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-(--background) flex items-center justify-center">
+										<div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-background flex items-center justify-center">
 											<svg
 												className="w-2.5 h-2.5 text-(--primary)"
 												fill="none"

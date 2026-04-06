@@ -22,6 +22,7 @@ export interface MentorDetail {
 	institutionId?: string | null;
 	institutionName?: string | null;
 	institutionLogo?: string | null;
+	coverPhoto?: string | null;
 	about?: string | null;
 	experience?: Array<{ title: string; company: string; startDate?: string; endDate?: string; description?: string; logo?: string }>;
 	education?: Array<{ school: string; degree?: string; field?: string; startDate?: string; endDate?: string; logo?: string }>;
@@ -277,6 +278,7 @@ export function parseMentorData(found: Record<string, unknown>): MentorDetail {
 		institutionId: (found.institutionId as string) || null,
 		institutionName: (found.institutionName as string) || null,
 		institutionLogo: (found.institutionLogo as string) || null,
+		coverPhoto: (found.cover_photo as string) || null,
 		about: (found.about as string) || null,
 		experience: Array.isArray(found.experience) ? found.experience as MentorDetail['experience'] : [],
 		education: Array.isArray(found.education) ? found.education as MentorDetail['education'] : [],

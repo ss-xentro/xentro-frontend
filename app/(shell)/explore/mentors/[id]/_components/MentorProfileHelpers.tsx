@@ -55,7 +55,7 @@ export function StatCard({ icon, label, value }: { icon: React.ReactNode; label:
 /* ── Section wrapper ── */
 export function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
 	return (
-		<div className="bg-(--accent-subtle) border border-(--border) rounded-xl p-6">
+		<div className="bg-(--surface) border border-(--border) rounded-xl p-6">
 			<div className="flex items-center gap-2 mb-4">
 				{icon}
 				<h2 className="text-base font-semibold text-(--primary)">{title}</h2>

@@ -75,7 +75,7 @@ export default function ProfileView({
 						<img src={profileData.cover_photo} alt="Cover" className="w-full h-full object-cover" />
 					)}
 					<div className="absolute inset-0 bg-gradient-to-t from-black/62 via-black/28 to-black/8" />
-					<div className="absolute inset-0 bg-gradient-to-r from-black/12 via-transparent to-black/18" />
+					<div className="absolute inset-0 bg-linear-to-r from-black/12 via-transparent to-black/18" />
 				</div>
 
 				<div className="relative -mt-10 sm:-mt-12">

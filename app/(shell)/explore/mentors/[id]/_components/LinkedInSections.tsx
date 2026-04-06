@@ -4,10 +4,10 @@ import type { MentorDetail } from '../_lib/constants';
 
 function SectionCard({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
 	return (
-		<div className="bg-(--accent-subtle) border border-(--border) rounded-xl p-6">
-			<div className="flex items-center gap-2.5 mb-4">
+		<div className="border border-(--border) rounded-xl p-6 bg-(--surface)">
+			<div className="flex items-center gap-2.5 mb-5">
 				{icon}
-				<h2 className="text-base font-semibold text-(--primary)">{title}</h2>
+				<h2 className="text-lg font-semibold text-(--primary)">{title}</h2>
 			</div>
 			{children}
 		</div>
@@ -48,26 +48,26 @@ export function ExperienceSection({ items }: { items: NonNullable<MentorDetail['
 				</svg>
 			}
 		>
-			<div className="space-y-5">
+			<div className="divide-y divide-(--border-light)">
 				{items.map((exp, i) => (
-					<div key={i} className="flex gap-3.5">
-						<div className="w-10 h-10 rounded-lg bg-(--accent-light) border border-(--border-light) flex items-center justify-center shrink-0 overflow-hidden">
+					<div key={i} className={`flex gap-4 ${i > 0 ? 'pt-4' : ''} ${i < items.length - 1 ? 'pb-4' : ''}`}>
+						<div className="w-12 h-12 rounded-lg bg-(--accent-light) border border-(--border-light) flex items-center justify-center shrink-0 overflow-hidden">
 							{exp.logo ? (
 								<img src={exp.logo} alt={exp.company} className="w-full h-full object-contain p-1" />
 							) : (
-								<svg className="w-5 h-5 text-(--secondary-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+								<svg className="w-6 h-6 text-(--secondary-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
 									<path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1v1H9V7zm5 0h1v1h-1V7zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1z" />
 								</svg>
 							)}
 						</div>
 						<div className="flex-1 min-w-0">
-							<p className="text-sm font-semibold text-(--primary)">{exp.title}</p>
-							<p className="text-sm text-(--secondary)">{exp.company}</p>
+							<p className="text-sm font-semibold text-(--primary) leading-snug">{exp.title}</p>
+							<p className="text-sm text-(--secondary) mt-0.5">{exp.company}</p>
 							{formatDateRange(exp.startDate, exp.endDate) && (
-								<p className="text-xs text-(--secondary-light) mt-0.5">{formatDateRange(exp.startDate, exp.endDate)}</p>
+								<p className="text-xs text-(--secondary-light) mt-1">{formatDateRange(exp.startDate, exp.endDate)}</p>
 							)}
 							{exp.description && (
-								<p className="text-xs text-(--secondary) mt-1.5 leading-relaxed">{exp.description}</p>
+								<p className="text-sm text-(--secondary) mt-2 leading-relaxed">{exp.description}</p>
 							)}
 						</div>
 					</div>
@@ -88,25 +88,25 @@ export function EducationSection({ items }: { items: NonNullable<MentorDetail['e
 				</svg>
 			}
 		>
-			<div className="space-y-5">
+			<div className="divide-y divide-(--border-light)">
 				{items.map((edu, i) => (
-					<div key={i} className="flex gap-3.5">
-						<div className="w-10 h-10 rounded-lg bg-(--accent-light) border border-(--border-light) flex items-center justify-center shrink-0 overflow-hidden">
+					<div key={i} className={`flex gap-4 ${i > 0 ? 'pt-4' : ''} ${i < items.length - 1 ? 'pb-4' : ''}`}>
+						<div className="w-12 h-12 rounded-lg bg-(--accent-light) border border-(--border-light) flex items-center justify-center shrink-0 overflow-hidden">
 							{edu.logo ? (
 								<img src={edu.logo} alt={edu.school} className="w-full h-full object-contain p-1" />
 							) : (
-								<svg className="w-5 h-5 text-(--secondary-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+								<svg className="w-6 h-6 text-(--secondary-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
 									<path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
 								</svg>
 							)}
 						</div>
 						<div className="flex-1 min-w-0">
-							<p className="text-sm font-semibold text-(--primary)">{edu.school}</p>
+							<p className="text-sm font-semibold text-(--primary) leading-snug">{edu.school}</p>
 							{(edu.degree || edu.field) && (
-								<p className="text-sm text-(--secondary)">{[edu.degree, edu.field].filter(Boolean).join(', ')}</p>
+								<p className="text-sm text-(--secondary) mt-0.5">{[edu.degree, edu.field].filter(Boolean).join(', ')}</p>
 							)}
 							{formatDateRange(edu.startDate, edu.endDate) && (
-								<p className="text-xs text-(--secondary-light) mt-0.5">{formatDateRange(edu.startDate, edu.endDate)}</p>
+								<p className="text-xs text-(--secondary-light) mt-1">{formatDateRange(edu.startDate, edu.endDate)}</p>
 							)}
 						</div>
 					</div>
@@ -127,20 +127,20 @@ export function CertificationsSection({ items }: { items: NonNullable<MentorDeta
 				</svg>
 			}
 		>
-			<div className="space-y-4">
+			<div className="divide-y divide-(--border-light)">
 				{items.map((cert, i) => (
-					<div key={i} className="flex gap-3.5">
-						<div className="w-10 h-10 rounded-lg bg-(--accent-light) border border-(--border-light) flex items-center justify-center shrink-0">
-							<svg className="w-5 h-5 text-(--secondary-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+					<div key={i} className={`flex gap-4 ${i > 0 ? 'pt-4' : ''} ${i < items.length - 1 ? 'pb-4' : ''}`}>
+						<div className="w-12 h-12 rounded-lg bg-(--accent-light) border border-(--border-light) flex items-center justify-center shrink-0">
+							<svg className="w-6 h-6 text-(--secondary-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
 								<path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
 							</svg>
 						</div>
 						<div className="flex-1 min-w-0">
-							<p className="text-sm font-semibold text-(--primary)">{cert.name}</p>
-							{cert.organization && <p className="text-sm text-(--secondary)">{cert.organization}</p>}
-							{cert.issueDate && <p className="text-xs text-(--secondary-light) mt-0.5">Issued {cert.issueDate}</p>}
+							<p className="text-sm font-semibold text-(--primary) leading-snug">{cert.name}</p>
+							{cert.organization && <p className="text-sm text-(--secondary) mt-0.5">{cert.organization}</p>}
+							{cert.issueDate && <p className="text-xs text-(--secondary-light) mt-1">Issued {cert.issueDate}</p>}
 							{cert.url && (
-								<a href={cert.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 mt-1">
+								<a href={cert.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 mt-2 font-medium">
 									Show credential
 									<svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
 										<path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -168,7 +168,7 @@ export function SkillsSection({ items }: { items: string[] }) {
 		>
 			<div className="flex flex-wrap gap-2">
 				{items.map((skill, i) => (
-					<span key={i} className="text-sm px-3.5 py-1.5 rounded-full bg-(--accent-light) text-(--primary-light) border border-(--border)">
+					<span key={i} className="text-sm px-3.5 py-1.5 rounded-full bg-(--accent-light) text-(--primary-light) border border-(--border) font-medium">
 						{skill}
 					</span>
 				))}
@@ -188,19 +188,19 @@ export function HonorsAwardsSection({ items }: { items: NonNullable<MentorDetail
 				</svg>
 			}
 		>
-			<div className="space-y-4">
+			<div className="divide-y divide-(--border-light)">
 				{items.map((award, i) => (
-					<div key={i} className="flex gap-3.5">
-						<div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-							<svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+					<div key={i} className={`flex gap-4 ${i > 0 ? 'pt-4' : ''} ${i < items.length - 1 ? 'pb-4' : ''}`}>
+						<div className="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+							<svg className="w-6 h-6 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
 								<path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" />
 							</svg>
 						</div>
 						<div className="flex-1 min-w-0">
-							<p className="text-sm font-semibold text-(--primary)">{award.title}</p>
-							{award.issuer && <p className="text-sm text-(--secondary)">{award.issuer}</p>}
-							{award.date && <p className="text-xs text-(--secondary-light) mt-0.5">{award.date}</p>}
-							{award.description && <p className="text-xs text-(--secondary) mt-1.5 leading-relaxed">{award.description}</p>}
+							<p className="text-sm font-semibold text-(--primary) leading-snug">{award.title}</p>
+							{award.issuer && <p className="text-sm text-(--secondary) mt-0.5">{award.issuer}</p>}
+							{award.date && <p className="text-xs text-(--secondary-light) mt-1">{award.date}</p>}
+							{award.description && <p className="text-sm text-(--secondary) mt-2 leading-relaxed">{award.description}</p>}
 						</div>
 					</div>
 				))}
