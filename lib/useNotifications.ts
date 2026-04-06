@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { getSessionToken } from '@/lib/auth-utils';
 
 export interface WsNotification {
 	id: string | null;
@@ -21,15 +20,38 @@ interface UseNotificationsOptions {
 	enabled?: boolean;
 }
 
-const WS_BASE =
-	typeof window !== 'undefined'
-		? `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.hostname}:8000`
-		: '';
-
 const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000, 30000]; // exponential backoff
 
 /**
+ * Returns the WebSocket base URL.
+ * Uses NEXT_PUBLIC_WS_URL in production; falls back to ws://localhost:8000.
+ */
+function getWsBase(): string {
+	const envUrl = process.env.NEXT_PUBLIC_WS_URL;
+	if (envUrl) return envUrl;
+	if (typeof window === 'undefined') return '';
+	const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+	return `${proto}://${window.location.hostname}:8000`;
+}
+
+/**
+ * Fetches a real JWT from the Next.js API route that reads the HttpOnly cookie.
+ * WebSocket connections cannot send cookies, so we get a one-time token this way.
+ */
+async function fetchWsToken(): Promise<string | null> {
+	try {
+		const res = await fetch('/api/auth/ws-token');
+		if (!res.ok) return null;
+		const data = await res.json();
+		return data.token ?? null;
+	} catch {
+		return null;
+	}
+}
+
+/**
  * Hook that maintains a WebSocket connection to the notification consumer.
+ * Authenticates via a first-message handshake (same pattern as useChat).
  * Automatically reconnects with exponential backoff on disconnect.
  */
 export function useNotifications({ onNotification, enabled = true }: UseNotificationsOptions = {}) {
@@ -44,26 +66,34 @@ export function useNotifications({ onNotification, enabled = true }: UseNotifica
 		onNotificationRef.current = onNotification;
 	}, [onNotification]);
 
-	const connect = useCallback(() => {
-		const token = getSessionToken();
-		if (!token || !WS_BASE) return;
+	const connect = useCallback(async () => {
+		const wsBase = getWsBase();
+		if (!wsBase) return;
 
 		// Don't open if one is already connecting/open
 		if (wsRef.current && (wsRef.current.readyState === WebSocket.CONNECTING || wsRef.current.readyState === WebSocket.OPEN)) {
 			return;
 		}
 
-		const ws = new WebSocket(`${WS_BASE}/ws/notifications/?token=${encodeURIComponent(token)}`);
+		const token = await fetchWsToken();
+		if (!token) return;
+
+		const ws = new WebSocket(`${wsBase}/ws/notifications/`);
 
 		ws.onopen = () => {
-			retriesRef.current = 0;
-			setConnected(true);
+			// First message must be the auth handshake; the consumer ignores URL params
+			ws.send(JSON.stringify({ type: 'auth', token }));
 		};
 
 		ws.onmessage = (event) => {
 			try {
-				const payload: WsNotification = JSON.parse(event.data);
-				onNotificationRef.current?.(payload);
+				const data = JSON.parse(event.data);
+				if (data.type === 'auth_ok') {
+					retriesRef.current = 0;
+					setConnected(true);
+					return;
+				}
+				onNotificationRef.current?.(data as WsNotification);
 			} catch {
 				// ignore malformed messages
 			}

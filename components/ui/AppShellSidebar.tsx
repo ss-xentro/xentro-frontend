@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { getSessionToken } from '@/lib/auth-utils';
 import { type UserRole, getNavItems } from './sidebar-nav-config';
+import { useNotifications, type WsNotification } from '@/lib/useNotifications';
 
 const ROLE_LABELS: Record<string, string> = {
 	admin: 'Admin',
@@ -127,6 +128,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 	const [dashExpanded, setDashExpanded] = useState(false);
 	const [startupInfo, setStartupInfo] = useState<{ name: string; slug: string; logo: string | null } | null>(null);
 	const [chatUnreadCount, setChatUnreadCount] = useState(0);
+	const [notifUnreadCount, setNotifUnreadCount] = useState(0);
 	const profileRef = useRef<HTMLDivElement>(null);
 	const pathname = usePathname();
 	const router = useRouter();
@@ -161,6 +163,26 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 			})
 			.catch(() => { });
 	}, [isAuthenticated, pathname]);
+
+	// Fetch initial notification unread count
+	useEffect(() => {
+		if (!isAuthenticated) return;
+		fetch('/api/notifications?unreadOnly=true&limit=1', { cache: 'no-store' })
+			.then(r => r.ok ? r.json() : { unreadCount: 0 })
+			.then((data: { unreadCount?: number }) => setNotifUnreadCount(data.unreadCount || 0))
+			.catch(() => { });
+	}, [isAuthenticated]);
+
+	// Reset badge when user visits the notifications page
+	useEffect(() => {
+		if (pathname === '/notifications') setNotifUnreadCount(0);
+	}, [pathname]);
+
+	// Increment badge on incoming WS notifications
+	const handleIncomingNotification = useCallback((_n: WsNotification) => {
+		setNotifUnreadCount((prev) => prev + 1);
+	}, []);
+	useNotifications({ onNotification: handleIncomingNotification, enabled: isAuthenticated });
 
 	const dashboardHref = getDashboardUrl(user?.role);
 	const resolvedRole = (user?.role ?? 'startup') as UserRole;
@@ -339,7 +361,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 					{/* Other nav items */}
 					{DESKTOP_NAV_ITEMS.map((item) => {
 						const active = isNavActive(item.href, item.label);
-						const badgeCount = item.icon === 'chat' ? chatUnreadCount : 0;
+						const badgeCount = item.icon === 'bell' ? notifUnreadCount : item.icon === 'chat' ? chatUnreadCount : 0;
 						return (
 							<Link
 								key={item.icon}
