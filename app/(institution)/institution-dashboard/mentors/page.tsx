@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
 import { toast } from 'sonner';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 
 interface Mentor {
   id: string;
@@ -52,87 +54,40 @@ interface EndorsementRequest {
 
 export default function MentorsPage() {
   const router = useRouter();
-  const [mentors, setMentors] = useState<Mentor[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  // Endorsement requests
-  const [endorsements, setEndorsements] = useState<EndorsementRequest[]>([]);
-  const [endorsementsLoading, setEndorsementsLoading] = useState(true);
+  // Endorsement requests UI state
   const [showEndorsements, setShowEndorsements] = useState(false);
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const [responseComment, setResponseComment] = useState('');
 
-  useEffect(() => {
-    loadMentors();
-    loadEndorsements();
-  }, []);
+  const { data: mentorsRaw, isLoading: loading } = useApiQuery<{ data: ApiMentor[] }>(
+    queryKeys.institution.mentors(),
+    '/api/mentors/',
+    { requestOptions: { role: 'institution' } },
+  );
+  const mentors = useMemo((): Mentor[] => {
+    const raw = mentorsRaw?.data ?? [];
+    return raw.map((mentor) => ({
+      ...mentor,
+      expertise: normalizeExpertise(mentor.expertise),
+    }));
+  }, [mentorsRaw]);
 
-  const loadMentors = async () => {
-    try {
-      const token = getSessionToken('institution');
-      if (!token) {
-        router.push('/institution-login');
-        return;
-      }
-
-      const res = await fetch('/api/mentors/', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load mentors'));
-      const data = await res.json();
-      const rawMentors: ApiMentor[] = Array.isArray(data.data) ? data.data : [];
-      const normalizedMentors: Mentor[] = rawMentors.map((mentor) => ({
-        ...mentor,
-        expertise: normalizeExpertise(mentor.expertise),
-      }));
-      setMentors(normalizedMentors);
-    } catch (err) {
-      toast.error((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadEndorsements = async () => {
-    try {
-      const token = getSessionToken('institution');
-      if (!token) return;
-
-      const res = await fetch('/api/endorsements/?status=pending', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setEndorsements(data.data || data.endorsements || []);
-      }
-    } catch {
-      // silently fail
-    } finally {
-      setEndorsementsLoading(false);
-    }
-  };
+  const { data: endorsementsRaw, isLoading: endorsementsLoading } = useApiQuery<{ data?: EndorsementRequest[]; endorsements?: EndorsementRequest[] }>(
+    queryKeys.institution.endorsements({ status: 'pending' }),
+    '/api/endorsements/?status=pending',
+    { requestOptions: { role: 'institution' } },
+  );
+  const endorsements = endorsementsRaw?.data || endorsementsRaw?.endorsements || [];
 
   const handleEndorsementResponse = async (endorsementId: string, action: 'accepted' | 'rejected') => {
     try {
-      const token = getSessionToken('institution');
-      if (!token) throw new Error('Authentication required.');
-
-      const res = await fetch(`/api/endorsements/${endorsementId}/respond/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ action, comment: responseComment }),
-      });
-
-      if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to respond'));
-
-      // Reload both lists
+      await api.post(`/api/endorsements/${endorsementId}/respond/`, { role: 'institution', json: { action, comment: responseComment } });
       setRespondingId(null);
       setResponseComment('');
-      loadEndorsements();
-      if (action === 'accepted') loadMentors();
+      queryClient.invalidateQueries({ queryKey: queryKeys.institution.endorsements({ status: 'pending' }) });
+      if (action === 'accepted') queryClient.invalidateQueries({ queryKey: queryKeys.institution.mentors() });
     } catch (err) {
       toast.error((err as Error).message);
     }

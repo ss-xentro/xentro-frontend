@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { getSessionToken } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface ConnectionRequest {
 	id: string;
@@ -21,66 +22,28 @@ interface ConnectionRequest {
 }
 
 export default function MentorRequestsPage() {
-	const [requests, setRequests] = useState<ConnectionRequest[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [actionLoading, setActionLoading] = useState<string | null>(null);
 	const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all');
 
-	useEffect(() => {
-		loadRequests();
-	}, []);
+	const { data: rawData, isLoading: loading } = useApiQuery<{ data: ConnectionRequest[] }>(
+		[...queryKeys.mentor.all, 'connections'],
+		'/api/mentor-connections/',
+		{ requestOptions: { role: 'mentor' } },
+	);
 
-	async function loadRequests() {
-		const token = getSessionToken('mentor');
-		if (!token) return;
+	const requests = rawData?.data ?? [];
 
-		try {
-			setLoading(true);
-			const res = await fetch('/api/mentor-connections/', {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) return;
-			const json = await res.json();
-			setRequests(json.data ?? []);
-		} catch (err) {
-			console.error(err);
-		} finally {
-			setLoading(false);
-		}
-	}
+	const respondMutation = useApiMutation<unknown, { _requestId: string; status: string }>({
+		method: 'patch',
+		path: (variables) => `/api/mentor-connections/${variables._requestId}/`,
+		invalidateKeys: [[...queryKeys.mentor.all, 'connections'], queryKeys.mentor.bookings()],
+		requestOptions: { role: 'mentor' },
+	});
 
 	async function handleRespond(requestId: string, status: 'accepted' | 'rejected') {
-		const token = getSessionToken('mentor');
-		if (!token) return;
-
-		setActionLoading(requestId);
-		try {
-			const res = await fetch(`/api/mentor-connections/${requestId}/`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({ status }),
-			});
-
-			if (res.ok) {
-				setRequests((prev) =>
-					prev.map((r) =>
-						r.id === requestId ? { ...r, status, responded_at: new Date().toISOString() } : r
-					)
-				);
-			} else {
-				const data = await res.json();
-				alert(data.error || 'Failed to respond');
-			}
-		} catch (err) {
-			console.error(err);
-			alert('Failed to respond to request');
-		} finally {
-			setActionLoading(null);
-		}
+		respondMutation.mutate({ _requestId: requestId, status });
 	}
+
+	const actionLoading = respondMutation.isPending ? (respondMutation.variables as { _requestId: string } | undefined)?._requestId ?? null : null;
 
 	const filtered = filter === 'all' ? requests : requests.filter((r) => r.status === filter);
 	const pendingCount = requests.filter((r) => r.status === 'pending').length;

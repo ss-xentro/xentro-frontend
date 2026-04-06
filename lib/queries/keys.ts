@@ -26,10 +26,19 @@ export const queryKeys = {
 		dashboard: () => ['institution', 'dashboard'] as const,
 		detail: (id: string) => ['institution', id] as const,
 		programs: () => ['institution', 'programs'] as const,
+		programDetail: (id: string) => ['institution', 'program', id] as const,
 		team: () => ['institution', 'team'] as const,
+		teamDetail: (id: string) => ['institution', 'teamMember', id] as const,
 		startups: () => ['institution', 'startups'] as const,
+		startupDetail: (id: string) => ['institution', 'startup', id] as const,
 		projects: () => ['institution', 'projects'] as const,
+		projectDetail: (id: string) => ['institution', 'project', id] as const,
+		mentors: () => ['institution', 'mentors'] as const,
+		mentorDetail: (id: string) => ['institution', 'mentor', id] as const,
 		analytics: () => ['institution', 'analytics'] as const,
+		recycleBin: () => ['institution', 'recycleBin'] as const,
+		endorsements: (params?: Record<string, string>) => ['institution', 'endorsements', params] as const,
+		profile: () => ['institution', 'profile'] as const,
 	},
 
 	// ── Mentor ──
@@ -45,10 +54,20 @@ export const queryKeys = {
 	// ── Admin ──
 	admin: {
 		all: ['admin'] as const,
+		dashboard: () => ['admin', 'dashboard'] as const,
 		institutions: () => ['admin', 'institutions'] as const,
+		institutionDetail: (id: string) => ['admin', 'institution', id] as const,
 		users: (params?: Record<string, string>) => ['admin', 'users', params] as const,
 		startups: () => ['admin', 'startups'] as const,
 		analytics: () => ['admin', 'analytics'] as const,
+		applications: () => ['admin', 'applications'] as const,
+		applicationDetail: (id: string) => ['admin', 'application', id] as const,
+		recycleBin: () => ['admin', 'recycleBin'] as const,
+		auditLog: (params?: Record<string, string>) => ['admin', 'auditLog', params] as const,
+		forms: (params?: Record<string, string>) => ['admin', 'forms', params] as const,
+		investors: () => ['admin', 'investors'] as const,
+		mentors: () => ['admin', 'mentors'] as const,
+		verificationRequests: () => ['admin', 'verificationRequests'] as const,
 	},
 
 	// ── Auth ──
@@ -128,6 +147,12 @@ export const queryKeys = {
 	public: {
 		institution: (id: string) => ['public', 'institution', id] as const,
 		startup: (id: string) => ['public', 'startup', id] as const,
-		startupList: () => ['public', 'startups'] as const,
+		startupList: (params?: Record<string, string>) => ['public', 'startups', params] as const,
+	},
+
+	// ── Onboarding / Mentor ──
+	onboarding: {
+		mentorProfile: () => ['onboarding', 'mentorProfile'] as const,
+		myStartup: () => ['onboarding', 'myStartup'] as const,
 	},
 } as const;

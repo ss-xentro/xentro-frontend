@@ -1,51 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageSkeleton, EmptyState } from '@/components/ui';
 import { toast } from 'sonner';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 import { RecycleBinUser, accountTypeLabels } from './_lib/constants';
 import RecycleBinCard from './_components/RecycleBinCard';
 
 export default function AdminRecycleBinPage() {
     const router = useRouter();
-    const [users, setUsers] = useState<RecycleBinUser[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [search, setSearch] = useState('');
 
-    const getHeaders = (): Record<string, string> => {
-        const headers: Record<string, string> = {};
-        const token = getSessionToken('admin');
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        return headers;
-    };
-
-    useEffect(() => {
-        loadRecycleBin();
-    }, []);
-
-    const loadRecycleBin = async () => {
-        try {
-            const res = await fetch('/api/admin/recycle-bin/', { headers: getHeaders() });
-            if (res.status === 401 || res.status === 403) { router.push('/admin/login'); return; }
-            if (!res.ok) throw new Error('Failed to load recycle bin');
-            const json = await res.json();
-            setUsers(json.data || []);
-        } catch (err) {
-            toast.error((err as Error).message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // --- TanStack Query: load recycle bin ---
+    const { data: recycleBinRaw, isLoading: loading } = useApiQuery<{ data: RecycleBinUser[] }>(
+        queryKeys.admin.recycleBin(),
+        '/api/admin/recycle-bin/',
+        { requestOptions: { role: 'admin' } },
+    );
+    const users = recycleBinRaw?.data ?? [];
 
     const handleRestore = async (userId: string, userName: string) => {
         setActionLoading(`restore-${userId}`);
         try {
-            const res = await fetch(`/api/admin/recycle-bin/${userId}/restore/`, { method: 'POST', headers: getHeaders() });
-            if (!res.ok) { const json = await res.json(); throw new Error(json.error || 'Failed to restore user'); }
-            setUsers((prev) => prev.filter((u) => u.id !== userId));
+            await api.post(`/api/admin/recycle-bin/${userId}/restore/`, { role: 'admin' });
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.recycleBin() });
             toast.success(`"${userName}" has been restored successfully.`);
         } catch (err) {
             toast.error((err as Error).message);
@@ -58,12 +42,9 @@ export default function AdminRecycleBinPage() {
         if (!confirm(`This will PERMANENTLY delete "${userName}" and ALL related data including uploaded files.\n\nThis action cannot be undone. Continue?`)) return;
         setActionLoading(`delete-${userId}`);
         try {
-            const res = await fetch(`/api/admin/recycle-bin/${userId}/`, { method: 'DELETE', headers: getHeaders() });
-            if (!res.ok) { const json = await res.json(); throw new Error(json.error || 'Failed to delete user'); }
-            const json = await res.json();
-            const r2Info = json.cleanup?.r2FilesDeleted ? ` (${json.cleanup.r2FilesDeleted} files cleaned from storage)` : '';
-            setUsers((prev) => prev.filter((u) => u.id !== userId));
-            toast.success(`"${userName}" has been permanently deleted${r2Info}.`);
+            await api.delete(`/api/admin/recycle-bin/${userId}/`, { role: 'admin' });
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.recycleBin() });
+            toast.success(`"${userName}" has been permanently deleted.`);
         } catch (err) {
             toast.error((err as Error).message);
         } finally {

@@ -1,96 +1,61 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { PageSkeleton, EmptyState } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
 import { Startup, EndorsementRequest } from './_lib/constants';
 import EndorsementPanel from './_components/EndorsementPanel';
 import StartupCard from './_components/StartupCard';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 
 export default function StartupsPage() {
     const router = useRouter();
-    const [startups, setStartups] = useState<Startup[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [deletingId, setDeletingId] = useState<string | null>(null);
-    const [endorsements, setEndorsements] = useState<EndorsementRequest[]>([]);
-    const [endorsementsLoading, setEndorsementsLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [showEndorsements, setShowEndorsements] = useState(false);
 
-    useEffect(() => {
-        loadStartups();
-        loadEndorsements();
-    }, []);
+    const { data: startupsRaw, isLoading: loading } = useApiQuery<{ data: Startup[] }>(
+        queryKeys.institution.startups(),
+        '/api/startups',
+        { requestOptions: { role: 'institution' } },
+    );
+    const startups = startupsRaw?.data || [];
 
-    const loadStartups = async () => {
-        try {
-            const token = getSessionToken('institution');
-            if (!token) { router.push('/institution-login'); return; }
-            const res = await fetch('/api/startups', { headers: { Authorization: `Bearer ${token}` } });
-            if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load startups'));
-            const data = await res.json();
-            setStartups(data.data || []);
-        } catch (err) {
-            toast.error((err as Error).message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { data: endorsementsRaw, isLoading: endorsementsLoading } = useApiQuery<{ data?: EndorsementRequest[]; endorsements?: EndorsementRequest[] }>(
+        queryKeys.institution.endorsements({ status: 'pending', entity_type: 'startup' }),
+        '/api/endorsements/?status=pending&entity_type=startup',
+        { requestOptions: { role: 'institution' } },
+    );
+    const endorsements = endorsementsRaw?.data || endorsementsRaw?.endorsements || [];
 
-    const loadEndorsements = async () => {
-        try {
-            const token = getSessionToken('institution');
-            if (!token) return;
-            const res = await fetch('/api/endorsements/?status=pending&entity_type=startup', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setEndorsements(data.data || data.endorsements || []);
-            }
-        } catch {
-            // silently fail
-        } finally {
-            setEndorsementsLoading(false);
-        }
-    };
+    const deleteMutation = useApiMutation<unknown, { _id: string }>({
+        method: 'delete',
+        path: (v) => `/api/startups/${v._id}`,
+        invalidateKeys: [queryKeys.institution.startups()],
+        requestOptions: { role: 'institution' },
+        mutationOptions: {
+            onError: (err) => toast.error(err.message),
+        },
+    });
+    const deletingId = deleteMutation.isPending ? deleteMutation.variables?._id ?? null : null;
 
     const handleRespondEndorsement = async (id: string, action: 'accepted' | 'rejected', comment: string) => {
         try {
-            const token = getSessionToken('institution');
-            if (!token) throw new Error('Authentication required');
-            const res = await fetch(`/api/endorsements/${id}/respond/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ action, comment }),
-            });
-            if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to respond'));
-            loadEndorsements();
-            if (action === 'accepted') loadStartups();
+            await api.post(`/api/endorsements/${id}/respond/`, { role: 'institution', json: { action, comment } });
+            queryClient.invalidateQueries({ queryKey: queryKeys.institution.endorsements({ status: 'pending', entity_type: 'startup' }) });
+            if (action === 'accepted') queryClient.invalidateQueries({ queryKey: queryKeys.institution.startups() });
         } catch (err) {
             toast.error((err as Error).message);
         }
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = (id: string) => {
         if (!confirm('Are you sure you want to delete this startup?')) return;
-        setDeletingId(id);
-        try {
-            const token = getSessionToken('institution');
-            if (!token) throw new Error('Authentication required. Please log in again.');
-            const res = await fetch(`/api/startups/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-            if (!res.ok) {
-                throw new Error(await readApiErrorMessage(res, 'Failed to delete startup'));
-            }
-            setStartups((prev) => prev.filter((s) => s.id !== id));
-        } catch (err) {
-            toast.error((err as Error).message);
-        } finally {
-            setDeletingId(null);
-        }
+        deleteMutation.mutate({ _id: id });
     };
 
     if (loading) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
@@ -12,6 +12,8 @@ import { AppIcon } from '@/components/ui/AppIcon';
 import { startupStageLabels, fundingRoundLabels } from '@/lib/types/labels';
 import { formatCurrency } from '@/lib/utils';
 import type { StartupStage, FundingRound } from '@/lib/types/startups';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 // Reusing options (should be shared)
 const stages = [
@@ -61,8 +63,6 @@ function StartupsContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const [startups, setStartups] = useState<StartupPublic[]>([]);
-    const [loading, setLoading] = useState(true);
     const [view, setView] = useState<'grid' | 'list'>('grid');
 
     // Filter states
@@ -70,40 +70,34 @@ function StartupsContent() {
     const [stage, setStage] = useState(searchParams.get('stage') || 'all');
     const [funding, setFunding] = useState(searchParams.get('funding') || 'all');
 
-    // Debounced search effect or just fetch on change?
-    // For simplicity, we fetch when filters change.
-    // We can use a simple effect.
-
-    const fetchStartups = useCallback(async () => {
-        setLoading(true);
-        try {
-            const params = new URLSearchParams();
-            if (search) params.append('search', search);
-            if (stage && stage !== 'all') params.append('stage', stage);
-            if (funding && funding !== 'all') params.append('funding', funding);
-
-            // Update URL without refresh
-            router.replace(`/startups?${params.toString()}`, { scroll: false });
-
-            const res = await fetch(`/api/startups?${params.toString()}`);
-            const json = await res.json();
-            if (res.ok) setStartups(json.startups || json.data || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }, [search, stage, funding, router]);
-
-    // Debounce search
+    // Debounced search value
+    const [debouncedSearch, setDebouncedSearch] = useState(search);
     useEffect(() => {
-        const timer = setTimeout(() => {
-            fetchStartups();
-        }, 300);
+        const timer = setTimeout(() => setDebouncedSearch(search), 300);
         return () => clearTimeout(timer);
-    }, [fetchStartups]);
+    }, [search]);
 
-    // Handle stage/funding change immediately (fetchStartups dependency covers it)
+    // Build query params
+    const queryParams: Record<string, string> = {};
+    if (debouncedSearch) queryParams.search = debouncedSearch;
+    if (stage && stage !== 'all') queryParams.stage = stage;
+    if (funding && funding !== 'all') queryParams.funding = funding;
+
+    const { data: startupsRaw, isLoading: loading } = useApiQuery<{ startups?: StartupPublic[]; data?: StartupPublic[] }>(
+        queryKeys.public.startupList(queryParams),
+        '/api/startups',
+        { requestOptions: { public: true, params: queryParams } },
+    );
+    const startups = startupsRaw?.startups ?? startupsRaw?.data ?? [];
+
+    // Sync URL with current filters
+    useEffect(() => {
+        const params = new URLSearchParams();
+        if (debouncedSearch) params.append('search', debouncedSearch);
+        if (stage && stage !== 'all') params.append('stage', stage);
+        if (funding && funding !== 'all') params.append('funding', funding);
+        router.replace(`/startups?${params.toString()}`, { scroll: false });
+    }, [debouncedSearch, stage, funding, router]);
 
     return (
         <div className="min-h-screen bg-background">

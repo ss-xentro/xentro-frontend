@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSessionToken } from "@/lib/auth-utils";
@@ -25,6 +25,8 @@ import AvailabilityBookingSection from "./_components/AvailabilityBookingSection
 import BookSessionModal from "./_components/BookSessionModal";
 import { parseMentorData, getConnectBtnConfig } from "./_lib/constants";
 import type { MentorDetail, MentorSlot } from "./_lib/constants";
+import { useApiQuery } from "@/lib/queries";
+import { queryKeys } from "@/lib/queries/keys";
 
 export default function MentorDetailPage() {
 	const params = useParams();
@@ -33,8 +35,6 @@ export default function MentorDetailPage() {
 	const { user } = useAuth();
 	const currentUserId = user?.id ?? "";
 
-	const [mentor, setMentor] = useState<MentorDetail | null>(null);
-	const [loading, setLoading] = useState(true);
 	const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
 	const [showConnectModal, setShowConnectModal] = useState(false);
 	const [slots, setSlots] = useState<MentorSlot[]>([]);
@@ -45,24 +45,14 @@ export default function MentorDetailPage() {
 	const [showBookingModal, setShowBookingModal] = useState(false);
 	const [preselectedSlot, setPreselectedSlot] = useState<MentorSlot | null>(null);
 
-
-	useEffect(() => {
-		async function load() {
-			try {
-				setLoading(true);
-				const res = await fetch(`/api/mentors/${mentorId}`);
-				if (!res.ok) return;
-				const json = await res.json();
-				const found = json.data;
-				if (found) setMentor(parseMentorData(found));
-			} catch (err) {
-				console.error(err);
-			} finally {
-				setLoading(false);
-			}
-		}
-		load();
-	}, [mentorId]);
+	const { data: mentorRaw, isLoading: loading } = useApiQuery<{ data: Record<string, unknown> }>(
+		queryKeys.explore.mentorDetail(mentorId),
+		`/api/mentors/${mentorId}`,
+	);
+	const mentor = useMemo(() => {
+		const found = mentorRaw?.data;
+		return found ? parseMentorData(found) : null;
+	}, [mentorRaw]);
 
 	const loadSlots = async () => {
 		const mentorUserId = mentor?.userId;

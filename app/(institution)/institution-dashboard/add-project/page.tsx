@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { toast } from 'sonner';
 
 const projectStatusOptions = [
@@ -17,7 +17,6 @@ const projectStatusOptions = [
 
 export default function AddProjectPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -27,36 +26,21 @@ export default function AddProjectPage() {
     endDate: '',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const createMutation = useApiMutation<unknown, typeof formData>({
+    method: 'post',
+    path: '/api/projects/',
+    invalidateKeys: [queryKeys.institution.projects()],
+    requestOptions: { role: 'institution' },
+    mutationOptions: {
+      onSuccess: () => router.push('/institution-dashboard/projects'),
+      onError: (err) => toast.error(err.message),
+    },
+  });
+  const loading = createMutation.isPending;
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const token = getSessionToken('institution');
-      if (!token) {
-        throw new Error('Authentication required. Please log in again.');
-      }
-
-      const res = await fetch('/api/projects/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!res.ok) {
-        const message = await readApiErrorMessage(res, `Failed to create project (HTTP ${res.status})`);
-        throw new Error(message);
-      }
-
-      router.push('/institution-dashboard/projects');
-    } catch (err) {
-      toast.error((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
+    createMutation.mutate(formData);
   };
 
   return (

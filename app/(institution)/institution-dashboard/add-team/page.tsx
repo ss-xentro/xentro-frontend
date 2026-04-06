@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Input, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { toast } from 'sonner';
 
 // Roles that can be assigned to team members (owner is reserved)
@@ -18,7 +18,6 @@ const roleOptions = [
 
 export default function AddTeamMemberPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -27,35 +26,21 @@ export default function AddTeamMemberPage() {
     phone: '',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const createMutation = useApiMutation<unknown, typeof formData>({
+    method: 'post',
+    path: '/api/institution-team',
+    invalidateKeys: [queryKeys.institution.team()],
+    requestOptions: { role: 'institution' },
+    mutationOptions: {
+      onSuccess: () => router.push('/institution-dashboard/team'),
+      onError: (err) => toast.error(err.message),
+    },
+  });
+  const loading = createMutation.isPending;
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const token = getSessionToken('institution');
-      if (!token) {
-        throw new Error('Authentication required. Please log in again.');
-      }
-
-      const res = await fetch('/api/institution-team', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!res.ok) {
-        throw new Error(await readApiErrorMessage(res, 'Failed to add team member'));
-      }
-
-      router.push('/institution-dashboard/team');
-    } catch (err) {
-      toast.error((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
+    createMutation.mutate(formData);
   };
 
   return (

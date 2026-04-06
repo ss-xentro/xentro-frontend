@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, Badge } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
 import { toast } from 'sonner';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface TeamMember {
   id: string;
@@ -28,57 +28,26 @@ const roleColors: Record<string, string> = {
 
 export default function TeamPage() {
   const router = useRouter();
-  const [team, setTeam] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: rawData, isLoading: loading } = useApiQuery<{ data: TeamMember[] }>(
+    queryKeys.institution.team(),
+    '/api/institution-team/',
+    { requestOptions: { role: 'institution' } },
+  );
+  const team = rawData?.data || [];
 
-  useEffect(() => {
-    loadTeam();
-  }, []);
+  const removeMutation = useApiMutation<unknown, { _id: string }>({
+    method: 'delete',
+    path: (v) => `/api/institution-team/${v._id}/`,
+    invalidateKeys: [queryKeys.institution.team()],
+    requestOptions: { role: 'institution' },
+    mutationOptions: {
+      onError: (err) => toast.error(err.message),
+    },
+  });
 
-  const loadTeam = async () => {
-    try {
-      const token = getSessionToken('institution');
-      if (!token) {
-        router.push('/institution-login');
-        return;
-      }
-
-      const res = await fetch('/api/institution-team/', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        throw new Error(await readApiErrorMessage(res, 'Failed to load team'));
-      }
-
-      const data = await res.json();
-      setTeam(data.data || []);
-    } catch (err) {
-      toast.error((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRemove = async (id: string) => {
+  const handleRemove = (id: string) => {
     if (!confirm('Are you sure you want to remove this team member?')) return;
-
-    try {
-      const token = getSessionToken('institution');
-      if (!token) throw new Error('Authentication required. Please log in again.');
-      const res = await fetch(`/api/institution-team/${id}/`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        throw new Error(await readApiErrorMessage(res, 'Failed to remove team member'));
-      }
-
-      setTeam((prev) => prev.filter(m => m.id !== id));
-    } catch (err) {
-      toast.error((err as Error).message);
-    }
+    removeMutation.mutate({ _id: id });
   };
 
   if (loading) {

@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, Badge } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
 import { toast } from 'sonner';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface Program {
     id: string;
@@ -34,61 +34,27 @@ const typeLabels: Record<string, { label: string; color: string }> = {
 
 export default function ProgramsPage() {
     const router = useRouter();
-    const [programs, setPrograms] = useState<Program[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const { data: rawPrograms, isLoading: loading } = useApiQuery<Program[]>(
+        queryKeys.institution.programs(),
+        '/api/programs',
+        { requestOptions: { role: 'institution' } },
+    );
+    const programs = rawPrograms ?? [];
 
-    useEffect(() => {
-        loadPrograms();
-    }, []);
+    const deleteMutation = useApiMutation<unknown, { _id: string }>({
+        method: 'delete',
+        path: (v) => `/api/programs/${v._id}`,
+        invalidateKeys: [queryKeys.institution.programs()],
+        requestOptions: { role: 'institution' },
+        mutationOptions: {
+            onError: (err) => toast.error(err.message),
+        },
+    });
+    const deletingId = deleteMutation.isPending ? deleteMutation.variables?._id ?? null : null;
 
-    const loadPrograms = async () => {
-        try {
-            const token = getSessionToken('institution');
-            if (!token) {
-                router.push('/institution-login');
-                return;
-            }
-
-            const res = await fetch('/api/programs', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (!res.ok) {
-                throw new Error(await readApiErrorMessage(res, 'Failed to load programs'));
-            }
-
-            const data = await res.json();
-            setPrograms(data);
-        } catch (err) {
-            toast.error((err as Error).message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async (id: string) => {
+    const handleDelete = (id: string) => {
         if (!confirm('Are you sure you want to delete this program?')) return;
-
-        setDeletingId(id);
-        try {
-            const token = getSessionToken('institution');
-            if (!token) throw new Error('Authentication required. Please log in again.');
-            const res = await fetch(`/api/programs/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (!res.ok) {
-                throw new Error(await readApiErrorMessage(res, 'Failed to delete program'));
-            }
-
-            setPrograms(programs.filter(p => p.id !== id));
-        } catch (err) {
-            toast.error((err as Error).message);
-        } finally {
-            setDeletingId(null);
-        }
+        deleteMutation.mutate({ _id: id });
     };
 
     if (loading) {

@@ -3,10 +3,13 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { getSessionToken } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_SHORT: Record<string, string> = {
@@ -53,41 +56,39 @@ const STATUS_CONFIG: Record<string, { bg: string; text: string; icon: string }> 
 };
 
 export default function SessionsPage() {
-    const [slots, setSlots] = useState<Slot[]>([]);
-    const [bookings, setBookings] = useState<Booking[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [tab, setTab] = useState<'upcoming' | 'slots'>('upcoming');
     const [savingSlots, setSavingSlots] = useState(false);
     const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
+    const [slotsSeeded, setSlotsSeeded] = useState(false);
 
     const token = typeof window !== 'undefined' ? getSessionToken('mentor') : null;
 
-    useEffect(() => {
-        if (!token) return;
+    const { data: bookingsRaw, isLoading: bookingsLoading } = useApiQuery<{ data: Booking[] }>(
+        queryKeys.mentor.bookings(),
+        '/api/mentor-bookings',
+        { requestOptions: { role: 'mentor' } },
+    );
+    const { data: slotsRaw, isLoading: slotsLoading } = useApiQuery<{ data: Slot[] }>(
+        queryKeys.mentor.slots(),
+        '/api/mentor-slots',
+        { requestOptions: { role: 'mentor' } },
+    );
 
-        Promise.allSettled([
-            fetch('/api/mentor-bookings', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
-            fetch('/api/mentor-slots', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
-        ]).then(([bookingsResult, slotsResult]) => {
-            if (bookingsResult.status === 'fulfilled') {
-                setBookings(bookingsResult.value.data || []);
-            } else {
-                console.error('Bookings fetch failed:', bookingsResult.reason);
-            }
-            if (slotsResult.status === 'fulfilled') {
-                const slotsData = slotsResult.value.data || [];
-                setSlots(slotsData);
-                const existing = new Set<string>();
-                for (const s of slotsData) {
-                    existing.add(`${s.dayOfWeek}-${s.startTime}`);
-                }
-                setSelectedSlots(existing);
-            } else {
-                console.error('Slots fetch failed:', slotsResult.reason);
-            }
-        }).finally(() => setLoading(false));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const bookings = bookingsRaw?.data || [];
+    const slots = slotsRaw?.data || [];
+    const loading = bookingsLoading || slotsLoading;
+
+    // Seed selectedSlots from fetched slots (once)
+    useEffect(() => {
+        if (slotsSeeded || slotsLoading || !slotsRaw) return;
+        const existing = new Set<string>();
+        for (const s of slots) {
+            existing.add(`${s.dayOfWeek}-${s.startTime}`);
+        }
+        setSelectedSlots(existing);
+        setSlotsSeeded(true);
+    }, [slots, slotsLoading, slotsRaw, slotsSeeded]);
 
     function checkForOverlaps(slotList: Array<{ dayOfWeek: string; startTime: string; endTime: string }>): string | null {
         const byDay: Record<string, Array<{ start: number; end: number; label: string }>> = {};
@@ -174,10 +175,10 @@ export default function SessionsPage() {
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message);
-                setSlots(data.data || []);
-            } else {
-                setSlots([]);
             }
+
+            // Invalidate slots query to refetch
+            queryClient.invalidateQueries({ queryKey: queryKeys.mentor.slots() });
 
             toast.success('Availability saved!');
         } catch (err) {
@@ -187,26 +188,24 @@ export default function SessionsPage() {
         }
     }
 
-    async function updateBooking(bookingId: string, status: string) {
-        if (!token) return;
-        try {
-            const res = await fetch('/api/mentor-bookings', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ bookingId, status }),
-            });
-            if (res.ok) {
-                setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status } : b));
-                const label = status === 'confirmed' ? 'Session confirmed!' : status === 'cancelled' ? 'Session cancelled' : status === 'completed' ? 'Session marked complete' : 'Booking updated';
+    const bookingUpdateMutation = useApiMutation<unknown, { bookingId: string; status: string }>({
+        method: 'patch',
+        path: '/api/mentor-bookings',
+        invalidateKeys: [queryKeys.mentor.bookings()],
+        requestOptions: { role: 'mentor' },
+        mutationOptions: {
+            onSuccess: (_data, variables) => {
+                const label = variables.status === 'confirmed' ? 'Session confirmed!' : variables.status === 'cancelled' ? 'Session cancelled' : variables.status === 'completed' ? 'Session marked complete' : 'Booking updated';
                 toast.success(label);
-            } else {
-                const data = await res.json().catch(() => ({}));
-                toast.error(data.error || 'Failed to update booking');
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error('Failed to update booking');
-        }
+            },
+            onError: (err) => {
+                toast.error(err.message || 'Failed to update booking');
+            },
+        },
+    });
+
+    async function updateBooking(bookingId: string, status: string) {
+        bookingUpdateMutation.mutate({ bookingId, status });
     }
 
     const upcoming = bookings

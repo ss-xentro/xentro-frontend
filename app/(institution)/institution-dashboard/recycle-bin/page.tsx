@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, PageSkeleton, EmptyState, Spinner } from '@/components/ui';
 import { toast } from 'sonner';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 
 interface RecycleBinItem {
 	id: string;
@@ -84,70 +86,27 @@ const typeMap: Record<FolderKey, string> = {
 
 export default function RecycleBinPage() {
 	const router = useRouter();
-	const [data, setData] = useState<RecycleBinData>({
+	const queryClient = useQueryClient();
+	const { data: rawData, isLoading: loading } = useApiQuery<{ data: RecycleBinData }>(
+		queryKeys.institution.recycleBin(),
+		'/api/institution-recycle-bin/',
+		{ requestOptions: { role: 'institution' } },
+	);
+	const data: RecycleBinData = rawData?.data || {
 		startups: [],
 		programs: [],
 		projects: [],
 		mentors: [],
 		team: [],
-	});
-	const [activeFolder, setActiveFolder] = useState<FolderKey>('startups');
-	const [loading, setLoading] = useState(true);
-	const [actionLoading, setActionLoading] = useState<string | null>(null);
-
-	useEffect(() => {
-		loadRecycleBin();
-	}, []);
-
-	const loadRecycleBin = async () => {
-		try {
-			const token = getSessionToken('institution');
-			if (!token) {
-				router.push('/institution-login');
-				return;
-			}
-
-			const res = await fetch('/api/institution-recycle-bin/', {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-
-			if (!res.ok) throw new Error('Failed to load recycle bin');
-
-			const json = await res.json();
-			setData(json.data || {
-				startups: [],
-				programs: [],
-				projects: [],
-				mentors: [],
-				team: [],
-			});
-		} catch (err) {
-			toast.error((err as Error).message);
-		} finally {
-			setLoading(false);
-		}
 	};
+	const [activeFolder, setActiveFolder] = useState<FolderKey>('startups');
+	const [actionLoading, setActionLoading] = useState<string | null>(null);
 
 	const handleRestore = async (type: string, id: string) => {
 		setActionLoading(`restore-${id}`);
 		try {
-			const token = getSessionToken('institution');
-			if (!token) throw new Error('Authentication required');
-
-			const res = await fetch(`/api/institution-recycle-bin/${type}/${id}/restore/`, {
-				method: 'POST',
-				headers: { Authorization: `Bearer ${token}` },
-			});
-
-			if (!res.ok) {
-				throw new Error(await readApiErrorMessage(res, 'Failed to restore item'));
-			}
-
-			// Remove from local state
-			setData((prev) => ({
-				...prev,
-				[activeFolder]: prev[activeFolder].filter((item) => item.id !== id),
-			}));
+			await api.post(`/api/institution-recycle-bin/${type}/${id}/restore/`, { role: 'institution' });
+			queryClient.invalidateQueries({ queryKey: queryKeys.institution.recycleBin() });
 		} catch (err) {
 			toast.error((err as Error).message);
 		} finally {
@@ -161,22 +120,8 @@ export default function RecycleBinPage() {
 
 		setActionLoading(`delete-${id}`);
 		try {
-			const token = getSessionToken('institution');
-			if (!token) throw new Error('Authentication required');
-
-			const res = await fetch(`/api/institution-recycle-bin/${type}/${id}/`, {
-				method: 'DELETE',
-				headers: { Authorization: `Bearer ${token}` },
-			});
-
-			if (!res.ok) {
-				throw new Error(await readApiErrorMessage(res, 'Failed to delete item'));
-			}
-
-			setData((prev) => ({
-				...prev,
-				[activeFolder]: prev[activeFolder].filter((item) => item.id !== id),
-			}));
+			await api.delete(`/api/institution-recycle-bin/${type}/${id}/`, { role: 'institution' });
+			queryClient.invalidateQueries({ queryKey: queryKeys.institution.recycleBin() });
 		} catch (err) {
 			toast.error((err as Error).message);
 		} finally {

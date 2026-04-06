@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface StartupDetail {
 	id: string;
@@ -64,49 +64,28 @@ export default function StartupDetailPage() {
 	const params = useParams();
 	const startupId = params.id as string;
 
-	const [startup, setStartup] = useState<StartupDetail | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [deleting, setDeleting] = useState(false);
+	const { data: startupRaw, isLoading: loading } = useApiQuery<{ data: StartupDetail }>(
+		queryKeys.institution.startupDetail(startupId),
+		`/api/startups/${startupId}`,
+		{ requestOptions: { role: 'institution' } },
+	);
+	const startup = startupRaw?.data ?? null;
 
-	useEffect(() => { loadStartup(); }, []);
+	const deleteMutation = useApiMutation<unknown, void>({
+		method: 'delete',
+		path: `/api/startups/${startupId}`,
+		invalidateKeys: [queryKeys.institution.startups()],
+		requestOptions: { role: 'institution' },
+		mutationOptions: {
+			onSuccess: () => router.push('/institution-dashboard/startups'),
+			onError: (err) => toast.error(err.message),
+		},
+	});
+	const deleting = deleteMutation.isPending;
 
-	const loadStartup = async () => {
-		try {
-			const token = getSessionToken('institution');
-			if (!token) { router.push('/institution-login'); return; }
-			const res = await fetch(`/api/startups/${startupId}`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) throw new Error('Failed to load startup');
-			const data = await res.json();
-			setStartup(data.data);
-		} catch (err) {
-			toast.error((err as Error).message);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleDelete = async () => {
+	const handleDelete = () => {
 		if (!confirm('Are you sure you want to delete this startup? It will be moved to the recycle bin.')) return;
-		setDeleting(true);
-		try {
-			const token = getSessionToken('institution');
-			if (!token) throw new Error('Authentication required');
-			const res = await fetch(`/api/startups/${startupId}`, {
-				method: 'DELETE',
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) {
-				const data = await res.json().catch(() => ({}));
-				throw new Error(data.error || 'Failed to delete startup');
-			}
-			router.push('/institution-dashboard/startups');
-		} catch (err) {
-			toast.error((err as Error).message);
-		} finally {
-			setDeleting(false);
-		}
+		deleteMutation.mutate(undefined as never);
 	};
 
 	if (loading) {

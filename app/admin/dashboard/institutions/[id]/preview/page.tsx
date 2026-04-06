@@ -1,14 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { Card } from '@/components/ui';
 import { InstitutionTabs } from '@/components/institution/InstitutionTabs';
-import { useAuth } from '@/contexts/AuthContext';
 import { AdminActionBar } from './_components/AdminActionBar';
 import { HeaderBanner } from './_components/HeaderBanner';
 import { Sidebar } from './_components/Sidebar';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 
 type Institution = any;
 type Program = any;
@@ -17,66 +20,36 @@ type Startup = any;
 type TeamMember = any;
 
 export default function AdminInstitutionPreviewPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id: institutionId } = use(params);
     const router = useRouter();
-    const { token } = useAuth();
-    const [institutionId, setInstitutionId] = useState<string>('');
-    const [institution, setInstitution] = useState<Institution | null>(null);
-    const [programs, setPrograms] = useState<Program[]>([]);
-    const [events, setEvents] = useState<Event[]>([]);
-    const [startups, setStartups] = useState<Startup[]>([]);
-    const [team, setTeam] = useState<TeamMember[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [updating, setUpdating] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
-    const getAuthToken = () => {
-        if (token) return token;
-        const { getSessionToken } = require('@/lib/auth-utils');
-        return getSessionToken('admin');
-    };
-
-    useEffect(() => {
-        const authToken = getAuthToken();
-        if (!authToken) {
-            router.push('/admin/login');
-            setLoading(false);
-            return;
-        }
-
-        params.then(p => {
-            setInstitutionId(p.id);
-            fetch(`/api/institutions/${p.id}`, {
-                headers: { 'Authorization': `Bearer ${authToken}` },
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error('Not found');
-                    return res.json();
-                })
-                .then(data => {
-                    setInstitution(data.institution);
-                    setPrograms(data.programs || []);
-                    setEvents(data.events || []);
-                    setStartups(data.startups || []);
-                    setTeam(data.team || []);
-                })
-                .catch(() => setError('Institution not found'))
-                .finally(() => setLoading(false));
-        });
-    }, [params, router, token]);
+    const { data: instData, isLoading: loading, error: queryError } = useApiQuery<{
+        institution: Institution;
+        programs?: Program[];
+        events?: Event[];
+        startups?: Startup[];
+        team?: TeamMember[];
+    }>(
+        queryKeys.admin.institutionDetail(institutionId),
+        `/api/institutions/${institutionId}`,
+        { requestOptions: { role: 'admin' }, enabled: !!institutionId },
+    );
+    const institution = instData?.institution ?? null;
+    const programs = instData?.programs ?? [];
+    const events = instData?.events ?? [];
+    const startups = instData?.startups ?? [];
+    const team = instData?.team ?? [];
+    const error = queryError?.message ?? null;
 
     const handleApprove = async () => {
         if (!confirm('Are you sure you want to publish this institution?')) return;
         setUpdating(true);
         try {
-            const authToken = getAuthToken();
-            if (!authToken) throw new Error('Admin session expired. Please log in again.');
-            const res = await fetch(`/api/institutions/${institutionId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                body: JSON.stringify({ status: 'published' }),
-            });
-            if (!res.ok) throw new Error('Failed to publish institution');
-            setInstitution({ ...institution, status: 'published' });
+            await api.put(`/api/institutions/${institutionId}`, { role: 'admin', json: { status: 'published' } });
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.institutionDetail(institutionId) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.institutions() });
             alert('Institution has been published successfully!');
         } catch (err) {
             alert((err as Error).message);
@@ -90,15 +63,9 @@ export default function AdminInstitutionPreviewPage({ params }: { params: Promis
         if (reason === null) return;
         setUpdating(true);
         try {
-            const authToken = getAuthToken();
-            if (!authToken) throw new Error('Admin session expired. Please log in again.');
-            const res = await fetch(`/api/institutions/${institutionId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                body: JSON.stringify({ status: 'archived' }),
-            });
-            if (!res.ok) throw new Error('Failed to reject institution');
-            setInstitution({ ...institution, status: 'archived' });
+            await api.put(`/api/institutions/${institutionId}`, { role: 'admin', json: { status: 'archived' } });
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.institutionDetail(institutionId) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.institutions() });
             alert('Institution has been rejected.');
         } catch (err) {
             alert((err as Error).message);

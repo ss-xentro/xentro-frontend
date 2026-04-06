@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApiQuery } from "@/lib/queries";
+import { queryKeys } from "@/lib/queries/keys";
 
 interface Mentor {
 	id: string;
@@ -75,75 +77,62 @@ function VerifiedBadge({
 export default function ExploreMentorsPage() {
 	const { user } = useAuth();
 	const currentUserId = user?.id ?? '';
-	const [mentors, setMentors] = useState<Mentor[]>([]);
-	const [loading, setLoading] = useState(true);
 	const [expertise, setExpertise] = useState("all");
 
-	useEffect(() => {
-		const controller = new AbortController();
-		async function load() {
-			try {
-				setLoading(true);
-				const res = await fetch("/api/mentors", { signal: controller.signal });
-				if (!res.ok) return;
-				const json = await res.json();
-				const raw =
-					json.mentors ?? json.data ?? (Array.isArray(json) ? json : []);
+	const { data: rawData, isLoading: loading } = useApiQuery<{ mentors?: Record<string, unknown>[]; data?: Record<string, unknown>[] }>(
+		queryKeys.explore.mentors(),
+		'/api/mentors',
+	);
 
-				const mapped: Mentor[] = raw.map((m: Record<string, unknown>) => {
-					let exp: string[] = [];
-					if (typeof m.expertise === "string") {
-						exp = m.expertise
-							.split(",")
-							.map((s: string) => s.trim())
-							.filter(Boolean);
-					} else if (Array.isArray(m.expertise)) {
-						exp = m.expertise as string[];
-					}
-					let ach: string[] = [];
-					if (typeof m.achievements === "string") {
-						ach = m.achievements
-							.split("\n")
-							.map((s: string) => s.trim())
-							.filter(Boolean);
-					} else if (Array.isArray(m.achievements)) {
-						ach = m.achievements as string[];
-					}
-					let pkgs: string[] = [];
-					if (typeof m.packages === "string") {
-						pkgs = m.packages
-							.split("\n")
-							.map((s: string) => s.trim())
-							.filter(Boolean);
-					} else if (Array.isArray(m.packages)) {
-						pkgs = m.packages as string[];
-					}
+	const mentors = useMemo((): Mentor[] => {
+		if (!rawData) return [];
+		const raw =
+			rawData.mentors ?? rawData.data ?? (Array.isArray(rawData) ? rawData : []);
 
-					return {
-						id: m.id as string,
-						userId: (m.user as string) || '',
-						name: (m.user_name as string) || (m.name as string) || "Mentor",
-						occupation: (m.occupation as string) || "",
-						expertise: exp,
-						avatar: (m.avatar as string) || null,
-						verified: !!m.verified,
-						status: (m.status as string) || "approved",
-						rate: (m.rate as string) || (m.pricing_per_hour as string) || null,
-						achievements: ach,
-						packages: pkgs,
-					};
-				});
-
-				setMentors(mapped);
-			} catch (err) {
-				if ((err as Error).name !== "AbortError") console.error(err);
-			} finally {
-				setLoading(false);
+		return (raw as Record<string, unknown>[]).map((m) => {
+			let exp: string[] = [];
+			if (typeof m.expertise === "string") {
+				exp = m.expertise
+					.split(",")
+					.map((s: string) => s.trim())
+					.filter(Boolean);
+			} else if (Array.isArray(m.expertise)) {
+				exp = m.expertise as string[];
 			}
-		}
-		load();
-		return () => controller.abort();
-	}, []);
+			let ach: string[] = [];
+			if (typeof m.achievements === "string") {
+				ach = m.achievements
+					.split("\n")
+					.map((s: string) => s.trim())
+					.filter(Boolean);
+			} else if (Array.isArray(m.achievements)) {
+				ach = m.achievements as string[];
+			}
+			let pkgs: string[] = [];
+			if (typeof m.packages === "string") {
+				pkgs = m.packages
+					.split("\n")
+					.map((s: string) => s.trim())
+					.filter(Boolean);
+			} else if (Array.isArray(m.packages)) {
+				pkgs = m.packages as string[];
+			}
+
+			return {
+				id: m.id as string,
+				userId: (m.user as string) || '',
+				name: (m.user_name as string) || (m.name as string) || "Mentor",
+				occupation: (m.occupation as string) || "",
+				expertise: exp,
+				avatar: (m.avatar as string) || null,
+				verified: !!m.verified,
+				status: (m.status as string) || "approved",
+				rate: (m.rate as string) || (m.pricing_per_hour as string) || null,
+				achievements: ach,
+				packages: pkgs,
+			};
+		});
+	}, [rawData]);
 
 	const filtered = mentors.filter((m) => {
 		return (

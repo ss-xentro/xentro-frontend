@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { toast } from 'sonner';
 
 const programTypeOptions = [
@@ -23,8 +23,12 @@ export default function EditProgramPage() {
 	const params = useParams();
 	const programId = params.id as string;
 
-	const [loading, setLoading] = useState(true);
-	const [saving, setSaving] = useState(false);
+	// --- TanStack Query: load program ---
+	const { data: programRaw, isLoading: loading } = useApiQuery<Record<string, unknown>>(
+		queryKeys.institution.programDetail(programId),
+		`/api/programs/${programId}/`,
+		{ requestOptions: { role: 'institution' } },
+	);
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -35,54 +39,39 @@ export default function EditProgramPage() {
 		end_date: '',
 		is_active: true,
 	});
+	const [formSeeded, setFormSeeded] = useState(false);
 
-	useEffect(() => { loadProgram(); }, []);
+	useEffect(() => {
+		if (!programRaw || formSeeded) return;
+		const data = programRaw;
+		setFormData({
+			name: (data.name as string) || '',
+			type: (data.type as string) || 'incubation',
+			description: (data.description as string) || '',
+			duration: (data.duration as string) || '',
+			start_date: data.startDate ? (data.startDate as string).split('T')[0] : '',
+			end_date: data.endDate ? (data.endDate as string).split('T')[0] : '',
+			is_active: (data.isActive as boolean) ?? true,
+		});
+		setFormSeeded(true);
+	}, [programRaw, formSeeded]);
 
-	const loadProgram = async () => {
-		try {
-			const token = getSessionToken('institution');
-			if (!token) { router.push('/institution-login'); return; }
-			const res = await fetch(`/api/programs/${programId}/`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load program'));
-			const data = await res.json();
-			setFormData({
-				name: data.name || '',
-				type: data.type || 'incubation',
-				description: data.description || '',
-				duration: data.duration || '',
-				start_date: data.startDate ? data.startDate.split('T')[0] : '',
-				end_date: data.endDate ? data.endDate.split('T')[0] : '',
-				is_active: data.isActive ?? true,
-			});
-		} catch (err) {
-			toast.error((err as Error).message);
-		} finally {
-			setLoading(false);
-		}
-	};
+	// --- TanStack Mutation: save program ---
+	const saveMutation = useApiMutation<unknown, typeof formData>({
+		method: 'put',
+		path: `/api/programs/${programId}/`,
+		invalidateKeys: [queryKeys.institution.programs(), queryKeys.institution.programDetail(programId)],
+		requestOptions: { role: 'institution' },
+		mutationOptions: {
+			onSuccess: () => router.push(`/institution-dashboard/programs/${programId}`),
+			onError: (err) => toast.error(err.message),
+		},
+	});
+	const saving = saveMutation.isPending;
 
-	const handleSubmit = async (e: React.FormEvent) => {
+	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		setSaving(true);
-		try {
-			const token = getSessionToken('institution');
-			if (!token) throw new Error('Authentication required');
-			const res = await fetch(`/api/programs/${programId}/`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-				body: JSON.stringify(formData),
-			});
-			if (!res.ok) {
-				throw new Error(await readApiErrorMessage(res, 'Failed to update program'));
-			}
-			router.push(`/institution-dashboard/programs/${programId}`);
-		} catch (err) {
-			toast.error((err as Error).message);
-		} finally {
-			setSaving(false);
-		}
+		saveMutation.mutate(formData);
 	};
 
 	if (loading) {

@@ -1,80 +1,46 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, Button, Input, CardListSkeleton, EmptyState, ViewModeToggle } from '@/components/ui';
 import { toast } from 'sonner';
 import { Institution } from '@/lib/types';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { InstitutionCard } from './_components/InstitutionCard';
 import { DeleteConfirmDialog } from './_components/DeleteConfirmDialog';
 import { InstitutionTable } from './_components/InstitutionTable';
-
-function getAuthToken(token: string | null): string | null {
-    if (token && token !== 'httponly') return token;
-    // Fallback: read from cookie-based session
-    const { getSessionToken } = require('@/lib/auth-utils');
-    return getSessionToken('admin');
-}
 
 export default function InstitutionsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [typeFilter, setTypeFilter] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
-    const [institutions, setInstitutions] = useState<Institution[]>([]);
-    const [loading, setLoading] = useState(true);
     const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
-    const [deleting, setDeleting] = useState(false);
-    const { token } = useAuth();
 
-    useEffect(() => {
-        const controller = new AbortController();
+    // --- TanStack Query: fetch institutions ---
+    const { data: instRaw, isLoading: loading } = useApiQuery<{ data: Institution[] }>(
+        queryKeys.admin.institutions(),
+        '/api/institutions?scope=all',
+        { requestOptions: { public: true } },
+    );
+    const institutions = instRaw?.data ?? [];
 
-        async function loadInstitutions() {
-            try {
-                setLoading(true);
-                const response = await fetch('/api/institutions?scope=all', { signal: controller.signal });
-                if (!response.ok) {
-                    throw new Error('Failed to load institutions');
-                }
+    // --- TanStack Mutation: delete institution ---
+    const deleteMutation = useApiMutation<unknown, { _id: string }>({
+        method: 'delete',
+        path: (v) => `/api/institutions/${v._id}`,
+        invalidateKeys: [queryKeys.admin.institutions()],
+        requestOptions: { role: 'admin' },
+        mutationOptions: {
+            onSuccess: () => setDeleteConfirm(null),
+            onError: (err) => toast.error(err.message),
+        },
+    });
+    const deleting = deleteMutation.isPending;
 
-                const { data } = await response.json();
-                setInstitutions(data ?? []);
-            } catch (err) {
-                if ((err as Error).name !== 'AbortError') {
-                    toast.error((err as Error).message);
-                }
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        loadInstitutions();
-        return () => controller.abort();
-    }, []);
-
-    const handleDelete = async (id: string) => {
-        try {
-            setDeleting(true);
-            const authToken = getAuthToken(token);
-            const response = await fetch(`/api/institutions/${id}`, {
-                method: 'DELETE',
-                headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete institution');
-            }
-
-            // Remove from local state
-            setInstitutions((prev) => prev.filter((inst) => inst.id !== id));
-            setDeleteConfirm(null);
-        } catch (err) {
-            toast.error((err as Error).message);
-        } finally {
-            setDeleting(false);
-        }
+    const handleDelete = (id: string) => {
+        deleteMutation.mutate({ _id: id });
     };
 
     const filteredInstitutions = institutions.filter((institution) => {

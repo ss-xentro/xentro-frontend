@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
 import { Button, Card } from '@/components/ui';
 import { toast } from 'sonner';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 
 type InvestorRow = {
     profileId: string;
@@ -22,51 +25,28 @@ type InvestorRow = {
 };
 
 export default function InvestorApprovalsPage() {
-    const { token } = useAuth();
-    const [loading, setLoading] = useState(false);
-    const [rows, setRows] = useState<InvestorRow[]>([]);
+    const queryClient = useQueryClient();
     const [rejectingId, setRejectingId] = useState<string | null>(null);
     const [remark, setRemark] = useState('');
+    const [actionLoading, setActionLoading] = useState(false);
 
-    async function fetchPending() {
-        if (!token) return;
-        setLoading(true);
-        try {
-            const res = await fetch('/api/investors', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Failed to load');
-            setRows(data.data || []);
-        } catch (err) {
-            toast.error(err instanceof Error ? err.message : 'Failed to load');
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        if (token) fetchPending();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [token]);
+    const { data: investorRaw, isLoading: loading, refetch } = useApiQuery<{ data: InvestorRow[] }>(
+        queryKeys.admin.investors(),
+        '/api/investors',
+        { requestOptions: { role: 'admin' } },
+    );
+    const rows = investorRaw?.data ?? [];
 
     async function handleApprove(userId: string) {
-        if (!token) return;
-        setLoading(true);
+        setActionLoading(true);
         try {
-            const res = await fetch('/api/approvals/investors', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ investorUserId: userId, decision: 'approve' }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Action failed');
+            await api.post('/api/approvals/investors', { role: 'admin', json: { investorUserId: userId, decision: 'approve' } });
             toast.success('Investor approved — notification email sent');
-            await fetchPending();
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.investors() });
         } catch (err) {
             toast.error(err instanceof Error ? err.message : 'Action failed');
         } finally {
-            setLoading(false);
+            setActionLoading(false);
         }
     }
 
@@ -75,24 +55,17 @@ export default function InvestorApprovalsPage() {
             toast.error('A remark is required.');
             return;
         }
-        if (!token) return;
-        setLoading(true);
+        setActionLoading(true);
         try {
-            const res = await fetch('/api/approvals/investors', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ investorUserId: userId, decision: 'reject', reason: remark.trim() }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Action failed');
+            await api.post('/api/approvals/investors', { role: 'admin', json: { investorUserId: userId, decision: 'reject', reason: remark.trim() } });
             toast.success('Investor rejected — notification email sent');
             setRejectingId(null);
             setRemark('');
-            await fetchPending();
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.investors() });
         } catch (err) {
             toast.error(err instanceof Error ? err.message : 'Action failed');
         } finally {
-            setLoading(false);
+            setActionLoading(false);
         }
     }
 
@@ -117,7 +90,7 @@ export default function InvestorApprovalsPage() {
                         <h1 className="text-2xl font-semibold">Investor Approvals</h1>
                         <p className="text-sm text-muted-foreground">Review investor applications. Rejections need a remark.</p>
                     </div>
-                    <Button variant="secondary" onClick={fetchPending} disabled={loading}>
+                    <Button variant="secondary" onClick={() => refetch()} disabled={loading || actionLoading}>
                         Refresh
                     </Button>
                 </div>
@@ -158,15 +131,15 @@ export default function InvestorApprovalsPage() {
                                 </div>
                                 <div className="flex gap-2 shrink-0">
                                     {rejectingId === row.userId ? (
-                                        <Button variant="secondary" onClick={() => { setRejectingId(null); setRemark(''); }} disabled={loading}>
+                                        <Button variant="secondary" onClick={() => { setRejectingId(null); setRemark(''); }} disabled={actionLoading}>
                                             Cancel
                                         </Button>
                                     ) : (
-                                        <Button variant="secondary" onClick={() => setRejectingId(row.userId)} disabled={loading}>
+                                        <Button variant="secondary" onClick={() => setRejectingId(row.userId)} disabled={actionLoading}>
                                             Reject
                                         </Button>
                                     )}
-                                    <Button onClick={() => handleApprove(row.userId)} disabled={loading}>
+                                    <Button onClick={() => handleApprove(row.userId)} disabled={actionLoading}>
                                         Approve
                                     </Button>
                                 </div>
@@ -182,7 +155,7 @@ export default function InvestorApprovalsPage() {
                                         onChange={(e) => setRemark(e.target.value)}
                                     />
                                     <div className="flex justify-end">
-                                        <Button variant="secondary" onClick={() => handleReject(row.userId)} disabled={loading || !remark.trim()}>
+                                        <Button variant="secondary" onClick={() => handleReject(row.userId)} disabled={actionLoading || !remark.trim()}>
                                             Reject
                                         </Button>
                                     </div>

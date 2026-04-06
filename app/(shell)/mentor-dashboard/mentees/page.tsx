@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { getSessionToken } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 type Booking = {
     id: string;
@@ -19,21 +19,13 @@ type Booking = {
 };
 
 export default function MenteesPage() {
-    const [bookings, setBookings] = useState<Booking[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data: rawData, isLoading: loading } = useApiQuery<{ data: Booking[] }>(
+        queryKeys.mentor.bookings(),
+        '/api/mentor-bookings',
+        { requestOptions: { role: 'mentor' } },
+    );
 
-    useEffect(() => {
-        const token = getSessionToken('mentor');
-        if (!token) return;
-
-        fetch('/api/mentor-bookings', {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-            .then((r) => r.json())
-            .then((data) => setBookings(data.data || []))
-            .catch(console.error)
-            .finally(() => setLoading(false));
-    }, []);
+    const bookings = rawData?.data || [];
 
     // Group unique mentees
     const menteeMap = new Map<string, { name: string; email: string; sessions: number; lastSession: string }>();

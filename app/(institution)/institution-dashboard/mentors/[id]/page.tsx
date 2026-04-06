@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
 import { formatCurrency } from '@/lib/utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface SlotEntry { day: string; startTime: string; endTime: string; }
 interface DocumentEntry { name: string; url: string; uploadedAt: string; }
@@ -47,52 +46,24 @@ export default function MentorDetailPage() {
 	const params = useParams();
 	const mentorId = params.id as string;
 
-	const [mentor, setMentor] = useState<MentorDetail | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [deleting, setDeleting] = useState(false);
+	const { data: mentorRaw, isLoading: loading, error: queryError } = useApiQuery<{ data: MentorDetail }>(queryKeys.institution.mentorDetail(mentorId), `/api/mentors/${mentorId}/`, { requestOptions: { role: 'institution' } });
+	const mentor = mentorRaw?.data ?? null;
+	const error = queryError?.message ?? null;
 
-	useEffect(() => {
-		loadMentor();
-	}, []);
+	const deleteMutation = useApiMutation<unknown, void>({
+		method: 'delete',
+		path: `/api/institution-mentors/${mentorId}/`,
+		invalidateKeys: [queryKeys.institution.mentors()],
+		requestOptions: { role: 'institution' },
+		mutationOptions: {
+			onSuccess: () => router.push('/institution-dashboard/mentors'),
+		},
+	});
+	const deleting = deleteMutation.isPending;
 
-	const loadMentor = async () => {
-		try {
-			const token = getSessionToken('institution');
-			if (!token) { router.push('/institution-login'); return; }
-
-			const res = await fetch(`/api/mentors/${mentorId}/`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load mentor'));
-			const data = await res.json();
-			setMentor(data.data);
-		} catch (err) {
-			setError((err as Error).message);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleDelete = async () => {
+	const handleDelete = () => {
 		if (!confirm('Are you sure you want to remove this mentor? They will be moved to the recycle bin.')) return;
-		setDeleting(true);
-		try {
-			const token = getSessionToken('institution');
-			if (!token) throw new Error('Authentication required');
-			const res = await fetch(`/api/institution-mentors/${mentorId}/`, {
-				method: 'DELETE',
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) {
-				throw new Error(await readApiErrorMessage(res, 'Failed to remove mentor'));
-			}
-			router.push('/institution-dashboard/mentors');
-		} catch (err) {
-			setError((err as Error).message);
-		} finally {
-			setDeleting(false);
-		}
+		deleteMutation.mutate(undefined as never);
 	};
 
 	// Parse expertise into array

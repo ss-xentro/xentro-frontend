@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { toast } from 'sonner';
 
 const statusOptions = [
@@ -20,8 +20,12 @@ export default function EditProjectPage() {
 	const params = useParams();
 	const projectId = params.id as string;
 
-	const [loading, setLoading] = useState(true);
-	const [saving, setSaving] = useState(false);
+	// --- TanStack Query: load project ---
+	const { data: projectRaw, isLoading: loading } = useApiQuery<Record<string, unknown>>(
+		queryKeys.institution.projectDetail(projectId),
+		`/api/projects/${projectId}/`,
+		{ requestOptions: { role: 'institution' } },
+	);
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -30,52 +34,37 @@ export default function EditProjectPage() {
 		start_date: '',
 		end_date: '',
 	});
+	const [formSeeded, setFormSeeded] = useState(false);
 
-	useEffect(() => { loadProject(); }, []);
+	useEffect(() => {
+		if (!projectRaw || formSeeded) return;
+		const data = projectRaw;
+		setFormData({
+			name: (data.name as string) || '',
+			status: (data.status as string) || 'planning',
+			description: (data.description as string) || '',
+			start_date: data.startDate ? (data.startDate as string).split('T')[0] : '',
+			end_date: data.endDate ? (data.endDate as string).split('T')[0] : '',
+		});
+		setFormSeeded(true);
+	}, [projectRaw, formSeeded]);
 
-	const loadProject = async () => {
-		try {
-			const token = getSessionToken('institution');
-			if (!token) { router.push('/institution-login'); return; }
-			const res = await fetch(`/api/projects/${projectId}/`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load project'));
-			const data = await res.json();
-			setFormData({
-				name: data.name || '',
-				status: data.status || 'planning',
-				description: data.description || '',
-				start_date: data.startDate ? data.startDate.split('T')[0] : '',
-				end_date: data.endDate ? data.endDate.split('T')[0] : '',
-			});
-		} catch (err) {
-			toast.error((err as Error).message);
-		} finally {
-			setLoading(false);
-		}
-	};
+	// --- TanStack Mutation: save project ---
+	const saveMutation = useApiMutation<unknown, typeof formData>({
+		method: 'put',
+		path: `/api/projects/${projectId}/`,
+		invalidateKeys: [queryKeys.institution.projects(), queryKeys.institution.projectDetail(projectId)],
+		requestOptions: { role: 'institution' },
+		mutationOptions: {
+			onSuccess: () => router.push(`/institution-dashboard/projects/${projectId}`),
+			onError: (err) => toast.error(err.message),
+		},
+	});
+	const saving = saveMutation.isPending;
 
-	const handleSubmit = async (e: React.FormEvent) => {
+	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		setSaving(true);
-		try {
-			const token = getSessionToken('institution');
-			if (!token) throw new Error('Authentication required');
-			const res = await fetch(`/api/projects/${projectId}/`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-				body: JSON.stringify(formData),
-			});
-			if (!res.ok) {
-				throw new Error(await readApiErrorMessage(res, 'Failed to update project'));
-			}
-			router.push(`/institution-dashboard/projects/${projectId}`);
-		} catch (err) {
-			toast.error((err as Error).message);
-		} finally {
-			setSaving(false);
-		}
+		saveMutation.mutate(formData);
 	};
 
 	if (loading) {

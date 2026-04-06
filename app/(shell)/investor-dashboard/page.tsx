@@ -1,51 +1,28 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { Button } from '@/components/ui/Button';
-import { getSessionToken } from '@/lib/auth-utils';
 import { InvestorProfile } from './_lib/constants';
 import StatsGrid from './_components/StatsGrid';
 import InvestmentProfileCard from './_components/InvestmentProfileCard';
 import QuickActionsCard from './_components/QuickActionsCard';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 export default function InvestorDashboardPage() {
-    const [loading, setLoading] = useState(true);
-    const [profile, setProfile] = useState<InvestorProfile | null>(null);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchProfile = useCallback(async () => {
-        const token = getSessionToken('investor');
-        if (!token) {
-            setError('Please log in to view your investor dashboard.');
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const res = await fetch('/api/investors/me/', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.status === 404) {
-                setProfile(null);
-                setLoading(false);
-                return;
-            }
-            if (!res.ok) throw new Error('Failed to load profile');
-            const data = await res.json();
-            setProfile(data.data || null);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load profile');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchProfile();
-    }, [fetchProfile]);
+    const { data: rawData, isLoading: loading, error: queryError } = useApiQuery<{ data: InvestorProfile | null }>(
+        queryKeys.investor.dashboard(),
+        '/api/investors/me/',
+        {
+            requestOptions: { role: 'investor' },
+            retry: (count, err) => err.status !== 404 && count < 1,
+        },
+    );
+    const profile = rawData?.data ?? null;
+    // 404 = no profile yet (not an error)
+    const error = queryError && queryError.status !== 404 ? queryError.message : null;
 
     if (loading) {
         return (

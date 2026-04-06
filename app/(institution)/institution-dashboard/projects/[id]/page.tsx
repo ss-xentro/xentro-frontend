@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface ProjectDetail {
 	id: string;
@@ -29,50 +29,21 @@ export default function ProjectDetailPage() {
 	const params = useParams();
 	const projectId = params.id as string;
 
-	const [project, setProject] = useState<ProjectDetail | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [deleting, setDeleting] = useState(false);
+	const { data: project, isLoading: loading, error: queryError } = useApiQuery<ProjectDetail>(queryKeys.institution.projectDetail(projectId), `/api/projects/${projectId}/`, { requestOptions: { role: 'institution' } });
+	const error = queryError?.message ?? null;
 
-	useEffect(() => { loadProject(); }, []);
+	const deleteMutation = useApiMutation<unknown, void>({
+		method: 'delete',
+		path: `/api/projects/${projectId}/`,
+		invalidateKeys: [queryKeys.institution.projects()],
+		requestOptions: { role: 'institution' },
+		mutationOptions: { onSuccess: () => router.push('/institution-dashboard/projects') },
+	});
+	const deleting = deleteMutation.isPending;
 
-	const loadProject = async () => {
-		try {
-			const token = getSessionToken('institution');
-			if (!token) { router.push('/institution-login'); return; }
-			const res = await fetch(`/api/projects/${projectId}/`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) throw new Error('Failed to load project');
-			const data = await res.json();
-			setProject(data);
-		} catch (err) {
-			setError((err as Error).message);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleDelete = async () => {
+	const handleDelete = () => {
 		if (!confirm('Are you sure you want to delete this project? It will be moved to the recycle bin.')) return;
-		setDeleting(true);
-		try {
-			const token = getSessionToken('institution');
-			if (!token) throw new Error('Authentication required');
-			const res = await fetch(`/api/projects/${projectId}/`, {
-				method: 'DELETE',
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) {
-				const data = await res.json().catch(() => ({}));
-				throw new Error(data.error || 'Failed to delete project');
-			}
-			router.push('/institution-dashboard/projects');
-		} catch (err) {
-			alert((err as Error).message);
-		} finally {
-			setDeleting(false);
-		}
+		deleteMutation.mutate(undefined as never);
 	};
 
 	if (loading) {

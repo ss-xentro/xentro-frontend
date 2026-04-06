@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 import { toast } from 'sonner';
 import { StartupDetailsStep } from './_components/StartupDetailsStep';
 import { FoundersStep } from './_components/FoundersStep';
@@ -21,10 +23,13 @@ interface ProgramOption {
   id: string;
   name: string;
   type: string;
+  isDeleted?: boolean;
+  is_deleted?: boolean;
 }
 
 export default function AddStartupPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -46,33 +51,18 @@ export default function AddStartupPage() {
     { id: '1', name: '', email: '', phone: '' }
   ]);
 
-  // Programs for this institution
-  const [programs, setPrograms] = useState<ProgramOption[]>([]);
-  const [programsLoading, setProgramsLoading] = useState(false);
-
-  // Fetch institution programs on mount
-  useEffect(() => {
-    const fetchPrograms = async () => {
-      setProgramsLoading(true);
-      try {
-        const token = getSessionToken('institution');
-        if (!token) return;
-        const res = await fetch('/api/programs/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const list = data.programs || data.data || (Array.isArray(data) ? data : data.results || []);
-          setPrograms(Array.isArray(list) ? list.filter((p: Record<string, unknown>) => !p.isDeleted && !p.is_deleted) : []);
-        }
-      } catch {
-        // ignore — programs dropdown will just be empty
-      } finally {
-        setProgramsLoading(false);
-      }
-    };
-    fetchPrograms();
-  }, []);
+  // --- TanStack Query: fetch programs ---
+  const { data: programsRaw, isLoading: programsLoading } = useApiQuery<{ programs?: ProgramOption[]; data?: ProgramOption[]; results?: ProgramOption[] } | ProgramOption[]>(
+    queryKeys.institution.programs(),
+    '/api/programs/',
+    { requestOptions: { role: 'institution' } },
+  );
+  const programs: ProgramOption[] = (() => {
+    if (!programsRaw) return [];
+    if (Array.isArray(programsRaw)) return programsRaw.filter((p) => !p.isDeleted && !p.is_deleted);
+    const list = programsRaw.programs || programsRaw.data || programsRaw.results || [];
+    return Array.isArray(list) ? list.filter((p) => !p.isDeleted && !p.is_deleted) : [];
+  })();
 
   const canProceedToStep2 = () => formData.name.trim() && formData.city.trim() && formData.country.trim();
   const canSubmit = () => founders.some(f => f.name.trim() && f.email.trim() && f.phone.trim());
@@ -82,18 +72,12 @@ export default function AddStartupPage() {
     setLoading(true);
 
     try {
-      const token = getSessionToken('institution');
-      if (!token) {
-        throw new Error('Authentication required. Please log in again.');
-      }
-
       const validFounders = founders.filter(f => f.name.trim() && f.email.trim() && f.phone.trim());
 
       if (validFounders.length === 0) {
         throw new Error('At least one founder with name, email, and phone is required');
       }
 
-      // Submit each founder's startup (or submit as array if backend supports)
       const primaryFounder = validFounders[0];
 
       const payload = {
@@ -114,31 +98,17 @@ export default function AddStartupPage() {
         ...(formData.programId ? { program_id: formData.programId } : {}),
       };
 
-      let res = await fetch('/api/institution-startups/create/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.status === 404) {
-        res = await fetch('/api/startups/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        });
+      try {
+        await api.post('/api/institution-startups/create/', { role: 'institution', json: payload });
+      } catch (err) {
+        if ((err as { status?: number }).status === 404) {
+          await api.post('/api/startups/', { role: 'institution', json: payload });
+        } else {
+          throw err;
+        }
       }
 
-      if (!res.ok) {
-        const message = await readApiErrorMessage(res, `Failed to add startup (HTTP ${res.status})`);
-        throw new Error(message);
-      }
-
+      queryClient.invalidateQueries({ queryKey: queryKeys.institution.startups() });
       router.push('/institution-dashboard/startups');
     } catch (err) {
       toast.error((err as Error).message);

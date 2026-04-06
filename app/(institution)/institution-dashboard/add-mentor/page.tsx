@@ -4,14 +4,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Input } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { useEmailCheck } from '@/lib/useEmailCheck';
 import { toast } from 'sonner';
 
 export default function AddMentorPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -25,40 +24,25 @@ export default function AddMentorPage() {
     return formData.name.trim() && formData.email.trim() && formData.phone.trim() && (!emailResult || emailResult.canProceed) && !emailChecking;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const createMutation = useApiMutation<unknown, typeof formData>({
+    method: 'post',
+    path: '/api/institution-mentors/create/',
+    invalidateKeys: [queryKeys.institution.mentors()],
+    requestOptions: { role: 'institution' },
+    mutationOptions: {
+      onSuccess: () => router.push('/institution-dashboard/mentors'),
+      onError: (err) => toast.error(err.message),
+    },
+  });
+  const loading = createMutation.isPending;
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const token = getSessionToken('institution');
-      if (!token) {
-        throw new Error('Authentication required. Please log in again.');
-      }
-
-      const res = await fetch('/api/institution-mentors/create/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-        }),
-      });
-
-      if (!res.ok) {
-        const message = await readApiErrorMessage(res, `Failed to create mentor (HTTP ${res.status})`);
-        throw new Error(message);
-      }
-
-      router.push('/institution-dashboard/mentors');
-    } catch (err) {
-      toast.error((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
+    createMutation.mutate({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+    });
   };
 
   return (

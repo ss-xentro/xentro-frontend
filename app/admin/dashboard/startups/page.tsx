@@ -1,47 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, Button, Input, Badge, Spinner, EmptyState, ViewModeToggle } from '@/components/ui';
 import { toast } from 'sonner';
 import { Startup, startupStageLabels, startupStatusLabels, fundingRoundLabels } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import Link from 'next/link';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 export default function StartupsAdminPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [stageFilter, setStageFilter] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
-    const [startups, setStartups] = useState<Startup[]>([]);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const controller = new AbortController();
-
-        async function loadStartups() {
-            try {
-                setLoading(true);
-                // Fetch all startups (admin endpoint or public endpoint with all data)
-                const response = await fetch('/api/startups?limit=1000', { signal: controller.signal });
-                if (!response.ok) {
-                    throw new Error('Failed to load startups');
-                }
-
-                const json = await response.json();
-                setStartups(json.startups || json.data || []);
-            } catch (err) {
-                if ((err as Error).name !== 'AbortError') {
-                    toast.error((err as Error).message);
-                }
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        loadStartups();
-        return () => controller.abort();
-    }, []);
+    const { data: startupsRaw, isLoading: loading } = useApiQuery<{ startups?: Startup[]; data?: Startup[] }>(
+        queryKeys.admin.startups(),
+        '/api/startups?limit=1000',
+        { requestOptions: { public: true } },
+    );
+    const startups = startupsRaw?.startups || startupsRaw?.data || [];
 
     const filteredStartups = startups.filter((startup) => {
         const matchesSearch = startup.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -5,8 +5,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { BackButton } from '@/components/ui/BackButton';
 import { PageSkeleton } from '@/components/ui/PageSkeleton';
 import { EMPTY_STARTUP_FORM } from '../../../_lib/startup-form-constants';
@@ -20,97 +20,79 @@ export default function EditStartupPage() {
   const params = useParams();
   const startupId = params.id as string;
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  // --- TanStack Query: load startup ---
+  const { data: startupRaw, isLoading: loading } = useApiQuery<{ data: Record<string, unknown> }>(
+    queryKeys.institution.startupDetail(startupId),
+    `/api/startups/${startupId}`,
+    { requestOptions: { role: 'institution' } },
+  );
+
   const [activeTab, setActiveTab] = useState<'details' | 'funding' | 'links'>('details');
   const [locationSearch, setLocationSearch] = useState('');
   const [formData, setFormData] = useState<StartupFormData>({ ...EMPTY_STARTUP_FORM });
+  const [formSeeded, setFormSeeded] = useState(false);
 
   useEffect(() => {
-    loadStartup();
-  }, []);
+    if (!startupRaw || formSeeded) return;
+    const s = startupRaw.data;
+    setFormData({
+      name: (s.name as string) || '',
+      tagline: (s.tagline as string) || '',
+      logo: (s.logo as string) || '',
+      coverImage: (s.coverImage as string) || '',
+      pitch: (s.pitch as string) || '',
+      description: (s.description as string) || '',
+      stage: (s.stage as string) || 'ideation',
+      status: (s.status as string) || 'public',
+      location: (s.location as string) || '',
+      city: (s.city as string) || '',
+      country: (s.country as string) || '',
+      oneLiner: (s.oneLiner as string) || '',
+      foundedDate: s.foundedDate ? new Date(s.foundedDate as string).toISOString().split('T')[0] : '',
+      fundingRound: (s.fundingRound as string) || 'bootstrapped',
+      fundsRaised: (s.fundsRaised as string) || '',
+      fundingCurrency: (s.fundingCurrency as string) || 'USD',
+      website: (s.website as string) || '',
+      linkedin: (s.linkedin as string) || '',
+      twitter: (s.twitter as string) || '',
+      instagram: (s.instagram as string) || '',
+      pitchDeckUrl: (s.pitchDeckUrl as string) || '',
+      demoVideoUrl: (s.demoVideoUrl as string) || '',
+      industry: (s.industry as string) || '',
+      primaryContactEmail: (s.primaryContactEmail as string) || '',
+    });
+    setLocationSearch((s.location as string) || '');
+    setFormSeeded(true);
+  }, [startupRaw, formSeeded]);
 
-  const loadStartup = async () => {
-    try {
-      const token = getSessionToken('institution');
-      if (!token) { router.push('/institution-login'); return; }
-
-      const res = await fetch(`/api/startups/${startupId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load startup'));
-
-      const json = await res.json();
-      const s = json.data;
-
-      setFormData({
-        name: s.name || '',
-        tagline: s.tagline || '',
-        logo: s.logo || '',
-        coverImage: s.coverImage || '',
-        pitch: s.pitch || '',
-        description: s.description || '',
-        stage: s.stage || 'ideation',
-        status: s.status || 'public',
-        location: s.location || '',
-        city: s.city || '',
-        country: s.country || '',
-        oneLiner: s.oneLiner || '',
-        foundedDate: s.foundedDate ? new Date(s.foundedDate).toISOString().split('T')[0] : '',
-        fundingRound: s.fundingRound || 'bootstrapped',
-        fundsRaised: s.fundsRaised || '',
-        fundingCurrency: s.fundingCurrency || 'USD',
-        website: s.website || '',
-        linkedin: s.linkedin || '',
-        twitter: s.twitter || '',
-        instagram: s.instagram || '',
-        pitchDeckUrl: s.pitchDeckUrl || '',
-        demoVideoUrl: s.demoVideoUrl || '',
-        industry: s.industry || '',
-        primaryContactEmail: s.primaryContactEmail || '',
-      });
-      setLocationSearch(s.location || '');
-    } catch (err) {
-      toast.error((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // --- TanStack Mutation: save startup ---
+  const saveMutation = useApiMutation<unknown, Record<string, unknown>>({
+    method: 'put',
+    path: `/api/startups/${startupId}`,
+    invalidateKeys: [queryKeys.institution.startups(), queryKeys.institution.startupDetail(startupId)],
+    requestOptions: { role: 'institution' },
+    mutationOptions: {
+      onSuccess: () => { toast.success('Changes saved successfully!'); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+      onError: (err) => toast.error(err.message),
+    },
+  });
+  const saving = saveMutation.isPending;
 
   const handleLocationSelect = (location: { city: string; country: string; countryCode: string; displayName: string }) => {
     setFormData({ ...formData, location: location.displayName, city: location.city, country: location.country });
     setLocationSearch(location.displayName);
   };
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    setSaving(true);
 
-    try {
-      const token = getSessionToken('institution');
-      if (!token) throw new Error('Authentication required. Please log in again.');
+    const payload: Record<string, unknown> = { ...formData };
+    if (!payload.foundedDate) payload.foundedDate = null;
+    if (!payload.fundsRaised) payload.fundsRaised = null;
+    if (!payload.logo) delete payload.logo;
+    if (!payload.coverImage) delete payload.coverImage;
 
-      const payload: Record<string, unknown> = { ...formData };
-      if (!payload.foundedDate) payload.foundedDate = null;
-      if (!payload.fundsRaised) payload.fundsRaised = null;
-      if (!payload.logo) delete payload.logo;
-      if (!payload.coverImage) delete payload.coverImage;
-
-      const res = await fetch(`/api/startups/${startupId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to update startup'));
-
-      toast.success('Changes saved successfully!');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (err) {
-      toast.error((err as Error).message);
-    } finally {
-      setSaving(false);
-    }
+    saveMutation.mutate(payload);
   };
 
   const set = (field: string, value: string) => setFormData((prev) => ({ ...prev, [field]: value }));

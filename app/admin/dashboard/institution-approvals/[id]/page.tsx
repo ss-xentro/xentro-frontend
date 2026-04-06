@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, Button, Textarea } from '@/components/ui';
 import { InstitutionApplication } from '@/lib/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { use } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-500/20 text-yellow-200',
@@ -18,75 +21,36 @@ const statusColors: Record<string, string> = {
 export default function InstitutionApprovalDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const router = useRouter();
-  const { token } = useAuth();
-  const [app, setApp] = useState<InstitutionApplication | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [remark, setRemark] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const getAuthToken = () => {
-    if (token) return token;
-    // Fallback: read from cookie-based session
-    const { getSessionToken } = require('@/lib/auth-utils');
-    return getSessionToken('admin');
-  };
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const authToken = getAuthToken();
-        if (!authToken) {
-          throw new Error('Admin session expired. Please log in again.');
-        }
-        // We reuse the existing list endpoint, but in a real app you'd add a detail GET endpoint
-        const res = await fetch('/api/institution-applications', {
-          headers: {
-            'Authorization': `Bearer ${authToken}`
-          }
-        });
-        const payload = await res.json();
-        if (!res.ok) throw new Error(payload.message || 'Failed to load application');
-        const apps = payload.data ?? [];
-        const found = apps.find((a: InstitutionApplication) => a.id === resolvedParams.id);
-        if (!found) throw new Error('Application not found');
-        setApp(found);
-      } catch (err) {
-        setError((err as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [resolvedParams.id, token]);
+  const { data: appRaw, isLoading: loading, error: queryError } = useApiQuery<{ data: InstitutionApplication[] }>(
+    queryKeys.admin.applicationDetail(resolvedParams.id),
+    '/api/institution-applications',
+    { requestOptions: { role: 'admin' } },
+  );
+  const app = (appRaw?.data ?? []).find((a) => a.id === resolvedParams.id) ?? null;
+  const error = actionError ?? queryError?.message ?? (!loading && !app ? 'Application not found' : null);
 
   const handleAction = async (action: 'approved' | 'rejected') => {
     if (!app) return;
     if (!remark.trim()) {
-      setError('A message is required.');
+      setActionError('A message is required.');
       return;
     }
     try {
       setSubmitting(true);
-      const authToken = getAuthToken();
-      if (!authToken) {
-        throw new Error('Admin session expired. Please log in again.');
-      }
-      const res = await fetch(`/api/institution-applications/${app.id}/`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
-        body: JSON.stringify({ action, remark }),
+      await api.patch(`/api/institution-applications/${app.id}/`, {
+        role: 'admin',
+        json: { action, remark },
       });
-      const payload = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(payload.message || payload.error || 'Update failed');
       alert(`Verification ${action === 'approved' ? 'approved' : 'denied'} successfully.`);
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.applications() });
       router.push('/admin/dashboard/institution-approvals');
     } catch (err) {
-      setError((err as Error).message);
+      setActionError((err as Error).message);
     } finally {
       setSubmitting(false);
     }

@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { institutionTypeLabels, operatingModeLabels, sdgLabels, sectorLabels } from '@/lib/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { Card, Button, Badge, VerifiedBadge, SDGBadge } from '@/components/ui';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { InstitutionTabs } from '@/components/institution/InstitutionTabs';
 import { useRouter } from 'next/navigation';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 type Institution = any; // Will be typed properly
 type Program = any;
@@ -21,57 +23,34 @@ function normalizeStringList(value: unknown): string[] {
 }
 
 export default function InstitutionProfilePage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
     const router = useRouter();
-    const [identifier, setIdentifier] = useState<string>('');
-    const [institution, setInstitution] = useState<Institution | null>(null);
-    const [programs, setPrograms] = useState<Program[]>([]);
-    const [events, setEvents] = useState<Event[]>([]);
-    const [startups, setStartups] = useState<Startup[]>([]);
-    const [team, setTeam] = useState<any[]>([]);
-    const [projects, setProjects] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
 
+    const { data: instData, isLoading: loading } = useApiQuery<{
+        institution: Institution;
+        programs?: Program[];
+        events?: Event[];
+        startups?: Startup[];
+        team?: any[];
+        projects?: any[];
+    }>(
+        queryKeys.public.institution(id),
+        `/api/institutions/${id}`,
+        { requestOptions: { public: true, headers: { 'x-public-view': 'true' } } },
+    );
+    const institution = instData?.institution ?? null;
+    const programs = instData?.programs ?? [];
+    const events = instData?.events ?? [];
+    const startups = instData?.startups ?? [];
+    const team = instData?.team ?? [];
+    const projects = instData?.projects ?? [];
+
+    // Redirect to slug URL if accessed by ID
     useEffect(() => {
-        params.then(p => {
-            setIdentifier(p.id);
-            // Fetch with public view header to track profile views
-            fetch(`/api/institutions/${p.id}`, {
-                headers: { 'x-public-view': 'true' },
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error('Not found');
-                    return res.json();
-                })
-                .then(data => {
-                    console.log('[Institution Page] Received data:', {
-                        institution: data.institution?.name,
-                        slug: data.institution?.slug,
-                        programsCount: data.programs?.length || 0,
-                        eventsCount: data.events?.length || 0,
-                        startupsCount: data.startups?.length || 0,
-                        teamCount: data.team?.length || 0,
-                        projectsCount: data.projects?.length || 0,
-                    });
-                    setInstitution(data.institution);
-                    setPrograms(data.programs || []);
-                    setEvents(data.events || []);
-                    setStartups(data.startups || []);
-                    setTeam(data.team || []);
-                    setProjects(data.projects || []);
-
-                    // Update URL to use slug if accessed by ID
-                    if (data.institution?.slug && p.id !== data.institution.slug) {
-                        window.history.replaceState(
-                            null,
-                            '',
-                            `/institutions/${data.institution.slug}`
-                        );
-                    }
-                })
-                .catch(() => router.push('/404'))
-                .finally(() => setLoading(false));
-        });
-    }, [params, router]);
+        if (institution?.slug && id !== institution.slug) {
+            window.history.replaceState(null, '', `/institutions/${institution.slug}`);
+        }
+    }, [institution, id]);
 
     if (loading || !institution) {
         return <div className="min-h-screen bg-background text-(--primary) flex items-center justify-center">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { StartupProfileNavbar } from '@/components/public/StartupProfileNavbar';
@@ -19,42 +19,34 @@ import {
 import type { StartupWithDetails } from '@/components/public/startup-profile';
 import { cn, hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
 import { getAuthCookie, getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 
 type Tab = 'about' | 'reviews' | 'team' | 'activity';
 
 export default function StartupProfilePage({ params }: { params: Promise<{ identifier: string }> }) {
+  const { identifier } = use(params);
   const router = useRouter();
-  const [startup, setStartup] = useState<StartupWithDetails | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<Tab>('about');
   const [interestLoading, setInterestLoading] = useState(false);
   const [interestMessage, setInterestMessage] = useState<string | null>(null);
 
+  const { data: startupRaw, isLoading: loading } = useApiQuery<{ startup?: StartupWithDetails } & StartupWithDetails>(
+    queryKeys.public.startup(identifier),
+    `/api/startups/public/${identifier}`,
+    { requestOptions: { public: true, headers: { 'x-public-view': 'true' } } },
+  );
+  const startup = startupRaw?.startup ?? (startupRaw?.id ? startupRaw as StartupWithDetails : null);
+
+  // Redirect to slug URL if accessed by non-slug identifier
   useEffect(() => {
-    params.then(p => {
-      const headers: HeadersInit = { 'x-public-view': 'true' };
-      const token = getSessionToken();
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      fetch(`/api/startups/public/${p.identifier}`, {
-        headers,
-      })
-        .then(res => {
-          if (!res.ok) throw new Error('Not found');
-          return res.json();
-        })
-        .then(data => {
-          const startupData = data.startup || data;
-          setStartup(startupData);
-          if (startupData?.slug && p.identifier !== startupData.slug) {
-            window.history.replaceState(null, '', `/startups/${startupData.slug}`);
-          }
-        })
-        .catch(() => router.push('/404'))
-        .finally(() => setLoading(false));
-    });
-  }, [params, router]);
+    if (startup?.slug && identifier !== startup.slug) {
+      window.history.replaceState(null, '', `/startups/${startup.slug}`);
+    }
+  }, [startup, identifier]);
 
   if (loading) {
     return (
@@ -157,25 +149,22 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
     setInterestMessage(null);
 
     try {
-      const res = await fetch(`/api/startups/${startup.slug || startup.id}/interest/`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+      const payload = await api.post(`/api/startups/${startup.slug || startup.id}/interest/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }) as Record<string, unknown>;
+
+      // Optimistically update the query data
+      queryClient.setQueryData(queryKeys.public.startup(identifier), (old: Record<string, unknown> | undefined) => {
+        if (!old) return old;
+        const updateStartup = (s: Record<string, unknown>) => ({
+          ...s,
+          investorInterestRecorded: true,
+          investorInterestCount: payload.investorInterestCount ?? s.investorInterestCount,
+        });
+        if (old.startup) return { ...old, startup: updateStartup(old.startup as Record<string, unknown>) };
+        return updateStartup(old);
       });
-
-      const payload = await res.json();
-      if (!res.ok) {
-        throw new Error(payload.error || 'Failed to register investor interest.');
-      }
-
-      setStartup((current) => current ? ({
-        ...current,
-        investorInterestRecorded: true,
-        investorInterestCount: payload.investorInterestCount ?? current.investorInterestCount,
-      }) : current);
-      setInterestMessage(payload.alreadyRecorded ? 'Interest already recorded.' : 'Interest recorded successfully.');
+      setInterestMessage((payload as { alreadyRecorded?: boolean }).alreadyRecorded ? 'Interest already recorded.' : 'Interest recorded successfully.');
     } catch (error) {
       setInterestMessage(error instanceof Error ? error.message : 'Failed to register investor interest.');
     } finally {

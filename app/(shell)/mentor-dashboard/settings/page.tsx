@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import AccountSettings from '@/components/ui/AccountSettings';
 import { Card } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
-import { toast } from 'sonner';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface MentorProfileState {
 	verified: boolean;
@@ -12,31 +11,11 @@ interface MentorProfileState {
 }
 
 export default function MentorSettingsPage() {
-	const [profile, setProfile] = useState<MentorProfileState | null>(null);
-	const [loadingProfile, setLoadingProfile] = useState(true);
-
-	useEffect(() => {
-		const load = async () => {
-			try {
-				const token = getSessionToken('mentor') || getSessionToken();
-				if (!token) return;
-				const res = await fetch('/api/auth/mentor-profile/', {
-					headers: { Authorization: `Bearer ${token}` },
-				});
-				if (!res.ok) throw new Error();
-				const data = await res.json();
-				setProfile({
-					verified: Boolean(data.verified),
-					profile_completed: Boolean(data.profile_completed),
-				});
-			} catch {
-				toast.error('Could not load profile status.');
-			} finally {
-				setLoadingProfile(false);
-			}
-		};
-		load();
-	}, []);
+	const { data: profile, isLoading: loadingProfile } = useApiQuery<MentorProfileState>(
+		queryKeys.mentor.profile(),
+		'/api/auth/mentor-profile/',
+		{ requestOptions: { role: 'mentor' } },
+	);
 
 	return (
 		<div className="space-y-6">

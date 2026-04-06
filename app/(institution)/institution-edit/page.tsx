@@ -7,16 +7,21 @@ import { Card, Input, Textarea, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Institution, InstitutionType, OperatingMode } from '@/lib/types';
 import { institutionTypeLabels, operatingModeLabels } from '@/lib/types';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { toast } from 'sonner';
-import api from '@/lib/api-client';
 
 export default function EditInstitutionPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [institution, setInstitution] = useState<Institution | null>(null);
+
+  // --- TanStack Query: load institution ---
+  const { data: meData, isLoading: loading } = useApiQuery<{ institution: Institution }>(
+    queryKeys.institution.profile(),
+    '/api/auth/me/',
+    { requestOptions: { role: 'institution' } },
+  );
+  const institution = meData?.institution ?? null;
+
   const [formData, setFormData] = useState({
     name: '',
     tagline: '',
@@ -30,70 +35,42 @@ export default function EditInstitutionPage() {
     phone: '',
     description: '',
   });
+  const [formSeeded, setFormSeeded] = useState(false);
 
   useEffect(() => {
-    const loadInstitution = async () => {
-      try {
-        const token = getSessionToken('institution');
-        if (!token) {
-          router.push('/institution-login');
-          return;
-        }
+    if (!institution || formSeeded) return;
+    setFormData({
+      name: institution.name || '',
+      tagline: institution.tagline || '',
+      type: institution.type || '',
+      city: institution.city || '',
+      country: institution.country || '',
+      operatingMode: institution.operatingMode || '',
+      website: institution.website || '',
+      linkedin: institution.linkedin || '',
+      email: institution.email || '',
+      phone: institution.phone || '',
+      description: institution.description || '',
+    });
+    setFormSeeded(true);
+  }, [institution, formSeeded]);
 
-        const data = await api.get<{ institution: Institution }>('/api/auth/me/');
-        setInstitution(data.institution);
-        setFormData({
-          name: data.institution.name || '',
-          tagline: data.institution.tagline || '',
-          type: data.institution.type || '',
-          city: data.institution.city || '',
-          country: data.institution.country || '',
-          operatingMode: data.institution.operatingMode || '',
-          website: data.institution.website || '',
-          linkedin: data.institution.linkedin || '',
-          email: data.institution.email || '',
-          phone: data.institution.phone || '',
-          description: data.institution.description || '',
-        });
-      } catch (error) {
-        console.error('Error loading institution:', error);
-        toast.error((error as Error).message || 'Failed to load institution data');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // --- TanStack Mutation: update institution ---
+  const saveMutation = useApiMutation<unknown, typeof formData>({
+    method: 'patch',
+    path: institution ? `/api/institutions/${institution.id}` : '/api/institutions/0',
+    invalidateKeys: [queryKeys.institution.profile()],
+    requestOptions: { role: 'institution' },
+    mutationOptions: {
+      onSuccess: () => { toast.success('Institution updated successfully! Redirecting...'); router.push('/institution-dashboard'); },
+      onError: (err) => toast.error(err.message || 'Failed to update institution'),
+    },
+  });
+  const saving = saveMutation.isPending;
 
-    loadInstitution();
-  }, [router]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSaving(true);
-
-    try {
-      const token = getSessionToken('institution');
-      if (!token) throw new Error('Authentication required. Please log in again.');
-      const res = await fetch(`/api/institutions/${institution?.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!res.ok) {
-        throw new Error(await readApiErrorMessage(res, 'Failed to update institution'));
-      }
-
-      toast.success('Institution updated successfully! Redirecting...');
-      router.push('/institution-dashboard');
-    } catch (error) {
-      console.error('Error updating institution:', error);
-      toast.error((error as Error).message || 'Failed to update institution');
-    } finally {
-      setSaving(false);
-    }
+    saveMutation.mutate(formData);
   };
 
   if (loading) {

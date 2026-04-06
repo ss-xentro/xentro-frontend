@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, EmptyState } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface Institution {
 	id: string;
@@ -29,40 +30,38 @@ interface EndorsementRequest {
 
 export default function EndorsementsPage() {
 	const router = useRouter();
-	const [endorsements, setEndorsements] = useState<EndorsementRequest[]>([]);
-	const [loading, setLoading] = useState(true);
 	const [institutions, setInstitutions] = useState<Institution[]>([]);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [showRequestForm, setShowRequestForm] = useState(false);
 	const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
 	const [requestMessage, setRequestMessage] = useState('');
-	const [submitting, setSubmitting] = useState(false);
 
-	useEffect(() => {
-		loadEndorsements();
-	}, []);
+	const { data: rawData, isLoading: loading } = useApiQuery<{ data?: EndorsementRequest[]; endorsements?: EndorsementRequest[] }>(
+		queryKeys.endorsements.list(),
+		'/api/endorsements/',
+		{ requestOptions: { role: 'mentor' } },
+	);
 
-	const loadEndorsements = async () => {
-		try {
-			const token = getSessionToken('mentor');
-			if (!token) {
-				router.push('/login');
-				return;
-			}
+	const endorsements = rawData?.data || rawData?.endorsements || [];
 
-			const res = await fetch('/api/endorsements/', {
-				headers: { 'Authorization': `Bearer ${token}` },
-			});
-			if (res.ok) {
-				const data = await res.json();
-				setEndorsements(data.data || data.endorsements || []);
-			}
-		} catch {
-			// silently fail
-		} finally {
-			setLoading(false);
-		}
-	};
+	const requestEndorsementMutation = useApiMutation<unknown, { institutionId: string; message: string }>({
+		method: 'post',
+		path: '/api/endorsements/',
+		invalidateKeys: [queryKeys.endorsements.all],
+		requestOptions: { role: 'mentor' },
+		mutationOptions: {
+			onSuccess: () => {
+				setShowRequestForm(false);
+				setSelectedInstitution(null);
+				setRequestMessage('');
+				setSearchQuery('');
+				setInstitutions([]);
+			},
+			onError: (err) => {
+				alert(err.message);
+			},
+		},
+	});
 
 	const searchInstitutions = async (query: string) => {
 		setSearchQuery(query);
@@ -83,38 +82,10 @@ export default function EndorsementsPage() {
 
 	const handleRequestEndorsement = async () => {
 		if (!selectedInstitution) return;
-		setSubmitting(true);
-
-		try {
-			const token = getSessionToken('mentor');
-			if (!token) throw new Error('Authentication required');
-
-			const res = await fetch('/api/endorsements/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
-				},
-				body: JSON.stringify({
-					institutionId: selectedInstitution.id,
-					message: requestMessage,
-				}),
-			});
-
-			const data = await res.json();
-			if (!res.ok) throw new Error(data.error || 'Failed to send request');
-
-			setShowRequestForm(false);
-			setSelectedInstitution(null);
-			setRequestMessage('');
-			setSearchQuery('');
-			setInstitutions([]);
-			loadEndorsements();
-		} catch (err) {
-			alert((err as Error).message);
-		} finally {
-			setSubmitting(false);
-		}
+		requestEndorsementMutation.mutate({
+			institutionId: selectedInstitution.id,
+			message: requestMessage,
+		});
 	};
 
 	const statusColor = (status: string) => {
@@ -199,9 +170,9 @@ export default function EndorsementsPage() {
 					<div className="flex gap-3">
 						<Button
 							onClick={handleRequestEndorsement}
-							disabled={!selectedInstitution || submitting}
+							disabled={!selectedInstitution || requestEndorsementMutation.isPending}
 						>
-							{submitting ? 'Sending...' : 'Send Request'}
+							{requestEndorsementMutation.isPending ? 'Sending...' : 'Send Request'}
 						</Button>
 						<Button variant="secondary" onClick={() => { setShowRequestForm(false); setSelectedInstitution(null); setSearchQuery(''); setRequestMessage(''); }}>
 							Cancel

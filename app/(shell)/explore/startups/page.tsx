@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { FollowButton } from '@/components/ui/FollowButton';
@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { startupStageLabels, fundingRoundLabels } from '@/lib/types/labels';
 import { formatCurrency } from '@/lib/utils';
 import type { StartupStage, FundingRound } from '@/lib/types/startups';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 const stages = [
     { value: 'all', label: 'All Stages' },
@@ -46,32 +48,23 @@ function StartupsContent() {
     const { user } = useAuth();
     const currentUserId = user?.id ?? '';
 
-    const [startups, setStartups] = useState<StartupPublic[]>([]);
-    const [loading, setLoading] = useState(true);
     const [stage, setStage] = useState(searchParams.get('stage') || 'all');
     const [funding, setFunding] = useState(searchParams.get('funding') || 'all');
     const hasActiveFilters = stage !== 'all' || funding !== 'all';
 
-    const fetchStartups = useCallback(async () => {
-        setLoading(true);
-        try {
-            const params = new URLSearchParams();
-            if (stage && stage !== 'all') params.append('stage', stage);
-            if (funding && funding !== 'all') params.append('funding', funding);
-            const res = await fetch(`/api/startups?${params.toString()}`);
-            const json = await res.json();
-            if (res.ok) setStartups(json.startups || json.data || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }, [stage, funding]);
-
-    useEffect(() => {
-        const t = setTimeout(fetchStartups, 300);
-        return () => clearTimeout(t);
-    }, [fetchStartups]);
+    const { data: rawData, isLoading: loading } = useApiQuery<{ startups?: StartupPublic[]; data?: StartupPublic[] }>(
+        queryKeys.explore.startups({ stage, funding }),
+        '/api/startups',
+        {
+            requestOptions: {
+                params: {
+                    ...(stage !== 'all' ? { stage } : {}),
+                    ...(funding !== 'all' ? { funding } : {}),
+                },
+            },
+        },
+    );
+    const startups = rawData?.startups || rawData?.data || [];
 
     const stageColor: Record<string, string> = {
         ideation: 'bg-purple-500/20 text-purple-300 border-purple-500/20',

@@ -1,35 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { institutionTypeLabels, sectorLabels, sdgLabels, Institution, SectorFocus } from '@/lib/types';
 import { formatNumber } from '@/lib/utils';
 import { AppIcon } from '@/components/ui/AppIcon';
-import { toast } from 'sonner';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 export default function ExploreInstitutionsPage() {
     const [selectedType, setSelectedType] = useState<string>('all');
-    const [institutions, setInstitutions] = useState<Institution[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const controller = new AbortController();
-        async function load() {
-            try {
-                setLoading(true);
-                const res = await fetch('/api/institutions', { signal: controller.signal });
-                if (!res.ok) throw new Error('Failed to load institutions');
-                const { data } = await res.json();
-                setInstitutions(data ?? []);
-            } catch (err) {
-                if ((err as Error).name !== 'AbortError') toast.error((err as Error).message);
-            } finally {
-                setLoading(false);
-            }
-        }
-        load();
-        return () => controller.abort();
-    }, []);
+    const { data: rawData, isLoading: loading } = useApiQuery<{ data: Institution[] }>(
+        queryKeys.explore.institutes(),
+        '/api/institutions',
+    );
+    const institutions = rawData?.data ?? [];
 
     const filtered = institutions.filter((inst) => {
         return selectedType === 'all' || inst.type === selectedType;

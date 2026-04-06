@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
 import { InstitutionApplication } from '@/lib/types';
-import { useAuth } from '@/contexts/AuthContext';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { toast } from 'sonner';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-500/20 text-yellow-200',
@@ -15,32 +16,14 @@ const statusColors: Record<string, string> = {
 };
 
 export default function InstitutionApprovalsPage() {
-  const { token } = useAuth();
-  const [applications, setApplications] = useState<InstitutionApplication[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'pending' | 'all'>('pending');
 
-  const load = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/institution-applications', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.message || 'Failed to load applications');
-      setApplications(payload.data ?? []);
-    } catch (err) {
-      toast.error((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    load();
-  }, []);
+  const { data: appRaw, isLoading: loading, refetch } = useApiQuery<{ data: InstitutionApplication[] }>(
+    queryKeys.admin.applications(),
+    '/api/institution-applications',
+    { requestOptions: { role: 'admin' } },
+  );
+  const applications = appRaw?.data ?? [];
 
   // Show verification requests submitted from completed Phase 2 profiles.
   const filteredApplications = filter === 'pending'
@@ -85,7 +68,7 @@ export default function InstitutionApprovalsPage() {
             <option value="pending">Pending Only</option>
             <option value="all">All Applications</option>
           </select>
-          <Button variant="ghost" onClick={load} disabled={loading}>{loading ? 'Refreshing…' : 'Refresh'}</Button>
+          <Button variant="ghost" onClick={() => refetch()} disabled={loading}>{loading ? 'Refreshing…' : 'Refresh'}</Button>
         </div>
       </div>
 

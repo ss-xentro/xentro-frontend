@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Button, Select } from '@/components/ui';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { toast } from 'sonner';
 
 const programTypeOptions = [
@@ -19,7 +20,6 @@ const programTypeOptions = [
 
 export default function AddProgramPage() {
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -31,37 +31,21 @@ export default function AddProgramPage() {
         isActive: true,
     });
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const createMutation = useApiMutation<unknown, typeof formData>({
+        method: 'post',
+        path: '/api/programs',
+        invalidateKeys: [queryKeys.institution.programs()],
+        requestOptions: { role: 'institution' },
+        mutationOptions: {
+            onSuccess: () => router.push('/institution-dashboard/programs'),
+            onError: (err) => toast.error(err.message),
+        },
+    });
+    const loading = createMutation.isPending;
+
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-
-        try {
-            const token = getSessionToken('institution');
-            if (!token) {
-                throw new Error('Authentication required. Please log in again.');
-            }
-
-            const res = await fetch('/api/programs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(formData),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.message || 'Failed to create program');
-            }
-
-            router.push('/institution-dashboard/programs');
-        } catch (err) {
-            toast.error((err as Error).message);
-        } finally {
-            setLoading(false);
-        }
+        createMutation.mutate(formData);
     };
 
     return (

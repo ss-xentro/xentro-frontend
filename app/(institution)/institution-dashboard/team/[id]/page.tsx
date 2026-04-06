@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
-import { readApiErrorMessage } from '@/lib/error-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface TeamMemberDetail {
 	id: string;
@@ -30,52 +30,23 @@ export default function TeamMemberDetailPage() {
 	const params = useParams();
 	const memberId = params.id as string;
 
-	const [member, setMember] = useState<TeamMemberDetail | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [deleting, setDeleting] = useState(false);
+	// Reuses the team list cache and derives the member
+	const { data: teamRaw, isLoading: loading, error: queryError } = useApiQuery<{ data: TeamMemberDetail[] }>(queryKeys.institution.team(), '/api/institution-team/', { requestOptions: { role: 'institution' } });
+	const member = useMemo(() => (teamRaw?.data || []).find((m) => m.id === memberId) ?? null, [teamRaw, memberId]);
+	const error = !loading && !member && !queryError ? 'Team member not found' : queryError?.message ?? null;
 
-	useEffect(() => { loadMember(); }, []);
+	const deleteMutation = useApiMutation<unknown, void>({
+		method: 'delete',
+		path: `/api/institution-team/${memberId}/`,
+		invalidateKeys: [queryKeys.institution.team()],
+		requestOptions: { role: 'institution' },
+		mutationOptions: { onSuccess: () => router.push('/institution-dashboard/team') },
+	});
+	const deleting = deleteMutation.isPending;
 
-	const loadMember = async () => {
-		try {
-			const token = getSessionToken('institution');
-			if (!token) { router.push('/institution-login'); return; }
-			// Fetch all team members and find the one we need
-			const res = await fetch('/api/institution-team/', {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) throw new Error(await readApiErrorMessage(res, 'Failed to load team'));
-			const data = await res.json();
-			const found = (data.data || []).find((m: TeamMemberDetail) => m.id === memberId);
-			if (!found) throw new Error('Team member not found');
-			setMember(found);
-		} catch (err) {
-			setError((err as Error).message);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleRemove = async () => {
+	const handleRemove = () => {
 		if (!confirm('Are you sure you want to remove this team member? They will be moved to the recycle bin.')) return;
-		setDeleting(true);
-		try {
-			const token = getSessionToken('institution');
-			if (!token) throw new Error('Authentication required');
-			const res = await fetch(`/api/institution-team/${memberId}/`, {
-				method: 'DELETE',
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) {
-				throw new Error(await readApiErrorMessage(res, 'Failed to remove member'));
-			}
-			router.push('/institution-dashboard/team');
-		} catch (err) {
-			alert((err as Error).message);
-		} finally {
-			setDeleting(false);
-		}
+		deleteMutation.mutate(undefined as never);
 	};
 
 	if (loading) {

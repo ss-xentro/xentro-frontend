@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, Input, Textarea, Select, Button, Badge, VerifiedBadge, FileUpload } from '@/components/ui';
 import { institutionTypeLabels, Institution } from '@/lib/types';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 
 const statusOptions = [
   { value: 'published', label: 'Published' },
@@ -13,50 +16,39 @@ const statusOptions = [
   { value: 'archived', label: 'Archived' },
 ];
 
-function getAuthToken(token: string | null): string | null {
-  if (token && token !== 'httponly') return token;
-  // Fallback: read from cookie-based session
-  const { getSessionToken } = require('@/lib/auth-utils');
-  return getSessionToken('admin');
-}
-
 export default function EditInstitutionPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { token } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [institution, setInstitution] = useState<Institution | null>(null);
 
-  useEffect(() => {
-    if (!id) return;
-    const controller = new AbortController();
+  const { isLoading: loading, error: queryError } = useApiQuery<{ institution: Institution }>(
+    queryKeys.admin.institutionDetail(id),
+    `/api/institutions/${id}`,
+    {
+      requestOptions: { role: 'admin' },
+      enabled: !!id,
+      // Seed the local state when the query succeeds
+      // We use onSuccess-like pattern via select isn't ideal; instead use the data directly
+    },
+  );
 
-    async function load() {
-      try {
-        setLoading(true);
-        const authToken = getAuthToken(token);
-        const res = await fetch(`/api/institutions/${id}`, {
-          signal: controller.signal,
-          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
-        });
-        if (!res.ok) throw new Error('Failed to load institution');
-        const data = await res.json();
-        setInstitution(data.institution);
-        setError(null);
-      } catch (err) {
-        if ((err as Error).name !== 'AbortError') {
-          setError((err as Error).message);
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
+  // Seed institution state from query data
+  const { data: instData } = useApiQuery<{ institution: Institution }>(
+    queryKeys.admin.institutionDetail(id),
+    `/api/institutions/${id}`,
+    {
+      requestOptions: { role: 'admin' },
+      enabled: !!id,
+    },
+  );
+  // Only seed once
+  if (instData?.institution && !institution) {
+    setInstitution(instData.institution);
+  }
 
-    load();
-    return () => controller.abort();
-  }, [id]);
+  const error = queryError?.message ?? null;
 
   const updateField = (key: keyof Institution, value: any) => {
     setInstitution((prev) => (prev ? { ...prev, [key]: value } : prev));
@@ -66,14 +58,9 @@ export default function EditInstitutionPage() {
     if (!institution) return;
     setSaving(true);
     try {
-      const authToken = getAuthToken(token);
-      const res = await fetch(`/api/institutions/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
-        },
-        body: JSON.stringify({
+      const result = await api.put(`/api/institutions/${id}`, {
+        role: 'admin',
+        json: {
           name: institution.name,
           type: institution.type,
           tagline: institution.tagline,
@@ -85,11 +72,11 @@ export default function EditInstitutionPage() {
           description: institution.description,
           status: institution.status,
           verified: institution.verified,
-        }),
+        },
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Update failed');
-      setInstitution((prev) => (prev ? { ...prev, ...data.data } : prev));
+      setInstitution((prev) => (prev ? { ...prev, ...(result as { data: Partial<Institution> }).data } : prev));
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.institutionDetail(id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.institutions() });
       toast.success('Saved changes');
     } catch (err) {
       toast.error((err as Error).message);

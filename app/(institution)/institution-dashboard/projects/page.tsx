@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button } from '@/components/ui';
-import { useProjectStore } from '@/stores/useProjectStore';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { toast } from 'sonner';
 
 const statusLabels: Record<string, { label: string; color: string }> = {
@@ -17,49 +16,31 @@ const statusLabels: Record<string, { label: string; color: string }> = {
 
 export default function ProjectsPage() {
   const router = useRouter();
-  const {
-    projects,
-    loading,
-    error,
-    setLoading,
-    fetchProjects,
-    addProject,
-    updateProject,
-    removeProject,
-    deleteProject
-  } = useProjectStore();
 
-  // Get token from localStorage (client-side only)
-  const getToken = () => {
-    if (typeof window === 'undefined') return null;
-    return getSessionToken('institution');
-  };
+  // --- TanStack Query: fetch projects ---
+  const { data: projectsRaw, isLoading: loading, error: queryError } = useApiQuery<{ data: { id: string; name: string; status: string; description: string | null; startDate: string | null }[] }>(
+    queryKeys.institution.projects(),
+    '/api/projects',
+    { requestOptions: { role: 'institution' } },
+  );
+  const projects = projectsRaw?.data ?? [];
 
-  // Show toast when store error changes
-  useEffect(() => {
-    if (error) toast.error(error);
-  }, [error]);
+  // --- TanStack Mutation: delete project ---
+  const deleteMutation = useApiMutation<unknown, { _id: string }>({
+    method: 'delete',
+    path: (v) => `/api/projects/${v._id}`,
+    invalidateKeys: [queryKeys.institution.projects()],
+    requestOptions: { role: 'institution' },
+    mutationOptions: {
+      onError: (err) => toast.error(err.message),
+    },
+  });
 
-  // Initial fetch
-  useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      router.push('/institution-login');
-      return;
-    }
-    fetchProjects(token);
-  }, [fetchProjects, router]);
-
-  // Handle delete with optimistic update
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!confirm('Are you sure you want to delete this project?')) return;
-
-    const token = getToken();
-    if (!token) return;
-
-    const success = await deleteProject(token, id);
-    if (!success) return;
+    deleteMutation.mutate({ _id: id });
   };
+  const deletingId = deleteMutation.isPending ? deleteMutation.variables?._id : null;
 
   if (loading) {
     return (
@@ -111,21 +92,18 @@ export default function ProjectsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {projects.map((project) => {
               const statusInfo = statusLabels[project.status] || statusLabels.planning;
-              const isOptimistic = project._optimistic;
+              const isDeleting = deletingId === project.id;
 
               return (
                 <Card
                   key={project.id}
-                  className={`p-6 transition-opacity cursor-pointer bg-(--accent-subtle) border-(--border) hover:border-(--border-hover) ${isOptimistic ? 'opacity-70' : 'opacity-100'}`}
+                  className={`p-6 transition-opacity cursor-pointer bg-(--accent-subtle) border-(--border) hover:border-(--border-hover) ${isDeleting ? 'opacity-70' : 'opacity-100'}`}
                   onClick={() => router.push(`/institution-dashboard/projects/${project.id}`)}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-lg text-(--primary)">{project.name}</h3>
-                        {isOptimistic && (
-                          <span className="text-xs text-(--secondary) animate-pulse">Saving...</span>
-                        )}
                       </div>
                       <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusInfo.color}`}>
                         {statusInfo.label}
@@ -172,7 +150,7 @@ export default function ProjectsPage() {
                       size="sm"
                       className="flex-1 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                       onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleDelete(project.id); }}
-                      disabled={isOptimistic}
+                      disabled={isDeleting}
                     >
                       Delete
                     </Button>

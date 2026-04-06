@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface AuditEntry {
 	id: string;
@@ -33,40 +34,22 @@ function getActionColor(action: string): string {
 }
 
 export default function AdminAuditLogPage() {
-	const [entries, setEntries] = useState<AuditEntry[]>([]);
-	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState('');
 	const [entityType, setEntityType] = useState('');
 	const [page, setPage] = useState(1);
-	const [totalPages, setTotalPages] = useState(1);
-	const [total, setTotal] = useState(0);
 
-	const fetchLogs = useCallback(async () => {
-		setLoading(true);
-		const token = getSessionToken('admin');
-		const params = new URLSearchParams({ page: String(page), per_page: '50' });
-		if (search) params.set('search', search);
-		if (entityType) params.set('entity_type', entityType);
+	const queryParams: Record<string, string> = { page: String(page), per_page: '50' };
+	if (search) queryParams.search = search;
+	if (entityType) queryParams.entity_type = entityType;
 
-		try {
-			const res = await fetch(`/api/admin/audit-log/?${params}`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) throw new Error('Failed to load audit log');
-			const json = await res.json();
-			setEntries(json.data || []);
-			setTotal(json.total || 0);
-			setTotalPages(json.totalPages || 1);
-		} catch {
-			setEntries([]);
-		} finally {
-			setLoading(false);
-		}
-	}, [page, search, entityType]);
-
-	useEffect(() => {
-		fetchLogs();
-	}, [fetchLogs]);
+	const { data: logsRaw, isLoading: loading } = useApiQuery<{ data: AuditEntry[]; total: number; totalPages: number }>(
+		queryKeys.admin.auditLog(queryParams),
+		'/api/admin/audit-log/',
+		{ requestOptions: { role: 'admin', params: queryParams } },
+	);
+	const entries = logsRaw?.data ?? [];
+	const total = logsRaw?.total ?? 0;
+	const totalPages = logsRaw?.totalPages ?? 1;
 
 	const formatTime = (iso: string | null) => {
 		if (!iso) return '—';

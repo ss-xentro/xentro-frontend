@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, ProgressIndicator } from '@/components/ui';
 import { OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus } from '@/lib/types';
+import api from '@/lib/api-client';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queries/keys';
 
 // Import all slides
 import InstitutionTypeSlide from '@/components/onboarding/InstitutionTypeSlide';
@@ -47,6 +50,7 @@ const initialFormData: OnboardingFormData = {
 
 export default function AddInstitutionPage() {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
     const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
@@ -101,10 +105,9 @@ export default function AddInstitutionPage() {
     const handlePublish = async () => {
         try {
             setSubmitting(true);
-            const response = await fetch('/api/institutions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            await api.post('/api/institutions', {
+                role: 'admin',
+                json: {
                     name: formData.name,
                     type: formData.type,
                     tagline: formData.tagline,
@@ -122,14 +125,10 @@ export default function AddInstitutionPage() {
                     description: formData.description,
                     status: 'published',
                     verified: false,
-                }),
+                },
             });
 
-            if (!response.ok) {
-                const payload = await response.json().catch(() => ({}));
-                throw new Error(payload.message ?? 'Failed to publish institution');
-            }
-
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.institutions() });
             alert('Institution published successfully!');
             router.push('/admin/dashboard/institutions');
         } catch (err) {

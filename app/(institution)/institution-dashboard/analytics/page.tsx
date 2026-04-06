@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
-import { toast } from 'sonner';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface AnalyticsData {
   profileViews: number;
@@ -17,54 +17,38 @@ interface AnalyticsData {
 
 export default function AnalyticsPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<AnalyticsData>({
-    profileViews: 0,
-    startupsCount: 0,
-    teamMembersCount: 0,
-    programsCount: 0,
-    institutionName: '',
-  });
+  const opts = { requestOptions: { role: 'institution' as const } };
 
-  useEffect(() => {
-    loadAnalytics();
-  }, []);
+  const { data: startupsRaw, isLoading: l1 } = useApiQuery<{ data: unknown[] }>(
+    queryKeys.institution.startups(),
+    '/api/startups',
+    opts,
+  );
+  const { data: teamRaw, isLoading: l2 } = useApiQuery<{ data: unknown[] }>(
+    queryKeys.institution.team(),
+    '/api/institution-team',
+    opts,
+  );
+  const { data: programsRaw, isLoading: l3 } = useApiQuery<unknown[]>(
+    queryKeys.institution.programs(),
+    '/api/programs',
+    opts,
+  );
+  const { data: institutionRaw, isLoading: l4 } = useApiQuery<{ institution: { name?: string; profileViews?: number } | null }>(
+    queryKeys.institution.profile(),
+    '/api/auth/me/',
+    opts,
+  );
 
-  const loadAnalytics = async () => {
-    try {
-      const token = getSessionToken('institution');
-      if (!token) {
-        router.push('/institution-login');
-        return;
-      }
+  const loading = l1 || l2 || l3 || l4;
 
-      // Fetch all data in parallel
-      const [startupsRes, teamRes, programsRes, institutionRes] = await Promise.all([
-        fetch('/api/startups', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('/api/institution-team', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('/api/programs', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('/api/auth/me/', { headers: { 'Authorization': `Bearer ${token}` } }),
-      ]);
-
-      const startups = startupsRes.ok ? await startupsRes.json() : { data: [] };
-      const team = teamRes.ok ? await teamRes.json() : { data: [] };
-      const programs = programsRes.ok ? await programsRes.json() : { data: [] };
-      const institution = institutionRes.ok ? await institutionRes.json() : { institution: null };
-
-      setData({
-        profileViews: institution.institution?.profileViews || 0,
-        startupsCount: startups.data?.length || 0,
-        teamMembersCount: team.data?.length || 0,
-        programsCount: programs.data?.length || 0,
-        institutionName: institution.institution?.name || 'Your Institution',
-      });
-    } catch (err) {
-      console.error('Failed to load analytics:', err);
-      toast.error('Failed to load analytics data');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const data = useMemo((): AnalyticsData => ({
+    profileViews: institutionRaw?.institution?.profileViews || 0,
+    startupsCount: startupsRaw?.data?.length || 0,
+    teamMembersCount: teamRaw?.data?.length || 0,
+    programsCount: (programsRaw as unknown[] | undefined)?.length || 0,
+    institutionName: institutionRaw?.institution?.name || 'Your Institution',
+  }), [startupsRaw, teamRaw, programsRaw, institutionRaw]);
 
   if (loading) {
     return (

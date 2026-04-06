@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
 import { Button, Card } from '@/components/ui';
 import { cn, formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 
 type MentorRow = {
   id: string;
@@ -25,52 +28,23 @@ type MentorRow = {
 };
 
 export default function MentorVerificationPage() {
-  const { token } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [rows, setRows] = useState<MentorRow[]>([]);
+  const queryClient = useQueryClient();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  async function fetchMentors() {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const res = await fetch('/api/mentors', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to load');
-      // Show only mentors who have completed their profile
-      const mentors = (data.mentors || data.data || []) as MentorRow[];
-      setRows(mentors.filter((m) => m.profile_completed));
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to load');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (token) fetchMentors();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  const { data: mentorRaw, isLoading: loading, refetch } = useApiQuery<{ mentors?: MentorRow[]; data?: MentorRow[] }>(
+    queryKeys.admin.mentors(),
+    '/api/mentors',
+    { requestOptions: { role: 'admin' } },
+  );
+  const rows = (mentorRaw?.mentors ?? mentorRaw?.data ?? []).filter((m) => m.profile_completed);
 
   async function handleDecision(mentorUserId: string, decision: 'approve' | 'reject') {
-    if (!token) return;
     setActionLoading(`${mentorUserId}-${decision}`);
     try {
-      const res = await fetch('/api/approvals/mentors/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ mentorUserId, decision }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || `Failed to ${decision}`);
+      await api.post('/api/approvals/mentors/', { role: 'admin', json: { mentorUserId, decision } });
       toast.success(`Mentor ${decision === 'approve' ? 'approved' : 'rejected'} successfully`);
-      fetchMentors();
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.mentors() });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : `Failed to ${decision}`);
     } finally {
@@ -113,7 +87,7 @@ export default function MentorVerificationPage() {
               Review mentor profiles.
             </p>
           </div>
-          <Button variant="secondary" onClick={fetchMentors} disabled={loading}>
+          <Button variant="secondary" onClick={() => refetch()} disabled={loading}>
             Refresh
           </Button>
         </div>

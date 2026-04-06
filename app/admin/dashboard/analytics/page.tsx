@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Card } from '@/components/ui';
 import { FeedbackBanner } from '@/components/ui/FeedbackBanner';
 import { Institution } from '@/lib/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface AnalyticsData {
 	totalInstitutions: number;
@@ -18,33 +20,13 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
-	const [institutions, setInstitutions] = useState<Institution[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-
-	useEffect(() => {
-		const controller = new AbortController();
-		async function load() {
-			try {
-				setLoading(true);
-				const [instRes, appsRes] = await Promise.all([
-					fetch('/api/institutions', { signal: controller.signal }),
-					fetch('/api/institution-applications', { signal: controller.signal }),
-				]);
-				const instData = await instRes.json();
-				setInstitutions(instData.data ?? []);
-				setError(null);
-			} catch (err) {
-				if ((err as Error).name !== 'AbortError') {
-					setError((err as Error).message);
-				}
-			} finally {
-				setLoading(false);
-			}
-		}
-		load();
-		return () => controller.abort();
-	}, []);
+	const { data: instRaw, isLoading: loading, error: queryError } = useApiQuery<{ data: Institution[] }>(
+		queryKeys.admin.analytics(),
+		'/api/institutions',
+		{ requestOptions: { public: true } },
+	);
+	const institutions = instRaw?.data ?? [];
+	const error = queryError?.message ?? null;
 
 	const stats: AnalyticsData = useMemo(() => {
 		return institutions.reduce<AnalyticsData>(

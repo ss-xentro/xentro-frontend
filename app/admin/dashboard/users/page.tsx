@@ -1,62 +1,41 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 import { UserRecord, ACCOUNT_TYPES, TABLE_HEADERS } from './_lib/constants';
 import UserRow from './_components/UserRow';
 
 export default function AdminUsersPage() {
-    const [users, setUsers] = useState<UserRecord[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
     const [filterType, setFilterType] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
     const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [total, setTotal] = useState(0);
     const [toggling, setToggling] = useState<string | null>(null);
 
-    const fetchUsers = useCallback(async () => {
-        setLoading(true);
-        const token = getSessionToken('admin');
-        const params = new URLSearchParams({ page: String(page), per_page: '25' });
-        if (search) params.set('search', search);
-        if (filterType) params.set('account_type', filterType);
-        if (filterStatus) params.set('status', filterStatus);
+    const queryParams: Record<string, string> = { page: String(page), per_page: '25' };
+    if (search) queryParams.search = search;
+    if (filterType) queryParams.account_type = filterType;
+    if (filterStatus) queryParams.status = filterStatus;
 
-        try {
-            const headers: Record<string, string> = {};
-            if (token) headers.Authorization = `Bearer ${token}`;
-            const res = await fetch(`/api/admin/users/?${params}`, { headers });
-            if (!res.ok) throw new Error('Failed to load users');
-            const json = await res.json();
-            setUsers(json.data || []);
-            setTotal(json.total || 0);
-            setTotalPages(json.totalPages || 1);
-        } catch {
-            setUsers([]);
-        } finally {
-            setLoading(false);
-        }
-    }, [page, search, filterType, filterStatus]);
-
-    useEffect(() => {
-        fetchUsers();
-    }, [fetchUsers]);
+    const { data: usersRaw, isLoading: loading } = useApiQuery<{ data: UserRecord[]; total: number; totalPages: number }>(
+        queryKeys.admin.users(queryParams),
+        '/api/admin/users/',
+        { requestOptions: { role: 'admin', params: queryParams } },
+    );
+    const users = usersRaw?.data ?? [];
+    const total = usersRaw?.total ?? 0;
+    const totalPages = usersRaw?.totalPages ?? 1;
 
     const toggleActive = async (userId: string, current: boolean) => {
         setToggling(userId);
-        const token = getSessionToken('admin');
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (token) headers.Authorization = `Bearer ${token}`;
         try {
-            await fetch(`/api/admin/users/${userId}/`, {
-                method: 'PATCH',
-                headers,
-                body: JSON.stringify({ isActive: !current }),
-            });
-            setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, isActive: !current } : u)));
+            await api.patch(`/api/admin/users/${userId}/`, { role: 'admin', json: { isActive: !current } });
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.users(queryParams) });
         } finally {
             setToggling(null);
         }
@@ -64,15 +43,9 @@ export default function AdminUsersPage() {
 
     const deleteUser = async (userId: string) => {
         setToggling(userId);
-        const token = getSessionToken('admin');
-        const headers: Record<string, string> = {};
-        if (token) headers.Authorization = `Bearer ${token}`;
         try {
-            const res = await fetch(`/api/admin/users/${userId}/`, { method: 'DELETE', headers });
-            if (res.ok) {
-                setUsers((prev) => prev.filter((u) => u.id !== userId));
-                setTotal((prev) => prev - 1);
-            }
+            await api.delete(`/api/admin/users/${userId}/`, { role: 'admin' });
+            queryClient.invalidateQueries({ queryKey: queryKeys.admin.users(queryParams) });
         } finally {
             setToggling(null);
         }

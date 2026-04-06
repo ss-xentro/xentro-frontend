@@ -6,7 +6,8 @@ import { DashboardSidebar } from '@/components/institution/DashboardSidebar';
 import { Card, Button, BackButton, PageSkeleton } from '@/components/ui';
 import { toast } from 'sonner';
 import TagInput from '@/components/ui/TagInput';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import type { SlotEntry, DocumentEntry } from './_components/constants';
 import { AchievementsCard } from './_components/AchievementsCard';
 import { AvailabilitySlotsCard } from './_components/AvailabilitySlotsCard';
@@ -17,9 +18,13 @@ export default function EditMentorPage() {
 	const params = useParams();
 	const mentorId = params.id as string;
 
-	const [loading, setLoading] = useState(true);
-	const [saving, setSaving] = useState(false);
-	const [loadError, setLoadError] = useState<string | null>(null);
+	// --- TanStack Query: load mentor ---
+	const { data: mentorRaw, isLoading: loading, error: queryError } = useApiQuery<{ data: Record<string, unknown> }>(
+		queryKeys.institution.mentorDetail(mentorId),
+		`/api/mentors/${mentorId}/`,
+		{ requestOptions: { role: 'institution' } },
+	);
+	const loadError = queryError?.message ?? null;
 
 	// Read-only profile info
 	const [userName, setUserName] = useState('');
@@ -37,87 +42,60 @@ export default function EditMentorPage() {
 	const [rate, setRate] = useState('');
 	const [slots, setSlots] = useState<SlotEntry[]>([{ day: 'Monday', startTime: '09:00', endTime: '10:00' }]);
 	const [documents, setDocuments] = useState<DocumentEntry[]>([]);
+	const [formSeeded, setFormSeeded] = useState(false);
 
+	// Seed form when query data arrives
 	useEffect(() => {
-		loadMentor();
-	}, []);
+		if (!mentorRaw || formSeeded) return;
+		const m = mentorRaw.data;
+		setUserName((m.user_name as string) || '');
+		setUserEmail((m.user_email as string) || '');
+		setOccupation((m.occupation as string) || '');
+		setAvatar((m.avatar as string) || null);
+		setStatus((m.status as string) || '');
+		setVerified(!!(m.verified));
 
-	const loadMentor = async () => {
-		try {
-			const token = getSessionToken('institution');
-			if (!token) { router.push('/institution-login'); return; }
-
-			const res = await fetch(`/api/mentors/${mentorId}/`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) throw new Error('Failed to load mentor');
-			const json = await res.json();
-			const m = json.data;
-
-			setUserName(m.user_name || '');
-			setUserEmail(m.user_email || '');
-			setOccupation(m.occupation || '');
-			setAvatar(m.avatar || null);
-			setStatus(m.status || '');
-			setVerified(m.verified || false);
-
-			if (m.expertise) setExpertise(Array.isArray(m.expertise) ? m.expertise : []);
-			if (m.achievements) setAchievements(Array.isArray(m.achievements) ? m.achievements : []);
-			if (m.pricing_per_hour) setPricingPerHour(String(m.pricing_per_hour));
-			if (m.rate) setRate(String(m.rate));
-			if (m.availability) {
-				try {
-					const parsed = typeof m.availability === 'string' ? JSON.parse(m.availability) : m.availability;
-					if (Array.isArray(parsed)) setSlots(parsed);
-				} catch { /* ignore parse errors */ }
-			}
-			if (m.documents) setDocuments(Array.isArray(m.documents) ? m.documents : []);
-		} catch (err) {
-			setLoadError((err as Error).message);
-		} finally {
-			setLoading(false);
+		if (m.expertise) setExpertise(Array.isArray(m.expertise) ? m.expertise as string[] : []);
+		if (m.achievements) setAchievements(Array.isArray(m.achievements) ? m.achievements as string[] : []);
+		if (m.pricing_per_hour) setPricingPerHour(String(m.pricing_per_hour));
+		if (m.rate) setRate(String(m.rate));
+		if (m.availability) {
+			try {
+				const parsed = typeof m.availability === 'string' ? JSON.parse(m.availability as string) : m.availability;
+				if (Array.isArray(parsed)) setSlots(parsed);
+			} catch { /* ignore parse errors */ }
 		}
-	};
+		if (m.documents) setDocuments(Array.isArray(m.documents) ? m.documents as DocumentEntry[] : []);
+		setFormSeeded(true);
+	}, [mentorRaw, formSeeded]);
+
+	// --- TanStack Mutation: save mentor ---
+	const saveMutation = useApiMutation<unknown, Record<string, unknown>>({
+		method: 'put',
+		path: `/api/mentors/${mentorId}/`,
+		invalidateKeys: [queryKeys.institution.mentors(), queryKeys.institution.mentorDetail(mentorId)],
+		requestOptions: { role: 'institution' },
+		mutationOptions: {
+			onSuccess: () => { toast.success('Changes saved successfully!'); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+			onError: (err) => toast.error(err.message),
+		},
+	});
+
+	const saving = saveMutation.isPending;
 
 	// Submit
-	const handleSubmit = async () => {
-		setSaving(true);
+	const handleSubmit = () => {
+		const body: Record<string, unknown> = {
+			expertise: expertise,
+			achievements: achievements,
+			availability: JSON.stringify(slots),
+			documents: documents,
+		};
+		if (pricingPerHour) body.pricing_per_hour = parseFloat(pricingPerHour);
+		if (rate) body.rate = parseFloat(rate);
+		if (occupation) body.occupation = occupation;
 
-		try {
-			const token = getSessionToken('institution');
-			if (!token) throw new Error('Authentication required');
-
-			const body: Record<string, unknown> = {
-				expertise: expertise,
-				achievements: achievements,
-				availability: JSON.stringify(slots),
-				documents: documents,
-			};
-			if (pricingPerHour) body.pricing_per_hour = parseFloat(pricingPerHour);
-			if (rate) body.rate = parseFloat(rate);
-			if (occupation) body.occupation = occupation;
-
-			const res = await fetch(`/api/mentors/${mentorId}/`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify(body),
-			});
-
-			if (!res.ok) {
-				const data = await res.json().catch(() => ({}));
-				throw new Error(data.error || 'Failed to update mentor');
-			}
-
-			toast.success('Changes saved successfully!');
-			window.scrollTo({ top: 0, behavior: 'smooth' });
-		} catch (err) {
-			toast.error((err as Error).message);
-		} finally {
-			setSaving(false);
-		}
+		saveMutation.mutate(body);
 	};
 
 	if (loading) {

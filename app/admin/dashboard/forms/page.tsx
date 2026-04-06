@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Card, Badge, Button, Textarea } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { getSessionToken } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api-client';
 
 interface Form {
   id: string;
@@ -54,73 +57,36 @@ function getFormDataString(data: Record<string, unknown>, key: string): string |
 }
 
 export default function AdminFormsPage() {
-  const [forms, setForms] = useState<Form[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>('submitted');
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [selectedForm, setSelectedForm] = useState<Form | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [reviewing, setReviewing] = useState(false);
 
-  useEffect(() => {
-    fetchForms();
-  }, [statusFilter, typeFilter]);
+  const queryParams: Record<string, string> = {};
+  if (statusFilter) queryParams.status = statusFilter;
+  if (typeFilter) queryParams.type = typeFilter;
 
-  const fetchForms = async () => {
-    try {
-      setLoading(true);
-      const adminToken = getSessionToken();
-      if (!adminToken) {
-        setError('Please login as admin to view forms');
-        setLoading(false);
-        return;
-      }
-
-      const params = new URLSearchParams();
-      if (statusFilter) params.set('status', statusFilter);
-      if (typeFilter) params.set('type', typeFilter);
-
-      const res = await fetch(`/api/admin/forms?${params}`, {
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
-
-      if (!res.ok) throw new Error('Failed to load forms');
-      const data = await res.json();
-      setForms(data.forms || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load forms');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: formsRaw, isLoading: loading, error: queryError } = useApiQuery<{ forms: Form[] }>(
+    queryKeys.admin.forms(queryParams),
+    '/api/admin/forms',
+    { requestOptions: { role: 'admin', params: queryParams } },
+  );
+  const forms = formsRaw?.forms ?? [];
+  const error = queryError?.message ?? null;
 
   const handleReview = async (action: 'approve' | 'reject' | 'request_changes') => {
     if (!selectedForm) return;
 
     setReviewing(true);
     try {
-      const token = getSessionToken();
-
-      const res = await fetch(`/api/admin/forms/${selectedForm.id}/review`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          action,
-          notes: reviewNotes,
-        }),
+      await api.post(`/api/admin/forms/${selectedForm.id}/review`, {
+        role: 'admin',
+        json: { action, notes: reviewNotes },
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Review failed');
-      }
-
-      // Refresh list
-      fetchForms();
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.forms(queryParams) });
       setSelectedForm(null);
       setReviewNotes('');
     } catch (err) {
@@ -204,7 +170,7 @@ export default function AdminFormsPage() {
       ) : error ? (
         <Card className="p-8 text-center">
           <p className="text-error mb-4">{error}</p>
-          <Button onClick={fetchForms}>Try Again</Button>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
         </Card>
       ) : forms.length === 0 ? (
         <Card className="p-8 text-center">

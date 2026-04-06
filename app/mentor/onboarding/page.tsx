@@ -10,6 +10,9 @@ import { getAuthCookie, getSessionToken, syncAuthCookie } from '@/lib/auth-utils
 import { toast } from 'sonner';
 import { isMentorOnboardingComplete } from '@/lib/mentor-onboarding';
 import { WhyMentorStep } from './_components/WhyMentorStep';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
+import api from '@/lib/api-client';
 
 
 const TOTAL_STEPS = 3;
@@ -58,7 +61,7 @@ function toTagArray(value: unknown): string[] {
 
 export default function MentorOnboardingPage() {
 	const router = useRouter();
-	const [isBootstrapping, setIsBootstrapping] = useState(true);
+	const [hydrated, setHydrated] = useState(false);
 	const [step, setStep] = useState(1);
 	const [loading, setLoading] = useState(false);
 
@@ -68,59 +71,38 @@ export default function MentorOnboardingPage() {
 	const [motivationOther, setMotivationOther] = useState('');
 
 	const authUser = useMemo(() => getAuthCookie(), []);
+	const mentorToken = useMemo(() => getSessionToken('mentor'), []);
 
+	// Redirect if no token
 	useEffect(() => {
-		const token = getSessionToken('mentor');
-		if (!token) {
-			router.replace('/login');
+		if (!mentorToken) router.replace('/login');
+	}, [mentorToken, router]);
+
+	// Hydrate mentor profile
+	const { data: profileData, isLoading: isBootstrapping } = useApiQuery<Record<string, unknown>>(
+		queryKeys.onboarding.mentorProfile(),
+		'/api/auth/mentor-profile/',
+		{
+			requestOptions: { role: 'mentor' },
+			enabled: !!mentorToken,
+			retry: false,
+			refetchOnWindowFocus: false,
+		},
+	);
+
+	// Seed form state from query data
+	useEffect(() => {
+		if (hydrated || !profileData) return;
+		if (isMentorOnboardingComplete(profileData)) {
+			router.replace('/mentor-dashboard');
 			return;
 		}
-
-		let isActive = true;
-
-		const hydrateProfile = async () => {
-			try {
-				const res = await fetch('/api/auth/mentor-profile/', {
-					headers: { Authorization: `Bearer ${token}` },
-				});
-
-				if (!isActive) return;
-
-				if (res.status === 404) {
-					setIsBootstrapping(false);
-					return;
-				}
-
-				if (!res.ok) {
-					toast.error('Could not load mentor onboarding details.');
-					setIsBootstrapping(false);
-					return;
-				}
-
-				const data = await res.json();
-				if (isMentorOnboardingComplete(data)) {
-					router.replace('/mentor-dashboard');
-					return;
-				}
-
-				setOccupation(data.occupation || '');
-				setFocusTags(toTagArray(data.expertise));
-				if (Array.isArray(data.motivation)) setMotivation(data.motivation);
-				if (data.motivation_other) setMotivationOther(data.motivation_other);
-			} catch {
-				if (!isActive) return;
-				toast.error('Could not load mentor onboarding details.');
-			} finally {
-				if (isActive) setIsBootstrapping(false);
-			}
-		};
-
-		hydrateProfile();
-
-		return () => {
-			isActive = false;
-		};
-	}, [router]);
+		setOccupation((profileData.occupation as string) || '');
+		setFocusTags(toTagArray(profileData.expertise));
+		if (Array.isArray(profileData.motivation)) setMotivation(profileData.motivation as string[]);
+		if (profileData.motivation_other) setMotivationOther(profileData.motivation_other as string);
+		setHydrated(true);
+	}, [profileData, hydrated, router]);
 
 	const canProceed = () => {
 		if (step === 1) return occupation.trim().length > 0;
@@ -134,8 +116,7 @@ export default function MentorOnboardingPage() {
 	};
 
 	const handleSubmit = async () => {
-		const token = getSessionToken('mentor');
-		if (!token) {
+		if (!mentorToken) {
 			router.replace('/login');
 			return;
 		}
@@ -148,13 +129,9 @@ export default function MentorOnboardingPage() {
 			const firstName = nameParts[0] || '';
 			const lastName = nameParts.slice(1).join(' ');
 
-			const response = await fetch('/api/mentors/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({
+			await api.post('/api/mentors/', {
+				role: 'mentor',
+				json: {
 					email: authUser?.email || '',
 					display_name: displayName,
 					firstName,
@@ -163,13 +140,8 @@ export default function MentorOnboardingPage() {
 					expertiseAreas: focusTags,
 					motivation,
 					motivationOther: motivationOther.trim(),
-				}),
+				},
 			});
-
-			const result = await response.json();
-			if (!response.ok) {
-				throw new Error(result.message || 'Failed to save mentor onboarding details.');
-			}
 
 			syncAuthCookie({
 				...(authUser ?? {}),
