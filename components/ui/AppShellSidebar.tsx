@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getSessionToken } from '@/lib/auth-utils';
 import { type UserRole, getNavItems } from './sidebar-nav-config';
 import { useNotifications, type WsNotification } from '@/lib/useNotifications';
+import { showNotificationToast } from '@/components/ui/NotificationToast';
 
 const ROLE_LABELS: Record<string, string> = {
 	admin: 'Admin',
@@ -178,9 +179,10 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 		if (pathname === '/notifications') setNotifUnreadCount(0);
 	}, [pathname]);
 
-	// Increment badge on incoming WS notifications
-	const handleIncomingNotification = useCallback((_n: WsNotification) => {
+	// Increment badge on incoming WS notifications and show toast + desktop notification
+	const handleIncomingNotification = useCallback((n: WsNotification) => {
 		setNotifUnreadCount((prev) => prev + 1);
+		showNotificationToast(n);
 	}, []);
 	useNotifications({ onNotification: handleIncomingNotification, enabled: isAuthenticated });
 
