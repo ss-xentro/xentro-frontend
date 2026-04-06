@@ -106,6 +106,7 @@ const DESKTOP_NAV_ITEMS = [
 	{ icon: 'institutions', label: 'Institutions', href: '/explore/institute', path: CHILD_ICON_PATHS.building },
 	{ icon: 'startups', label: 'Startups', href: '/explore/startups', path: CHILD_ICON_PATHS.bolt },
 	{ icon: 'mentors', label: 'Mentors', href: '/explore/mentors', path: CHILD_ICON_PATHS.mentors },
+	{ icon: 'chat', label: 'Messages', href: '/chat', path: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
 	{ icon: 'bell', label: 'Notifications', href: '/notifications', path: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
 ];
 
@@ -114,6 +115,7 @@ const MOBILE_NAV_ITEMS = [
 	// events hidden — re-enable in v2
 	// { icon: 'events', label: 'Events', href: '/events', path: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
 	{ icon: 'explore', label: 'Explore', href: '/explore/institute', path: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
+	{ icon: 'chat', label: 'Messages', href: '/chat', path: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
 	{ icon: 'bell', label: 'Notifications', href: '/notifications', path: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
 ];
 
@@ -124,6 +126,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 	const [profileOpen, setProfileOpen] = useState(false);
 	const [dashExpanded, setDashExpanded] = useState(false);
 	const [startupInfo, setStartupInfo] = useState<{ name: string; slug: string; logo: string | null } | null>(null);
+	const [chatUnreadCount, setChatUnreadCount] = useState(0);
 	const profileRef = useRef<HTMLDivElement>(null);
 	const pathname = usePathname();
 	const router = useRouter();
@@ -146,6 +149,18 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 			})
 			.catch(() => { });
 	}, [isAuthenticated, isStartupRole]);
+
+	// Fetch chat unread count
+	useEffect(() => {
+		if (!isAuthenticated) return;
+		fetch('/api/chat/rooms/', { cache: 'no-store' })
+			.then(r => r.ok ? r.json() : [])
+			.then((rooms: { unreadCount: number }[]) => {
+				const total = rooms.reduce((sum: number, r: { unreadCount: number }) => sum + (r.unreadCount || 0), 0);
+				setChatUnreadCount(total);
+			})
+			.catch(() => { });
+	}, [isAuthenticated, pathname]);
 
 	const dashboardHref = getDashboardUrl(user?.role);
 	const resolvedRole = (user?.role ?? 'startup') as UserRole;
@@ -324,6 +339,7 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 					{/* Other nav items */}
 					{DESKTOP_NAV_ITEMS.map((item) => {
 						const active = isNavActive(item.href, item.label);
+						const badgeCount = item.icon === 'chat' ? chatUnreadCount : 0;
 						return (
 							<Link
 								key={item.icon}
@@ -335,10 +351,22 @@ export default function AppShellSidebar({ isCollapsed, onToggleCollapse }: { isC
 										: cn('w-full gap-4 px-3 py-3 rounded-xl', active ? 'bg-(--accent-light)' : 'hover:bg-(--accent-subtle)'),
 								)}
 							>
-								<NavIcon svgPath={item.path} active={active} />
+								<div className="relative">
+									<NavIcon svgPath={item.path} active={active} />
+									{badgeCount > 0 && (
+										<span className="absolute -top-1 -right-1 bg-(--primary) text-white text-[10px] font-bold rounded-full min-w-4 h-4 flex items-center justify-center px-0.5 leading-none">
+											{badgeCount > 9 ? '9+' : badgeCount}
+										</span>
+									)}
+								</div>
 								{!isCollapsed && (
 									<span className={cn('text-[15px] font-medium whitespace-nowrap', active ? 'text-(--primary)' : 'text-(--secondary)')}>
 										{item.label}
+									</span>
+								)}
+								{!isCollapsed && badgeCount > 0 && (
+									<span className="ml-auto bg-(--primary) text-white text-xs font-bold rounded-full min-w-5 h-5 flex items-center justify-center px-1">
+										{badgeCount > 9 ? '9+' : badgeCount}
 									</span>
 								)}
 								{isCollapsed && (

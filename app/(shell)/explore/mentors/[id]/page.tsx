@@ -117,6 +117,27 @@ export default function MentorDetailPage() {
 		return next.toISOString().split("T")[0];
 	};
 
+	/** Returns the next N date strings (YYYY-MM-DD) that fall on the given day name. */
+	const getUpcomingDatesForDay = (dayName: string, count = 4): string[] => {
+		const dayIndex: Record<string, number> = {
+			monday: 1, tuesday: 2, wednesday: 3, thursday: 4,
+			friday: 5, saturday: 6, sunday: 0,
+		};
+		const target = dayIndex[(dayName || "").toLowerCase()];
+		if (target === undefined) return [];
+		const results: string[] = [];
+		const now = new Date();
+		const current = now.getDay();
+		let diff = target - current;
+		if (diff <= 0) diff += 7;
+		for (let i = 0; i < count; i++) {
+			const d = new Date(now);
+			d.setDate(now.getDate() + diff + i * 7);
+			results.push(d.toISOString().split("T")[0]);
+		}
+		return results;
+	};
+
 	const formatTime = (t: string) => {
 		const [h, m] = t.split(":").map(Number);
 		const period = h >= 12 ? "PM" : "AM";
@@ -241,7 +262,7 @@ export default function MentorDetailPage() {
 			const body: Record<string, string> = {
 				scheduledDate: selectedDate,
 				notes: requestMessage,
-				mentorUserId: mentorId,
+				mentorUserId: mentor?.userId || mentorId,
 			};
 			if (isAvailabilitySlot) {
 				body.dayOfWeek = selectedSlot.dayOfWeek;
@@ -663,13 +684,21 @@ export default function MentorDetailPage() {
 								<label className="block text-xs font-medium text-(--secondary) mb-1">
 									Date
 								</label>
-								<input
-									type="date"
+								<select
 									value={selectedDate}
 									onChange={(e) => setSelectedDate(e.target.value)}
-									min={new Date().toISOString().split("T")[0]}
 									className="w-full px-3 py-2 rounded-lg bg-(--accent-subtle) border border-(--border) text-sm text-(--primary) focus:outline-none focus:border-violet-500/50"
-								/>
+								>
+									{getUpcomingDatesForDay(selectedSlot.dayOfWeek).map((d) => {
+										const label = new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+											weekday: "short", month: "short", day: "numeric",
+										});
+										return <option key={d} value={d}>{label}</option>;
+									})}
+								</select>
+								<p className="text-[11px] text-(--secondary-light) mt-1">
+									Only {selectedSlot.dayOfWeek.charAt(0).toUpperCase() + selectedSlot.dayOfWeek.slice(1)}s are available for this slot.
+								</p>
 							</div>
 							<div>
 								<label className="block text-xs font-medium text-(--secondary) mb-1">
