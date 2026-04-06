@@ -413,9 +413,11 @@ function TypingIndicator({ name }: { name: string }) {
 function ChatPanel({
 	room,
 	currentUserId,
+	onNewMessage,
 }: {
 	room: ChatRoom;
 	currentUserId: string;
+	onNewMessage?: (roomId: string, message: { body: string; sentAt: string; senderId: string }) => void;
 }) {
 	const router = useRouter();
 	const [input, setInput] = useState('');
@@ -446,6 +448,7 @@ function ChatPanel({
 		roomId: room.id,
 		currentUserId,
 		onPresenceUpdate: handlePresence,
+		onNewMessage,
 	});
 
 	useEffect(() => {
@@ -699,6 +702,14 @@ export default function ChatPage() {
 		router.push(`/chat?room=${room.id}`);
 	}, [router]);
 
+	const handleNewMessage = useCallback((roomId: string, message: { body: string; sentAt: string; senderId: string }) => {
+		setRooms((prev) =>
+			prev.map((r) =>
+				r.id === roomId ? { ...r, lastMessage: message } : r,
+			),
+		);
+	}, []);
+
 	const getPeerPresence = (room: ChatRoom): PresenceInfo => {
 		const isP1 = room.participant1Id === currentUserId;
 		const peerId = isP1 ? room.participant2Id : room.participant1Id;
@@ -806,7 +817,7 @@ export default function ChatPage() {
 				)}
 			>
 				{activeRoom ? (
-					<ChatPanel room={activeRoom} currentUserId={currentUserId} />
+					<ChatPanel room={activeRoom} currentUserId={currentUserId} onNewMessage={handleNewMessage} />
 				) : (
 					<div className="flex flex-col items-center justify-center h-full text-(--secondary) gap-4">
 						<div className="w-20 h-20 rounded-full bg-(--accent-subtle) flex items-center justify-center">

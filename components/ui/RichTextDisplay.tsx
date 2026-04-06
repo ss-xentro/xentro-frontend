@@ -1,5 +1,6 @@
 'use client';
 
+import DOMPurify from 'isomorphic-dompurify';
 import { cn } from '@/lib/utils';
 
 interface RichTextDisplayProps {
@@ -18,6 +19,8 @@ interface RichTextDisplayProps {
 export function RichTextDisplay({ html, className, compact }: RichTextDisplayProps) {
 	if (!html?.trim()) return null;
 
+	const sanitized = DOMPurify.sanitize(html);
+
 	return (
 		<div
 			className={cn(
@@ -25,7 +28,7 @@ export function RichTextDisplay({ html, className, compact }: RichTextDisplayPro
 				compact && 'rich-text-display--compact',
 				className
 			)}
-			dangerouslySetInnerHTML={{ __html: html }}
+			dangerouslySetInnerHTML={{ __html: sanitized }}
 		/>
 	);
 }

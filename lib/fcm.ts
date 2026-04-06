@@ -40,11 +40,15 @@ export async function registerFCMToken(): Promise<void> {
 
 		if (!token) return;
 
-		await fetch('/api/notifications/register-device/', {
+		const res = await fetch('/api/notifications/register-device/', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ token, platform: 'web' }),
 		});
+
+		if (!res.ok) {
+			console.error('[FCM] Device registration failed:', res.status, await res.text().catch(() => ''));
+		}
 	} catch (err) {
 		// Non-fatal — push notifications are a nice-to-have
 		console.warn('[FCM] Registration failed:', err);

@@ -305,10 +305,10 @@ export default function SessionsPage() {
                                                     {b.menteeEmail && (
                                                         <p className="text-xs text-(--secondary) truncate">{b.menteeEmail}</p>
                                                     )}
-                                                    {b.slotStart && (
+                                                    {b.slotStart && b.slotEnd && (
                                                         <p className="text-xs text-(--secondary) flex items-center gap-1.5">
                                                             <AppIcon name="clock" className="w-3 h-3" />
-                                                            {formatTime12(b.slotStart)} – {formatTime12(b.slotEnd || '')}
+                                                            {formatTime12(b.slotStart)} – {formatTime12(b.slotEnd)}
                                                         </p>
                                                     )}
                                                 </div>

@@ -3,11 +3,28 @@ import { NextRequest, NextResponse } from 'next/server';
 const TOKEN_COOKIE = 'xentro_token';
 const FIVE_DAYS = 5 * 24 * 60 * 60;
 
+/** Allowed origins for session mutation endpoints. */
+const ALLOWED_ORIGINS = new Set([
+	process.env.NEXT_PUBLIC_APP_URL,
+	'https://app.xentro.in',
+	'http://localhost:3000',
+].filter(Boolean));
+
+function isOriginAllowed(request: NextRequest): boolean {
+	const origin = request.headers.get('origin');
+	if (!origin) return true; // same-origin requests may omit the Origin header
+	return ALLOWED_ORIGINS.has(origin);
+}
+
 /**
  * POST /api/auth/session — Store the JWT in an HttpOnly cookie.
  * Body: { token: string }
  */
 export async function POST(request: NextRequest) {
+	if (!isOriginAllowed(request)) {
+		return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+	}
+
 	try {
 		const { token } = await request.json();
 		if (!token || typeof token !== 'string') {
@@ -32,7 +49,11 @@ export async function POST(request: NextRequest) {
 /**
  * DELETE /api/auth/session — Clear the HttpOnly token cookie.
  */
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
+	if (!isOriginAllowed(request)) {
+		return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+	}
+
 	const response = NextResponse.json({ ok: true });
 	response.cookies.set(TOKEN_COOKIE, '', {
 		httpOnly: true,

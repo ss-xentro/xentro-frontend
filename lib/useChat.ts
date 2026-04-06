@@ -64,13 +64,15 @@ interface UseChatOptions {
 	roomId: string | null;
 	currentUserId?: string;
 	onPresenceUpdate?: (userId: string, isOnline: boolean, lastSeen: string) => void;
+	onNewMessage?: (roomId: string, message: { body: string; sentAt: string; senderId: string }) => void;
 }
 
-export function useChat({ roomId, currentUserId, onPresenceUpdate }: UseChatOptions) {
+export function useChat({ roomId, currentUserId, onPresenceUpdate, onNewMessage }: UseChatOptions) {
 	const wsRef = useRef<WebSocket | null>(null);
 	const retriesRef = useRef(0);
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const onPresenceRef = useRef(onPresenceUpdate);
+	const onNewMessageRef = useRef(onNewMessage);
 
 	const [connected, setConnected] = useState(false);
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -79,6 +81,10 @@ export function useChat({ roomId, currentUserId, onPresenceUpdate }: UseChatOpti
 	useEffect(() => {
 		onPresenceRef.current = onPresenceUpdate;
 	}, [onPresenceUpdate]);
+
+	useEffect(() => {
+		onNewMessageRef.current = onNewMessage;
+	}, [onNewMessage]);
 
 	const connect = useCallback(async () => {
 		const wsBase = getWsBase();
@@ -120,17 +126,20 @@ export function useChat({ roomId, currentUserId, onPresenceUpdate }: UseChatOpti
 						);
 					}
 				} else if (data.type === 'message') {
+					const msg = {
+						id: data.id,
+						senderId: data.senderId,
+						body: data.body,
+						sentAt: data.sentAt,
+						readByRecipient: data.readByRecipient ?? false,
+					};
 					setMessages((prev) => {
-						// Avoid duplicates
 						if (prev.some((m) => m.id === data.id)) return prev;
-						return [...prev, {
-							id: data.id,
-							senderId: data.senderId,
-							body: data.body,
-							sentAt: data.sentAt,
-							readByRecipient: data.readByRecipient ?? false,
-						}];
+						return [...prev, msg];
 					});
+					if (roomId) {
+						onNewMessageRef.current?.(roomId, { body: msg.body, sentAt: msg.sentAt, senderId: msg.senderId });
+					}
 				} else if (data.type === 'typing') {
 					if (!currentUserId || data.userId !== currentUserId) {
 						setPeerTyping(!!data.isTyping);

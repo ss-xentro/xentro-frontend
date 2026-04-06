@@ -15,6 +15,7 @@ import { FileUpload } from '@/components/ui/FileUpload';
 import { MediaPreview } from '@/components/ui/MediaPreview';
 import { Modal } from '@/components/ui/Modal';
 import { getSessionToken } from '@/lib/auth-utils';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface TeamMember {
     id: string;
@@ -423,7 +424,7 @@ export default function TeamPage() {
                                 {memberBioHtml && (
                                     <div
                                         className="text-sm text-(--secondary) line-clamp-3 [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_a]:underline"
-                                        dangerouslySetInnerHTML={{ __html: memberBioHtml }}
+                                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(memberBioHtml) }}
                                     />
                                 )}
 
@@ -568,7 +569,7 @@ export default function TeamPage() {
                         {selectedBioHtml && (
                             <div
                                 className="text-sm text-(--secondary) mt-3 leading-relaxed space-y-2 [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_a]:underline"
-                                dangerouslySetInnerHTML={{ __html: selectedBioHtml }}
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedBioHtml) }}
                             />
                         )}
                     </div>
