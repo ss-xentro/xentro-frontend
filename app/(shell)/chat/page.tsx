@@ -4,10 +4,28 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { useChat, fetchChatRooms, type ChatRoom, type ChatMessage, type PresenceInfo } from '@/lib/useChat';
+import { useChat, fetchChatRooms, createOrGetRoom, type ChatRoom, type ChatMessage, type PresenceInfo } from '@/lib/useChat';
 import { AppIcon } from '@/components/ui/AppIcon';
 
 /* ─── helpers ─── */
+
+interface MutualUser {
+	id: string;
+	name: string;
+	avatar: string | null;
+	activeContext: string | null;
+}
+
+async function fetchMutualFollowers(): Promise<MutualUser[]> {
+	try {
+		const res = await fetch('/api/mutual-followers/', { cache: 'no-store' });
+		if (!res.ok) return [];
+		const data = await res.json();
+		return data.mutuals ?? [];
+	} catch {
+		return [];
+	}
+}
 
 function formatTime(iso: string) {
 	const d = new Date(iso);
@@ -49,6 +67,113 @@ function Avatar({ name, avatar, size = 'w-10 h-10' }: { name: string; avatar: st
 			)}
 		>
 			<span className="text-sm font-semibold text-(--primary)">{initials}</span>
+		</div>
+	);
+}
+
+/* ─── New Chat Modal ─── */
+function NewChatModal({
+	onClose,
+	onRoomCreated,
+}: {
+	onClose: () => void;
+	onRoomCreated: (room: ChatRoom) => void;
+}) {
+	const [mutuals, setMutuals] = useState<MutualUser[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [creating, setCreating] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(null);
+	const [search, setSearch] = useState('');
+
+	useEffect(() => {
+		fetchMutualFollowers().then((data) => {
+			setMutuals(data);
+			setLoading(false);
+		});
+	}, []);
+
+	const filtered = mutuals.filter((u) =>
+		u.name.toLowerCase().includes(search.toLowerCase()),
+	);
+
+	const handleStart = async (userId: string) => {
+		setCreating(userId);
+		setError(null);
+		try {
+			const room = await createOrGetRoom(userId);
+			onRoomCreated(room);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Failed to start chat');
+		} finally {
+			setCreating(null);
+		}
+	};
+
+	return (
+		<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+			<div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+			<div className="relative bg-(--surface) rounded-t-2xl sm:rounded-2xl w-full sm:w-96 max-h-[70vh] flex flex-col shadow-xl">
+				<div className="flex items-center gap-3 px-4 py-4 border-b border-(--border)">
+					<h2 className="flex-1 text-base font-semibold text-(--foreground)">New Message</h2>
+					<button onClick={onClose} className="text-(--secondary) hover:text-(--foreground)">
+						<AppIcon name="x" className="w-5 h-5" />
+					</button>
+				</div>
+
+				<div className="px-4 py-2 border-b border-(--border)">
+					<div className="flex items-center gap-2 bg-(--accent-subtle) rounded-xl px-3 py-2">
+						<AppIcon name="search" className="w-4 h-4 text-(--secondary) shrink-0" />
+						<input
+							autoFocus
+							value={search}
+							onChange={(e) => setSearch(e.target.value)}
+							placeholder="Search people…"
+							className="flex-1 bg-transparent text-sm text-(--foreground) placeholder:text-(--secondary-light) focus:outline-none"
+						/>
+					</div>
+				</div>
+
+				<div className="flex-1 overflow-y-auto">
+					{loading ? (
+						<div className="flex items-center justify-center py-12">
+							<AppIcon name="loader-2" className="w-6 h-6 animate-spin text-(--secondary)" />
+						</div>
+					) : filtered.length === 0 ? (
+						<div className="flex flex-col items-center justify-center py-12 gap-2 text-(--secondary) text-sm px-6 text-center">
+							<AppIcon name="users" className="w-8 h-8 opacity-30" />
+							<p>{search ? 'No results found.' : 'No mutual followers yet. Follow someone and wait for them to follow back.'}</p>
+						</div>
+					) : (
+						filtered.map((user) => (
+							<button
+								key={user.id}
+								disabled={creating === user.id}
+								onClick={() => handleStart(user.id)}
+								className="w-full flex items-center gap-3 px-4 py-3 hover:bg-(--accent-subtle) transition-colors disabled:opacity-60"
+							>
+								<Avatar name={user.name} avatar={user.avatar} size="w-10 h-10" />
+								<div className="flex-1 text-left min-w-0">
+									<p className="text-sm font-medium text-(--foreground) truncate">{user.name}</p>
+									{user.activeContext && (
+										<p className="text-xs text-(--secondary) capitalize truncate">{user.activeContext}</p>
+									)}
+								</div>
+								{creating === user.id ? (
+									<AppIcon name="loader-2" className="w-4 h-4 animate-spin text-(--secondary)" />
+								) : (
+									<AppIcon name="message-circle" className="w-4 h-4 text-(--secondary)" />
+								)}
+							</button>
+						))
+					)}
+				</div>
+
+				{error && (
+					<div className="px-4 py-3 border-t border-(--border)">
+						<p className="text-xs text-red-500">{error}</p>
+					</div>
+				)}
+			</div>
 		</div>
 	);
 }
@@ -294,6 +419,7 @@ export default function ChatPage() {
 	const [rooms, setRooms] = useState<ChatRoom[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [presenceMap, setPresenceMap] = useState<Record<string, PresenceInfo>>({});
+	const [showNewChat, setShowNewChat] = useState(false);
 
 	const roomIdParam = searchParams.get('room');
 	const activeRoom = rooms.find((r) => r.id === roomIdParam) ?? null;
@@ -323,6 +449,16 @@ export default function ChatPage() {
 
 	const currentUserId = user?.id ?? '';
 
+	const handleRoomCreated = useCallback((room: ChatRoom) => {
+		setRooms((prev) => {
+			const exists = prev.find((r) => r.id === room.id);
+			if (exists) return prev;
+			return [room, ...prev];
+		});
+		setShowNewChat(false);
+		router.push(`/chat?room=${room.id}`);
+	}, [router]);
+
 	const getPeerPresence = (room: ChatRoom): PresenceInfo => {
 		const isP1 = room.participant1Id === currentUserId;
 		const peerId = isP1 ? room.participant2Id : room.participant1Id;
@@ -347,8 +483,15 @@ export default function ChatPage() {
 					activeRoom ? 'hidden md:flex' : 'flex',
 				)}
 			>
-				<div className="px-4 py-3 border-b border-(--border)">
+				<div className="px-4 py-3 border-b border-(--border) flex items-center justify-between">
 					<h1 className="text-lg font-semibold text-(--foreground)">Messages</h1>
+					<button
+						onClick={() => setShowNewChat(true)}
+						className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-(--accent-subtle) text-(--secondary) hover:text-(--foreground) transition-colors"
+						title="New message"
+					>
+						<AppIcon name="pencil" className="w-4 h-4" />
+					</button>
 				</div>
 
 				<div className="flex-1 overflow-y-auto">
@@ -388,9 +531,22 @@ export default function ChatPage() {
 					<div className="flex flex-col items-center justify-center h-full text-(--secondary) gap-3">
 						<AppIcon name="message-circle" className="w-14 h-14 opacity-20" />
 						<p className="text-sm">Select a conversation to start chatting</p>
+						<button
+							onClick={() => setShowNewChat(true)}
+							className="mt-2 px-4 py-2 rounded-xl bg-(--brand) text-white text-sm font-medium hover:opacity-90 transition-opacity"
+						>
+							Start a new chat
+						</button>
 					</div>
 				)}
 			</div>
+
+			{showNewChat && (
+				<NewChatModal
+					onClose={() => setShowNewChat(false)}
+					onRoomCreated={handleRoomCreated}
+				/>
+			)}
 		</div>
 	);
 }
