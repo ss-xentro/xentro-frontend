@@ -63,10 +63,11 @@ async function fetchWsToken(): Promise<string | null> {
 
 interface UseChatOptions {
 	roomId: string | null;
+	currentUserId?: string;
 	onPresenceUpdate?: (userId: string, isOnline: boolean, lastSeen: string) => void;
 }
 
-export function useChat({ roomId, onPresenceUpdate }: UseChatOptions) {
+export function useChat({ roomId, currentUserId, onPresenceUpdate }: UseChatOptions) {
 	const wsRef = useRef<WebSocket | null>(null);
 	const retriesRef = useRef(0);
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -132,7 +133,9 @@ export function useChat({ roomId, onPresenceUpdate }: UseChatOptions) {
 						}];
 					});
 				} else if (data.type === 'typing') {
-					setPeerTyping(!!data.isTyping);
+					if (!currentUserId || data.userId !== currentUserId) {
+						setPeerTyping(!!data.isTyping);
+					}
 				} else if (data.type === 'presence') {
 					onPresenceRef.current?.(data.userId, data.isOnline, data.lastSeen);
 				}

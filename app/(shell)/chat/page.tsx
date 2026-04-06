@@ -168,6 +168,7 @@ function ChatPanel({
 
 	const { connected, messages, peerTyping, sendMessage, sendTyping, markRead } = useChat({
 		roomId: room.id,
+		currentUserId,
 		onPresenceUpdate: handlePresence,
 	});
 
