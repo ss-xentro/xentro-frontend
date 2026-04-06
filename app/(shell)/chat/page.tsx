@@ -25,20 +25,22 @@ function formatLastSeen(iso: string | null) {
 }
 
 function Avatar({ name, avatar, size = 'w-10 h-10' }: { name: string; avatar: string | null; size?: string }) {
-	if (avatar) {
-		return (
-			<img
-				src={avatar}
-				alt={name}
-				className={cn(size, 'rounded-full object-cover shrink-0')}
-			/>
-		);
-	}
+	const [imgError, setImgError] = useState(false);
 	const initials = name
 		.split(' ')
 		.slice(0, 2)
 		.map((w) => w[0]?.toUpperCase() ?? '')
 		.join('');
+	if (avatar && !imgError) {
+		return (
+			<img
+				src={avatar}
+				alt={name}
+				className={cn(size, 'rounded-full object-cover shrink-0')}
+				onError={() => setImgError(true)}
+			/>
+		);
+	}
 	return (
 		<div
 			className={cn(
@@ -80,7 +82,7 @@ function RoomListItem({
 			<div className="relative shrink-0">
 				<Avatar name={peerName} avatar={peerAvatar} size="w-11 h-11" />
 				{presence.isOnline && (
-					<span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
+					<span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-(--surface)" />
 				)}
 			</div>
 			<div className="flex-1 min-w-0">
@@ -217,7 +219,7 @@ function ChatPanel({
 				<div className="relative">
 					<Avatar name={peerName} avatar={peerAvatar} size="w-10 h-10" />
 					{peerPresence.isOnline && (
-						<span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-white" />
+						<span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-(--surface)" />
 					)}
 				</div>
 				<div className="flex-1 min-w-0">
