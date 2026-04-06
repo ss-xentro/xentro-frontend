@@ -76,7 +76,7 @@ export default function AvailabilityBookingSection({
 														onClick={() => onSlotClick?.(slot)}
 														className={cn(
 															'text-xs px-3.5 py-2 rounded-xl border transition-all font-medium',
-															'border-(--border) text-(--foreground) hover:border-(--brand)/40 hover:bg-(--brand)/5 hover:text-(--brand)',
+															'border-(--border) text-(--foreground) hover:border-(--brand)/40 hover:bg-(--brand)/5 hover:text-brand',
 														)}
 													>
 														{formatTime(slot.startTime)} – {formatTime(slot.endTime)}
