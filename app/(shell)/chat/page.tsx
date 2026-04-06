@@ -67,9 +67,9 @@ function RoomListItem({
 	onClick: () => void;
 	presence: PresenceInfo;
 }) {
-	const isMentor = room.mentorId === currentUserId;
-	const peerName = isMentor ? room.menteeName : room.mentorName;
-	const peerAvatar = isMentor ? room.menteeAvatar : room.mentorAvatar;
+	const isP1 = room.participant1Id === currentUserId;
+	const peerName = isP1 ? room.participant2Name : room.participant1Name;
+	const peerAvatar = isP1 ? room.participant2Avatar : room.participant1Avatar;
 
 	return (
 		<button
@@ -147,15 +147,15 @@ function ChatPanel({
 	const router = useRouter();
 	const [input, setInput] = useState('');
 	const [peerPresence, setPeerPresence] = useState<PresenceInfo>(
-		room.mentorId === currentUserId ? room.menteePresence : room.mentorPresence,
+		room.participant1Id === currentUserId ? room.participant2Presence : room.participant1Presence,
 	);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	const isMentor = room.mentorId === currentUserId;
-	const peerName = isMentor ? room.menteeName : room.mentorName;
-	const peerAvatar = isMentor ? room.menteeAvatar : room.mentorAvatar;
-	const peerId = isMentor ? room.menteeId : room.mentorId;
+	const isP1 = room.participant1Id === currentUserId;
+	const peerName = isP1 ? room.participant2Name : room.participant1Name;
+	const peerAvatar = isP1 ? room.participant2Avatar : room.participant1Avatar;
+	const peerId = isP1 ? room.participant2Id : room.participant1Id;
 
 	const handlePresence = useCallback(
 		(userId: string, isOnline: boolean, lastSeen: string) => {
@@ -314,8 +314,8 @@ export default function ChatPage() {
 		// Also update rooms so the list reflects live presence
 		setRooms((prev) =>
 			prev.map((r) => {
-				if (r.mentorId === userId) return { ...r, mentorPresence: { isOnline, lastSeen } };
-				if (r.menteeId === userId) return { ...r, menteePresence: { isOnline, lastSeen } };
+				if (r.participant1Id === userId) return { ...r, participant1Presence: { isOnline, lastSeen } };
+				if (r.participant2Id === userId) return { ...r, participant2Presence: { isOnline, lastSeen } };
 				return r;
 			}),
 		);
@@ -324,9 +324,9 @@ export default function ChatPage() {
 	const currentUserId = user?.id ?? '';
 
 	const getPeerPresence = (room: ChatRoom): PresenceInfo => {
-		const isMentor = room.mentorId === currentUserId;
-		const peerId = isMentor ? room.menteeId : room.mentorId;
-		return presenceMap[peerId] ?? (isMentor ? room.menteePresence : room.mentorPresence);
+		const isP1 = room.participant1Id === currentUserId;
+		const peerId = isP1 ? room.participant2Id : room.participant1Id;
+		return presenceMap[peerId] ?? (isP1 ? room.participant2Presence : room.participant1Presence);
 	};
 
 	if (loading) {
@@ -355,7 +355,7 @@ export default function ChatPage() {
 					{rooms.length === 0 ? (
 						<div className="flex flex-col items-center justify-center h-60 gap-3 text-(--secondary) text-sm px-6 text-center">
 							<AppIcon name="message-circle" className="w-10 h-10 opacity-30" />
-							<p>No chats yet. Book a session with a mentor to start chatting once it&apos;s confirmed.</p>
+							<p>No chats yet. Follow someone and when they follow you back, you can start chatting.</p>
 						</div>
 					) : (
 						rooms.map((room) => (

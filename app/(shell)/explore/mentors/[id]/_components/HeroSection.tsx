@@ -3,18 +3,21 @@
 import { useState } from "react";
 import RichTextDisplay from "@/components/ui/RichTextDisplay";
 import { VerifiedBadge, InstitutionalBadge } from "./MentorProfileHelpers";
+import { FollowButton } from "@/components/ui/FollowButton";
 import type { MentorDetail } from "../_lib/constants";
 
 interface HeroSectionProps {
 	mentor: MentorDetail;
 	connectionStatus: string | null;
 	onAction: () => void;
+	currentUserId?: string;
 }
 
 export function HeroSection({
 	mentor,
 	connectionStatus,
 	onAction,
+	currentUserId,
 }: HeroSectionProps) {
 	const [aboutExpanded, setAboutExpanded] = useState(false);
 
@@ -111,6 +114,13 @@ export function HeroSection({
 					>
 						Book Session
 					</button>
+					{mentor.userId && (
+						<FollowButton
+							targetUserId={mentor.userId}
+							currentUserId={currentUserId}
+							showMessage
+						/>
+					)}
 					{connectionStatus === "accepted" && (
 						<span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border border-emerald-500/30 text-emerald-400">
 							<svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">

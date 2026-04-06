@@ -17,17 +17,16 @@ export interface PresenceInfo {
 
 export interface ChatRoom {
 	id: string;
-	booking_id: string;
-	mentorId: string;
-	mentorName: string;
-	mentorAvatar: string | null;
-	menteeId: string;
-	menteeName: string;
-	menteeAvatar: string | null;
+	participant1Id: string;
+	participant1Name: string;
+	participant1Avatar: string | null;
+	participant2Id: string;
+	participant2Name: string;
+	participant2Avatar: string | null;
 	lastMessage: { body: string; sentAt: string; senderId: string } | null;
 	unreadCount: number;
-	mentorPresence: PresenceInfo;
-	menteePresence: PresenceInfo;
+	participant1Presence: PresenceInfo;
+	participant2Presence: PresenceInfo;
 	created_at: string;
 }
 
@@ -190,5 +189,22 @@ export function useChat({ roomId, currentUserId, onPresenceUpdate }: UseChatOpti
 export async function fetchChatRooms(): Promise<ChatRoom[]> {
 	const res = await fetch('/api/chat/rooms/', { cache: 'no-store' });
 	if (!res.ok) return [];
+	return res.json();
+}
+
+/**
+ * Create or retrieve a chat room with a mutual follower.
+ * Returns the ChatRoom or throws on failure.
+ */
+export async function createOrGetRoom(targetUserId: string): Promise<ChatRoom> {
+	const res = await fetch('/api/chat/rooms/create/', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ target_user_id: targetUserId }),
+	});
+	if (!res.ok) {
+		const err = await res.json().catch(() => ({}));
+		throw new Error((err as { error?: string }).error ?? 'Failed to create chat room');
+	}
 	return res.json();
 }

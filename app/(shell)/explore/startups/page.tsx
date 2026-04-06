@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { FollowButton } from '@/components/ui/FollowButton';
+import { useAuth } from '@/contexts/AuthContext';
 import { startupStageLabels, fundingRoundLabels } from '@/lib/types/labels';
 import { formatCurrency } from '@/lib/utils';
 import type { StartupStage, FundingRound } from '@/lib/types/startups';
@@ -35,11 +37,14 @@ interface StartupPublic {
     fundingRound: string;
     fundsRaised: string;
     fundingCurrency: string;
+    ownerId: string | null;
 }
 
 function StartupsContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { user } = useAuth();
+    const currentUserId = user?.id ?? '';
 
     const [startups, setStartups] = useState<StartupPublic[]>([]);
     const [loading, setLoading] = useState(true);
@@ -112,9 +117,8 @@ function StartupsContent() {
             {!loading && startups.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                     {startups.map((startup, index) => (
-                        <button
+                        <div
                             key={startup.id}
-                            onClick={() => router.push(`/startups/${startup.id}`)}
                             className="group text-left bg-(--accent-subtle) hover:bg-(--accent-light) border border-(--border) hover:border-(--border-hover) rounded-2xl p-5 transition-all duration-300 flex flex-col"
                             style={{ animationDelay: `${index * 40}ms` }}
                         >
@@ -142,7 +146,7 @@ function StartupsContent() {
                                 </p>
                             </div>
 
-                            <div className="pt-3 border-t border-(--border) flex items-center justify-between text-xs">
+                            <div className="pt-3 border-t border-(--border) flex items-center justify-between text-xs mb-3">
                                 {startup.fundingRound && (
                                     <span className="px-2 py-0.5 rounded-full bg-(--accent-subtle) text-(--secondary) border border-(--border)">
                                         {fundingRoundLabels[startup.fundingRound as FundingRound]?.label ?? startup.fundingRound}
@@ -154,7 +158,25 @@ function StartupsContent() {
                                     </span>
                                 )}
                             </div>
-                        </button>
+
+                            <div className="flex flex-col gap-2">
+                                {startup.ownerId && (
+                                    <FollowButton
+                                        targetUserId={startup.ownerId}
+                                        currentUserId={currentUserId}
+                                        showMessage
+                                        className="w-full justify-center"
+                                    />
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => router.push(`/startups/${startup.id}`)}
+                                    className="text-center text-sm font-medium py-2.5 rounded-xl border border-(--border) text-(--primary-light) hover:text-(--primary) hover:border-(--border-hover) transition-colors"
+                                >
+                                    View Startup
+                                </button>
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}

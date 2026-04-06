@@ -3,9 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AppIcon } from "@/components/ui/AppIcon";
+import { FollowButton } from "@/components/ui/FollowButton";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Mentor {
 	id: string;
+	userId: string;
 	name: string;
 	occupation: string;
 	expertise: string[];
@@ -70,6 +73,8 @@ function VerifiedBadge({
 }
 
 export default function ExploreMentorsPage() {
+	const { user } = useAuth();
+	const currentUserId = user?.id ?? '';
 	const [mentors, setMentors] = useState<Mentor[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [expertise, setExpertise] = useState("all");
@@ -116,6 +121,7 @@ export default function ExploreMentorsPage() {
 
 					return {
 						id: m.id as string,
+						userId: (m.user as string) || '',
 						name: (m.user_name as string) || (m.name as string) || "Mentor",
 						occupation: (m.occupation as string) || "",
 						expertise: exp,
@@ -199,10 +205,9 @@ export default function ExploreMentorsPage() {
 			{!loading && displayMentors.length > 0 && (
 				<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
 					{displayMentors.map((mentor) => (
-						<Link
+						<div
 							key={mentor.id}
-							href={`/mentors/${mentor.id}`}
-							className="group relative bg-(--accent-subtle) hover:bg-(--accent-subtle) border border-(--border-light) hover:border-(--border) rounded-2xl overflow-hidden transition-all duration-300 flex flex-col"
+							className="group relative bg-(--accent-subtle) border border-(--border-light) hover:border-(--border) rounded-2xl overflow-hidden transition-all duration-300 flex flex-col"
 						>
 							{/* Card body */}
 							<div className="flex flex-col items-center pt-7 pb-2 px-5">
@@ -319,12 +324,23 @@ export default function ExploreMentorsPage() {
 							</div>
 
 							{/* Footer */}
-							<div className="mt-auto px-5 pb-5 pt-3">
-								<div className="text-center text-sm font-medium py-2.5 rounded-xl border border-(--border) text-(--primary-light) group-hover:text-(--primary) group-hover:border-(--border-hover) transition-colors">
+							<div className="mt-auto px-5 pb-5 pt-3 flex flex-col gap-2">
+								{mentor.userId && (
+									<FollowButton
+										targetUserId={mentor.userId}
+										currentUserId={currentUserId}
+										showMessage
+										className="w-full justify-center"
+									/>
+								)}
+								<Link
+									href={`/mentors/${mentor.id}`}
+									className="text-center text-sm font-medium py-2.5 rounded-xl border border-(--border) text-(--primary-light) hover:text-(--primary) hover:border-(--border-hover) transition-colors"
+								>
 									View Profile
-								</div>
+								</Link>
 							</div>
-						</Link>
+						</div>
 					))}
 				</div>
 			)}

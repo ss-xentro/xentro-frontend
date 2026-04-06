@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSessionToken } from "@/lib/auth-utils";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/Modal";
 import { AppIcon } from "@/components/ui/AppIcon";
@@ -29,6 +30,8 @@ export default function MentorDetailPage() {
 	const params = useParams();
 	const router = useRouter();
 	const mentorId = params.id as string;
+	const { user } = useAuth();
+	const currentUserId = user?.id ?? "";
 
 	const [mentor, setMentor] = useState<MentorDetail | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -371,6 +374,7 @@ export default function MentorDetailPage() {
 					mentor={mentor}
 					connectionStatus={connectionStatus}
 					onAction={openSlotBookingModal}
+					currentUserId={currentUserId}
 				/>
 
 				{/* LinkedIn-style underline tabs */}
