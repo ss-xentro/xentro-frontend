@@ -6,11 +6,10 @@ import Link from "next/link";
 import { getSessionToken } from "@/lib/auth-utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Modal } from "@/components/ui/Modal";
 import { AppIcon } from "@/components/ui/AppIcon";
 import RichTextDisplay from "@/components/ui/RichTextDisplay";
 import { StartupProfileNavbar } from "@/components/public/StartupProfileNavbar";
-import { Section, ORDERED_DAYS, DAY_LABELS, FULL_DAY } from "./_components/MentorProfileHelpers";
+import { Section } from "./_components/MentorProfileHelpers";
 import ConnectModal from "./_components/ConnectModal";
 import MentorPackages from "./_components/MentorPackages";
 import { HeroSection } from "./_components/HeroSection";
@@ -23,6 +22,7 @@ import {
 } from "./_components/LinkedInSections";
 import { DocumentsSection } from "./_components/DocumentsSection";
 import AvailabilityBookingSection from "./_components/AvailabilityBookingSection";
+import BookSessionModal from "./_components/BookSessionModal";
 import { parseMentorData, getConnectBtnConfig } from "./_lib/constants";
 import type { MentorDetail, MentorSlot } from "./_lib/constants";
 
@@ -42,12 +42,8 @@ export default function MentorDetailPage() {
 	const [activeTab, setActiveTab] = useState<"overview" | "mentoredStartups">(
 		"overview",
 	);
-	const [showSlotsModal, setShowSlotsModal] = useState(false);
-	const [showRequestModal, setShowRequestModal] = useState(false);
-	const [selectedSlot, setSelectedSlot] = useState<MentorSlot | null>(null);
-	const [selectedDate, setSelectedDate] = useState("");
-	const [requestMessage, setRequestMessage] = useState("");
-	const [bookingSubmitting, setBookingSubmitting] = useState(false);
+	const [showBookingModal, setShowBookingModal] = useState(false);
+	const [preselectedSlot, setPreselectedSlot] = useState<MentorSlot | null>(null);
 
 
 	useEffect(() => {
@@ -99,61 +95,6 @@ export default function MentorDetailPage() {
 		}
 	};
 
-	const getNextDateForDay = (dayName: string): string => {
-		const dayIndex: Record<string, number> = {
-			monday: 1,
-			tuesday: 2,
-			wednesday: 3,
-			thursday: 4,
-			friday: 5,
-			saturday: 6,
-			sunday: 0,
-		};
-		const target = dayIndex[(dayName || "").toLowerCase()];
-		if (target === undefined) return "";
-		const now = new Date();
-		const current = now.getDay();
-		let diff = target - current;
-		if (diff <= 0) diff += 7;
-		const next = new Date(now);
-		next.setDate(now.getDate() + diff);
-		return next.toISOString().split("T")[0];
-	};
-
-	/** Returns the next N date strings (YYYY-MM-DD) that fall on the given day name. */
-	const getUpcomingDatesForDay = (dayName: string, count = 4): string[] => {
-		const dayIndex: Record<string, number> = {
-			monday: 1, tuesday: 2, wednesday: 3, thursday: 4,
-			friday: 5, saturday: 6, sunday: 0,
-		};
-		const target = dayIndex[(dayName || "").toLowerCase()];
-		if (target === undefined) return [];
-		const results: string[] = [];
-		const now = new Date();
-		const current = now.getDay();
-		let diff = target - current;
-		if (diff <= 0) diff += 7;
-		for (let i = 0; i < count; i++) {
-			const d = new Date(now);
-			d.setDate(now.getDate() + diff + i * 7);
-			results.push(d.toISOString().split("T")[0]);
-		}
-		return results;
-	};
-
-	const formatTime = (t: string) => {
-		const [h, m] = t.split(":").map(Number);
-		const period = h >= 12 ? "PM" : "AM";
-		const hour = h % 12 || 12;
-		return `${hour}:${String(m).padStart(2, "0")} ${period}`;
-	};
-
-	const slotsByDay = slots.reduce<Record<string, MentorSlot[]>>((acc, slot) => {
-		const key = (slot.dayOfWeek || "").toLowerCase();
-		if (!acc[key]) acc[key] = [];
-		acc[key].push(slot);
-		return acc;
-	}, {});
 
 	useEffect(() => {
 		async function loadConnection() {
@@ -217,87 +158,14 @@ export default function MentorDetailPage() {
 	const btnConfig = getConnectBtnConfig(connectionStatus);
 
 	const openSlotBookingModal = () => {
-		setShowSlotsModal(true);
+		setPreselectedSlot(null);
+		setShowBookingModal(true);
 		loadSlots();
 	};
 
-	const handlePickSlot = (slot: MentorSlot) => {
-		setSelectedSlot(slot);
-		setSelectedDate(getNextDateForDay(slot.dayOfWeek));
-		setRequestMessage("");
-		setShowSlotsModal(false);
-		setShowRequestModal(true);
-	};
-
-	const handlePickAvailabilitySlot = (day: string, startTime: string, endTime: string) => {
-		// Create a pseudo-slot for availability-based booking (no formal MentorSlot record)
-		setSelectedSlot({
-			id: "__availability__",
-			dayOfWeek: day,
-			startTime: startTime,
-			endTime: endTime,
-			isActive: true,
-		});
-		setSelectedDate(getNextDateForDay(day));
-		setRequestMessage("");
-		setShowSlotsModal(false);
-		setShowRequestModal(true);
-	};
-
-	const handleSubmitBookingRequest = async () => {
-		const token = getSessionToken();
-		if (!selectedSlot || !selectedDate) return;
-
-		const isAvailabilitySlot = selectedSlot.id === "__availability__";
-		if (!isAvailabilitySlot) {
-			const uuidRegex =
-				/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-			if (!uuidRegex.test(selectedSlot.id)) {
-				toast.error(
-					"Selected slot is invalid. Please refresh and choose an available slot again.",
-				);
-				return;
-			}
-		}
-
-		setBookingSubmitting(true);
-		try {
-			const body: Record<string, string> = {
-				scheduledDate: selectedDate,
-				notes: requestMessage,
-				mentorUserId: mentor?.userId || mentorId,
-			};
-			if (isAvailabilitySlot) {
-				body.dayOfWeek = selectedSlot.dayOfWeek;
-				body.startTime = selectedSlot.startTime;
-				body.endTime = selectedSlot.endTime;
-			} else {
-				body.slotId = selectedSlot.id;
-			}
-
-			const res = await fetch("/api/mentor-bookings/", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					...(token ? { Authorization: `Bearer ${token}` } : {}),
-				},
-				body: JSON.stringify(body),
-			});
-			const payload = await res.json().catch(() => ({}));
-			if (!res.ok) {
-				throw new Error(payload.error || "Failed to send booking request");
-			}
-			setShowRequestModal(false);
-			toast.success(
-				"Booking request sent. Mentor can review and accept it from their dashboard.",
-			);
-		} catch (err) {
-			toast.error(
-				err instanceof Error ? err.message : "Failed to send booking request",
-			);
-		} finally {
-			setBookingSubmitting(false);
-		}
+	const handleSlotClickFromAvailability = (slot: MentorSlot) => {
+		setPreselectedSlot(slot);
+		setShowBookingModal(true);
 	};
 
 	if (loading) {
@@ -474,6 +342,7 @@ export default function MentorDetailPage() {
 								slots={slots}
 								slotsLoading={slotsLoading}
 								availability={mentor.availability}
+								onSlotClick={handleSlotClickFromAvailability}
 							/>
 						</div>
 
@@ -613,133 +482,22 @@ export default function MentorDetailPage() {
 					/>
 				)}
 
-				{showSlotsModal && (
-					<Modal isOpen={showSlotsModal} onClose={() => setShowSlotsModal(false)} variant="dark" title="Select an Available Slot" className="max-w-2xl max-h-[80vh] overflow-y-auto">
-						{slotsLoading ? (
-							<div className="flex items-center gap-3 py-4">
-								<div className="w-5 h-5 border-2 border-(--secondary-light) border-t-transparent rounded-full animate-spin" />
-								<p className="text-sm text-(--secondary)">Loading available slots...</p>
-							</div>
-						) : slots.length > 0 ? (
-							<div className="space-y-3">
-								{Object.entries(slotsByDay).map(([day, daySlots]) => (
-									<div
-										key={day}
-										className="rounded-xl border border-(--border-light) p-3 bg-(--surface-hover)"
-									>
-										<p className="text-sm font-semibold text-(--primary) mb-2 capitalize">
-											{day}
-										</p>
-										<div className="flex flex-wrap gap-2">
-											{daySlots.map((slot) => (
-												<button
-													key={slot.id}
-													onClick={() => handlePickSlot(slot)}
-													className="text-xs px-3 py-1.5 rounded-lg border border-(--border) text-(--primary-light) hover:text-white hover:border-violet-500/40 hover:bg-violet-500/10 transition-colors"
-												>
-													{formatTime(slot.startTime)} –{" "}
-													{formatTime(slot.endTime)}
-												</button>
-											))}
-										</div>
-									</div>
-								))}
-							</div>
-						) : mentor.availability && Object.keys(mentor.availability).length > 0 ? (
-							<div className="space-y-3">
-								<p className="text-xs text-(--secondary-light) mb-2">Available time windows for this mentor:</p>
-								{ORDERED_DAYS.filter((d) => mentor.availability?.[d]?.length).map((day) => (
-									<div key={day} className="rounded-xl border border-(--border-light) p-3 bg-(--surface-hover)">
-										<p className="text-sm font-semibold text-(--primary) mb-2">{FULL_DAY[day] || day}</p>
-										<div className="flex flex-wrap gap-2">
-											{mentor.availability![day].map((timeRange, ti) => {
-												const [start, end] = timeRange.split("-");
-												return (
-													<button
-														key={ti}
-														onClick={() => handlePickAvailabilitySlot(day, start?.trim(), end?.trim())}
-														className="text-xs px-3 py-1.5 rounded-lg border border-(--border) text-(--primary-light) hover:text-white hover:border-violet-500/40 hover:bg-violet-500/10 transition-colors"
-													>
-														{formatTime(start?.trim())} – {formatTime(end?.trim())}
-													</button>
-												);
-											})}
-										</div>
-									</div>
-								))}
-							</div>
-						) : (
-							<p className="text-sm text-(--secondary)">
-								This mentor has not published any slots yet.
-							</p>
-						)}
-					</Modal>
-				)}
-
-				{showRequestModal && selectedSlot && (
-					<Modal isOpen={showRequestModal} onClose={() => !bookingSubmitting && setShowRequestModal(false)} variant="dark" title="Request Booking" className="max-w-md">
-						<p className="text-xs text-(--secondary-light) mb-4 -mt-2">
-							{selectedSlot.dayOfWeek} · {formatTime(selectedSlot.startTime)}{" "}
-							– {formatTime(selectedSlot.endTime)}
-						</p>
-
-						<div className="space-y-3">
-							<div>
-								<label className="block text-xs font-medium text-(--secondary) mb-1">
-									Date
-								</label>
-								<select
-									value={selectedDate}
-									onChange={(e) => setSelectedDate(e.target.value)}
-									className="w-full px-3 py-2 rounded-lg bg-(--accent-subtle) border border-(--border) text-sm text-(--primary) focus:outline-none focus:border-violet-500/50"
-								>
-									{getUpcomingDatesForDay(selectedSlot.dayOfWeek).map((d) => {
-										const label = new Date(d + "T00:00:00").toLocaleDateString("en-US", {
-											weekday: "short", month: "short", day: "numeric",
-										});
-										return <option key={d} value={d}>{label}</option>;
-									})}
-								</select>
-								<p className="text-[11px] text-(--secondary-light) mt-1">
-									Only {selectedSlot.dayOfWeek.charAt(0).toUpperCase() + selectedSlot.dayOfWeek.slice(1)}s are available for this slot.
-								</p>
-							</div>
-							<div>
-								<label className="block text-xs font-medium text-(--secondary) mb-1">
-									Message to mentor
-								</label>
-								<textarea
-									rows={4}
-									value={requestMessage}
-									onChange={(e) => setRequestMessage(e.target.value)}
-									placeholder="Tell the mentor what you want to discuss..."
-									className="w-full px-3 py-2 rounded-lg bg-(--accent-subtle) border border-(--border) text-sm text-(--primary) placeholder:text-(--secondary-light) focus:outline-none focus:border-violet-500/50 resize-none"
-								/>
-							</div>
-
-
-							<div className="mt-4 flex items-center gap-2">
-								<button
-									onClick={() =>
-										!bookingSubmitting && setShowRequestModal(false)
-									}
-									className="flex-1 px-4 py-2.5 rounded-lg border border-(--border) text-sm text-(--primary-light) hover:text-(--primary)"
-									disabled={bookingSubmitting}
-								>
-									Cancel
-								</button>
-								<button
-									onClick={handleSubmitBookingRequest}
-									className="flex-1 px-4 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-sm font-medium text-white disabled:bg-violet-600/50"
-									disabled={
-										bookingSubmitting || !selectedDate || !requestMessage.trim()
-									}
-								>
-									{bookingSubmitting ? "Sending..." : "Send Request"}
-								</button>
-							</div>
-						</div>
-					</Modal>
+				{showBookingModal && (
+					<BookSessionModal
+						isOpen={showBookingModal}
+						onClose={() => {
+							setShowBookingModal(false);
+							setPreselectedSlot(null);
+						}}
+						mentorId={mentorId}
+						mentorUserId={mentor.userId ?? null}
+						mentorName={mentor.name}
+						mentorAvatar={mentor.avatar}
+						slots={slots}
+						slotsLoading={slotsLoading}
+						availability={mentor.availability}
+						preselectedSlot={preselectedSlot}
+					/>
 				)}
 			</div>
 		</div>

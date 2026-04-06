@@ -5,10 +5,25 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { getSessionToken } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const DAY_SHORT: Record<string, string> = {
+    monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed',
+    thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun',
+};
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+
+function formatTime12(t: string): string {
+    const [hStr, mStr] = t.split(':');
+    let h = parseInt(hStr, 10);
+    const m = mStr || '00';
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    if (h > 12) h -= 12;
+    if (h === 0) h = 12;
+    return `${h}:${m} ${ampm}`;
+}
 
 type Slot = {
     id: string;
@@ -30,11 +45,11 @@ type Booking = {
     notes: string | null;
 };
 
-const STATUS_COLORS: Record<string, string> = {
-    pending: 'bg-amber-500/15 text-amber-400 border border-amber-500/20',
-    confirmed: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20',
-    cancelled: 'bg-red-500/15 text-red-400 border border-red-500/20',
-    completed: 'bg-blue-500/15 text-blue-400 border border-blue-500/20',
+const STATUS_CONFIG: Record<string, { bg: string; text: string; icon: string }> = {
+    pending: { bg: 'bg-amber-500/10 border border-amber-500/20', text: 'text-amber-400', icon: 'clock' },
+    confirmed: { bg: 'bg-emerald-500/10 border border-emerald-500/20', text: 'text-emerald-400', icon: 'check-circle-2' },
+    cancelled: { bg: 'bg-red-500/10 border border-red-500/20', text: 'text-red-400', icon: 'x-circle' },
+    completed: { bg: 'bg-blue-500/10 border border-blue-500/20', text: 'text-blue-400', icon: 'award' },
 };
 
 export default function SessionsPage() {
@@ -50,7 +65,6 @@ export default function SessionsPage() {
     useEffect(() => {
         if (!token) return;
 
-        // Use allSettled so a slots fetch failure does not discard bookings data
         Promise.allSettled([
             fetch('/api/mentor-bookings', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
             fetch('/api/mentor-slots', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
@@ -63,7 +77,6 @@ export default function SessionsPage() {
             if (slotsResult.status === 'fulfilled') {
                 const slotsData = slotsResult.value.data || [];
                 setSlots(slotsData);
-                // Pre-select existing slots
                 const existing = new Set<string>();
                 for (const s of slotsData) {
                     existing.add(`${s.dayOfWeek}-${s.startTime}`);
@@ -101,12 +114,10 @@ export default function SessionsPage() {
 
     function toggleSlot(day: string, time: string) {
         const key = `${day}-${time}`;
-        // Removing is always allowed
         if (selectedSlots.has(key)) {
             setSelectedSlots(prev => { const next = new Set(prev); next.delete(key); return next; });
             return;
         }
-        // Check whether adding this slot would overlap with any already-selected slot on the same day
         const toMins = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
         const newStart = toMins(time);
         const newEnd = newStart + 60;
@@ -115,7 +126,6 @@ export default function SessionsPage() {
             const selDay = selKey.slice(0, dashIdx);
             const selTime = selKey.slice(dashIdx + 1);
             if (selDay !== day) continue;
-            // Use real end_time from DB slot if available, otherwise assume 1-hour grid slot
             const dbSlot = slots.find(s => s.dayOfWeek === selDay && s.startTime === selTime);
             const selStart = toMins(selTime);
             const selEnd = dbSlot ? toMins(dbSlot.endTime) : selStart + 60;
@@ -148,7 +158,6 @@ export default function SessionsPage() {
         }
 
         try {
-            // Delete existing slots first, then create new ones
             for (const slot of slots) {
                 await fetch('/api/mentor-slots', {
                     method: 'DELETE',
@@ -204,10 +213,12 @@ export default function SessionsPage() {
         .filter(b => b.status !== 'cancelled')
         .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
 
+    const pendingCount = bookings.filter(b => b.status === 'pending').length;
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-60">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
+                <AppIcon name="loader-2" className="w-6 h-6 animate-spin text-(--secondary)" />
             </div>
         );
     }
@@ -223,15 +234,30 @@ export default function SessionsPage() {
             <div className="flex gap-1 bg-(--surface-hover) p-1 rounded-xl w-fit">
                 <button
                     onClick={() => setTab('upcoming')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${tab === 'upcoming' ? 'bg-(--surface) shadow-sm text-(--primary)' : 'text-(--secondary) hover:text-(--primary)'}`}
+                    className={cn(
+                        'px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-2',
+                        tab === 'upcoming' ? 'bg-(--surface) shadow-sm text-(--primary)' : 'text-(--secondary) hover:text-(--primary)',
+                    )}
                 >
-                    Upcoming ({upcoming.length})
+                    Upcoming
+                    {pendingCount > 0 && (
+                        <span className="inline-flex items-center justify-center min-w-[20px] h-5 text-[10px] font-bold bg-amber-500 text-white rounded-full px-1.5">
+                            {pendingCount}
+                        </span>
+                    )}
+                    {upcoming.length > 0 && pendingCount === 0 && (
+                        <span className="text-xs text-(--secondary)">({upcoming.length})</span>
+                    )}
                 </button>
                 <button
                     onClick={() => setTab('slots')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${tab === 'slots' ? 'bg-(--surface) shadow-sm text-(--primary)' : 'text-(--secondary) hover:text-(--primary)'}`}
+                    className={cn(
+                        'px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-2',
+                        tab === 'slots' ? 'bg-(--surface) shadow-sm text-(--primary)' : 'text-(--secondary) hover:text-(--primary)',
+                    )}
                 >
                     Availability
+                    <span className="text-xs text-(--secondary)">({selectedSlots.size})</span>
                 </button>
             </div>
 
@@ -239,67 +265,122 @@ export default function SessionsPage() {
                 <div className="space-y-3">
                     {upcoming.length === 0 ? (
                         <Card className="p-8 text-center bg-(--surface)">
-                            <AppIcon name="calendar" className="w-10 h-10 text-(--secondary) mx-auto mb-3" />
-                            <h3 className="text-lg font-semibold text-(--primary)">No upcoming sessions</h3>
-                            <p className="text-sm text-(--secondary) mt-1">Set your availability in the Availability tab to start getting bookings.</p>
+                            <div className="w-14 h-14 rounded-full bg-(--accent-subtle) flex items-center justify-center mx-auto mb-3">
+                                <AppIcon name="calendar" className="w-7 h-7 text-(--secondary) opacity-40" />
+                            </div>
+                            <h3 className="text-base font-semibold text-(--primary)">No upcoming sessions</h3>
+                            <p className="text-sm text-(--secondary) mt-1 max-w-sm mx-auto">
+                                Set your availability in the Availability tab to start getting bookings from mentees.
+                            </p>
                         </Card>
                     ) : (
-                        upcoming.map(b => (
-                            <Card key={b.id} className="p-4 bg-(--surface)">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="space-y-1.5">
-                                        <p className="font-medium text-(--primary)">
-                                            {b.menteeName || 'Unknown mentee'}
-                                        </p>
-                                        <p className="text-xs text-(--secondary)">{b.menteeEmail}</p>
-                                        <div className="flex items-center gap-3 text-sm text-(--secondary)">
-                                            <span className="flex items-center gap-1"><AppIcon name="calendar" className="w-3.5 h-3.5" /> {new Date(b.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
-                                            {b.slotStart && <span className="flex items-center gap-1"><AppIcon name="clock" className="w-3.5 h-3.5" /> {b.slotStart} — {b.slotEnd}</span>}
+                        upcoming.map(b => {
+                            const cfg = STATUS_CONFIG[b.status] || STATUS_CONFIG.pending;
+                            const sched = new Date(b.scheduledDate);
+                            const isPast = sched < new Date();
+
+                            return (
+                                <Card key={b.id} className={cn('p-0 bg-(--surface) overflow-hidden', isPast && b.status === 'confirmed' && 'ring-1 ring-amber-500/20')}>
+                                    <div className="flex">
+                                        {/* Date sidebar */}
+                                        <div className="w-20 shrink-0 flex flex-col items-center justify-center py-4 bg-(--accent-subtle) border-r border-(--border)">
+                                            <span className="text-xs font-medium text-(--secondary) uppercase">
+                                                {sched.toLocaleDateString('en-US', { month: 'short' })}
+                                            </span>
+                                            <span className="text-2xl font-bold text-(--primary) leading-tight">
+                                                {sched.getDate()}
+                                            </span>
+                                            <span className="text-[10px] text-(--secondary-light)">
+                                                {sched.toLocaleDateString('en-US', { weekday: 'short' })}
+                                            </span>
                                         </div>
-                                        {b.notes && <p className="text-xs text-(--secondary) italic mt-1">&ldquo;{b.notes}&rdquo;</p>}
+
+                                        {/* Content */}
+                                        <div className="flex-1 p-4 min-w-0">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="min-w-0 space-y-1">
+                                                    <p className="font-semibold text-(--primary) truncate">
+                                                        {b.menteeName || 'Unknown mentee'}
+                                                    </p>
+                                                    {b.menteeEmail && (
+                                                        <p className="text-xs text-(--secondary) truncate">{b.menteeEmail}</p>
+                                                    )}
+                                                    {b.slotStart && (
+                                                        <p className="text-xs text-(--secondary) flex items-center gap-1.5">
+                                                            <AppIcon name="clock" className="w-3 h-3" />
+                                                            {formatTime12(b.slotStart)} – {formatTime12(b.slotEnd || '')}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                <span className={cn(
+                                                    'shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full capitalize',
+                                                    cfg.bg, cfg.text,
+                                                )}>
+                                                    <AppIcon name={cfg.icon} className="w-3 h-3" />
+                                                    {b.status}
+                                                </span>
+                                            </div>
+
+                                            {b.notes && (
+                                                <p className="text-xs text-(--secondary) mt-2 py-2 px-3 rounded-lg bg-(--accent-subtle) border border-(--border) italic line-clamp-2">
+                                                    &ldquo;{b.notes}&rdquo;
+                                                </p>
+                                            )}
+
+                                            {/* Actions */}
+                                            <div className="flex items-center gap-2 mt-3">
+                                                {b.status === 'pending' && (
+                                                    <>
+                                                        <Button onClick={() => updateBooking(b.id, 'confirmed')} className="text-xs px-3.5 py-1.5 gap-1.5">
+                                                            <AppIcon name="check" className="w-3.5 h-3.5" />
+                                                            Confirm
+                                                        </Button>
+                                                        <Button variant="ghost" onClick={() => updateBooking(b.id, 'cancelled')} className="text-xs px-3 py-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                                                            Decline
+                                                        </Button>
+                                                    </>
+                                                )}
+                                                {b.status === 'confirmed' && (
+                                                    <Button onClick={() => updateBooking(b.id, 'completed')} className="text-xs px-3.5 py-1.5 gap-1.5">
+                                                        <AppIcon name="check-check" className="w-3.5 h-3.5" />
+                                                        Mark Complete
+                                                    </Button>
+                                                )}
+                                                {isPast && b.status === 'confirmed' && (
+                                                    <span className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                                                        Past due
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2 shrink-0">
-                                        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${STATUS_COLORS[b.status] || 'bg-(--surface-hover) text-(--secondary) border border-(--border)'}`}>
-                                            {b.status}
-                                        </span>
-                                        {b.status === 'pending' && (
-                                            <>
-                                                <Button onClick={() => updateBooking(b.id, 'confirmed')} className="text-xs px-3 py-1">
-                                                    Confirm
-                                                </Button>
-                                                <Button variant="ghost" onClick={() => updateBooking(b.id, 'cancelled')} className="text-xs px-3 py-1 text-error">
-                                                    Cancel
-                                                </Button>
-                                            </>
-                                        )}
-                                        {b.status === 'confirmed' && (
-                                            <Button onClick={() => updateBooking(b.id, 'completed')} className="text-xs px-3 py-1">
-                                                Complete
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            </Card>
-                        ))
+                                </Card>
+                            );
+                        })
                     )}
                 </div>
             ) : (
-                <div className="space-y-4">
-                    <p className="text-sm text-(--secondary)">Click to toggle time slots. Selected slots are shown in accent color.</p>
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[640px] border-collapse text-sm">
+                <div className="space-y-5">
+                    <p className="text-sm text-(--secondary)">
+                        Click cells to toggle available time slots. Mentees will see these when booking.
+                    </p>
+
+                    {/* Desktop: Table Grid */}
+                    <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full border-collapse text-sm">
                             <thead>
                                 <tr>
                                     <th className="w-20 p-2 text-left text-xs text-(--secondary) font-medium">Time</th>
                                     {DAYS.map(d => (
-                                        <th key={d} className="p-2 text-center text-xs text-(--secondary) font-medium capitalize">{d.slice(0, 3)}</th>
+                                        <th key={d} className="p-2 text-center text-xs text-(--secondary) font-medium">{DAY_SHORT[d]}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
                                 {TIME_SLOTS.map(time => (
                                     <tr key={time}>
-                                        <td className="p-2 text-xs text-(--secondary) font-mono">{time}</td>
+                                        <td className="p-2 text-xs text-(--secondary) font-mono">{formatTime12(time)}</td>
                                         {DAYS.map(day => {
                                             const key = `${day}-${time}`;
                                             const selected = selectedSlots.has(key);
@@ -307,10 +388,12 @@ export default function SessionsPage() {
                                                 <td key={day} className="p-1">
                                                     <button
                                                         onClick={() => toggleSlot(day, time)}
-                                                        className={`w-full h-9 rounded-lg border transition-all duration-150 text-xs font-medium ${selected
-                                                            ? 'bg-accent/15 border-accent text-accent hover:bg-accent/25'
-                                                            : 'bg-(--surface) border-(--border) text-(--secondary) hover:bg-(--surface-hover) hover:border-(--secondary)'
-                                                            }`}
+                                                        className={cn(
+                                                            'w-full h-9 rounded-lg border transition-all duration-150 text-xs font-medium',
+                                                            selected
+                                                                ? 'bg-accent/15 border-accent text-accent hover:bg-accent/25'
+                                                                : 'bg-(--surface) border-(--border) text-(--secondary) hover:bg-(--surface-hover) hover:border-(--secondary)',
+                                                        )}
                                                     >
                                                         {selected ? <AppIcon name="check" className="w-4 h-4 mx-auto" /> : ''}
                                                     </button>
@@ -322,10 +405,63 @@ export default function SessionsPage() {
                             </tbody>
                         </table>
                     </div>
-                    <div className="flex items-center justify-between">
-                        <p className="text-xs text-(--secondary)">{selectedSlots.size} slot{selectedSlots.size !== 1 ? 's' : ''} selected</p>
-                        <Button onClick={saveSlots} disabled={savingSlots}>
-                            {savingSlots ? 'Saving…' : 'Save Availability'}
+
+                    {/* Mobile: Card Layout */}
+                    <div className="md:hidden space-y-3">
+                        {DAYS.map(day => {
+                            const daySelected = TIME_SLOTS.filter(t => selectedSlots.has(`${day}-${t}`));
+                            return (
+                                <div key={day} className="bg-(--surface) border border-(--border) rounded-xl p-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h3 className="text-sm font-semibold text-(--primary) capitalize">{day}</h3>
+                                        {daySelected.length > 0 && (
+                                            <span className="text-xs text-accent font-medium">
+                                                {daySelected.length} slot{daySelected.length !== 1 ? 's' : ''}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-1.5">
+                                        {TIME_SLOTS.map(time => {
+                                            const key = `${day}-${time}`;
+                                            const selected = selectedSlots.has(key);
+                                            return (
+                                                <button
+                                                    key={time}
+                                                    onClick={() => toggleSlot(day, time)}
+                                                    className={cn(
+                                                        'py-2 rounded-lg border text-xs font-medium transition-all',
+                                                        selected
+                                                            ? 'bg-accent/15 border-accent text-accent'
+                                                            : 'bg-(--accent-subtle) border-(--border) text-(--secondary)',
+                                                    )}
+                                                >
+                                                    {formatTime12(time).replace(' ', '\n').split('\n')[0]}
+                                                    <span className="text-[9px] ml-0.5">{time.startsWith('1') && parseInt(time) >= 12 ? 'PM' : 'AM'}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2">
+                        <p className="text-sm text-(--secondary)">
+                            <span className="font-semibold text-(--primary)">{selectedSlots.size}</span> slot{selectedSlots.size !== 1 ? 's' : ''} selected
+                        </p>
+                        <Button onClick={saveSlots} disabled={savingSlots} className="gap-2">
+                            {savingSlots ? (
+                                <>
+                                    <AppIcon name="loader-2" className="w-4 h-4 animate-spin" />
+                                    Saving…
+                                </>
+                            ) : (
+                                <>
+                                    <AppIcon name="save" className="w-4 h-4" />
+                                    Save Availability
+                                </>
+                            )}
                         </Button>
                     </div>
                 </div>
