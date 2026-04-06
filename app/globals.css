@@ -162,6 +162,10 @@
   --secondary: #9CA3AF;
   --secondary-light: #6B7280;
 
+  /* Brand — stable across themes, use for interactive fills (buttons, bubbles) */
+  --brand: #4A5BDE;
+  --brand-hover: #3A4BCF;
+
   /* Accent Colors */
   --accent: #F9FAFB;
   --accent-hover: #E5E7EB;
@@ -230,6 +234,10 @@
   --secondary: #6B7280;
   --secondary-light: #9CA3AF;
 
+  /* Brand — stable across themes, use for interactive fills (buttons, bubbles) */
+  --brand: #4A5BDE;
+  --brand-hover: #3A4BCF;
+
   /* Accent Colors */
   --accent: #111827;
   --accent-hover: #1F2937;
@@ -273,6 +281,7 @@
   --color-background: var(--background);
   --color-foreground: var(--primary);
   --color-primary: var(--primary);
+  --color-brand: var(--brand);
   --color-accent: var(--accent);
   --color-success: var(--success);
   --color-warning: var(--warning);

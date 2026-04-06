@@ -99,7 +99,7 @@ function RoomListItem({
 						{room.lastMessage ? room.lastMessage.body : 'No messages yet'}
 					</span>
 					{room.unreadCount > 0 && (
-						<span className="ml-1 shrink-0 bg-(--primary) text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+						<span className="ml-1 shrink-0 bg-(--brand) text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
 							{room.unreadCount > 9 ? '9+' : room.unreadCount}
 						</span>
 					)}
@@ -117,7 +117,7 @@ function MessageBubble({ msg, isMine }: { msg: ChatMessage; isMine: boolean }) {
 				className={cn(
 					'max-w-[70%] rounded-2xl px-4 py-2 text-sm',
 					isMine
-						? 'bg-(--primary) text-white rounded-br-sm'
+						? 'bg-(--brand) text-white rounded-br-sm'
 						: 'bg-(--accent-light) text-(--foreground) rounded-bl-sm',
 				)}
 			>
@@ -238,7 +238,7 @@ function ChatPanel({
 			</div>
 
 			{/* Messages */}
-			<div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 bg-background">
+			<div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 bg-(--surface)">
 				{messages.length === 0 && (
 					<div className="flex flex-col items-center justify-center h-full text-(--secondary) text-sm gap-2">
 						<AppIcon name="message-circle" className="w-10 h-10 opacity-30" />
@@ -274,7 +274,7 @@ function ChatPanel({
 					className={cn(
 						'w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all',
 						input.trim() && connected
-							? 'bg-(--primary) text-white hover:opacity-90'
+							? 'bg-(--brand) text-white hover:opacity-90'
 							: 'bg-(--accent-subtle) text-(--secondary-light) cursor-not-allowed',
 					)}
 				>
