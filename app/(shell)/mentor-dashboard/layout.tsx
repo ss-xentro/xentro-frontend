@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { getRoleFromSession, getUnlockedContexts } from '@/lib/auth-utils';
+import { useApiQuery, queryKeys } from '@/lib/queries';
 import CompleteProfileModal from '@/components/ui/CompleteProfileModal';
 
 interface MissingSections {
@@ -16,11 +17,6 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [showProfileModal, setShowProfileModal] = useState(false);
-    const [missingSections, setMissingSections] = useState<MissingSections>({
-        packagesAndPricing: false,
-        achievementsAndHighlights: false,
-        profilePhoto: false,
-    });
 
     useEffect(() => {
         const role = getRoleFromSession();
@@ -38,30 +34,33 @@ export default function MentorDashboardLayout({ children }: { children: React.Re
 
         setIsAuthenticated(true);
         setIsLoading(false);
-
-        // Only show profile completion modal if there are actually missing sections
-        const dismissed = sessionStorage.getItem('profile_prompt_dismissed');
-        if (dismissed) return;
-
-        fetch('/api/auth/mentor-profile')
-            .then((res) => res.ok ? res.json() : null)
-            .then((data) => {
-                if (!data || data.profile_completed) return;
-
-                const missing: MissingSections = {
-                    packagesAndPricing: !data.pricing_plans?.length && !data.pricing_per_hour,
-                    achievementsAndHighlights: !data.achievements?.length && !data.packages?.length,
-                    profilePhoto: !data.avatar,
-                };
-
-                const hasAnythingMissing = Object.values(missing).some(Boolean);
-                if (hasAnythingMissing) {
-                    setMissingSections(missing);
-                    setShowProfileModal(true);
-                }
-            })
-            .catch(() => { /* silently skip modal on fetch error */ });
     }, [router]);
+
+    // Profile completion check via TanStack Query (shared cache with profile page)
+    const profilePromptDismissed = typeof window !== 'undefined' && sessionStorage.getItem('profile_prompt_dismissed');
+    const { data: profileData } = useApiQuery<Record<string, unknown>>(
+        queryKeys.mentor.profile(),
+        '/api/auth/mentor-profile',
+        { enabled: isAuthenticated && !profilePromptDismissed, requestOptions: { role: 'mentor' } },
+    );
+
+    const missingSections = useMemo<MissingSections>(() => {
+        if (!profileData || profileData.profile_completed) {
+            return { packagesAndPricing: false, achievementsAndHighlights: false, profilePhoto: false };
+        }
+        return {
+            packagesAndPricing: !(profileData.pricing_plans as unknown[])?.length && !profileData.pricing_per_hour,
+            achievementsAndHighlights: !(profileData.achievements as unknown[])?.length && !(profileData.packages as unknown[])?.length,
+            profilePhoto: !profileData.avatar,
+        };
+    }, [profileData]);
+
+    // Show profile completion modal when missing sections are detected
+    useEffect(() => {
+        if (Object.values(missingSections).some(Boolean)) {
+            setShowProfileModal(true);
+        }
+    }, [missingSections]);
 
     if (isLoading) {
         return (

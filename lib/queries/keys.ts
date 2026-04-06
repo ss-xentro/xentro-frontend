@@ -127,6 +127,7 @@ export const queryKeys = {
 		all: ['explore'] as const,
 		mentors: (params?: Record<string, string>) => ['explore', 'mentors', params] as const,
 		mentorDetail: (id: string) => ['explore', 'mentor', id] as const,
+		mentorSlots: (userId: string) => ['explore', 'mentor-slots', userId] as const,
 		startups: (params?: Record<string, string>) => ['explore', 'startups', params] as const,
 		institutes: (params?: Record<string, string>) => ['explore', 'institutes', params] as const,
 	},

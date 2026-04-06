@@ -27,6 +27,7 @@ import { parseMentorData, getConnectBtnConfig } from "./_lib/constants";
 import type { MentorDetail, MentorSlot } from "./_lib/constants";
 import { useApiQuery } from "@/lib/queries";
 import { queryKeys } from "@/lib/queries/keys";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function MentorDetailPage() {
 	const params = useParams();
@@ -34,11 +35,10 @@ export default function MentorDetailPage() {
 	const mentorId = params.id as string;
 	const { user } = useAuth();
 	const currentUserId = user?.id ?? "";
+	const queryClient = useQueryClient();
 
 	const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
 	const [showConnectModal, setShowConnectModal] = useState(false);
-	const [slots, setSlots] = useState<MentorSlot[]>([]);
-	const [slotsLoading, setSlotsLoading] = useState(false);
 	const [activeTab, setActiveTab] = useState<"overview" | "mentoredStartups">(
 		"overview",
 	);
@@ -54,72 +54,48 @@ export default function MentorDetailPage() {
 		return found ? parseMentorData(found) : null;
 	}, [mentorRaw]);
 
-	const loadSlots = async () => {
-		const mentorUserId = mentor?.userId;
-		if (!mentorUserId) {
-			setSlots([]);
-			return;
-		}
-		setSlotsLoading(true);
-		try {
-			const token = getSessionToken();
-			const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-			const res = await fetch(`/api/mentor-slots/?mentorId=${mentorUserId}`, {
-				headers,
-			});
-			if (res?.ok) {
-				const json = await res.json();
-				const apiSlots = (json.data ?? []).filter(
-					(s: MentorSlot) => s.isActive && !!s.id,
-				);
-				setSlots(apiSlots);
-				return;
-			}
+	// ── Fetch slots via TanStack Query ──
+	const { data: slotsRaw, isLoading: slotsLoading } = useApiQuery<{ data: MentorSlot[] }>(
+		queryKeys.explore.mentorSlots(mentor?.userId ?? ''),
+		'/api/mentor-slots/',
+		{
+			enabled: !!mentor?.userId,
+			requestOptions: { params: { mentorId: mentor?.userId ?? '' } },
+		},
+	);
+	const slots = useMemo(
+		() => (slotsRaw?.data ?? []).filter((s: MentorSlot) => s.isActive && !!s.id),
+		[slotsRaw],
+	);
 
-			setSlots([]);
-		} catch (err) {
-			console.error(err);
-			setSlots([]);
-		} finally {
-			setSlotsLoading(false);
-		}
-	};
+	// ── Fetch connection status via TanStack Query ──
+	const token = typeof window !== 'undefined' ? getSessionToken() : null;
+	const { data: connectionsRaw } = useApiQuery<{ data: Array<{ mentor?: string | { id?: string }; status: string }> }>(
+		queryKeys.connections.list(),
+		'/api/mentor-connections/',
+		{ enabled: !!token },
+	);
 
-
+	// Sync connection status from query data
 	useEffect(() => {
-		async function loadConnection() {
-			const token = getSessionToken();
-			if (!token) return;
-			try {
-				const res = await fetch("/api/mentor-connections/", {
-					headers: { Authorization: `Bearer ${token}` },
-				});
-				if (!res.ok) return;
-				const json = await res.json();
-				const match = (json.data ?? []).find(
-					(r: { mentor?: string | { id?: string } }) => {
-						const mentorRef =
-							typeof r.mentor === "string"
-								? r.mentor
-								: r.mentor &&
-									typeof r.mentor === "object" &&
-									typeof r.mentor.id === "string"
-									? r.mentor.id
-									: null;
-						return mentorRef === mentorId;
-					},
-				);
-				if (match) {
-					setConnectionStatus(match.status);
-				}
-				// Always try to pre-load slots for authenticated users
-				await loadSlots();
-			} catch {
-				/* ignore */
-			}
+		if (!connectionsRaw?.data) return;
+		const match = connectionsRaw.data.find(
+			(r) => {
+				const mentorRef =
+					typeof r.mentor === "string"
+						? r.mentor
+						: r.mentor &&
+							typeof r.mentor === "object" &&
+							typeof r.mentor.id === "string"
+							? r.mentor.id
+							: null;
+				return mentorRef === mentorId;
+			},
+		);
+		if (match) {
+			setConnectionStatus(match.status);
 		}
-		loadConnection();
-	}, [mentorId, mentor?.userId]);
+	}, [connectionsRaw, mentorId]);
 
 	const handleSubmitConnection = async (message: string) => {
 		const token = getSessionToken();
@@ -150,7 +126,7 @@ export default function MentorDetailPage() {
 	const openSlotBookingModal = () => {
 		setPreselectedSlot(null);
 		setShowBookingModal(true);
-		loadSlots();
+		queryClient.invalidateQueries({ queryKey: queryKeys.explore.mentorSlots(mentor?.userId ?? '') });
 	};
 
 	const handleSlotClickFromAvailability = (slot: MentorSlot) => {
