@@ -1,57 +1,41 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { ConnectionRequest, Booking, ConnectionFilter } from './_lib/constants';
 import ConnectionsList from './_components/ConnectionsList';
 import BookingsList from './_components/BookingsList';
 
 export default function MyMentorsPage() {
-    const [connections, setConnections] = useState<ConnectionRequest[]>([]);
-    const [bookings, setBookings] = useState<Booking[]>([]);
-    const [loading, setLoading] = useState(true);
     const [tab, setTab] = useState<'connections' | 'bookings'>('connections');
     const [filter, setFilter] = useState<ConnectionFilter>('all');
-    const [cancellingId, setCancellingId] = useState<string | null>(null);
 
-    useEffect(() => { loadData(); }, []);
+    const { data: connRaw, isLoading: connLoading } = useApiQuery<{ data: ConnectionRequest[] }>(
+        queryKeys.connections.list(),
+        '/api/mentor-connections/',
+    );
+    const { data: bookRaw, isLoading: bookLoading } = useApiQuery<{ data: Booking[] }>(
+        queryKeys.bookings.list(),
+        '/api/mentor-bookings/',
+    );
 
-    async function loadData() {
-        const token = getSessionToken();
-        if (!token) return;
-        try {
-            setLoading(true);
-            const [connRes, bookRes] = await Promise.all([
-                fetch('/api/mentor-connections/', { headers: { Authorization: `Bearer ${token}` } }),
-                fetch('/api/mentor-bookings/', { headers: { Authorization: `Bearer ${token}` } }),
-            ]);
-            if (connRes.ok) { const json = await connRes.json(); setConnections(json.data ?? []); }
-            if (bookRes.ok) { const json = await bookRes.json(); setBookings(json.data ?? []); }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }
+    const connections = connRaw?.data ?? [];
+    const bookings = bookRaw?.data ?? [];
+    const loading = connLoading || bookLoading;
+
+    const cancelMutation = useApiMutation<unknown, { bookingId: string; status: string }>({
+        method: 'patch',
+        path: '/api/mentor-bookings/',
+        invalidateKeys: [queryKeys.bookings.all],
+    });
 
     async function cancelBooking(bookingId: string) {
-        const token = getSessionToken();
-        if (!token) return;
-        setCancellingId(bookingId);
-        try {
-            const res = await fetch('/api/mentor-bookings/', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ bookingId, status: 'cancelled' }),
-            });
-            if (res.ok) setBookings((prev) => prev.map((b) => (b.id === bookingId ? { ...b, status: 'cancelled' } : b)));
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setCancellingId(null);
-        }
+        cancelMutation.mutate({ bookingId, status: 'cancelled' });
     }
+
+    const cancellingId = cancelMutation.isPending ? (cancelMutation.variables as { bookingId: string } | undefined)?.bookingId ?? null : null;
 
     const pendingCount = connections.filter((c) => c.status === 'pending').length;
     const acceptedCount = connections.filter((c) => c.status === 'accepted').length;

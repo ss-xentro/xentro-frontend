@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -14,7 +14,8 @@ const RichTextEditor = dynamic(
 import { FileUpload } from '@/components/ui/FileUpload';
 import { MediaPreview } from '@/components/ui/MediaPreview';
 import { Modal } from '@/components/ui/Modal';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import DOMPurify from 'isomorphic-dompurify';
 
 interface TeamMember {
@@ -154,72 +155,64 @@ const getRoleTheme = (role: string) => {
 };
 
 export default function TeamPage() {
-    const [team, setTeam] = useState<TeamMember[]>([]);
-    const [loading, setLoading] = useState(true);
     const [inviteOpen, setInviteOpen] = useState(false);
-    const [myRole, setMyRole] = useState<string>('');
 
     // Invite Form State
     const [newMember, setNewMember] = useState<MemberFormState>(EMPTY_MEMBER_FORM);
-    const [isInviting, setIsInviting] = useState(false);
     const [inviteError, setInviteError] = useState<string | null>(null);
     const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
     const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
     const [editMember, setEditMember] = useState<MemberFormState>(EMPTY_MEMBER_FORM);
-    const [isSavingEdit, setIsSavingEdit] = useState(false);
     const [editError, setEditError] = useState<string | null>(null);
 
-    useEffect(() => {
-        fetchTeam();
-    }, []);
+    const { data: rawData, isLoading: loading } = useApiQuery<{ members?: TeamMember[]; data?: TeamMember[]; myRole?: string }>(
+        queryKeys.team.list(),
+        '/api/founder/team',
+    );
 
-    const fetchTeam = async () => {
-        try {
-            const token = getSessionToken('founder');
-            const res = await fetch('/api/founder/team', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const json = await res.json();
-            if (res.ok) {
-                setTeam(json.members || json.data || []);
-                if (json.myRole) setMyRole(json.myRole);
-            }
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const team = rawData?.members || rawData?.data || [];
+    const myRole = rawData?.myRole || '';
+
+    const inviteMutation = useApiMutation<unknown, MemberFormState>({
+        method: 'post',
+        path: '/api/founder/team',
+        invalidateKeys: [queryKeys.team.all],
+        mutationOptions: {
+            onSuccess: () => {
+                setInviteOpen(false);
+                setNewMember(EMPTY_MEMBER_FORM);
+            },
+            onError: (err) => {
+                setInviteError(err.message);
+            },
+        },
+    });
+
+    const editMutation = useApiMutation<unknown, Record<string, unknown>>({
+        method: 'patch',
+        path: (variables) => `/api/founder/team/${variables._memberId}`,
+        invalidateKeys: [queryKeys.team.all],
+        mutationOptions: {
+            onSuccess: () => {
+                setEditingMember(null);
+                setEditMember(EMPTY_MEMBER_FORM);
+            },
+            onError: (err) => {
+                setEditError(err.message);
+            },
+        },
+    });
+
+    const removeMutation = useApiMutation<unknown, { _memberId: string }>({
+        method: 'delete',
+        path: (variables) => `/api/founder/team/${variables._memberId}`,
+        invalidateKeys: [queryKeys.team.all],
+    });
 
     const handleInvite = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsInviting(true);
         setInviteError(null);
-
-        try {
-            const token = getSessionToken('founder');
-            const res = await fetch('/api/founder/team', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(newMember),
-            });
-
-            const json = await res.json();
-
-            if (!res.ok) throw new Error(json.error || json.message || 'Failed to invite');
-
-            // Success
-            setInviteOpen(false);
-            setNewMember(EMPTY_MEMBER_FORM);
-            fetchTeam(); // Refresh list
-        } catch (err: any) {
-            setInviteError(err.message);
-        } finally {
-            setIsInviting(false);
-        }
+        inviteMutation.mutate(newMember);
     };
 
     const handleStartEdit = (member: TeamMember) => {
@@ -238,51 +231,13 @@ export default function TeamPage() {
     const handleEditSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingMember) return;
-
-        setIsSavingEdit(true);
         setEditError(null);
-        try {
-            const token = getSessionToken('founder');
-            const res = await fetch(`/api/founder/team/${editingMember.id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(editMember),
-            });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.error || json.message || 'Failed to update member');
-
-            setEditingMember(null);
-            setEditMember(EMPTY_MEMBER_FORM);
-            fetchTeam();
-        } catch (err: any) {
-            setEditError(err.message);
-        } finally {
-            setIsSavingEdit(false);
-        }
+        editMutation.mutate({ _memberId: editingMember.id, ...editMember });
     };
 
     const handleRemove = async (id: string) => {
         if (!confirm('Are you sure you want to remove this member?')) return;
-
-        try {
-            const token = getSessionToken('founder');
-            const res = await fetch(`/api/founder/team/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (res.ok) {
-                fetchTeam();
-            } else {
-                const json = await res.json();
-                alert(json.error || json.message || 'Failed to remove member');
-            }
-        } catch (e) {
-            console.error(e);
-        }
+        removeMutation.mutate({ _memberId: id });
     };
 
     if (loading) return <div className="p-8 text-center text-(--secondary)">Loading team...</div>;
@@ -359,7 +314,7 @@ export default function TeamPage() {
 
                         <div className="flex justify-end gap-3">
                             <Button type="button" variant="ghost" onClick={() => setInviteOpen(false)}>Cancel</Button>
-                            <Button type="submit" isLoading={isInviting}>Add Member</Button>
+                            <Button type="submit" isLoading={inviteMutation.isPending}>Add Member</Button>
                         </div>
                     </form>
                 </Card>
@@ -520,7 +475,7 @@ export default function TeamPage() {
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit" isLoading={isSavingEdit}>Save Changes</Button>
+                            <Button type="submit" isLoading={editMutation.isPending}>Save Changes</Button>
                         </div>
                     </form>
                 </Modal>

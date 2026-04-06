@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/Card';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface ActivityLog {
     id: string;
@@ -202,27 +203,13 @@ const colorMap: Record<string, ColorTokens> = {
 /* ── Component ─────────────────────────────────────────────────── */
 
 export default function ActivityPage() {
-    const [logs, setLogs] = useState<ActivityLog[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState<string>('all');
+    const { data: rawData, isLoading: loading } = useApiQuery<{ data: ActivityLog[] }>(
+        queryKeys.activity.all,
+        '/api/founder/activity',
+    );
 
-    useEffect(() => {
-        const fetchLogs = async () => {
-            try {
-                const token = getSessionToken('founder');
-                const res = await fetch('/api/founder/activity', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const json = await res.json();
-                if (res.ok) setLogs(json.data ?? []);
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchLogs();
-    }, []);
+    const logs = rawData?.data ?? [];
+    const [filter, setFilter] = useState<string>('all');
 
     const categories = useMemo(() => {
         const cats = new Set<string>();

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { hasValidPitchContent, hasValidPitchItem } from '@/lib/utils';
-import { getSessionToken } from '@/lib/auth-utils';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -18,6 +17,8 @@ import {
 	PitchCertificationItem,
 	PitchCustomSection,
 } from '@/lib/types';
+import { useApiQuery, useApiMutation } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import { SECTIONS, WRITE_ROLES, CheckIcon, PlusIcon } from './_components/PitchHelpers';
 import type { SectionKey } from './_components/PitchHelpers';
 import PitchSectionContent from './_components/PitchSectionContent';

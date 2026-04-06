@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { getSessionToken } from '@/lib/auth-utils';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 import type { DashboardData } from './_components/types';
 import { StartupInfoCard } from './_components/StartupInfoCard';
 import { DashboardAnalyticsBento } from './_components/DashboardAnalyticsBento';
@@ -13,41 +14,16 @@ import { StartupProfileCompletionBanner } from './_components/StartupProfileComp
 const WRITE_ROLES = new Set(['founder', 'co_founder', 'ceo', 'cto', 'coo', 'cfo', 'cpo']);
 
 export default function DashboardOverviewPage() {
-    const [data, setData] = useState<DashboardData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [windowDays, setWindowDays] = useState<7 | 30 | 90>(30);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const token = getSessionToken('founder');
-                if (!token) return; // Layout handles redirect
+    const { data: rawData, isLoading: loading, error: queryError } = useApiQuery<{ data: DashboardData }>(
+        queryKeys.dashboard.stats(windowDays),
+        '/api/founder/my-startup',
+        { requestOptions: { params: { windowDays } } },
+    );
 
-                const res = await fetch(`/api/founder/my-startup?windowDays=${windowDays}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!res.ok) {
-                    throw new Error('Failed to load dashboard data');
-                }
-
-                const json = await res.json();
-                setData(json.data ?? null);
-            } catch (err) {
-                console.error(err);
-                setError('Failed to load startup data');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [windowDays]);
+    const data = rawData?.data ?? null;
+    const error = queryError ? 'Failed to load startup data' : null;
 
     if (loading) {
         return (
