@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { getSessionToken } from '@/lib/auth-utils';
 import { useNotifications, WsNotification } from '@/lib/useNotifications';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { useApiQuery, useApiMutation, queryKeys } from '@/lib/queries';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Notification {
   id: string;
@@ -19,96 +20,102 @@ interface Notification {
   createdAt: string;
 }
 
-export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'unread'>('all');
+interface NotificationsResponse {
+  notifications: Notification[];
+  unreadCount: number;
+}
 
-  // Real-time WebSocket notifications
+export default function NotificationsPage() {
+  const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const queryClient = useQueryClient();
+
+  // ── Fetch notifications via TanStack Query ──
+  const { data, isLoading: loading, error: queryError } = useApiQuery<NotificationsResponse>(
+    queryKeys.notifications.list(filter),
+    `/api/notifications`,
+    {
+      requestOptions: {
+        params: {
+          limit: 50,
+          ...(filter === 'unread' ? { unreadOnly: 'true' } : {}),
+        },
+      },
+    },
+  );
+
+  const notifications = data?.notifications ?? [];
+  const unreadCount = data?.unreadCount ?? 0;
+  const error = queryError?.message ?? null;
+
+  // ── Real-time WebSocket notifications ──
   const handleWsNotification = useCallback((n: WsNotification) => {
-    const mapped: Notification = {
-      id: n.id || crypto.randomUUID(),
-      type: n.type,
-      title: n.title,
-      message: n.body,
-      entityType: n.entityType,
-      entityId: n.entityId,
-      actionUrl: n.actionUrl,
-      isRead: false,
-      createdAt: new Date().toISOString(),
-    };
-    setNotifications((prev) => [mapped, ...prev]);
-    setUnreadCount((prev) => prev + 1);
-  }, []);
+    // Optimistically prepend the new notification to cache
+    queryClient.setQueriesData<NotificationsResponse>(
+      { queryKey: queryKeys.notifications.all },
+      (old) => {
+        if (!old) return old;
+        const mapped: Notification = {
+          id: n.id || crypto.randomUUID(),
+          type: n.type,
+          title: n.title,
+          message: n.body,
+          entityType: n.entityType,
+          entityId: n.entityId,
+          actionUrl: n.actionUrl,
+          isRead: false,
+          createdAt: new Date().toISOString(),
+        };
+        return {
+          notifications: [mapped, ...old.notifications],
+          unreadCount: old.unreadCount + 1,
+        };
+      },
+    );
+  }, [queryClient]);
 
   const { connected } = useNotifications({ onNotification: handleWsNotification });
 
-  useEffect(() => {
-    fetchNotifications();
-  }, [filter]);
+  // ── Mutations ──
+  const markAsReadMutation = useApiMutation<unknown, string>({
+    method: 'put',
+    path: (id) => `/api/notifications/${id}`,
+    invalidateKeys: [queryKeys.notifications.all],
+  });
 
-  const fetchNotifications = async () => {
-    const token = getSessionToken();
-    if (!token) {
-      setError('Please login to view notifications');
-      setLoading(false);
-      return;
-    }
+  const markAllAsReadMutation = useApiMutation<unknown, void>({
+    method: 'post',
+    path: '/api/notifications/read-all',
+    invalidateKeys: [queryKeys.notifications.all],
+  });
 
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      params.set('limit', '50');
-      if (filter === 'unread') params.set('unreadOnly', 'true');
-
-      const res = await fetch(`/api/notifications?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Failed to fetch');
-      const data = await res.json();
-      setNotifications(data.notifications || []);
-      setUnreadCount(data.unreadCount || 0);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load notifications');
-    } finally {
-      setLoading(false);
-    }
+  const markAsRead = (id: string) => {
+    // Optimistic update
+    queryClient.setQueriesData<NotificationsResponse>(
+      { queryKey: queryKeys.notifications.all },
+      (old) => {
+        if (!old) return old;
+        return {
+          notifications: old.notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
+          unreadCount: Math.max(0, old.unreadCount - 1),
+        };
+      },
+    );
+    markAsReadMutation.mutate(id);
   };
 
-  const markAsRead = async (id: string) => {
-    const token = getSessionToken();
-    if (!token) return;
-
-    try {
-      await fetch(`/api/notifications/${id}`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (err) {
-      console.error('Failed to mark as read:', err);
-    }
-  };
-
-  const markAllAsRead = async () => {
-    const token = getSessionToken();
-    if (!token) return;
-
-    try {
-      await fetch('/api/notifications/read-all', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-      setUnreadCount(0);
-    } catch (err) {
-      console.error('Failed to mark all as read:', err);
-    }
+  const markAllAsRead = () => {
+    // Optimistic update
+    queryClient.setQueriesData<NotificationsResponse>(
+      { queryKey: queryKeys.notifications.all },
+      (old) => {
+        if (!old) return old;
+        return {
+          notifications: old.notifications.map((n) => ({ ...n, isRead: true })),
+          unreadCount: 0,
+        };
+      },
+    );
+    markAllAsReadMutation.mutate(undefined as void);
   };
 
   const getNotificationIcon = (type: string) => {
@@ -225,7 +232,7 @@ export default function NotificationsPage() {
           <div className="bg-(--surface) border border-(--border) rounded-2xl p-8 text-center">
             <p className="text-red-400 mb-4">{error}</p>
             <button
-              onClick={fetchNotifications}
+              onClick={() => queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all })}
               className="px-4 py-2 bg-(--surface-hover) hover:bg-(--surface) text-(--primary) text-sm rounded-xl transition-colors"
             >
               Try Again

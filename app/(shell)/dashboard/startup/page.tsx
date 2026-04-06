@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -9,10 +9,10 @@ import { Select } from '@/components/ui/Select';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { Badge } from '@/components/ui/Badge';
 import { MediaPreview } from '@/components/ui/MediaPreview';
-import { getSessionToken } from '@/lib/auth-utils';
 import { currencies } from '@/lib/types';
 import { getCurrencySymbol } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useApiQuery, useApiMutation, queryKeys } from '@/lib/queries';
 
 // Reusing options from onboarding (should be shared constants)
 const stages = [
@@ -43,16 +43,76 @@ const WRITE_ROLES = new Set(['founder', 'co_founder', 'ceo', 'cto', 'coo', 'cfo'
 
 export default function StartupSettingsPage() {
     const [activeTab, setActiveTab] = useState<'details' | 'funding'>('details');
-    const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [isLogoUploading, setIsLogoUploading] = useState(false);
     const [isCoverUploading, setIsCoverUploading] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
-    const [data, setData] = useState<any>(null);
-    const [myRole, setMyRole] = useState<string>('');
+    const [formData, setFormData] = useState<any>(null);
 
+    // ── Fetch startup data via TanStack Query ──
+    const { data: queryData, isLoading } = useApiQuery<any>(
+        queryKeys.startup.mine(),
+        '/api/founder/my-startup',
+        { refetchOnWindowFocus: true },
+    );
+
+    const data = formData ?? queryData?.data?.startup ?? null;
+    const myRole: string = queryData?.data?.founderRole ?? '';
     const canEdit = WRITE_ROLES.has(myRole);
     const hasPendingUploads = isLogoUploading || isCoverUploading;
+
+    // Sync query data into form state when not editing
+    // (keeps form fresh when query refetches in background)
+    const startupId = queryData?.data?.startup?.id;
+    const queryUpdatedAt = queryData?.data?.startup?.updatedAt;
+
+    // When query data arrives or refreshes (and we're not editing), sync to form
+    if (!isEditMode && queryData?.data?.startup && formData !== null) {
+        // Only clear formData so we use query data directly
+        setFormData(null);
+    }
+
+    // ── Mutation: save startup ──
+    const updateMutation = useApiMutation<any, any>({
+        method: 'patch',
+        path: data?.id ? `/api/founder/startups/${data.id}` : '/api/founder/my-startup',
+        invalidateKeys: [queryKeys.startup.all],
+        mutationOptions: {
+            onSuccess: () => {
+                toast.success('Changes saved successfully.');
+                setIsEditMode(false);
+                setFormData(null);
+            },
+            onError: () => {
+                toast.error('Failed to save changes.');
+            },
+        },
+    });
+
+    const handleUpdate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (hasPendingUploads) {
+            toast.error('Please wait for image uploads to finish before saving.');
+            return;
+        }
+        if (!data) return;
+        updateMutation.mutate(data);
+    };
+
+    // When entering edit mode, snapshot query data into formData
+    const enterEditMode = () => {
+        setFormData({ ...queryData?.data?.startup });
+        setIsEditMode(true);
+    };
+
+    // Proxy setData calls to setFormData
+    const setData = (valOrFn: any) => {
+        if (typeof valOrFn === 'function') {
+            setFormData((prev: any) => valOrFn(prev ?? queryData?.data?.startup));
+        } else {
+            setFormData(valOrFn);
+        }
+    };
 
     const stageLabel = stages.find((item) => item.value === data?.stage)?.label || 'Not set';
     const statusLabel = statuses.find((item) => item.value === data?.status)?.label || 'Not set';
@@ -63,70 +123,6 @@ export default function StartupSettingsPage() {
         const d = new Date(value);
         if (Number.isNaN(d.getTime())) return 'Not set';
         return d.toLocaleDateString();
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
-        try {
-            const token = getSessionToken('founder');
-            if (!token) return;
-
-            const res = await fetch('/api/founder/my-startup', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const json = await res.json();
-
-            if (res.ok) {
-                setData(json.data?.startup ?? null);
-                if (json.data?.founderRole) setMyRole(json.data.founderRole);
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleUpdate = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (hasPendingUploads) {
-            toast.error('Please wait for image uploads to finish before saving.');
-            return;
-        }
-        setIsSaving(true);
-
-        try {
-            const token = getSessionToken('founder');
-            const res = await fetch(`/api/founder/startups/${data.id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(data),
-            });
-
-            const json = await res.json().catch(() => null);
-
-            if (!res.ok) throw new Error('Failed to update');
-
-            if (json) {
-                setData(json);
-            }
-
-            toast.success('Changes saved successfully.');
-            setIsEditMode(false);
-
-            // Update local storage if name/logo changed? Optional.
-
-        } catch (err) {
-            toast.error('Failed to save changes.');
-        } finally {
-            setIsSaving(false);
-        }
     };
 
     if (isLoading) return <div className="p-8 text-center text-(--secondary)">Loading...</div>;
@@ -148,7 +144,7 @@ export default function StartupSettingsPage() {
                                 Cancel
                             </Button>
                         )}
-                        <Button onClick={isEditMode ? handleUpdate : () => setIsEditMode(true)} isLoading={isSaving} disabled={isEditMode && hasPendingUploads}>
+                        <Button onClick={isEditMode ? handleUpdate : enterEditMode} isLoading={updateMutation.isPending} disabled={isEditMode && hasPendingUploads}>
                             {isEditMode ? 'Save Changes' : 'Edit Startup'}
                         </Button>
                     </div>

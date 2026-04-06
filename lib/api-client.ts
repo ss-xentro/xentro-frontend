@@ -19,7 +19,7 @@ export class ApiError extends Error {
 	}
 }
 
-interface RequestOptions extends Omit<RequestInit, 'body'> {
+export interface RequestOptions extends Omit<RequestInit, 'body'> {
 	/** Override the role hint passed to getSessionToken */
 	role?: string;
 	/** Skip auth header (for public endpoints) */
@@ -181,19 +181,27 @@ export const api = {
 	},
 
 	post<T = unknown>(path: string, options?: RequestOptions) {
-		return request<T>(path, { ...options, method: 'POST' });
+		const result = request<T>(path, { ...options, method: 'POST' });
+		result.then(() => invalidateCache()).catch(() => { });
+		return result;
 	},
 
 	put<T = unknown>(path: string, options?: RequestOptions) {
-		return request<T>(path, { ...options, method: 'PUT' });
+		const result = request<T>(path, { ...options, method: 'PUT' });
+		result.then(() => invalidateCache()).catch(() => { });
+		return result;
 	},
 
 	patch<T = unknown>(path: string, options?: RequestOptions) {
-		return request<T>(path, { ...options, method: 'PATCH' });
+		const result = request<T>(path, { ...options, method: 'PATCH' });
+		result.then(() => invalidateCache()).catch(() => { });
+		return result;
 	},
 
 	delete<T = unknown>(path: string, options?: RequestOptions) {
-		return request<T>(path, { ...options, method: 'DELETE' });
+		const result = request<T>(path, { ...options, method: 'DELETE' });
+		result.then(() => invalidateCache()).catch(() => { });
+		return result;
 	},
 };
 

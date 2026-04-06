@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { InstitutionApplication, OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFocus, Institution, LegalDocument, operatingModeLabels, sdgLabels, sectorLabels } from '@/lib/types';
 import { getSessionToken, syncAuthCookie, setRoleToken, setTokenCookie } from '@/lib/auth-utils';
 import { toast } from 'sonner';
+import { useApiQuery, queryKeys } from '@/lib/queries';
 import OnboardingWizard from './_components/OnboardingWizard';
 import ApprovedDashboard from './_components/ApprovedDashboard';
 import PendingApplicationView from './_components/PendingApplicationView';
@@ -105,7 +106,6 @@ export default function InstitutionDashboardPage() {
   const [application, setApplication] = useState<InstitutionApplication | null>(null);
   const [institution, setInstitution] = useState<Institution | null>(null);
   const [stats, setStats] = useState<DashboardStats>({ programsCount: 0, teamCount: 0, startupsCount: 0, profileViews: 0 });
-  const [loading, setLoading] = useState(false);
 
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
@@ -163,115 +163,118 @@ export default function InstitutionDashboardPage() {
     }
   }, [searchParams, router]);
 
+  // ── Fetch applications via TanStack Query ──
+  const hasToken = Boolean(getSessionToken('institution'));
+  const { data: appsPayload, isLoading: appsLoading } = useApiQuery<any>(
+    queryKeys.institution.applications(),
+    '/api/institution-applications',
+    {
+      enabled: hasToken && !searchParams.get('token'),
+      requestOptions: { role: 'institution' },
+    },
+  );
+
+  // Derive application from query data
+  const latestApp = (() => {
+    if (!appsPayload) return null;
+    const apps = ((appsPayload.data ?? []) as RawInstitutionApplication[]).map(normalizeApplication);
+    return pickLatestApplication(apps);
+  })();
+
+  // Sync application + formData when query data changes
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const token = getSessionToken('institution');
-        if (!token) {
-          router.push('/institution-login');
-          return;
-        }
+    if (!latestApp) return;
+    setApplication(latestApp);
 
-        const res = await fetch('/api/institution-applications', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!res.ok) {
-          const error = await res.json().catch(() => ({ message: 'Failed to load your application' }));
-          throw new Error(error.message || 'Failed to load your application');
-        }
-        const payload = await res.json();
-        const apps = ((payload.data ?? []) as RawInstitutionApplication[]).map(normalizeApplication);
-        const latest = pickLatestApplication(apps);
-        setApplication(latest);
-
-        if (latest) {
-          const normalizeOperatingMode = (mode: string | null | undefined): OperatingMode | null => {
-            if (!mode) return null;
-            const modeLower = mode.toLowerCase();
-            const validKeys = Object.keys(operatingModeLabels) as OperatingMode[];
-            if (validKeys.includes(modeLower as OperatingMode)) return modeLower as OperatingMode;
-            return null;
-          };
-
-          const normalizeSDG = (sdgs: string[] | null | undefined): SDGFocus[] => {
-            if (!Array.isArray(sdgs)) return [];
-            return sdgs.map(sdgLabel => {
-              if (Object.keys(sdgLabels).includes(sdgLabel)) return sdgLabel as SDGFocus;
-              const entry = Object.entries(sdgLabels).find(([, value]) => value.fullName.toLowerCase() === sdgLabel.toLowerCase());
-              return entry ? (entry[0] as SDGFocus) : null;
-            }).filter(Boolean) as SDGFocus[];
-          };
-
-          const normalizeSector = (sectors: string[] | null | undefined): SectorFocus[] => {
-            if (!Array.isArray(sectors)) return [];
-            return sectors.map(sectorLabel => {
-              if (Object.keys(sectorLabels).includes(sectorLabel)) return sectorLabel as SectorFocus;
-              const entry = Object.entries(sectorLabels).find(([, value]) => value.label.toLowerCase() === sectorLabel.toLowerCase() || sectorLabel.toLowerCase() === value.label.toLowerCase().replace(' & ', ''));
-              return entry ? (entry[0] as SectorFocus) : (sectorLabel.toLowerCase().replace(/ & /g, '').replace(/ /g, '-') as SectorFocus);
-            }).filter(s => Object.keys(sectorLabels).includes(s)) as SectorFocus[];
-          };
-
-          setFormData({
-            type: latest.type as InstitutionType,
-            name: latest.name,
-            tagline: latest.tagline ?? '',
-            city: latest.city ?? '',
-            country: latest.country ?? '',
-            countryCode: latest.countryCode ?? '',
-            operatingMode: normalizeOperatingMode(latest.operatingMode as string),
-            startupsSupported: latest.startupsSupported ?? 0,
-            studentsMentored: latest.studentsMentored ?? 0,
-            fundingFacilitated: Number(latest.fundingFacilitated ?? 0),
-            fundingCurrency: latest.fundingCurrency ?? 'USD',
-            sdgFocus: normalizeSDG(latest.sdgFocus as string[]),
-            sectorFocus: normalizeSector(latest.sectorFocus as string[]),
-            logo: latest.logo ?? null,
-            website: latest.website ?? '',
-            linkedin: latest.linkedin ?? '',
-            email: latest.email ?? '',
-            phone: latest.phone ?? '',
-            description: latest.description ?? '',
-            legalDocuments: normalizeLegalDocs(latest.legalDocuments),
-          });
-
-          const token = getSessionToken('institution');
-          const canLoadDashboardData = Boolean(latest.institutionId) || latest.status === 'approved';
-          if (token && canLoadDashboardData) {
-            const [startupsRes, teamRes, programsRes, instRes] = await Promise.all([
-              fetch('/api/startups', { headers: { 'Authorization': `Bearer ${token}` } }),
-              fetch('/api/institution-team', { headers: { 'Authorization': `Bearer ${token}` } }),
-              fetch('/api/programs', { headers: { 'Authorization': `Bearer ${token}` } }),
-              fetch('/api/auth/me/', { headers: { 'Authorization': `Bearer ${token}` } }),
-            ]);
-
-            const startups = startupsRes.ok ? await startupsRes.json() : { data: [] };
-            const team = teamRes.ok ? await teamRes.json() : { data: [] };
-            const programs = programsRes.ok ? await programsRes.json() : { data: [] };
-            const inst = instRes.ok ? await instRes.json() : { institution: null };
-
-            setStats({
-              startupsCount: startups.data?.length || 0,
-              teamCount: team.data?.length || 0,
-              programsCount: programs.data?.length || 0,
-              profileViews: inst.institution?.profileViews || 0,
-            });
-
-            if (inst.institution) {
-              setInstitution(inst.institution);
-            }
-          }
-        }
-      } catch (err) {
-        toast.error((err as Error).message);
-      } finally {
-        setLoading(false);
-      }
+    const normalizeOperatingMode = (mode: string | null | undefined): OperatingMode | null => {
+      if (!mode) return null;
+      const modeLower = mode.toLowerCase();
+      const validKeys = Object.keys(operatingModeLabels) as OperatingMode[];
+      if (validKeys.includes(modeLower as OperatingMode)) return modeLower as OperatingMode;
+      return null;
     };
 
-    load();
-  }, []);
+    const normalizeSDG = (sdgs: string[] | null | undefined): SDGFocus[] => {
+      if (!Array.isArray(sdgs)) return [];
+      return sdgs.map(sdgLabel => {
+        if (Object.keys(sdgLabels).includes(sdgLabel)) return sdgLabel as SDGFocus;
+        const entry = Object.entries(sdgLabels).find(([, value]) => value.fullName.toLowerCase() === sdgLabel.toLowerCase());
+        return entry ? (entry[0] as SDGFocus) : null;
+      }).filter(Boolean) as SDGFocus[];
+    };
+
+    const normalizeSector = (sectors: string[] | null | undefined): SectorFocus[] => {
+      if (!Array.isArray(sectors)) return [];
+      return sectors.map(sectorLabel => {
+        if (Object.keys(sectorLabels).includes(sectorLabel)) return sectorLabel as SectorFocus;
+        const entry = Object.entries(sectorLabels).find(([, value]) => value.label.toLowerCase() === sectorLabel.toLowerCase() || sectorLabel.toLowerCase() === value.label.toLowerCase().replace(' & ', ''));
+        return entry ? (entry[0] as SectorFocus) : (sectorLabel.toLowerCase().replace(/ & /g, '').replace(/ /g, '-') as SectorFocus);
+      }).filter(s => Object.keys(sectorLabels).includes(s)) as SectorFocus[];
+    };
+
+    setFormData({
+      type: latestApp.type as InstitutionType,
+      name: latestApp.name,
+      tagline: latestApp.tagline ?? '',
+      city: latestApp.city ?? '',
+      country: latestApp.country ?? '',
+      countryCode: latestApp.countryCode ?? '',
+      operatingMode: normalizeOperatingMode(latestApp.operatingMode as string),
+      startupsSupported: latestApp.startupsSupported ?? 0,
+      studentsMentored: latestApp.studentsMentored ?? 0,
+      fundingFacilitated: Number(latestApp.fundingFacilitated ?? 0),
+      fundingCurrency: latestApp.fundingCurrency ?? 'USD',
+      sdgFocus: normalizeSDG(latestApp.sdgFocus as string[]),
+      sectorFocus: normalizeSector(latestApp.sectorFocus as string[]),
+      logo: latestApp.logo ?? null,
+      website: latestApp.website ?? '',
+      linkedin: latestApp.linkedin ?? '',
+      email: latestApp.email ?? '',
+      phone: latestApp.phone ?? '',
+      description: latestApp.description ?? '',
+      legalDocuments: normalizeLegalDocs(latestApp.legalDocuments),
+    });
+  }, [latestApp?.id, latestApp?.updatedAt]);
+
+  // ── Fetch dashboard stats (dependent on application) ──
+  const canLoadDashboardData = Boolean(latestApp?.institutionId) || latestApp?.status === 'approved';
+
+  const { data: startupsData } = useApiQuery<any>(
+    [...queryKeys.institution.startups(), 'stats'],
+    '/api/startups',
+    { enabled: hasToken && canLoadDashboardData, requestOptions: { role: 'institution' } },
+  );
+  const { data: teamData } = useApiQuery<any>(
+    [...queryKeys.institution.team(), 'stats'],
+    '/api/institution-team',
+    { enabled: hasToken && canLoadDashboardData, requestOptions: { role: 'institution' } },
+  );
+  const { data: programsData } = useApiQuery<any>(
+    [...queryKeys.institution.programs(), 'stats'],
+    '/api/programs',
+    { enabled: hasToken && canLoadDashboardData, requestOptions: { role: 'institution' } },
+  );
+  const { data: meData } = useApiQuery<any>(
+    queryKeys.auth.me(),
+    '/api/auth/me/',
+    { enabled: hasToken && canLoadDashboardData, requestOptions: { role: 'institution' } },
+  );
+
+  // Sync stats + institution from parallel queries
+  useEffect(() => {
+    if (!canLoadDashboardData) return;
+
+    setStats({
+      startupsCount: startupsData?.data?.length || 0,
+      teamCount: teamData?.data?.length || 0,
+      programsCount: programsData?.data?.length || 0,
+      profileViews: meData?.institution?.profileViews || 0,
+    });
+
+    if (meData?.institution) {
+      setInstitution(meData.institution);
+    }
+  }, [canLoadDashboardData, startupsData, teamData, programsData, meData]);
 
   // ── Render: Onboarding wizard ──
   if (showOnboarding && application) {
@@ -303,7 +306,7 @@ export default function InstitutionDashboardPage() {
   return (
     <PendingApplicationView
       application={application}
-      loading={loading}
+      loading={appsLoading}
       onStartOnboarding={() => setShowOnboarding(true)}
     />
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card } from "@/components/ui/Card";
@@ -9,6 +9,7 @@ import { getSessionToken } from "@/lib/auth-utils";
 import { toast } from "sonner";
 import { BackButton } from "@/components/ui/BackButton";
 import { FormSkeleton } from "@/components/ui/PageSkeleton";
+import { useApiQuery, useApiMutation, queryKeys } from "@/lib/queries";
 import {
 	SlotEntry,
 	DocumentEntry,
@@ -36,8 +37,6 @@ import {
 export default function MentorProfilePage() {
 	const router = useRouter();
 	const { user, setSession, token: authToken } = useAuth();
-	const [loading, setLoading] = useState(true);
-	const [saving, setSaving] = useState(false);
 	const [isEditMode, setIsEditMode] = useState(false);
 
 	// Photo state (uploaded immediately, saved with form submit)
@@ -66,6 +65,7 @@ export default function MentorProfilePage() {
 	const [honorsAwards, setHonorsAwards] = useState<HonorsAwardEntry[]>([]);
 
 	const [profileData, setProfileData] = useState<ProfileData | null>(null);
+	const [formSeeded, setFormSeeded] = useState(false);
 
 	const getContentLength = (value: string) =>
 		value
@@ -102,61 +102,51 @@ export default function MentorProfilePage() {
 		return [];
 	};
 
-	const fetchProfile = useCallback(async () => {
-		const token = getSessionToken("mentor");
-		if (!token) {
-			router.replace("/login");
-			return;
-		}
+	// ── Fetch profile via TanStack Query ──
+	const { data: fetchedProfile, isLoading: loading } = useApiQuery<ProfileData>(
+		queryKeys.mentor.profile(),
+		"/api/auth/mentor-profile",
+		{
+			requestOptions: { role: "mentor" },
+		},
+	);
 
-		try {
-			const res = await fetch("/api/auth/mentor-profile", {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (!res.ok) throw new Error("Failed to load profile");
-			const data = await res.json();
-			setProfileData(data);
-
-			// Pre-fill form fields
-			setAchievements(parseRichList(data.achievements));
-			setHighlights(parseRichList(data.packages));
-			if (Array.isArray(data.pricing_plans) && data.pricing_plans.length > 0) {
-				setPricingPlans(data.pricing_plans);
-			}
-			if (data.user_name) setName(data.user_name);
-			if (data.avatar) setAvatar(data.avatar);
-			if (data.cover_photo) setCoverPhoto(data.cover_photo);
-			if (data.about) setAbout(data.about);
-			if (Array.isArray(data.experience)) setExperience(data.experience);
-			if (Array.isArray(data.education)) setEducation(data.education);
-			if (Array.isArray(data.certifications)) setCertifications(data.certifications);
-			if (Array.isArray(data.skills)) setSkillsList(data.skills);
-			if (Array.isArray(data.honors_awards)) setHonorsAwards(data.honors_awards);
-			if (
-				data.documents &&
-				Array.isArray(data.documents) &&
-				data.documents.length > 0
-			) {
-				setDocuments(data.documents);
-			}
-			if (data.availability) {
-				try {
-					const parsed = JSON.parse(data.availability);
-					if (Array.isArray(parsed) && parsed.length > 0) setSlots(parsed);
-				} catch {
-					// availability might be plain text
-				}
-			}
-		} catch {
-			toast.error("Could not load your profile. Please try again.");
-		} finally {
-			setLoading(false);
-		}
-	}, [router]);
-
+	// Seed form fields from fetched data (once, or when query refreshes and not editing)
 	useEffect(() => {
-		fetchProfile();
-	}, [fetchProfile]);
+		if (!fetchedProfile || (formSeeded && isEditMode)) return;
+		const data = fetchedProfile;
+		setProfileData(data);
+		setAchievements(parseRichList(data.achievements));
+		setHighlights(parseRichList(data.packages));
+		if (Array.isArray(data.pricing_plans) && data.pricing_plans.length > 0) {
+			setPricingPlans(data.pricing_plans);
+		}
+		if (data.user_name) setName(data.user_name);
+		if (data.avatar) setAvatar(data.avatar);
+		if (data.cover_photo) setCoverPhoto(data.cover_photo);
+		if (data.about) setAbout(data.about);
+		if (Array.isArray(data.experience)) setExperience(data.experience);
+		if (Array.isArray(data.education)) setEducation(data.education);
+		if (Array.isArray(data.certifications)) setCertifications(data.certifications);
+		if (Array.isArray(data.skills)) setSkillsList(data.skills);
+		if (Array.isArray(data.honors_awards)) setHonorsAwards(data.honors_awards);
+		if (
+			data.documents &&
+			Array.isArray(data.documents) &&
+			data.documents.length > 0
+		) {
+			setDocuments(data.documents);
+		}
+		if (data.availability) {
+			try {
+				const parsed = JSON.parse(data.availability);
+				if (Array.isArray(parsed) && parsed.length > 0) setSlots(parsed);
+			} catch {
+				// availability might be plain text
+			}
+		}
+		setFormSeeded(true);
+	}, [fetchedProfile, isEditMode]);
 
 	// -- Slot management --
 	const addSlot = (slot: SlotEntry) => {
@@ -320,7 +310,29 @@ export default function MentorProfilePage() {
 	};
 
 	// -- Submit --
-	const handleSubmit = async () => {
+	const saveMutation = useApiMutation<ProfileData, Record<string, unknown>>({
+		method: "put",
+		path: "/api/auth/mentor-profile",
+		invalidateKeys: [queryKeys.mentor.profile()],
+		requestOptions: { role: "mentor" },
+		mutationOptions: {
+			onSuccess: (data) => {
+				setProfileData(data);
+				toast.success("Profile updated successfully!");
+				setIsEditMode(false);
+				setFormSeeded(false); // Allow re-seed from fresh data
+				if (user && authToken) {
+					setSession({ ...user, name, avatar }, authToken);
+				}
+				window.scrollTo({ top: 0, behavior: "smooth" });
+			},
+			onError: (err) => {
+				toast.error(err.message);
+			},
+		},
+	});
+
+	const handleSubmit = () => {
 		if (achievements.length === 0) {
 			toast.error("Please add at least one achievement");
 			return;
@@ -338,58 +350,22 @@ export default function MentorProfilePage() {
 			return;
 		}
 
-		setSaving(true);
-
-		const token = getSessionToken("mentor");
-		if (!token) {
-			router.replace("/login");
-			return;
-		}
-
-		try {
-			const res = await fetch("/api/auth/mentor-profile", {
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({
-					achievements: achievements,
-					packages: highlights,
-					availability: JSON.stringify(slots),
-					pricing_plans: pricingPlans,
-					documents,
-					avatar,
-					cover_photo: coverPhoto,
-					name,
-					about,
-					experience,
-					education,
-					certifications,
-					skills: skillsList,
-					honors_awards: honorsAwards,
-				}),
-			});
-
-			if (!res.ok) {
-				const payload = await res.json().catch(() => ({}));
-				throw new Error(payload.error || "Failed to update profile");
-			}
-
-			const data = await res.json();
-			setProfileData(data);
-			toast.success("Profile updated successfully!");
-			setIsEditMode(false);
-			// Sync updated name/avatar into the auth session so the sidebar reflects changes
-			if (user && authToken) {
-				setSession({ ...user, name, avatar }, authToken);
-			}
-			window.scrollTo({ top: 0, behavior: "smooth" });
-		} catch (err) {
-			toast.error((err as Error).message);
-		} finally {
-			setSaving(false);
-		}
+		saveMutation.mutate({
+			achievements,
+			packages: highlights,
+			availability: JSON.stringify(slots),
+			pricing_plans: pricingPlans,
+			documents,
+			avatar,
+			cover_photo: coverPhoto,
+			name,
+			about,
+			experience,
+			education,
+			certifications,
+			skills: skillsList,
+			honors_awards: honorsAwards,
+		});
 	};
 
 	if (loading) {
@@ -780,7 +756,7 @@ export default function MentorProfilePage() {
 									variant="secondary"
 									size="lg"
 									onClick={() => setIsEditMode(false)}
-									disabled={saving}
+									disabled={saveMutation.isPending}
 								>
 									Cancel
 								</Button>
@@ -789,10 +765,10 @@ export default function MentorProfilePage() {
 								variant="primary"
 								size="lg"
 								onClick={handleSubmit}
-								isLoading={saving}
-								disabled={saving}
+								isLoading={saveMutation.isPending}
+								disabled={saveMutation.isPending}
 							>
-								{saving ? "Saving..." : "Save Profile"}
+								{saveMutation.isPending ? "Saving..." : "Save Profile"}
 							</Button>
 						</div>
 					</div>

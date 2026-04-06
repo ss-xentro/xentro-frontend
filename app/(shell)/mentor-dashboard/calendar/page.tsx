@@ -1,16 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { Card, Button } from '@/components/ui';
 import { getSessionToken } from '@/lib/auth-utils';
 import { API, DAYS, type Slot, type Booking, formatTime, getWeekDates } from './_lib/constants';
 import CalendarGrid from './_components/CalendarGrid';
 import UpcomingSessions from './_components/UpcomingSessions';
+import { useApiQuery, useApiMutation, queryKeys } from '@/lib/queries';
 
 export default function MentorCalendarPage() {
-  const [slots, setSlots] = useState<Slot[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
   const [weekOffset, setWeekOffset] = useState(0);
   const [view, setView] = useState<'week' | 'availability'>('week');
 
@@ -18,83 +16,60 @@ export default function MentorCalendarPage() {
   const [newDay, setNewDay] = useState<string>('monday');
   const [newStart, setNewStart] = useState('09:00');
   const [newEnd, setNewEnd] = useState('10:00');
-  const [slotSaving, setSlotSaving] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    const token = getSessionToken('mentor');
-    if (!token) return;
-    const headers = { Authorization: `Bearer ${token}` };
-    try {
-      const [slotsRes, bookingsRes] = await Promise.all([
-        fetch(`${API}/api/mentor-slots/`, { headers }),
-        fetch(`${API}/api/mentor-bookings/`, { headers }),
-      ]);
-      const slotsJson = await slotsRes.json();
-      const bookingsJson = await bookingsRes.json();
-      setSlots(slotsJson.data || []);
-      setBookings(bookingsJson.data || []);
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // ── Fetch slots + bookings via TanStack Query ──
+  const { data: slotsData, isLoading: slotsLoading } = useApiQuery<any>(
+    queryKeys.mentor.slots(),
+    `${API}/api/mentor-slots/`,
+    { requestOptions: { role: 'mentor' } },
+  );
+  const { data: bookingsData, isLoading: bookingsLoading } = useApiQuery<any>(
+    queryKeys.mentor.bookings(),
+    `${API}/api/mentor-bookings/`,
+    { requestOptions: { role: 'mentor' } },
+  );
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  const slots: Slot[] = slotsData?.data || [];
+  const bookings: Booking[] = bookingsData?.data || [];
+  const loading = slotsLoading || bookingsLoading;
 
-  const handleAddSlot = async () => {
-    const token = getSessionToken('mentor');
-    if (!token) return;
-    setSlotSaving(true);
-    try {
-      const res = await fetch(`${API}/api/mentor-slots/`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ day_of_week: newDay, start_time: newStart, end_time: newEnd }),
-      });
-      if (!res.ok) {
-        const json = await res.json();
-        alert(json.error || 'Failed to add slot');
-        return;
-      }
-      setShowAddSlot(false);
-      fetchData();
-    } catch {
-      alert('Failed to add slot');
-    } finally {
-      setSlotSaving(false);
-    }
+  // ── Mutations ──
+  const addSlotMutation = useApiMutation<any, { day_of_week: string; start_time: string; end_time: string }>({
+    method: 'post',
+    path: `${API}/api/mentor-slots/`,
+    invalidateKeys: [queryKeys.mentor.slots()],
+    requestOptions: { role: 'mentor' },
+    mutationOptions: {
+      onSuccess: () => setShowAddSlot(false),
+      onError: (err) => alert(err.message || 'Failed to add slot'),
+    },
+  });
+
+  const deleteSlotMutation = useApiMutation<any, { slotId: string }>({
+    method: 'delete',
+    path: `${API}/api/mentor-slots/`,
+    invalidateKeys: [queryKeys.mentor.slots()],
+    requestOptions: { role: 'mentor' },
+  });
+
+  const bookingActionMutation = useApiMutation<any, { bookingId: string; status: string }>({
+    method: 'patch',
+    path: `${API}/api/mentor-bookings/`,
+    invalidateKeys: [queryKeys.mentor.bookings()],
+    requestOptions: { role: 'mentor' },
+  });
+
+  const handleAddSlot = () => {
+    addSlotMutation.mutate({ day_of_week: newDay, start_time: newStart, end_time: newEnd });
   };
 
-  const handleDeleteSlot = async (slotId: string) => {
-    const token = getSessionToken('mentor');
-    if (!token) return;
+  const handleDeleteSlot = (slotId: string) => {
     if (!confirm('Delete this availability slot?')) return;
-    try {
-      await fetch(`${API}/api/mentor-slots/`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slotId }),
-      });
-      fetchData();
-    } catch {
-      // silent
-    }
+    deleteSlotMutation.mutate({ slotId });
   };
 
-  const handleBookingAction = async (bookingId: string, action: 'confirmed' | 'cancelled') => {
-    const token = getSessionToken('mentor');
-    if (!token) return;
-    try {
-      await fetch(`${API}/api/mentor-bookings/`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId, status: action }),
-      });
-      fetchData();
-    } catch {
-      // silent
-    }
+  const handleBookingAction = (bookingId: string, action: 'confirmed' | 'cancelled') => {
+    bookingActionMutation.mutate({ bookingId, status: action });
   };
 
   if (loading) {
@@ -187,8 +162,8 @@ export default function MentorCalendarPage() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button onClick={handleAddSlot} disabled={slotSaving}>
-              {slotSaving ? 'Saving...' : 'Add Slot'}
+            <Button onClick={handleAddSlot} disabled={addSlotMutation.isPending}>
+              {addSlotMutation.isPending ? 'Saving...' : 'Add Slot'}
             </Button>
             <Button variant="secondary" onClick={() => setShowAddSlot(false)}>Cancel</Button>
           </div>
