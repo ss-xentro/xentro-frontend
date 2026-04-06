@@ -34,6 +34,44 @@ export interface ProfileData {
 	avatar?: string;
 	cover_photo?: string;
 	verified?: boolean;
+	about?: string;
+	experience?: ExperienceEntry[];
+	education?: EducationEntry[];
+	certifications?: CertificationEntry[];
+	skills?: string[];
+	honors_awards?: HonorsAwardEntry[];
+}
+
+export interface ExperienceEntry {
+	title: string;
+	company: string;
+	startDate?: string;
+	endDate?: string;
+	description?: string;
+	logo?: string;
+}
+
+export interface EducationEntry {
+	school: string;
+	degree?: string;
+	field?: string;
+	startDate?: string;
+	endDate?: string;
+	logo?: string;
+}
+
+export interface CertificationEntry {
+	name: string;
+	organization?: string;
+	issueDate?: string;
+	url?: string;
+}
+
+export interface HonorsAwardEntry {
+	title: string;
+	issuer?: string;
+	date?: string;
+	description?: string;
 }
 
 export const DAYS_OF_WEEK = [

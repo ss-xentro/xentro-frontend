@@ -165,6 +165,128 @@ export default function ProfileView({
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 				<div className="lg:col-span-2 space-y-5">
+					{/* About */}
+					{profileData.about && (
+						<SectionBlock title="About" icon={
+							<svg className="w-4 h-4 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+							</svg>
+						}>
+							<p className="text-sm text-(--secondary) leading-relaxed whitespace-pre-line">{profileData.about}</p>
+						</SectionBlock>
+					)}
+
+					{/* Experience */}
+					{profileData.experience && profileData.experience.length > 0 && (
+						<SectionBlock title="Experience" icon={
+							<svg className="w-4 h-4 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0H8m8 0h2a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2h2" />
+							</svg>
+						}>
+							<div className="space-y-4">
+								{profileData.experience.map((exp, i) => (
+									<div key={i} className="flex gap-3">
+										<div className="w-9 h-9 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center shrink-0">
+											<svg className="w-4 h-4 text-(--secondary-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+												<path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5" />
+											</svg>
+										</div>
+										<div>
+											<p className="text-sm font-semibold text-(--primary)">{exp.title}</p>
+											<p className="text-sm text-(--secondary)">{exp.company}</p>
+											{(exp.startDate || exp.endDate) && (
+												<p className="text-xs text-(--secondary-light) mt-0.5">{exp.startDate || ''}{exp.startDate ? ' – ' : ''}{exp.endDate || 'Present'}</p>
+											)}
+											{exp.description && <p className="text-xs text-(--secondary) mt-1 leading-relaxed">{exp.description}</p>}
+										</div>
+									</div>
+								))}
+							</div>
+						</SectionBlock>
+					)}
+
+					{/* Education */}
+					{profileData.education && profileData.education.length > 0 && (
+						<SectionBlock title="Education" icon={
+							<svg className="w-4 h-4 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+							</svg>
+						}>
+							<div className="space-y-4">
+								{profileData.education.map((edu, i) => (
+									<div key={i} className="flex gap-3">
+										<div className="w-9 h-9 rounded-lg bg-(--surface-hover) border border-(--border) flex items-center justify-center shrink-0">
+											<svg className="w-4 h-4 text-(--secondary-light)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+												<path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+											</svg>
+										</div>
+										<div>
+											<p className="text-sm font-semibold text-(--primary)">{edu.school}</p>
+											{(edu.degree || edu.field) && <p className="text-sm text-(--secondary)">{[edu.degree, edu.field].filter(Boolean).join(', ')}</p>}
+											{(edu.startDate || edu.endDate) && (
+												<p className="text-xs text-(--secondary-light) mt-0.5">{edu.startDate || ''}{edu.startDate ? ' – ' : ''}{edu.endDate || ''}</p>
+											)}
+										</div>
+									</div>
+								))}
+							</div>
+						</SectionBlock>
+					)}
+
+					{/* Certifications */}
+					{profileData.certifications && profileData.certifications.length > 0 && (
+						<SectionBlock title="Licenses & Certifications" icon={
+							<svg className="w-4 h-4 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+							</svg>
+						}>
+							<div className="space-y-3">
+								{profileData.certifications.map((cert, i) => (
+									<div key={i}>
+										<p className="text-sm font-semibold text-(--primary)">{cert.name}</p>
+										{cert.organization && <p className="text-sm text-(--secondary)">{cert.organization}</p>}
+										{cert.issueDate && <p className="text-xs text-(--secondary-light) mt-0.5">Issued {cert.issueDate}</p>}
+									</div>
+								))}
+							</div>
+						</SectionBlock>
+					)}
+
+					{/* Skills */}
+					{profileData.skills && profileData.skills.length > 0 && (
+						<SectionBlock title="Skills" icon={
+							<svg className="w-4 h-4 text-(--secondary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+							</svg>
+						}>
+							<div className="flex flex-wrap gap-2">
+								{profileData.skills.map((skill, i) => (
+									<span key={i} className="text-sm px-3 py-1.5 rounded-full bg-(--surface-hover) text-(--primary) border border-(--border)">{skill}</span>
+								))}
+							</div>
+						</SectionBlock>
+					)}
+
+					{/* Honors & Awards */}
+					{profileData.honors_awards && profileData.honors_awards.length > 0 && (
+						<SectionBlock title="Honors & Awards" icon={
+							<svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+								<path d="M10 1l2.39 6.34H19l-5.19 3.78L15.82 18 10 14.27 4.18 18l2.01-6.88L1 7.34h6.61L10 1z" />
+							</svg>
+						}>
+							<div className="space-y-3">
+								{profileData.honors_awards.map((award, i) => (
+									<div key={i}>
+										<p className="text-sm font-semibold text-(--primary)">{award.title}</p>
+										{award.issuer && <p className="text-sm text-(--secondary)">{award.issuer}</p>}
+										{award.date && <p className="text-xs text-(--secondary-light) mt-0.5">{award.date}</p>}
+										{award.description && <p className="text-xs text-(--secondary) mt-1">{award.description}</p>}
+									</div>
+								))}
+							</div>
+						</SectionBlock>
+					)}
+
 					{/* Achievements */}
 					{achievements.length > 0 && (
 						<SectionBlock

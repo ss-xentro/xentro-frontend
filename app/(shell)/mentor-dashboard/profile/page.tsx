@@ -14,12 +14,24 @@ import {
 	DocumentEntry,
 	ProfileData,
 	PricingPlan,
+	ExperienceEntry,
+	EducationEntry,
+	CertificationEntry,
+	HonorsAwardEntry,
 } from "./_lib/constants";
 import AchievementsSection from "./_components/AchievementsSection";
 import AvailabilitySlotsSection from "./_components/AvailabilitySlotsSection";
 import DocumentsSection from "./_components/DocumentsSection";
 import PhotoUpload from "./_components/PhotoUpload";
 import ProfileView from "./_components/ProfileView";
+import {
+	AboutEditor,
+	ExperienceEditor,
+	EducationEditor,
+	CertificationsEditor,
+	SkillsEditor,
+	HonorsAwardsEditor,
+} from "./_components/LinkedInEditors";
 
 export default function MentorProfilePage() {
 	const router = useRouter();
@@ -45,6 +57,13 @@ export default function MentorProfilePage() {
 	const [documents, setDocuments] = useState<DocumentEntry[]>([]);
 	const [uploading, setUploading] = useState(false);
 	const [uploadError, setUploadError] = useState<string | null>(null);
+
+	const [about, setAbout] = useState("");
+	const [experience, setExperience] = useState<ExperienceEntry[]>([]);
+	const [education, setEducation] = useState<EducationEntry[]>([]);
+	const [certifications, setCertifications] = useState<CertificationEntry[]>([]);
+	const [skillsList, setSkillsList] = useState<string[]>([]);
+	const [honorsAwards, setHonorsAwards] = useState<HonorsAwardEntry[]>([]);
 
 	const [profileData, setProfileData] = useState<ProfileData | null>(null);
 
@@ -107,6 +126,12 @@ export default function MentorProfilePage() {
 			if (data.user_name) setName(data.user_name);
 			if (data.avatar) setAvatar(data.avatar);
 			if (data.cover_photo) setCoverPhoto(data.cover_photo);
+			if (data.about) setAbout(data.about);
+			if (Array.isArray(data.experience)) setExperience(data.experience);
+			if (Array.isArray(data.education)) setEducation(data.education);
+			if (Array.isArray(data.certifications)) setCertifications(data.certifications);
+			if (Array.isArray(data.skills)) setSkillsList(data.skills);
+			if (Array.isArray(data.honors_awards)) setHonorsAwards(data.honors_awards);
 			if (
 				data.documents &&
 				Array.isArray(data.documents) &&
@@ -337,6 +362,12 @@ export default function MentorProfilePage() {
 					avatar,
 					cover_photo: coverPhoto,
 					name,
+					about,
+					experience,
+					education,
+					certifications,
+					skills: skillsList,
+					honors_awards: honorsAwards,
 				}),
 			});
 
@@ -464,6 +495,16 @@ export default function MentorProfilePage() {
 					</div>
 				</div>
 			</Card >
+
+			{/* LinkedIn-style profile sections */}
+			<div className="space-y-6">
+				<AboutEditor value={about} onChange={setAbout} />
+				<ExperienceEditor items={experience} onChange={setExperience} />
+				<EducationEditor items={education} onChange={setEducation} />
+				<CertificationsEditor items={certifications} onChange={setCertifications} />
+				<SkillsEditor items={skillsList} onChange={setSkillsList} />
+				<HonorsAwardsEditor items={honorsAwards} onChange={setHonorsAwards} />
+			</div>
 
 			<div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
 				{/* Section 1: Achievements */}

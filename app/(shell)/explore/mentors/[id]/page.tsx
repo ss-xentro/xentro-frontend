@@ -14,6 +14,14 @@ import { StatCard, Section } from "./_components/MentorProfileHelpers";
 import ConnectModal from "./_components/ConnectModal";
 import MentorPackages from "./_components/MentorPackages";
 import { HeroSection } from "./_components/HeroSection";
+import {
+	AboutSection,
+	ExperienceSection,
+	EducationSection,
+	CertificationsSection,
+	SkillsSection,
+	HonorsAwardsSection,
+} from "./_components/LinkedInSections";
 import { DocumentsSection } from "./_components/DocumentsSection";
 import AvailabilityBookingSection from "./_components/AvailabilityBookingSection";
 import { parseMentorData, getConnectBtnConfig } from "./_lib/constants";
@@ -444,6 +452,8 @@ export default function MentorDetailPage() {
 				{activeTab === "overview" && (
 					<div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 						<div className="lg:col-span-2 space-y-5">
+							{mentor.about && <AboutSection about={mentor.about} />}
+
 							{mentor.expertise.length > 0 && (
 								<Section title="Areas of Expertise">
 									<div className="flex flex-wrap gap-2">
@@ -457,6 +467,26 @@ export default function MentorDetailPage() {
 										))}
 									</div>
 								</Section>
+							)}
+
+							{mentor.experience && mentor.experience.length > 0 && (
+								<ExperienceSection items={mentor.experience} />
+							)}
+
+							{mentor.education && mentor.education.length > 0 && (
+								<EducationSection items={mentor.education} />
+							)}
+
+							{mentor.certifications && mentor.certifications.length > 0 && (
+								<CertificationsSection items={mentor.certifications} />
+							)}
+
+							{mentor.skills && mentor.skills.length > 0 && (
+								<SkillsSection items={mentor.skills} />
+							)}
+
+							{mentor.honorsAwards && mentor.honorsAwards.length > 0 && (
+								<HonorsAwardsSection items={mentor.honorsAwards} />
 							)}
 
 							{mentor.achievements.length > 0 && (

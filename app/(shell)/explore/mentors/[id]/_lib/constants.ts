@@ -22,6 +22,12 @@ export interface MentorDetail {
 	institutionId?: string | null;
 	institutionName?: string | null;
 	institutionLogo?: string | null;
+	about?: string | null;
+	experience?: Array<{ title: string; company: string; startDate?: string; endDate?: string; description?: string; logo?: string }>;
+	education?: Array<{ school: string; degree?: string; field?: string; startDate?: string; endDate?: string; logo?: string }>;
+	certifications?: Array<{ name: string; organization?: string; issueDate?: string; url?: string }>;
+	skills?: string[];
+	honorsAwards?: Array<{ title: string; issuer?: string; date?: string; description?: string }>;
 	mentoredStartups: Array<{
 		id: string;
 		name: string;
@@ -271,6 +277,12 @@ export function parseMentorData(found: Record<string, unknown>): MentorDetail {
 		institutionId: (found.institutionId as string) || null,
 		institutionName: (found.institutionName as string) || null,
 		institutionLogo: (found.institutionLogo as string) || null,
+		about: (found.about as string) || null,
+		experience: Array.isArray(found.experience) ? found.experience as MentorDetail['experience'] : [],
+		education: Array.isArray(found.education) ? found.education as MentorDetail['education'] : [],
+		certifications: Array.isArray(found.certifications) ? found.certifications as MentorDetail['certifications'] : [],
+		skills: Array.isArray(found.skills) ? (found.skills as string[]) : [],
+		honorsAwards: Array.isArray(found.honors_awards) ? found.honors_awards as MentorDetail['honorsAwards'] : [],
 		mentoredStartups: Array.isArray(found.mentored_startups)
 			? (found.mentored_startups as MentorDetail['mentoredStartups'])
 			: [],
