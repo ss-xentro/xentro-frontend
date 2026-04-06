@@ -25,10 +25,6 @@ import PitchSectionContent from './_components/PitchSectionContent';
 import PitchSectionReadOnly from './_components/PitchSectionReadOnly';
 
 export default function PitchEditorPage() {
-	const [startupId, setStartupId] = useState<string | null>(null);
-	const [myRole, setMyRole] = useState('');
-	const [isLoading, setIsLoading] = useState(true);
-	const [isSaving, setIsSaving] = useState(false);
 	const [isEditMode, setIsEditMode] = useState(false);
 
 	const [activeSection, setActiveSection] = useState<SectionKey>('videoPitch');
@@ -46,8 +42,64 @@ export default function PitchEditorPage() {
 	const [isCreatingStep, setIsCreatingStep] = useState(false);
 	const [newStepTitle, setNewStepTitle] = useState('');
 	const [newStepDescription, setNewStepDescription] = useState('');
+	const [formSeeded, setFormSeeded] = useState(false);
 
+	// Fetch startup data
+	const { data: startupRaw, isLoading: startupLoading } = useApiQuery<{ data?: { startup?: Record<string, unknown>; founderRole?: string }; startup?: Record<string, unknown> }>(
+		queryKeys.startup.mine(),
+		'/api/founder/my-startup',
+	);
+
+	const startup = startupRaw?.data?.startup ?? startupRaw?.startup ?? startupRaw;
+	const startupId = (startup as Record<string, unknown>)?.id as string | undefined;
+	const myRole = (startupRaw?.data?.founderRole ?? '') as string;
 	const canEdit = WRITE_ROLES.has(myRole);
+
+	// Fetch pitch data (only when we have a startupId)
+	const { data: pitchData, isLoading: pitchLoading } = useApiQuery<StartupPitchData>(
+		queryKeys.pitch.detail(startupId ?? ''),
+		`/api/startups/${startupId}/pitch/`,
+		{
+			enabled: !!startupId,
+			requestOptions: { public: true, headers: { 'x-public-view': 'true' } },
+		},
+	);
+
+	const isLoading = startupLoading || pitchLoading;
+
+	// Seed form state from fetched data (once)
+	useEffect(() => {
+		if (formSeeded || !startup || !startupId) return;
+		const s = startup as Record<string, unknown>;
+		if (s.demoVideoUrl) setDemoVideoUrl(s.demoVideoUrl as string);
+
+		if (pitchData) {
+			if (pitchData.about) setAboutData(pitchData.about);
+			if (pitchData.competitors) setCompetitors(pitchData.competitors);
+			if (pitchData.customers) setCustomers(pitchData.customers);
+			if (pitchData.businessModels) setBusinessModels(pitchData.businessModels);
+			if (pitchData.marketSizes) setMarketSizes(pitchData.marketSizes);
+			if (pitchData.visionStrategies) setVisionStrategies(pitchData.visionStrategies);
+			if (pitchData.impacts) setImpacts(pitchData.impacts);
+			if (pitchData.certifications) setCertifications(pitchData.certifications);
+			if (pitchData.customSections) setCustomSections(pitchData.customSections);
+		}
+		setFormSeeded(true);
+	}, [startup, startupId, pitchData, formSeeded]);
+
+	// Save mutation for pitch
+	const savePitchMutation = useApiMutation<unknown, StartupPitchData>({
+		method: 'put',
+		path: `/api/startups/${startupId}/pitch/`,
+		invalidateKeys: [queryKeys.pitch.all, queryKeys.startup.all],
+	});
+	const saveVideoMutation = useApiMutation<unknown, { demoVideoUrl: string | null }>({
+		method: 'patch',
+		path: `/api/founder/startups/${startupId}`,
+		invalidateKeys: [queryKeys.startup.all],
+	});
+
+	const isSaving = savePitchMutation.isPending || saveVideoMutation.isPending;
 
 	const getCustomSectionKey = useCallback((section: PitchCustomSection, index: number) => {
 		return `custom-${section.id || index}`;
@@ -92,71 +144,22 @@ export default function PitchEditorPage() {
 	const totalSections = allSections.length;
 	const progressPct = Math.round((completedCount / totalSections) * 100);
 
-	useEffect(() => { fetchStartupAndPitch(); }, []);
-
 	useEffect(() => {
 		if (!allSections.some((section) => section.key === activeSection) && allSections.length > 0) {
 			setActiveSection(allSections[0].key);
 		}
 	}, [activeSection, allSections]);
 
-	const fetchStartupAndPitch = async () => {
-		try {
-			const token = getSessionToken('founder');
-			if (!token) return;
-			const startupRes = await fetch('/api/founder/my-startup', { headers: { Authorization: `Bearer ${token}` } });
-			const startupJson = await startupRes.json();
-			if (!startupRes.ok) return;
-			const startup = startupJson.data?.startup ?? startupJson;
-			const sid = startup.id;
-			setStartupId(sid);
-			if (startupJson.data?.founderRole) setMyRole(startupJson.data.founderRole);
-			if (startup.demoVideoUrl) setDemoVideoUrl(startup.demoVideoUrl);
-
-			const pitchRes = await fetch(`/api/startups/${sid}/pitch/`, { headers: { 'x-public-view': 'true' } });
-			if (pitchRes.ok) {
-				const pitchData: StartupPitchData = await pitchRes.json();
-				if (pitchData.about) setAboutData(pitchData.about);
-				if (pitchData.competitors) setCompetitors(pitchData.competitors);
-				if (pitchData.customers) setCustomers(pitchData.customers);
-				if (pitchData.businessModels) setBusinessModels(pitchData.businessModels);
-				if (pitchData.marketSizes) setMarketSizes(pitchData.marketSizes);
-				if (pitchData.visionStrategies) setVisionStrategies(pitchData.visionStrategies);
-				if (pitchData.impacts) setImpacts(pitchData.impacts);
-				if (pitchData.certifications) setCertifications(pitchData.certifications);
-				if (pitchData.customSections) setCustomSections(pitchData.customSections);
-			}
-		} catch (err) {
-			console.error(err);
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
 	const handleSave = async () => {
 		if (!startupId) return;
-		setIsSaving(true);
 		try {
-			const token = getSessionToken('founder');
 			const payload: StartupPitchData = { about: aboutData, competitors, customers, businessModels, marketSizes, visionStrategies, impacts, certifications, customSections };
-			const res = await fetch(`/api/startups/${startupId}/pitch/`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-				body: JSON.stringify(payload),
-			});
-			if (!res.ok) throw new Error('Failed to save pitch sections');
-			const startupRes = await fetch(`/api/founder/startups/${startupId}`, {
-				method: 'PATCH',
-				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-				body: JSON.stringify({ demoVideoUrl }),
-			});
-			if (!startupRes.ok) throw new Error('Failed to save video pitch');
+			await savePitchMutation.mutateAsync(payload);
+			await saveVideoMutation.mutateAsync({ demoVideoUrl });
 			toast.success('All changes saved successfully.');
 			setIsEditMode(false);
 		} catch {
 			toast.error('Failed to save. Please try again.');
-		} finally {
-			setIsSaving(false);
 		}
 	};
 

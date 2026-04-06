@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner';
-import { getSessionToken } from '@/lib/auth-utils';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { useApiQuery } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/keys';
 
 interface ConnectionRequest {
     id: string;
@@ -29,64 +29,24 @@ interface MentorStats {
 }
 
 export default function MentorDashboardPage() {
-    const [loading, setLoading] = useState(true);
-    const [pendingRequests, setPendingRequests] = useState<ConnectionRequest[]>([]);
-    const [requestsLoading, setRequestsLoading] = useState(true);
-    const [stats, setStats] = useState<MentorStats>({
+    const { data: reqRaw, isLoading: requestsLoading } = useApiQuery<{ data: ConnectionRequest[] }>(
+        queryKeys.mentor.bookings(),
+        '/api/mentor-connections/',
+        { requestOptions: { role: 'mentor' } },
+    );
+
+    const { data: statsRaw } = useApiQuery<{ data?: MentorStats } & MentorStats>(
+        [...queryKeys.mentor.all, 'stats'],
+        '/api/mentor-stats/',
+        { requestOptions: { role: 'mentor' } },
+    );
+
+    const pendingRequests = (reqRaw?.data ?? []).filter((r) => r.status === 'pending').slice(0, 3);
+    const stats: MentorStats = statsRaw?.data ?? statsRaw ?? {
         activeMentees: 0, sessionsThisMonth: 0, totalSessions: 0,
         rating: null, pendingRequests: 0, totalBookings: 0,
-    });
-
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 500);
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Load pending connection requests
-    useEffect(() => {
-        async function loadRequests() {
-            const token = getSessionToken('mentor');
-            if (!token) {
-                setRequestsLoading(false);
-                return;
-            }
-            try {
-                const res = await fetch('/api/mentor-connections/', {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (res.ok) {
-                    const json = await res.json();
-                    const pending = (json.data ?? []).filter((r: ConnectionRequest) => r.status === 'pending');
-                    setPendingRequests(pending.slice(0, 3)); // Show max 3 on overview
-                }
-            } catch {
-                // ignore
-            } finally {
-                setRequestsLoading(false);
-            }
-        }
-        loadRequests();
-    }, []);
-
-    // Load mentor stats
-    useEffect(() => {
-        async function loadStats() {
-            const token = getSessionToken('mentor');
-            if (!token) return;
-            try {
-                const res = await fetch('/api/mentor-stats/', {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (res.ok) {
-                    const json = await res.json();
-                    setStats(json.data ?? json);
-                }
-            } catch {
-                // ignore
-            }
-        }
-        loadStats();
-    }, []);
+    };
+    const loading = requestsLoading;
 
     if (loading) {
         return (
