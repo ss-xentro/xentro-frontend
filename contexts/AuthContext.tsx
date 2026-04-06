@@ -6,6 +6,7 @@ import {
     clearAllRoleTokens, syncAuthCookie, clearAuthCookie, getAuthCookie,
     setTokenCookie, clearTokenCookie, normalizeUser, cleanupLegacyStorage,
 } from '@/lib/auth-utils';
+import { registerFCMToken } from '@/lib/fcm';
 
 interface AuthContextType {
     user: User | null;
@@ -45,6 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     };
                     setUser(hydratedUser);
                     setToken(null);
+                    // Register/refresh FCM token now that we have a valid session
+                    registerFCMToken();
 
                     // M1: Fetch full user data (including email) from the server.
                     // Skip if we recently fetched (within 60s) to avoid redundant
@@ -140,6 +143,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
         // Store token in HttpOnly cookie
         await setTokenCookie(newToken);
+        // Register FCM push token for this session
+        registerFCMToken();
     }, []);
 
     const logout = useCallback(async () => {
