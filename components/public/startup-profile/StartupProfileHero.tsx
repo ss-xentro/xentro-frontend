@@ -170,7 +170,7 @@ export function StartupProfileHero({ startup, currentUserId }: StartupProfileHer
 							{startup.id && (
 								<div className="flex items-center gap-4 mt-4 flex-wrap">
 									<ProfileStats targetId={startup.id} entityType="startup" currentUserId={currentUserId} />
-									<FollowButton targetId={startup.id} entityType="startup" currentUserId={currentUserId} />
+									<FollowButton targetId={startup.id} entityType="startup" currentUserId={currentUserId} targetName={startup.name} />
 								</div>
 							)}
 						</div>

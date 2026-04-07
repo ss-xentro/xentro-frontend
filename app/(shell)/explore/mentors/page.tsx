@@ -319,6 +319,7 @@ export default function ExploreMentorsPage() {
 										targetId={mentor.userId}
 										entityType="user"
 										currentUserId={currentUserId}
+										targetName={mentor.name}
 										showMessage
 										className="w-full justify-center"
 									/>

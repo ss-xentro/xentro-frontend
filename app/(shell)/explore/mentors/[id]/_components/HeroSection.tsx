@@ -127,6 +127,7 @@ export function HeroSection({
 							targetId={mentor.userId}
 							entityType="user"
 							currentUserId={currentUserId}
+							targetName={mentor.name}
 							showMessage
 						/>
 					)}

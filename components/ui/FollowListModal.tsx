@@ -34,6 +34,7 @@ export function FollowListModal({
 	const [users, setUsers] = useState<FollowUser[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set());
+	const [confirmUnfollowId, setConfirmUnfollowId] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (isOpen) setTab(initialTab === 'following' && !showFollowingTab ? 'followers' : initialTab);
@@ -56,7 +57,7 @@ export function FollowListModal({
 		fetchList();
 	}, [fetchList]);
 
-	const handleToggleFollow = async (targetId: string, currentlyFollowing: boolean) => {
+	const executeToggle = async (targetId: string, currentlyFollowing: boolean) => {
 		if (togglingIds.has(targetId)) return;
 		setTogglingIds((prev) => new Set(prev).add(targetId));
 		try {
@@ -76,6 +77,21 @@ export function FollowListModal({
 				next.delete(targetId);
 				return next;
 			});
+		}
+	};
+
+	const handleToggleFollow = (targetId: string, currentlyFollowing: boolean) => {
+		if (currentlyFollowing) {
+			setConfirmUnfollowId(targetId);
+		} else {
+			executeToggle(targetId, false);
+		}
+	};
+
+	const handleConfirmUnfollow = () => {
+		if (confirmUnfollowId) {
+			executeToggle(confirmUnfollowId, true);
+			setConfirmUnfollowId(null);
 		}
 	};
 
@@ -157,9 +173,9 @@ export function FollowListModal({
 											onClick={() => handleToggleFollow(user.id, user.isFollowing)}
 											disabled={toggling}
 											className={cn(
-												'px-3.5 py-1 rounded-full text-xs font-semibold transition-all shrink-0',
+												'px-3 py-1 rounded-lg text-xs font-semibold transition-all shrink-0',
 												user.isFollowing
-													? 'bg-(--accent-light) text-(--foreground) border border-(--border) hover:bg-red-50 hover:text-red-600 hover:border-red-300'
+													? 'bg-(--accent-subtle) text-(--secondary) border border-(--border) hover:border-(--border-hover)'
 													: 'bg-brand text-white hover:opacity-90',
 												toggling && 'opacity-60 cursor-not-allowed',
 											)}
@@ -179,6 +195,29 @@ export function FollowListModal({
 					</ul>
 				)}
 			</div>
+
+			{/* Inline unfollow confirmation */}
+			{confirmUnfollowId && (
+				<div className="border-t border-(--border) px-4 py-3 flex items-center justify-between bg-(--accent-subtle)">
+					<p className="text-xs text-(--secondary)">
+						Unfollow {users.find((u) => u.id === confirmUnfollowId)?.name ?? 'this user'}?
+					</p>
+					<div className="flex gap-2">
+						<button
+							onClick={() => setConfirmUnfollowId(null)}
+							className="px-3 py-1 rounded-lg text-xs font-semibold border border-(--border) text-(--secondary) hover:bg-(--surface) transition-colors"
+						>
+							Cancel
+						</button>
+						<button
+							onClick={handleConfirmUnfollow}
+							className="px-3 py-1 rounded-lg text-xs font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors"
+						>
+							Unfollow
+						</button>
+					</div>
+				</div>
+			)}
 		</Modal>
 	);
 }

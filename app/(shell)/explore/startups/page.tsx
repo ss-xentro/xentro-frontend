@@ -158,6 +158,7 @@ function StartupsContent() {
                                         targetId={startup.id}
                                         entityType="startup"
                                         currentUserId={currentUserId}
+                                        targetName={startup.name}
                                         className="w-full justify-center"
                                     />
                                 )}

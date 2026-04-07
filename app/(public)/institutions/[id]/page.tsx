@@ -100,7 +100,7 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
                             {institution.id && (
                                 <div className="flex items-center gap-4 mb-6 flex-wrap">
                                     <ProfileStats targetId={institution.id} entityType="institution" currentUserId={currentUserId} />
-                                    <FollowButton targetId={institution.id} entityType="institution" currentUserId={currentUserId} />
+                                    <FollowButton targetId={institution.id} entityType="institution" currentUserId={currentUserId} targetName={institution.name} />
                                 </div>
                             )}
 
