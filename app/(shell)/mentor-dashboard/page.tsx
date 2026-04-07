@@ -30,7 +30,7 @@ interface MentorStats {
 
 export default function MentorDashboardPage() {
     const { data: reqRaw, isLoading: requestsLoading } = useApiQuery<{ data: ConnectionRequest[] }>(
-        queryKeys.mentor.bookings(),
+        [...queryKeys.mentor.all, 'connections'],
         '/api/mentor-connections/',
         { requestOptions: { role: 'mentor' } },
     );

@@ -73,6 +73,7 @@ export function useChat({ roomId, currentUserId, onPresenceUpdate, onNewMessage 
 	const wsRef = useRef<WebSocket | null>(null);
 	const retriesRef = useRef(0);
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const onPresenceRef = useRef(onPresenceUpdate);
 	const onNewMessageRef = useRef(onNewMessage);
 
@@ -142,9 +143,25 @@ export function useChat({ roomId, currentUserId, onPresenceUpdate, onNewMessage 
 					if (roomId) {
 						onNewMessageRef.current?.(roomId, { body: msg.body, sentAt: msg.sentAt, senderId: msg.senderId });
 					}
+				} else if (data.type === 'read_receipt') {
+					// Sender receives notification that their messages were read
+					if (currentUserId && data.readerId !== currentUserId) {
+						setMessages((prev) =>
+							prev.map((m) =>
+								m.senderId === currentUserId && !m.readByRecipient
+									? { ...m, readByRecipient: true }
+									: m,
+							),
+						);
+					}
 				} else if (data.type === 'typing') {
 					if (!currentUserId || data.userId !== currentUserId) {
 						setPeerTyping(!!data.isTyping);
+						// Auto-clear typing after 4s in case the sender disconnects
+						if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+						if (data.isTyping) {
+							typingTimeoutRef.current = setTimeout(() => setPeerTyping(false), 4000);
+						}
 					}
 				} else if (data.type === 'presence') {
 					onPresenceRef.current?.(data.userId, data.isOnline, data.lastSeen);
@@ -169,6 +186,7 @@ export function useChat({ roomId, currentUserId, onPresenceUpdate, onNewMessage 
 
 	const disconnect = useCallback(() => {
 		if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+		if (typingTimeoutRef.current) { clearTimeout(typingTimeoutRef.current); typingTimeoutRef.current = null; }
 		if (wsRef.current) { wsRef.current.close(1000, 'unmount'); wsRef.current = null; }
 		setConnected(false);
 	}, []);
