@@ -3,8 +3,6 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { AppIcon } from "@/components/ui/AppIcon";
-import { FollowButton } from "@/components/ui/FollowButton";
-import { useAuth } from "@/contexts/AuthContext";
 import { useApiQuery } from "@/lib/queries";
 import { queryKeys } from "@/lib/queries/keys";
 
@@ -75,8 +73,6 @@ function VerifiedBadge({
 }
 
 export default function ExploreMentorsPage() {
-	const { user } = useAuth();
-	const currentUserId = user?.id ?? '';
 	const [expertise, setExpertise] = useState("all");
 
 	const { data: rawData, isLoading: loading } = useApiQuery<{ mentors?: Record<string, unknown>[]; data?: Record<string, unknown>[] }>(
@@ -313,20 +309,10 @@ export default function ExploreMentorsPage() {
 							</div>
 
 							{/* Footer */}
-							<div className="mt-auto px-5 pb-5 pt-3 flex flex-col gap-2">
-								{mentor.userId && (
-									<FollowButton
-										targetId={mentor.userId}
-										entityType="user"
-										currentUserId={currentUserId}
-										targetName={mentor.name}
-										showMessage
-										className="w-full justify-center"
-									/>
-								)}
+							<div className="mt-auto px-5 pb-5 pt-3">
 								<Link
 									href={`/mentors/${mentor.id}`}
-									className="text-center text-sm font-medium py-2.5 rounded-xl border border-(--border) text-(--primary-light) hover:text-(--primary) hover:border-(--border-hover) transition-colors"
+									className="block text-center text-sm font-medium py-2.5 rounded-xl border border-(--border) text-(--primary-light) hover:text-(--primary) hover:border-(--border-hover) transition-colors"
 								>
 									View Profile
 								</Link>

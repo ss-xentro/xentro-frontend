@@ -3,8 +3,6 @@
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AppIcon } from '@/components/ui/AppIcon';
-import { FollowButton } from '@/components/ui/FollowButton';
-import { useAuth } from '@/contexts/AuthContext';
 import { startupStageLabels, fundingRoundLabels } from '@/lib/types/labels';
 import { formatCurrency } from '@/lib/utils';
 import type { StartupStage, FundingRound } from '@/lib/types/startups';
@@ -45,8 +43,6 @@ interface StartupPublic {
 function StartupsContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { user } = useAuth();
-    const currentUserId = user?.id ?? '';
 
     const [stage, setStage] = useState(searchParams.get('stage') || 'all');
     const [funding, setFunding] = useState(searchParams.get('funding') || 'all');
@@ -153,15 +149,6 @@ function StartupsContent() {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                {startup.id && (
-                                    <FollowButton
-                                        targetId={startup.id}
-                                        entityType="startup"
-                                        currentUserId={currentUserId}
-                                        targetName={startup.name}
-                                        className="w-full justify-center"
-                                    />
-                                )}
                                 <button
                                     type="button"
                                     onClick={() => router.push(`/startups/${startup.id}`)}
