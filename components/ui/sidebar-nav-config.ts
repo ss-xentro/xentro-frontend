@@ -44,6 +44,7 @@ export function getNavItems(role: UserRole): NavItem[] {
 				{ name: 'Mentees', href: '/mentor-dashboard/mentees', icon: icons.team },
 				{ name: 'Requests', href: '/mentor-dashboard/requests', icon: icons.addPerson },
 				{ name: 'Endorsements', href: '/mentor-dashboard/endorsements', icon: icons.endorsement },
+				{ name: 'Analytics', href: '/mentor-dashboard/analytics', icon: icons.analytics },
 			];
 		// investor hidden for v1 — re-enable in v2
 		default:

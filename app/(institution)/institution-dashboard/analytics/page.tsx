@@ -9,8 +9,11 @@ import { queryKeys } from '@/lib/queries/keys';
 
 interface AnalyticsData {
   profileViews: number;
+  profileViews7d: number;
+  profileViews30d: number;
+  followersCount: number;
   startupsCount: number;
-  teamMembersCount: number;
+  teamCount: number;
   programsCount: number;
   institutionName: string;
 }
@@ -19,38 +22,24 @@ export default function AnalyticsPage() {
   const router = useRouter();
   const opts = { requestOptions: { role: 'institution' as const } };
 
-  const { data: startupsRaw, isLoading: l1 } = useApiQuery<{ data: unknown[] }>(
-    queryKeys.institution.startups(),
-    '/api/startups',
+  const { data: raw, isLoading } = useApiQuery<AnalyticsData>(
+    queryKeys.institution.analytics(),
+    '/api/auth/institution-analytics/',
     opts,
   );
-  const { data: teamRaw, isLoading: l2 } = useApiQuery<{ data: unknown[] }>(
-    queryKeys.institution.team(),
-    '/api/institution-team',
-    opts,
-  );
-  const { data: programsRaw, isLoading: l3 } = useApiQuery<unknown[]>(
-    queryKeys.institution.programs(),
-    '/api/programs',
-    opts,
-  );
-  const { data: institutionRaw, isLoading: l4 } = useApiQuery<{ institution: { name?: string; profileViews?: number } | null }>(
-    queryKeys.institution.profile(),
-    '/api/auth/me/',
-    opts,
-  );
-
-  const loading = l1 || l2 || l3 || l4;
 
   const data = useMemo((): AnalyticsData => ({
-    profileViews: institutionRaw?.institution?.profileViews || 0,
-    startupsCount: startupsRaw?.data?.length || 0,
-    teamMembersCount: teamRaw?.data?.length || 0,
-    programsCount: (programsRaw as unknown[] | undefined)?.length || 0,
-    institutionName: institutionRaw?.institution?.name || 'Your Institution',
-  }), [startupsRaw, teamRaw, programsRaw, institutionRaw]);
+    profileViews: raw?.profileViews ?? 0,
+    profileViews7d: raw?.profileViews7d ?? 0,
+    profileViews30d: raw?.profileViews30d ?? 0,
+    followersCount: raw?.followersCount ?? 0,
+    startupsCount: raw?.startupsCount ?? 0,
+    teamCount: raw?.teamCount ?? 0,
+    programsCount: raw?.programsCount ?? 0,
+    institutionName: raw?.institutionName ?? 'Your Institution',
+  }), [raw]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <DashboardSidebar>
         <div className="p-8 space-y-6">
@@ -58,7 +47,7 @@ export default function AnalyticsPage() {
             <div className="h-8 bg-(--border) rounded w-1/4"></div>
             <div className="h-4 bg-(--border) rounded w-1/3"></div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
+              {[...Array(6)].map((_, i) => (
                 <div key={i} className="h-32 bg-(--border) rounded"></div>
               ))}
             </div>
@@ -76,11 +65,29 @@ export default function AnalyticsPage() {
           <p className="text-(--secondary) mt-1">View {data.institutionName}&apos;s performance metrics</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card className="p-6 bg-(--accent-subtle) border-(--border) border">
-            <p className="text-sm text-(--secondary) mb-1">Profile Views</p>
+            <p className="text-sm text-(--secondary) mb-1">Total Profile Views</p>
             <p className="text-3xl font-bold text-(--primary)">{data.profileViews.toLocaleString()}</p>
-            <p className="text-xs text-green-600 mt-2">All time views</p>
+            <p className="text-xs text-green-600 mt-2">All-time unique visitors</p>
+          </Card>
+
+          <Card className="p-6 bg-(--accent-subtle) border-(--border) border">
+            <p className="text-sm text-(--secondary) mb-1">Profile Views (7 days)</p>
+            <p className="text-3xl font-bold" style={{ color: '#0ea5e9' }}>{data.profileViews7d.toLocaleString()}</p>
+            <p className="text-xs text-(--secondary-light) mt-2">Unique views this week</p>
+          </Card>
+
+          <Card className="p-6 bg-(--accent-subtle) border-(--border) border">
+            <p className="text-sm text-(--secondary) mb-1">Profile Views (30 days)</p>
+            <p className="text-3xl font-bold" style={{ color: '#0ea5e9' }}>{data.profileViews30d.toLocaleString()}</p>
+            <p className="text-xs text-(--secondary-light) mt-2">Unique views this month</p>
+          </Card>
+
+          <Card className="p-6 bg-(--accent-subtle) border-(--border) border">
+            <p className="text-sm text-(--secondary) mb-1">Followers</p>
+            <p className="text-3xl font-bold" style={{ color: '#8b5cf6' }}>{data.followersCount.toLocaleString()}</p>
+            <p className="text-xs text-(--secondary-light) mt-2">People following you</p>
           </Card>
 
           <Card className="p-6 bg-(--accent-subtle) border-(--border) border">
@@ -97,7 +104,7 @@ export default function AnalyticsPage() {
 
           <Card className="p-6 bg-(--accent-subtle) border-(--border) border">
             <p className="text-sm text-(--secondary) mb-1">Team Members</p>
-            <p className="text-3xl font-bold text-(--primary)">{data.teamMembersCount}</p>
+            <p className="text-3xl font-bold text-(--primary)">{data.teamCount}</p>
             <p className="text-xs text-(--secondary-light) mt-2">Active members</p>
           </Card>
         </div>
@@ -165,8 +172,8 @@ export default function AnalyticsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-(--primary-light)">Team Members</span>
-                <span className={data.teamMembersCount > 0 ? 'text-green-600' : 'text-amber-600'}>
-                  {data.teamMembersCount > 0 ? <span className="flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Added</span> : 'Invite team'}
+                <span className={data.teamCount > 0 ? 'text-green-600' : 'text-amber-600'}>
+                  {data.teamCount > 0 ? <span className="flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Added</span> : 'Invite team'}
                 </span>
               </div>
             </div>

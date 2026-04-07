@@ -49,6 +49,7 @@ export const queryKeys = {
 		slots: () => ['mentor', 'slots'] as const,
 		bookings: () => ['mentor', 'bookings'] as const,
 		detail: (id: string) => ['mentor', id] as const,
+		analytics: () => ['mentor', 'analytics'] as const,
 	},
 
 	// ── Admin ──
