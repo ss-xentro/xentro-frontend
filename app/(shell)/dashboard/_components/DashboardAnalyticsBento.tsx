@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import type { ActivityLog, DashboardAnalytics, StartupData } from './types';
 
@@ -37,19 +37,6 @@ function formatShortLabel(label: string | undefined) {
 	return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
-function buildChartPoints(values: number[], width: number, height: number, offsetX: number, offsetY: number, max: number) {
-	if (!values.length) return [] as Array<{ x: number; y: number; value: number }>;
-	const innerWidth = Math.max(width - offsetX * 2, 1);
-	const innerHeight = Math.max(height - offsetY * 2, 1);
-	const stepX = values.length > 1 ? innerWidth / (values.length - 1) : innerWidth;
-
-	return values.map((value, index) => ({
-		x: offsetX + index * stepX,
-		y: offsetY + innerHeight - (value / Math.max(max, 1)) * innerHeight,
-		value,
-	}));
-}
-
 function InteractiveTrendChart({
 	labels,
 	profile,
@@ -62,79 +49,156 @@ function InteractiveTrendChart({
 	search: number[];
 }) {
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-	const width = 560;
-	const height = 220;
-	const offsetX = 28;
-	const offsetY = 18;
-	const maxValue = Math.max(...profile, ...investor, ...search, 1);
-	const safeLabels = labels.length ? labels : profile.map((_, index) => `Day ${index + 1}`);
-	const profilePoints = useMemo(() => buildChartPoints(profile, width, height, offsetX, offsetY, maxValue), [profile, maxValue]);
-	const investorPoints = useMemo(() => buildChartPoints(investor, width, height, offsetX, offsetY, maxValue), [investor, maxValue]);
-	const searchPoints = useMemo(() => buildChartPoints(search, width, height, offsetX, offsetY, maxValue), [search, maxValue]);
-	const stepX = safeLabels.length > 1 ? (width - offsetX * 2) / (safeLabels.length - 1) : width - offsetX * 2;
-	const hasData = safeLabels.length > 0 && profilePoints.length > 0 && investorPoints.length > 0 && searchPoints.length > 0;
-	const activeIndex = hoveredIndex ?? safeLabels.length - 1;
-	const activeX = offsetX + Math.max(activeIndex, 0) * stepX;
-	const tooltipLeft = `${Math.min(92, Math.max(8, (activeX / width) * 100))}%`;
-	const yAxisTicks = Array.from(new Set([maxValue, Math.round(maxValue / 2), 0]));
 
-	const resolveIndex = (clientX: number, bounds: DOMRect) => {
-		if (safeLabels.length <= 1) return 0;
-		const relativeX = ((clientX - bounds.left) / bounds.width) * (width - offsetX * 2);
-		const index = Math.round(relativeX / stepX);
-		return Math.min(safeLabels.length - 1, Math.max(0, index));
-	};
+	const W = 560;
+	const H = 210;
+	const PAD_LEFT = 36;
+	const PAD_TOP = 14;
+	const PAD_BOTTOM = 24;
+	const PAD_RIGHT = 8;
+	const innerW = W - PAD_LEFT - PAD_RIGHT;
+	const innerH = H - PAD_TOP - PAD_BOTTOM;
+	const chartBottom = PAD_TOP + innerH;
+
+	const maxValue = Math.max(...profile, ...investor, ...search, 1);
+	const safeLabels = labels.length ? labels : profile.map((_, i) => `Day ${i + 1}`);
+	const n = safeLabels.length;
+
+	function toX(i: number) {
+		return PAD_LEFT + (n > 1 ? (i / (n - 1)) * innerW : innerW / 2);
+	}
+	function toY(v: number) {
+		return PAD_TOP + innerH - (v / maxValue) * innerH;
+	}
+
+	const pPts = profile.map((v, i) => ({ x: toX(i), y: toY(v) }));
+	const iPts = investor.map((v, i) => ({ x: toX(i), y: toY(v) }));
+	const sPts = search.map((v, i) => ({ x: toX(i), y: toY(v) }));
+
+	function cubicPath(pts: Array<{ x: number; y: number }>) {
+		if (!pts.length) return '';
+		if (pts.length === 1) return `M${pts[0].x},${pts[0].y}`;
+		let d = `M${pts[0].x},${pts[0].y}`;
+		for (let i = 1; i < pts.length; i++) {
+			const p0 = pts[i - 1];
+			const p1 = pts[i];
+			const cpx = (p0.x + p1.x) / 2;
+			d += ` C${cpx},${p0.y} ${cpx},${p1.y} ${p1.x},${p1.y}`;
+		}
+		return d;
+	}
+	function areaPath(pts: Array<{ x: number; y: number }>) {
+		if (!pts.length) return '';
+		return `${cubicPath(pts)} L${pts[pts.length - 1].x},${chartBottom} L${pts[0].x},${chartBottom} Z`;
+	}
+
+	const yTicks = Array.from(new Set([0, Math.round(maxValue / 2), maxValue]));
+	const xKeys: number[] =
+		n <= 1 ? [0] : n <= 6 ? Array.from({ length: n }, (_, i) => i) : [0, Math.floor((n - 1) / 2), n - 1];
+
+	const stepX = n > 1 ? innerW / (n - 1) : innerW;
+	const activeX = hoveredIndex !== null ? toX(hoveredIndex) : null;
+	const tooltipPct = activeX !== null ? (activeX / W) * 100 : null;
+	const tooltipTransform =
+		tooltipPct === null ? 'translateX(-50%)'
+			: tooltipPct < 20 ? 'translateX(0%)'
+				: tooltipPct > 80 ? 'translateX(-100%)'
+					: 'translateX(-50%)';
 
 	return (
-		<div className="mt-4 rounded-xl border border-(--border) bg-(--surface) p-4">
-			<div className="relative">
-				{hasData ? (
-					<div
-						className="absolute -top-2 z-10 -translate-x-1/2 rounded-lg border border-(--border) bg-(--surface) px-3 py-2 shadow-(--shadow-lg)"
-						style={{ left: tooltipLeft }}
-					>
-						<p className="text-[11px] uppercase tracking-wide text-(--secondary)">{formatShortLabel(safeLabels[activeIndex])}</p>
-						<p className="text-xs text-(--primary) mt-1">Views: <span className="tabular-nums">{profile[activeIndex] ?? 0}</span></p>
-						<p className="text-xs text-(--primary)">Interest: <span className="tabular-nums">{investor[activeIndex] ?? 0}</span></p>
-						<p className="text-xs text-(--primary)">Search: <span className="tabular-nums">{search[activeIndex] ?? 0}</span></p>
-					</div>
-				) : null}
-				<svg
-					viewBox={`0 0 ${width} ${height}`}
-					className="w-full h-56"
-					onMouseMove={(event) => {
-						if (!hasData) return;
-						setHoveredIndex(resolveIndex(event.clientX, event.currentTarget.getBoundingClientRect()));
-					}}
-					onMouseLeave={() => setHoveredIndex(null)}
+		<div className="relative mt-4 rounded-xl border border-(--border) bg-(--surface) p-4 overflow-hidden">
+			{hoveredIndex !== null && tooltipPct !== null && (
+				<div
+					className="pointer-events-none absolute z-20 rounded-lg border border-(--border) bg-(--surface) px-3 py-2 shadow-lg"
+					style={{ left: `${tooltipPct}%`, top: '12px', transform: tooltipTransform }}
 				>
-					{yAxisTicks.map((tick, index) => {
-						const y = offsetY + (height - offsetY * 2) - (tick / Math.max(maxValue, 1)) * (height - offsetY * 2);
-						return (
-							<g key={`${tick}-${index}`}>
-								<line x1={offsetX} y1={y} x2={width - offsetX} y2={y} stroke="var(--border)" strokeWidth="1" />
-								<text x="2" y={y + 4} fontSize="10" fill="currentColor" className="text-(--secondary)">{tick}</text>
-							</g>
-						);
-					})}
-					{hasData ? <line x1={activeX} y1={offsetY} x2={activeX} y2={height - offsetY} stroke="var(--border)" strokeDasharray="4 4" /> : null}
-					<polyline fill="none" stroke="#06b6d4" strokeWidth="2.5" points={profilePoints.map((point) => `${point.x},${point.y}`).join(' ')} strokeLinecap="round" strokeLinejoin="round" />
-					<polyline fill="none" stroke="#22c55e" strokeWidth="2.5" points={investorPoints.map((point) => `${point.x},${point.y}`).join(' ')} strokeLinecap="round" strokeLinejoin="round" />
-					<polyline fill="none" stroke="#f59e0b" strokeWidth="2.5" points={searchPoints.map((point) => `${point.x},${point.y}`).join(' ')} strokeLinecap="round" strokeLinejoin="round" />
-					{hasData && hoveredIndex !== null ? (
-						<g>
-							<circle cx={profilePoints[hoveredIndex]?.x} cy={profilePoints[hoveredIndex]?.y} r="4" fill="#06b6d4" />
-							<circle cx={investorPoints[hoveredIndex]?.x} cy={investorPoints[hoveredIndex]?.y} r="4" fill="#22c55e" />
-							<circle cx={searchPoints[hoveredIndex]?.x} cy={searchPoints[hoveredIndex]?.y} r="4" fill="#f59e0b" />
+					<p className="text-[10px] uppercase tracking-wider font-medium text-(--secondary) mb-1.5">
+						{formatShortLabel(safeLabels[hoveredIndex])}
+					</p>
+					<div className="space-y-1">
+						<div className="flex items-center justify-between gap-6 text-xs">
+							<span className="flex items-center gap-1.5 text-(--secondary)"><span className="w-2 h-2 rounded-full bg-cyan-500" />Views</span>
+							<span className="font-semibold text-(--primary) tabular-nums">{profile[hoveredIndex] ?? 0}</span>
+						</div>
+						<div className="flex items-center justify-between gap-6 text-xs">
+							<span className="flex items-center gap-1.5 text-(--secondary)"><span className="w-2 h-2 rounded-full bg-green-500" />Interest</span>
+							<span className="font-semibold text-(--primary) tabular-nums">{investor[hoveredIndex] ?? 0}</span>
+						</div>
+						<div className="flex items-center justify-between gap-6 text-xs">
+							<span className="flex items-center gap-1.5 text-(--secondary)"><span className="w-2 h-2 rounded-full bg-amber-500" />Search</span>
+							<span className="font-semibold text-(--primary) tabular-nums">{search[hoveredIndex] ?? 0}</span>
+						</div>
+					</div>
+				</div>
+			)}
+			<svg
+				viewBox={`0 0 ${W} ${H}`}
+				className="w-full h-56"
+				onMouseMove={(e) => {
+					if (!n) return;
+					const rect = e.currentTarget.getBoundingClientRect();
+					const relX = ((e.clientX - rect.left) / rect.width) * W - PAD_LEFT;
+					setHoveredIndex(Math.min(n - 1, Math.max(0, Math.round(relX / stepX))));
+				}}
+				onMouseLeave={() => setHoveredIndex(null)}
+			>
+				<defs>
+					<linearGradient id="grad-profile" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%" stopColor="#06b6d4" stopOpacity="0.18" />
+						<stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
+					</linearGradient>
+					<linearGradient id="grad-investor" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%" stopColor="#22c55e" stopOpacity="0.12" />
+						<stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+					</linearGradient>
+					<linearGradient id="grad-search" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%" stopColor="#f59e0b" stopOpacity="0.12" />
+						<stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+					</linearGradient>
+				</defs>
+
+				{/* Y-axis grid + labels */}
+				{yTicks.map((tick) => {
+					const y = toY(tick);
+					return (
+						<g key={tick}>
+							<line x1={PAD_LEFT} y1={y} x2={W - PAD_RIGHT} y2={y} stroke="var(--border)" strokeWidth="1" strokeDasharray={tick > 0 ? '4 4' : undefined} />
+							<text x={PAD_LEFT - 4} y={y + 3.5} fontSize="9" textAnchor="end" fill="currentColor" className="text-(--secondary)" opacity="0.6">{tick}</text>
 						</g>
-					) : null}
-				</svg>
-			</div>
-			<div className="mt-3 flex items-center justify-between text-[11px] text-(--secondary)">
-				<span>{formatShortLabel(safeLabels[0])}</span>
-				<span>{formatShortLabel(safeLabels[Math.floor((safeLabels.length - 1) / 2)])}</span>
-				<span>{formatShortLabel(safeLabels[safeLabels.length - 1])}</span>
-			</div>
+					);
+				})}
+
+				{/* Area fills */}
+				<path d={areaPath(pPts)} fill="url(#grad-profile)" />
+				<path d={areaPath(iPts)} fill="url(#grad-investor)" />
+				<path d={areaPath(sPts)} fill="url(#grad-search)" />
+
+				{/* Hover guide line */}
+				{activeX !== null && (
+					<line x1={activeX} y1={PAD_TOP} x2={activeX} y2={chartBottom} stroke="var(--border)" strokeWidth="1.5" strokeDasharray="4 3" />
+				)}
+
+				{/* Smooth lines */}
+				<path d={cubicPath(pPts)} fill="none" stroke="#06b6d4" strokeWidth="2.5" strokeLinecap="round" />
+				<path d={cubicPath(iPts)} fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" />
+				<path d={cubicPath(sPts)} fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" />
+
+				{/* Hover dots */}
+				{hoveredIndex !== null && (
+					<>
+						{pPts[hoveredIndex] && <circle cx={pPts[hoveredIndex].x} cy={pPts[hoveredIndex].y} r="4.5" fill="#06b6d4" stroke="var(--surface)" strokeWidth="2" />}
+						{iPts[hoveredIndex] && <circle cx={iPts[hoveredIndex].x} cy={iPts[hoveredIndex].y} r="4.5" fill="#22c55e" stroke="var(--surface)" strokeWidth="2" />}
+						{sPts[hoveredIndex] && <circle cx={sPts[hoveredIndex].x} cy={sPts[hoveredIndex].y} r="4.5" fill="#f59e0b" stroke="var(--surface)" strokeWidth="2" />}
+					</>
+				)}
+
+				{/* X-axis labels */}
+				{xKeys.map((idx) => (
+					<text key={idx} x={toX(idx)} y={H - 4} fontSize="9" textAnchor="middle" fill="currentColor" className="text-(--secondary)" opacity="0.6">
+						{formatShortLabel(safeLabels[idx])}
+					</text>
+				))}
+			</svg>
 		</div>
 	);
 }
