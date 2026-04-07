@@ -10,9 +10,18 @@ export interface FollowStatus {
 	followingCount: number;
 }
 
+export interface FollowUser {
+	id: string;
+	name: string;
+	email: string;
+	avatar: string | null;
+	activeContext: string | null;
+	isFollowing: boolean;
+}
+
 interface UseFollowOptions {
 	targetUserId: string;
-	/** Pass current user id to skip the fetch for self */
+	/** Pass current user id — self profiles will fetch counts only */
 	currentUserId?: string;
 }
 
@@ -24,7 +33,7 @@ export function useFollow({ targetUserId, currentUserId }: UseFollowOptions) {
 	const isSelf = currentUserId && currentUserId === targetUserId;
 
 	const fetchStatus = useCallback(async () => {
-		if (!targetUserId || isSelf) return;
+		if (!targetUserId) return;
 		setLoading(true);
 		try {
 			const res = await fetch(`/api/follow/${targetUserId}/`);
@@ -34,14 +43,14 @@ export function useFollow({ targetUserId, currentUserId }: UseFollowOptions) {
 		} finally {
 			setLoading(false);
 		}
-	}, [targetUserId, isSelf]);
+	}, [targetUserId]);
 
 	useEffect(() => {
 		fetchStatus();
 	}, [fetchStatus]);
 
 	const follow = useCallback(async () => {
-		if (!targetUserId || actionLoading) return;
+		if (!targetUserId || actionLoading || isSelf) return;
 		setActionLoading(true);
 		try {
 			const res = await fetch(`/api/follow/${targetUserId}/`, { method: 'POST' });
@@ -60,10 +69,10 @@ export function useFollow({ targetUserId, currentUserId }: UseFollowOptions) {
 		} finally {
 			setActionLoading(false);
 		}
-	}, [targetUserId, actionLoading]);
+	}, [targetUserId, actionLoading, isSelf]);
 
 	const unfollow = useCallback(async () => {
-		if (!targetUserId || actionLoading) return;
+		if (!targetUserId || actionLoading || isSelf) return;
 		setActionLoading(true);
 		try {
 			const res = await fetch(`/api/follow/${targetUserId}/`, { method: 'DELETE' });
@@ -82,7 +91,7 @@ export function useFollow({ targetUserId, currentUserId }: UseFollowOptions) {
 		} finally {
 			setActionLoading(false);
 		}
-	}, [targetUserId, actionLoading]);
+	}, [targetUserId, actionLoading, isSelf]);
 
 	const toggle = useCallback(() => {
 		if (status?.following) {
@@ -92,5 +101,19 @@ export function useFollow({ targetUserId, currentUserId }: UseFollowOptions) {
 		}
 	}, [status, follow, unfollow]);
 
-	return { status, loading, actionLoading, follow, unfollow, toggle };
+	return { status, loading, actionLoading, follow, unfollow, toggle, isSelf: !!isSelf, refetch: fetchStatus };
+}
+
+/** Fetch a user's followers list */
+export async function fetchUserFollowers(userId: string): Promise<{ users: FollowUser[]; count: number }> {
+	const res = await fetch(`/api/follow/${userId}/followers/`);
+	if (!res.ok) return { users: [], count: 0 };
+	return res.json();
+}
+
+/** Fetch a user's following list */
+export async function fetchUserFollowing(userId: string): Promise<{ users: FollowUser[]; count: number }> {
+	const res = await fetch(`/api/follow/${userId}/following/`);
+	if (!res.ok) return { users: [], count: 0 };
+	return res.json();
 }

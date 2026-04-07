@@ -22,6 +22,7 @@ import { getAuthCookie, getSessionToken } from '@/lib/auth-utils';
 import { useApiQuery } from '@/lib/queries';
 import { queryKeys } from '@/lib/queries/keys';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api-client';
 
 type Tab = 'about' | 'reviews' | 'team' | 'activity';
@@ -30,6 +31,8 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
   const { identifier } = use(params);
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const currentUserId = user?.id ?? undefined;
   const [activeTab, setActiveTab] = useState<Tab>('about');
   const [interestLoading, setInterestLoading] = useState(false);
   const [interestMessage, setInterestMessage] = useState<string | null>(null);
@@ -179,7 +182,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
         <StartupProfileNavbar />
         <div className="animate-fadeIn min-h-screen bg-background pb-12">
           {/* Hero shows basic details like Name, Tagline, Location, Stage */}
-          <StartupProfileHero startup={startup} />
+          <StartupProfileHero startup={startup} currentUserId={currentUserId} />
 
           <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-12">
             <div className="bg-(--surface) border border-(--border) rounded-xl p-8 text-center flex flex-col items-center shadow-xs">
@@ -205,7 +208,7 @@ export default function StartupProfilePage({ params }: { params: Promise<{ ident
       <div className="animate-fadeIn min-h-screen bg-background">
         {/* ... existing normal page ... */}
         {/* Hero */}
-        <StartupProfileHero startup={startup} />
+        <StartupProfileHero startup={startup} currentUserId={currentUserId} />
 
         {/* Tab bar */}
         <div className="border-b border-(--border) sticky top-0 bg-background z-10">

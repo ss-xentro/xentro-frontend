@@ -4,6 +4,7 @@ import { useState } from "react";
 import RichTextDisplay from "@/components/ui/RichTextDisplay";
 import { VerifiedBadge, InstitutionalBadge } from "./MentorProfileHelpers";
 import { FollowButton } from "@/components/ui/FollowButton";
+import { ProfileStats } from "@/components/ui/ProfileStats";
 import type { MentorDetail } from "../_lib/constants";
 
 interface HeroSectionProps {
@@ -103,6 +104,13 @@ export function HeroSection({
 						<p className="text-xs text-(--secondary-light) mt-2">
 							{metaParts.join(" · ")}
 						</p>
+					)}
+
+					{/* Follower / Following counts */}
+					{mentor.userId && (
+						<div className="mt-3">
+							<ProfileStats targetUserId={mentor.userId} currentUserId={currentUserId} />
+						</div>
 					)}
 				</div>
 

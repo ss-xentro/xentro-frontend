@@ -5,15 +5,18 @@ import { VideoModal } from '@/components/ui/VideoModal'; // Add new VideoModal i
 import { useState } from 'react'; // Add useState import
 import { Badge } from '@/components/ui';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { FollowButton } from '@/components/ui/FollowButton';
+import { ProfileStats } from '@/components/ui/ProfileStats';
 import { startupStageLabels, startupStatusLabels, fundingRoundLabels, sectorLabels } from '@/lib/types';
 import { cn, formatCurrency } from '@/lib/utils';
 import type { StartupWithDetails } from './types';
 
 interface StartupProfileHeroProps {
 	startup: StartupWithDetails;
+	currentUserId?: string;
 }
 
-export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
+export function StartupProfileHero({ startup, currentUserId }: StartupProfileHeroProps) {
 	const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
 	const stageInfo = startup.stage ? startupStageLabels[startup.stage] : null;
@@ -162,6 +165,14 @@ export function StartupProfileHero({ startup }: StartupProfileHeroProps) {
 									</span>
 								)}
 							</div>
+
+							{/* Follow stats + button (for startup owner) */}
+							{startup.owner?.id && (
+								<div className="flex items-center gap-4 mt-4 flex-wrap">
+									<ProfileStats targetUserId={startup.owner.id} currentUserId={currentUserId} />
+									<FollowButton targetUserId={startup.owner.id} currentUserId={currentUserId} showMessage />
+								</div>
+							)}
 						</div>
 
 						{/* Right Column: Funding Progress (Desktop) / Mobile wraps below */}
