@@ -224,6 +224,7 @@ export function DashboardAnalyticsBento({
 	const investorInterest = analytics?.investorInterestCount
 		?? countByAction(logs, (action) => action.includes('investor') || action.includes('interest'));
 	const searchAppearances = analytics?.searchAppearances ?? countByAction(logs, (action) => action.includes('search'));
+	const followersCount = analytics?.followersCount ?? 0;
 
 	const profileSeries = analytics?.sparkline?.profileViews
 		?? getFallbackSeries(logs, (action) => action.includes('view'));
@@ -291,6 +292,14 @@ export function DashboardAnalyticsBento({
 				description={`${windowSearchAppearances} in selected window`}
 				sparklineValues={searchSeries}
 				sparklineColor="#f59e0b"
+				className="xl:col-span-3"
+			/>
+			<MetricCard
+				title="Followers"
+				value={followersCount}
+				description="Total unique followers"
+				sparklineValues={[]}
+				sparklineColor="#8b5cf6"
 				className="xl:col-span-3"
 			/>
 			<MetricCard

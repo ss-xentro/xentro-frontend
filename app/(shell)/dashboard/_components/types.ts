@@ -49,6 +49,7 @@ export interface DashboardAnalytics {
 	profileViews: number;
 	investorInterestCount: number;
 	searchAppearances: number;
+	followersCount: number;
 	windowDays: 7 | 30 | 90;
 	windowTotals: {
 		profileViews: number;
