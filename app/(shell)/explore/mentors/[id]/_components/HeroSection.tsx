@@ -109,7 +109,7 @@ export function HeroSection({
 					{/* Follower / Following counts */}
 					{mentor.userId && (
 						<div className="mt-3">
-							<ProfileStats targetUserId={mentor.userId} currentUserId={currentUserId} />
+							<ProfileStats targetId={mentor.userId} entityType="user" currentUserId={currentUserId} />
 						</div>
 					)}
 				</div>
@@ -124,7 +124,8 @@ export function HeroSection({
 					</button>
 					{mentor.userId && (
 						<FollowButton
-							targetUserId={mentor.userId}
+							targetId={mentor.userId}
+							entityType="user"
 							currentUserId={currentUserId}
 							showMessage
 						/>

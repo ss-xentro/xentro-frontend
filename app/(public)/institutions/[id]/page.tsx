@@ -6,6 +6,9 @@ import { formatNumber, formatCurrency } from '@/lib/utils';
 import { Card, Button, Badge, VerifiedBadge, SDGBadge } from '@/components/ui';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { InstitutionTabs } from '@/components/institution/InstitutionTabs';
+import { FollowButton } from '@/components/ui/FollowButton';
+import { ProfileStats } from '@/components/ui/ProfileStats';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useApiQuery } from '@/lib/queries';
 import { queryKeys } from '@/lib/queries/keys';
@@ -25,6 +28,8 @@ function normalizeStringList(value: unknown): string[] {
 export default function InstitutionProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const router = useRouter();
+    const { user } = useAuth();
+    const currentUserId = user?.id;
 
     const { data: instData, isLoading: loading } = useApiQuery<{
         institution: Institution;
@@ -87,9 +92,17 @@ export default function InstitutionProfilePage({ params }: { params: Promise<{ i
                                 <Badge variant="outline" className="ml-2 border-(--border) text-(--primary-light)">{typeInfo.label}</Badge>
                             </div>
 
-                            <p className="text-xl text-(--secondary) mb-6 max-w-2xl">
+                            <p className="text-xl text-(--secondary) mb-4 max-w-2xl">
                                 {institution.tagline ?? 'No tagline provided yet.'}
                             </p>
+
+                            {/* Follow stats + button */}
+                            {institution.id && (
+                                <div className="flex items-center gap-4 mb-6 flex-wrap">
+                                    <ProfileStats targetId={institution.id} entityType="institution" currentUserId={currentUserId} />
+                                    <FollowButton targetId={institution.id} entityType="institution" currentUserId={currentUserId} />
+                                </div>
+                            )}
 
                             <div className="flex flex-wrap gap-4 md:gap-8">
                                 <div className="flex items-center gap-2 text-(--secondary)">

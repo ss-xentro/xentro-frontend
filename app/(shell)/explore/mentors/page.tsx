@@ -316,7 +316,8 @@ export default function ExploreMentorsPage() {
 							<div className="mt-auto px-5 pb-5 pt-3 flex flex-col gap-2">
 								{mentor.userId && (
 									<FollowButton
-										targetUserId={mentor.userId}
+										targetId={mentor.userId}
+										entityType="user"
 										currentUserId={currentUserId}
 										showMessage
 										className="w-full justify-center"

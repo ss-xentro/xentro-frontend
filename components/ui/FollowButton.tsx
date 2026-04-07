@@ -1,14 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useFollow } from '@/lib/useFollow';
+import { useFollow, type EntityType } from '@/lib/useFollow';
 import { createOrGetRoom } from '@/lib/useChat';
 import { cn } from '@/lib/utils';
 import { AppIcon } from '@/components/ui/AppIcon';
 
 interface FollowButtonProps {
-	/** UUID of the user to follow/unfollow. */
-	targetUserId: string;
+	/** UUID of the entity to follow/unfollow. */
+	targetId: string;
+	/** Type of entity: user, startup, or institution. */
+	entityType?: EntityType;
 	/** UUID of the currently authenticated user. */
 	currentUserId?: string;
 	/** When true, show a "Message" button that opens (or creates) the chat room. */
@@ -17,27 +19,22 @@ interface FollowButtonProps {
 	className?: string;
 }
 
-/**
- * FollowButton — renders a Follow/Following toggle button.
- * Optionally shows a Message button if both users mutually follow each other.
- *
- * Usage:
- *   <FollowButton targetUserId={mentor.id} currentUserId={user.id} showMessage />
- */
 export function FollowButton({
-	targetUserId,
+	targetId,
+	entityType = 'user',
 	currentUserId,
 	showMessage = false,
 	className,
 }: FollowButtonProps) {
 	const router = useRouter();
 	const { status, loading, actionLoading, toggle } = useFollow({
-		targetUserId,
+		targetId,
+		entityType,
 		currentUserId,
 	});
 
-	// Don't render for self
-	if (currentUserId && currentUserId === targetUserId) return null;
+	// Don't render for self (user entities only)
+	if (entityType === 'user' && currentUserId && currentUserId === targetId) return null;
 	// While initial status is loading, render a skeleton
 	if (loading) {
 		return (
@@ -52,7 +49,7 @@ export function FollowButton({
 
 	const handleMessageClick = async () => {
 		try {
-			const room = await createOrGetRoom(targetUserId);
+			const room = await createOrGetRoom(targetId);
 			router.push(`/chat?room=${room.id}`);
 		} catch {
 			// TODO: surface toast error
@@ -82,7 +79,7 @@ export function FollowButton({
 				{isFollowing ? 'Following' : 'Follow'}
 			</button>
 
-			{showMessage && isMutual && (
+			{showMessage && isMutual && entityType === 'user' && (
 				<button
 					onClick={handleMessageClick}
 					className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold border border-(--border) bg-(--surface) text-(--foreground) hover:bg-(--accent-subtle) transition-colors"

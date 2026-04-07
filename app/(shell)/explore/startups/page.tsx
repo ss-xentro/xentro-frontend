@@ -153,11 +153,11 @@ function StartupsContent() {
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                {startup.ownerId && (
+                                {startup.id && (
                                     <FollowButton
-                                        targetUserId={startup.ownerId}
+                                        targetId={startup.id}
+                                        entityType="startup"
                                         currentUserId={currentUserId}
-                                        showMessage
                                         className="w-full justify-center"
                                     />
                                 )}

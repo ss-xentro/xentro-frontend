@@ -166,11 +166,11 @@ export function StartupProfileHero({ startup, currentUserId }: StartupProfileHer
 								)}
 							</div>
 
-							{/* Follow stats + button (for startup owner) */}
-							{startup.owner?.id && (
+							{/* Follow stats + button (for this startup) */}
+							{startup.id && (
 								<div className="flex items-center gap-4 mt-4 flex-wrap">
-									<ProfileStats targetUserId={startup.owner.id} currentUserId={currentUserId} />
-									<FollowButton targetUserId={startup.owner.id} currentUserId={currentUserId} showMessage />
+									<ProfileStats targetId={startup.id} entityType="startup" currentUserId={currentUserId} />
+									<FollowButton targetId={startup.id} entityType="startup" currentUserId={currentUserId} />
 								</div>
 							)}
 						</div>

@@ -4,14 +4,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { cn } from '@/lib/utils';
-import { fetchUserFollowers, fetchUserFollowing, type FollowUser } from '@/lib/useFollow';
+import { fetchEntityFollowers, fetchUserFollowing, type FollowUser, type EntityType } from '@/lib/useFollow';
 
 type Tab = 'followers' | 'following';
 
 interface FollowListModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	userId: string;
+	entityId: string;
+	entityType?: EntityType;
 	currentUserId?: string;
 	initialTab?: Tab;
 	followerCount: number;
@@ -21,33 +22,35 @@ interface FollowListModalProps {
 export function FollowListModal({
 	isOpen,
 	onClose,
-	userId,
+	entityId,
+	entityType = 'user',
 	currentUserId,
 	initialTab = 'followers',
 	followerCount,
 	followingCount,
 }: FollowListModalProps) {
+	const showFollowingTab = entityType === 'user' && followingCount > 0;
 	const [tab, setTab] = useState<Tab>(initialTab);
 	const [users, setUsers] = useState<FollowUser[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set());
 
 	useEffect(() => {
-		if (isOpen) setTab(initialTab);
-	}, [isOpen, initialTab]);
+		if (isOpen) setTab(initialTab === 'following' && !showFollowingTab ? 'followers' : initialTab);
+	}, [isOpen, initialTab, showFollowingTab]);
 
 	const fetchList = useCallback(async () => {
-		if (!isOpen || !userId) return;
+		if (!isOpen || !entityId) return;
 		setLoading(true);
 		try {
 			const data = tab === 'followers'
-				? await fetchUserFollowers(userId)
-				: await fetchUserFollowing(userId);
+				? await fetchEntityFollowers(entityId, entityType)
+				: await fetchUserFollowing(entityId);
 			setUsers(data.users);
 		} finally {
 			setLoading(false);
 		}
-	}, [isOpen, userId, tab]);
+	}, [isOpen, entityId, entityType, tab]);
 
 	useEffect(() => {
 		fetchList();
@@ -94,20 +97,22 @@ export function FollowListModal({
 						<span className="absolute bottom-0 left-0 right-0 h-0.5 bg-(--primary)" />
 					)}
 				</button>
-				<button
-					onClick={() => setTab('following')}
-					className={cn(
-						'flex-1 py-3 text-sm font-semibold text-center transition-colors relative',
-						tab === 'following'
-							? 'text-(--primary)'
-							: 'text-(--secondary-light) hover:text-(--secondary)',
-					)}
-				>
-					{followingCount} Following
-					{tab === 'following' && (
-						<span className="absolute bottom-0 left-0 right-0 h-0.5 bg-(--primary)" />
-					)}
-				</button>
+				{showFollowingTab && (
+					<button
+						onClick={() => setTab('following')}
+						className={cn(
+							'flex-1 py-3 text-sm font-semibold text-center transition-colors relative',
+							tab === 'following'
+								? 'text-(--primary)'
+								: 'text-(--secondary-light) hover:text-(--secondary)',
+						)}
+					>
+						{followingCount} Following
+						{tab === 'following' && (
+							<span className="absolute bottom-0 left-0 right-0 h-0.5 bg-(--primary)" />
+						)}
+					</button>
+				)}
 			</div>
 
 			{/* List */}

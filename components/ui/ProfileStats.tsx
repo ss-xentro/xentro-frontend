@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useFollow } from '@/lib/useFollow';
+import { useFollow, type EntityType } from '@/lib/useFollow';
 import { FollowListModal } from '@/components/ui/FollowListModal';
 
 function formatCount(n: number): string {
@@ -12,16 +12,18 @@ function formatCount(n: number): string {
 }
 
 interface ProfileStatsProps {
-	targetUserId: string;
+	targetId: string;
+	entityType?: EntityType;
 	currentUserId?: string;
 }
 
 /**
  * Instagram-style follower/following counts.
  * Clicking a count opens the FollowListModal.
+ * For non-user entities (startup, institution) only "followers" is shown.
  */
-export function ProfileStats({ targetUserId, currentUserId }: ProfileStatsProps) {
-	const { status, loading } = useFollow({ targetUserId, currentUserId });
+export function ProfileStats({ targetId, entityType = 'user', currentUserId }: ProfileStatsProps) {
+	const { status, loading } = useFollow({ targetId, entityType, currentUserId });
 	const [modal, setModal] = useState<{ open: boolean; tab: 'followers' | 'following' }>({
 		open: false,
 		tab: 'followers',
@@ -31,10 +33,14 @@ export function ProfileStats({ targetUserId, currentUserId }: ProfileStatsProps)
 		return (
 			<div className="flex items-center gap-5">
 				<div className="h-4 w-16 rounded bg-(--accent-subtle) animate-pulse" />
-				<div className="h-4 w-16 rounded bg-(--accent-subtle) animate-pulse" />
+				{entityType === 'user' && (
+					<div className="h-4 w-16 rounded bg-(--accent-subtle) animate-pulse" />
+				)}
 			</div>
 		);
 	}
+
+	const showFollowing = entityType === 'user';
 
 	return (
 		<>
@@ -46,23 +52,26 @@ export function ProfileStats({ targetUserId, currentUserId }: ProfileStatsProps)
 					<span className="font-bold text-(--primary)">{formatCount(status.followerCount)}</span>{' '}
 					<span className="text-(--secondary)">followers</span>
 				</button>
-				<button
-					onClick={() => setModal({ open: true, tab: 'following' })}
-					className="hover:opacity-70 transition-opacity"
-				>
-					<span className="font-bold text-(--primary)">{formatCount(status.followingCount)}</span>{' '}
-					<span className="text-(--secondary)">following</span>
-				</button>
+				{showFollowing && (
+					<button
+						onClick={() => setModal({ open: true, tab: 'following' })}
+						className="hover:opacity-70 transition-opacity"
+					>
+						<span className="font-bold text-(--primary)">{formatCount(status.followingCount)}</span>{' '}
+						<span className="text-(--secondary)">following</span>
+					</button>
+				)}
 			</div>
 
 			<FollowListModal
 				isOpen={modal.open}
 				onClose={() => setModal((prev) => ({ ...prev, open: false }))}
-				userId={targetUserId}
+				entityId={targetId}
+				entityType={entityType}
 				currentUserId={currentUserId}
 				initialTab={modal.tab}
 				followerCount={status.followerCount}
-				followingCount={status.followingCount}
+				followingCount={showFollowing ? status.followingCount : 0}
 			/>
 		</>
 	);
