@@ -194,7 +194,7 @@ export default function AccountSettings({
 			{profileIncomplete && (
 				<div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
 					<svg
-						className="w-5 h-5 text-amber-400 shrink-0 mt-0.5"
+						className="w-5 h-5 text-(--warning) shrink-0 mt-0.5"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -207,7 +207,7 @@ export default function AccountSettings({
 						/>
 					</svg>
 					<div>
-						<p className="text-sm font-medium text-amber-400">
+						<p className="text-sm font-medium text-(--warning)">
 							Complete your profile
 						</p>
 						<p className="text-xs text-(--secondary) mt-0.5">
@@ -301,7 +301,7 @@ export default function AccountSettings({
 											<button
 												type="button"
 												onClick={() => setAvatar("")}
-												className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+												className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg text-(--error) hover:bg-(--error-light) transition-colors"
 											>
 												Remove
 											</button>

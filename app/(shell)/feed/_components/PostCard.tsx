@@ -79,9 +79,9 @@ export default function PostCard({
 						{/* Repost */}
 						<button
 							onClick={() => onRequireAuth?.()}
-							className="group flex items-center gap-2 text-(--secondary-light) hover:text-green-400 transition-colors"
+							className="group flex items-center gap-2 text-(--secondary-light) hover:text-(--success) transition-colors"
 						>
-							<div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-green-500/10 transition-colors">
+							<div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-(--success-light) transition-colors">
 								<svg
 									className="w-4.5 h-4.5"
 									fill="none"

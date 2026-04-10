@@ -19,12 +19,12 @@ const ICONS = {
 
 function getIcon(type: string): { path: string; accent: string } {
 	const t = type.toLowerCase();
-	if (t.includes('message') || t === 'mention') return { path: ICONS.message, accent: 'bg-blue-500/20 text-blue-400' };
-	if (t.includes('booking') || t.includes('session')) return { path: ICONS.booking, accent: 'bg-purple-500/20 text-purple-400' };
-	if (t.includes('connect') || t.includes('mentor_request') || t.includes('startup_linked')) return { path: ICONS.connection, accent: 'bg-cyan-500/20 text-cyan-400' };
-	if (t.includes('form') || t.includes('application') || t.includes('pitch')) return { path: ICONS.form, accent: 'bg-amber-500/20 text-amber-400' };
-	if (t.includes('team') || t.includes('member') || t.includes('invite') || t.includes('ambassador')) return { path: ICONS.team, accent: 'bg-indigo-500/20 text-indigo-400' };
-	if (t.includes('approve') || t.includes('accept') || t.includes('confirm')) return { path: ICONS.check, accent: 'bg-green-500/20 text-green-400' };
+	if (t.includes('message') || t === 'mention') return { path: ICONS.message, accent: 'bg-blue-500/20 text-blue-600 dark:text-blue-400' };
+	if (t.includes('booking') || t.includes('session')) return { path: ICONS.booking, accent: 'bg-purple-500/20 text-purple-600 dark:text-purple-400' };
+	if (t.includes('connect') || t.includes('mentor_request') || t.includes('startup_linked')) return { path: ICONS.connection, accent: 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-400' };
+	if (t.includes('form') || t.includes('application') || t.includes('pitch')) return { path: ICONS.form, accent: 'bg-(--warning-light) text-(--warning)' };
+	if (t.includes('team') || t.includes('member') || t.includes('invite') || t.includes('ambassador')) return { path: ICONS.team, accent: 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-400' };
+	if (t.includes('approve') || t.includes('accept') || t.includes('confirm')) return { path: ICONS.check, accent: 'bg-(--success-light) text-(--success)' };
 	return { path: ICONS.bell, accent: 'bg-[var(--accent-light)] text-[var(--primary)]' };
 }
 
