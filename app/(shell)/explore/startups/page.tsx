@@ -63,12 +63,12 @@ function StartupsContent() {
     const startups = rawData?.startups || rawData?.data || [];
 
     const stageColor: Record<string, string> = {
-        ideation: 'bg-purple-500/20 text-purple-300 border-purple-500/20',
-        pre_seed_prototype: 'bg-blue-500/20 text-blue-300 border-blue-500/20',
-        seed_mvp: 'bg-teal-500/20 text-teal-300 border-teal-500/20',
-        early_traction: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/20',
-        growth: 'bg-green-500/20 text-green-300 border-green-500/20',
-        scaling: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/20',
+        ideation: 'bg-purple-500/20 text-purple-600 border-purple-500/20',
+        pre_seed_prototype: 'bg-blue-500/20 text-blue-600 border-blue-500/20',
+        seed_mvp: 'bg-teal-500/20 text-teal-600 border-teal-500/20',
+        early_traction: 'bg-cyan-500/20 text-cyan-600 border-cyan-500/20',
+        growth: 'bg-green-500/20 text-green-600 border-green-500/20',
+        scaling: 'bg-yellow-500/20 text-yellow-700 border-yellow-500/20',
     };
 
     return (
@@ -142,7 +142,7 @@ function StartupsContent() {
                                     </span>
                                 )}
                                 {Number(startup.fundsRaised) > 0 && (
-                                    <span className="font-medium text-green-400">
+                                    <span className="font-medium text-(--success)">
                                         {formatCurrency(Number(startup.fundsRaised), startup.fundingCurrency || 'USD')}
                                     </span>
                                 )}
@@ -152,7 +152,7 @@ function StartupsContent() {
                                 <button
                                     type="button"
                                     onClick={() => router.push(`/startups/${startup.id}`)}
-                                    className="text-center text-sm font-medium py-2.5 rounded-xl border border-(--border) text-(--primary-light) hover:text-(--primary) hover:border-(--border-hover) transition-colors"
+                                    className="text-center text-sm font-medium py-2.5 rounded-xl border border-(--border) text-(--primary) hover:text-(--primary) hover:border-(--border-hover) hover:bg-(--surface-hover) transition-colors"
                                 >
                                     View Startup
                                 </button>

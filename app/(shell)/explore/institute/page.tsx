@@ -29,7 +29,7 @@ export default function ExploreInstitutionsPage() {
                     <select
                         value={selectedType}
                         onChange={(e) => setSelectedType(e.target.value)}
-                        className="h-10 px-3 bg-(--accent-subtle) border border-(--border) rounded-xl text-sm text-(--primary-light) focus:outline-none focus:border-(--border-hover) transition-colors"
+                        className="h-10 px-3 bg-(--accent-subtle) border border-(--border) rounded-xl text-sm text-(--primary) focus:outline-none focus:border-(--border-hover) transition-colors"
                     >
                         <option value="all" className="bg-(--surface)">All Types</option>
                         {Object.entries(institutionTypeLabels).map(([key, { label }]) => (
@@ -70,7 +70,7 @@ export default function ExploreInstitutionsPage() {
                                         )}
                                     </div>
                                     {typeInfo && (
-                                        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-(--accent-light) text-(--primary-light) border border-(--border)">
+                                        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-(--accent-light) text-(--primary) border border-(--border)">
                                             {typeInfo.label}
                                         </span>
                                     )}

@@ -228,11 +228,11 @@
 .light {
   /* Primary Colors */
   --primary: #111827;
-  --primary-light: #374151;
+  --primary-light: #1F2937;
   --foreground: #111827;
   /* alias for --primary — used by text-(--foreground) */
-  --secondary: #6B7280;
-  --secondary-light: #9CA3AF;
+  --secondary: #4B5563;
+  --secondary-light: #6B7280;
 
   /* Brand — stable across themes, use for interactive fills (buttons, bubbles) */
   --brand: #4A5BDE;
