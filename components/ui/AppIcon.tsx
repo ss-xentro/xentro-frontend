@@ -71,6 +71,16 @@ import {
 	Info,
 	ArrowRight,
 	BarChart2,
+	Send,
+	ArrowLeft,
+	WifiOff,
+	ChevronDown,
+	Loader2,
+	Mail,
+	ChevronLeft,
+	ChevronRight,
+	Trash2,
+	Award,
 	type LucideProps,
 } from 'lucide-react';
 import { type ElementType } from 'react';
@@ -148,6 +158,16 @@ const ICON_MAP: Record<string, ElementType> = {
 	info: Info,
 	'arrow-right': ArrowRight,
 	'bar-chart-2': BarChart2,
+	send: Send,
+	'arrow-left': ArrowLeft,
+	'wifi-off': WifiOff,
+	'chevron-down': ChevronDown,
+	'loader-2': Loader2,
+	mail: Mail,
+	'chevron-left': ChevronLeft,
+	'chevron-right': ChevronRight,
+	trash: Trash2,
+	award: Award,
 };
 
 interface AppIconProps extends Omit<LucideProps, 'ref'> {
