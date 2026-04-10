@@ -319,7 +319,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 								/>
 							</div>
 							{form.coverImageFile && (
-								<p className="text-xs text-green-300 mt-1">✓ {form.coverImageFile.name}</p>
+								<p className="text-xs text-green-600 dark:text-green-300 mt-1">✓ {form.coverImageFile.name}</p>
 							)}
 						</div>
 

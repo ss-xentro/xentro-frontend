@@ -27,7 +27,7 @@ export default function TeamTab({ team }: { team: TeamMember[] }) {
 					return (
 						<Card key={member.id} className="p-6 bg-(--accent-subtle) border-(--border) border" hoverable>
 							<div className="flex items-start gap-4">
-								<div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center text-xl font-bold text-violet-300 shrink-0">
+								<div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center text-xl font-bold text-violet-600 dark:text-violet-300 shrink-0">
 									{member.user?.name?.[0]?.toUpperCase() || '?'}
 								</div>
 								<div className="flex-1 min-w-0">

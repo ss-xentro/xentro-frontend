@@ -19,7 +19,7 @@ export default function StartupCard({ startup, deleting, onDelete }: StartupCard
 			<div className="flex items-start justify-between mb-4">
 				<div className="flex-1">
 					<h3 className="font-bold text-lg text-(--primary) mb-1">{startup.name}</h3>
-					<span className="inline-block px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-300 rounded">
+					<span className="inline-block px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-600 dark:text-blue-300 rounded">
 						{formatStage(startup.stage)}
 					</span>
 				</div>

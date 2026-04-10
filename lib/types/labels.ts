@@ -291,25 +291,25 @@ export function getSectorCategory(slug: string): SectorCategory | null {
 // ── Startup Labels ──────────────────────────────────────────
 export const startupStageLabels: Record<StartupStage, { label: string; description: string; color: string }> = {
 	ideation: { label: 'Ideation', description: 'Conceptual stage', color: 'bg-(--accent-light) text-(--primary)' },
-	pre_seed_prototype: { label: 'Pre seed / Prototype', description: 'Building the first version', color: 'bg-blue-500/20 text-blue-600' },
-	seed_mvp: { label: 'Seed / MVP', description: 'Minimum viable product', color: 'bg-teal-500/20 text-teal-600' },
-	early_traction: { label: 'Early Traction', description: 'Initial customers/users', color: 'bg-green-500/20 text-green-600' },
-	growth: { label: 'Growth', description: 'Scaling operations', color: 'bg-purple-500/20 text-purple-600' },
-	scaling: { label: 'Scaling', description: 'Rapid expansion', color: 'bg-orange-500/20 text-orange-600' },
+	pre_seed_prototype: { label: 'Pre seed / Prototype', description: 'Building the first version', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-200' },
+	seed_mvp: { label: 'Seed / MVP', description: 'Minimum viable product', color: 'bg-teal-500/20 text-teal-600 dark:text-teal-200' },
+	early_traction: { label: 'Early Traction', description: 'Initial customers/users', color: 'bg-green-500/20 text-green-600 dark:text-green-200' },
+	growth: { label: 'Growth', description: 'Scaling operations', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-200' },
+	scaling: { label: 'Scaling', description: 'Rapid expansion', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-200' },
 };
 
 export const startupStatusLabels: Record<StartupStatus, { label: string; color: string }> = {
-	public: { label: 'Public', color: 'bg-green-500/20 text-green-700' },
+	public: { label: 'Public', color: 'bg-green-500/20 text-green-700 dark:text-green-200' },
 	private: { label: 'Private', color: 'bg-(--accent-light) text-(--primary)' },
 };
 
 export const fundingRoundLabels: Record<FundingRound, { label: string; description: string; color: string }> = {
 	bootstrapped: { label: 'Bootstrapped', description: 'Self-funded', color: 'bg-(--accent-light) text-(--primary)' },
-	pre_seed: { label: 'Pre-Seed', description: '$0 - $500K', color: 'bg-blue-500/20 text-blue-600' },
-	seed: { label: 'Seed', description: '$500K - $2M', color: 'bg-green-500/20 text-green-600' },
-	series_a: { label: 'Series A', description: '$2M - $15M', color: 'bg-purple-500/20 text-purple-600' },
-	series_b_plus: { label: 'Series B+', description: '$15M+', color: 'bg-orange-500/20 text-orange-600' },
-	unicorn: { label: 'Unicorn', description: '$1B+ valuation', color: 'bg-yellow-500/20 text-yellow-700' },
+	pre_seed: { label: 'Pre-Seed', description: '$0 - $500K', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-200' },
+	seed: { label: 'Seed', description: '$500K - $2M', color: 'bg-green-500/20 text-green-600 dark:text-green-200' },
+	series_a: { label: 'Series A', description: '$2M - $15M', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-200' },
+	series_b_plus: { label: 'Series B+', description: '$15M+', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-200' },
+	unicorn: { label: 'Unicorn', description: '$1B+ valuation', color: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-200' },
 };
 
 export const founderRoleLabels: Record<FounderRole, string> = {

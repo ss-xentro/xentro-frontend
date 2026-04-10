@@ -409,7 +409,7 @@ export default function MentorDetailPage() {
 												</p>
 												{startup.isExternalInstitution &&
 													startup.institutionName && (
-														<p className="text-xs text-amber-300 mt-0.5 truncate">
+														<p className="text-xs text-amber-600 dark:text-amber-300 mt-0.5 truncate">
 															Associated with {startup.institutionName}
 														</p>
 													)}

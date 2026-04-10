@@ -170,7 +170,7 @@ export default function RecycleBinPage() {
 								key={folder.key}
 								onClick={() => setActiveFolder(folder.key)}
 								className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-									? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+									? 'bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-500/30'
 									: 'text-(--secondary) hover:bg-(--accent-subtle) hover:text-(--primary-light) border border-transparent'
 									}`}
 							>
@@ -216,10 +216,10 @@ export default function RecycleBinPage() {
 										</span>
 										<span
 											className={`px-2 py-0.5 rounded-full text-xs font-medium ${item.daysRemaining <= 7
-												? 'bg-red-500/20 text-red-300'
+												? 'bg-red-500/20 text-red-600 dark:text-red-300'
 												: item.daysRemaining <= 14
-													? 'bg-yellow-500/20 text-yellow-300'
-													: 'bg-green-500/20 text-green-300'
+													? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-300'
+													: 'bg-green-500/20 text-green-600 dark:text-green-300'
 												}`}
 										>
 											{item.daysRemaining} day{item.daysRemaining !== 1 ? 's' : ''} remaining

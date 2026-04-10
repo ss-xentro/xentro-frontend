@@ -63,12 +63,12 @@ function StartupsContent() {
     const startups = rawData?.startups || rawData?.data || [];
 
     const stageColor: Record<string, string> = {
-        ideation: 'bg-purple-500/20 text-purple-600 border-purple-500/20',
-        pre_seed_prototype: 'bg-blue-500/20 text-blue-600 border-blue-500/20',
-        seed_mvp: 'bg-teal-500/20 text-teal-600 border-teal-500/20',
-        early_traction: 'bg-cyan-500/20 text-cyan-600 border-cyan-500/20',
-        growth: 'bg-green-500/20 text-green-600 border-green-500/20',
-        scaling: 'bg-yellow-500/20 text-yellow-700 border-yellow-500/20',
+        ideation: 'bg-purple-500/20 text-purple-600 dark:text-purple-200 border-purple-500/20',
+        pre_seed_prototype: 'bg-blue-500/20 text-blue-600 dark:text-blue-200 border-blue-500/20',
+        seed_mvp: 'bg-teal-500/20 text-teal-600 dark:text-teal-200 border-teal-500/20',
+        early_traction: 'bg-cyan-500/20 text-cyan-600 dark:text-cyan-200 border-cyan-500/20',
+        growth: 'bg-green-500/20 text-green-600 dark:text-green-200 border-green-500/20',
+        scaling: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-200 border-yellow-500/20',
     };
 
     return (

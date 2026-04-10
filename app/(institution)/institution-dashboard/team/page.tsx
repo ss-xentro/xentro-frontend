@@ -103,7 +103,7 @@ export default function TeamPage() {
                 <Card className="p-6 bg-(--accent-subtle) border-(--border) hover:border-(--border-hover) transition-colors">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center text-xl font-bold text-violet-300">
+                      <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center text-xl font-bold text-violet-600 dark:text-violet-300">
                         {member.userName?.[0]?.toUpperCase() || '?'}
                       </div>
                       <div>
