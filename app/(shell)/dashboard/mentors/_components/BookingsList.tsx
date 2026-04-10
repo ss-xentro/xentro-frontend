@@ -114,14 +114,14 @@ export default function BookingsList({ bookings, cancellingId, onCancel }: Booki
 									<button
 										onClick={() => onCancel(booking.id)}
 										disabled={cancellingId === booking.id}
-										className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+										className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-(--error)/20 text-(--error) hover:bg-(--error-light) transition-colors disabled:opacity-50"
 									>
 										<AppIcon name="x" className="w-3 h-3" />
 										{cancellingId === booking.id ? 'Cancelling…' : 'Cancel Session'}
 									</button>
 								)}
 								{isPast && (
-									<span className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
+									<span className="text-[10px] text-(--warning) bg-(--warning-light) px-2 py-0.5 rounded-full">
 										Past due
 									</span>
 								)}

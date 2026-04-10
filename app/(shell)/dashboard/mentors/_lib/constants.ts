@@ -26,16 +26,16 @@ export interface Booking {
 }
 
 export const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-	pending: { bg: 'bg-amber-500/10', text: 'text-amber-400', label: 'Pending' },
-	accepted: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', label: 'Connected' },
-	rejected: { bg: 'bg-red-500/10', text: 'text-red-400', label: 'Declined' },
+	pending: { bg: 'bg-(--warning-light)', text: 'text-(--warning)', label: 'Pending' },
+	accepted: { bg: 'bg-(--success-light)', text: 'text-(--success)', label: 'Connected' },
+	rejected: { bg: 'bg-(--error-light)', text: 'text-(--error)', label: 'Declined' },
 };
 
 export const BOOKING_STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-	pending: { bg: 'bg-amber-500/10', text: 'text-amber-400', label: 'Pending' },
-	confirmed: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', label: 'Confirmed' },
-	cancelled: { bg: 'bg-red-500/10', text: 'text-red-400', label: 'Cancelled' },
-	completed: { bg: 'bg-blue-500/10', text: 'text-blue-400', label: 'Completed' },
+	pending: { bg: 'bg-(--warning-light)', text: 'text-(--warning)', label: 'Pending' },
+	confirmed: { bg: 'bg-(--success-light)', text: 'text-(--success)', label: 'Confirmed' },
+	cancelled: { bg: 'bg-(--error-light)', text: 'text-(--error)', label: 'Cancelled' },
+	completed: { bg: 'bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400', label: 'Completed' },
 };
 
 export const CONNECTION_FILTERS = ['all', 'pending', 'accepted', 'rejected'] as const;

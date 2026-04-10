@@ -252,7 +252,7 @@ export default function FeedSidebar() {
 							<div className="my-1 h-px bg-(--border)" />
 							<button
 								onClick={handleLogout}
-								className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-sm"
+								className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-(--error) hover:bg-(--error-light) hover:opacity-90 transition-colors text-sm"
 							>
 								<svg
 									className="w-4 h-4 shrink-0"

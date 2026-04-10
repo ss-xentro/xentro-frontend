@@ -142,7 +142,7 @@ export default function ProfileCompletionBanner() {
                                 className={`
                                     inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-colors
                                     ${isDone
-                                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                        ? 'bg-(--success-light) border-(--success)/20 text-(--success)'
                                         : 'bg-(--accent-subtle) border-(--border) text-(--secondary)'
                                     }
                                 `}
@@ -170,7 +170,7 @@ export default function ProfileCompletionBanner() {
                                 className={`
                                     inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded-md border
                                     ${isDone
-                                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                        ? 'bg-(--success-light) border-(--success)/20 text-(--success)'
                                         : 'bg-(--accent-subtle) border-(--border) text-(--secondary)'
                                     }
                                 `}
@@ -184,7 +184,7 @@ export default function ProfileCompletionBanner() {
                 {/* CTA */}
                 <Link
                     href="/mentor-dashboard?tab=profile"
-                    className="inline-flex items-center gap-2 text-xs sm:text-[13px] font-medium px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-sm hover:shadow transition-all duration-200"
+                    className="inline-flex items-center gap-2 text-xs sm:text-[13px] font-medium px-4 py-2 rounded-xl bg-(--warning) hover:opacity-90 text-amber-950 shadow-sm hover:shadow transition-all duration-200"
                 >
                     Complete Profile
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -129,7 +129,7 @@ export default function MentorsPage() {
             >
               Endorsement Requests
               {pendingCount > 0 && (
-                <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-600 rounded-full">
+                <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-brand rounded-full">
                   {pendingCount}
                 </span>
               )}
@@ -158,14 +158,14 @@ export default function MentorsPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                          <span className="text-sm font-semibold text-blue-300">
+                          <span className="text-sm font-semibold text-blue-500">
                             {endorsement.requesterName?.charAt(0)?.toUpperCase() || '?'}
                           </span>
                         </div>
                         <div>
                           <h4 className="font-semibold text-(--primary)">{endorsement.requesterName}</h4>
                           <p className="text-xs text-(--secondary)">{endorsement.requesterEmail}</p>
-                          <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-300 rounded capitalize">
+                          <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-500 rounded capitalize">
                             {endorsement.entityType}
                           </span>
                           {endorsement.message && (
@@ -193,13 +193,13 @@ export default function MentorsPage() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleEndorsementResponse(endorsement.id, 'accepted')}
-                            className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
+                            className="px-4 py-2 text-sm font-medium text-white bg-(--success) hover:opacity-90 rounded-lg transition-colors"
                           >
                             Accept
                           </button>
                           <button
                             onClick={() => handleEndorsementResponse(endorsement.id, 'rejected')}
-                            className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                            className="px-4 py-2 text-sm font-medium text-white bg-(--error) hover:opacity-90 rounded-lg transition-colors"
                           >
                             Reject
                           </button>
@@ -215,7 +215,7 @@ export default function MentorsPage() {
                       <div className="mt-4 flex gap-2 border-t border-(--border) pt-4">
                         <button
                           onClick={() => setRespondingId(endorsement.id)}
-                          className="px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+                          className="px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-(--brand-hover) rounded-lg transition-colors"
                         >
                           Respond
                         </button>

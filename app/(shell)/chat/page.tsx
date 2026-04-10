@@ -541,7 +541,7 @@ function ChatPanel({
 					<p className="font-semibold text-sm text-(--foreground) truncate">{peerName}</p>
 					<p className="text-xs text-(--secondary)">
 						{peerPresence.isOnline ? (
-							<span className="text-emerald-400">Online</span>
+							<span className="text-(--success)">Online</span>
 						) : (
 							`Last seen ${formatLastSeen(peerPresence.lastSeen)}`
 						)}

@@ -301,7 +301,7 @@ export default function EventFormModal({ mode, form, saving, onFormChange, onSav
 								<button
 									type="button"
 									onClick={() => fileInputRef.current?.click()}
-									className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+									className="flex-1 px-3 py-2 bg-brand hover:bg-(--brand-hover) text-white text-sm rounded-lg transition-colors"
 								>
 									{form.coverImageFile ? '📸 Change Image' : '📸 Upload Image'}
 								</button>

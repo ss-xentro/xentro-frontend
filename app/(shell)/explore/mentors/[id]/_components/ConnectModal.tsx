@@ -84,7 +84,7 @@ export default function ConnectModal({
 				<button
 					onClick={handleSubmit}
 					disabled={submitting || !message.trim()}
-					className="flex-1 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:bg-violet-600/50 disabled:cursor-not-allowed text-sm font-medium text-white transition-colors flex items-center justify-center gap-2"
+					className="flex-1 px-4 py-2.5 rounded-xl bg-brand hover:bg-(--brand-hover) disabled:bg-brand/50 disabled:cursor-not-allowed text-sm font-medium text-white transition-colors flex items-center justify-center gap-2"
 				>
 					{submitting ? (
 						<>

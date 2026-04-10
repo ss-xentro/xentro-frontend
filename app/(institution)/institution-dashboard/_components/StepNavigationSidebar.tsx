@@ -68,7 +68,7 @@ export default function StepNavigationSidebar({
 											${isCurrent
 												? 'bg-accent text-(--background) border-accent'
 												: completed
-													? 'bg-green-500 text-white border-green-500'
+													? 'bg-(--success) text-white border-(--success)'
 													: 'bg-(--surface) text-(--secondary) border-(--border) hover:bg-(--surface-hover)'
 											}
 										`}
@@ -124,7 +124,7 @@ export default function StepNavigationSidebar({
                       ${isCurrent
 												? 'bg-accent text-(--background) border-accent'
 												: completed
-													? 'bg-green-500 text-white border-green-500'
+													? 'bg-(--success) text-white border-(--success)'
 													: 'bg-(--surface) text-(--secondary) border-(--border)'
 											}
                     `}

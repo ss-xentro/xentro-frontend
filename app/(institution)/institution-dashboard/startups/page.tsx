@@ -77,14 +77,14 @@ export default function StartupsPage() {
                         >
                             Endorsement Requests
                             {endorsements.length > 0 && (
-                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                                <span className="absolute -top-2 -right-2 bg-(--error) text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
                                     {endorsements.length}
                                 </span>
                             )}
                         </button>
                         <button
                             onClick={() => router.push('/institution-dashboard/add-startup')}
-                            className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors flex items-center gap-2"
+                            className="px-4 py-2 bg-brand text-white rounded-lg hover:bg-(--brand-hover) transition-colors flex items-center gap-2"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

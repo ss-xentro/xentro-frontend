@@ -37,7 +37,7 @@ export default function AvailabilityBookingSection({
 		<div id="availability-booking">
 			<Section
 				title="Availability & Booking"
-				icon={<AppIcon name="calendar-clock" className="w-4 h-4 text-emerald-400" />}
+				icon={<AppIcon name="calendar-clock" className="w-4 h-4 text-(--success)" />}
 			>
 				{/* Real slots from API (shown when connected) */}
 				{isConnected && (

@@ -90,9 +90,9 @@ export default function EndorsementsPage() {
 
 	const statusColor = (status: string) => {
 		switch (status) {
-			case 'accepted': return 'bg-emerald-500/15 text-emerald-400';
-			case 'rejected': return 'bg-red-500/15 text-red-400';
-			default: return 'bg-amber-500/15 text-amber-400';
+			case 'accepted': return 'bg-(--success-light) text-(--success)';
+			case 'rejected': return 'bg-(--error-light) text-(--error)';
+			default: return 'bg-(--warning-light) text-(--warning)';
 		}
 	};
 

@@ -163,8 +163,8 @@ export default function NotificationsPage() {
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-(--primary) tracking-tight">Notifications</h1>
               {connected && (
-                <span className="flex items-center gap-1 text-xs text-green-400" title="Real-time updates active">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                <span className="flex items-center gap-1 text-xs text-(--success)" title="Real-time updates active">
+                  <span className="w-1.5 h-1.5 rounded-full bg-(--success) animate-pulse" />
                   Live
                 </span>
               )}
@@ -230,7 +230,7 @@ export default function NotificationsPage() {
           </div>
         ) : error ? (
           <div className="bg-(--surface) border border-(--border) rounded-2xl p-8 text-center">
-            <p className="text-red-400 mb-4">{error}</p>
+            <p className="text-(--error) mb-4">{error}</p>
             <button
               onClick={() => queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all })}
               className="px-4 py-2 bg-(--surface-hover) hover:bg-(--surface) text-(--primary) text-sm rounded-xl transition-colors"

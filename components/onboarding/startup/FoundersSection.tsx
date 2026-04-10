@@ -269,7 +269,7 @@ export function FoundersSection() {
 						<div
 							className={cn(
 								'rounded-xl border px-3 py-2 text-xs',
-								hasPrimaryFounder ? 'border-emerald-800 bg-emerald-900/30 text-emerald-400' : 'border-amber-800 bg-amber-900/30 text-amber-400'
+								hasPrimaryFounder ? 'border-(--success)/30 bg-(--success-light) text-(--success)' : 'border-(--warning)/30 bg-(--warning-light) text-(--warning)'
 							)}
 						>
 							<p className="font-semibold uppercase tracking-wide">Primary founder</p>
@@ -278,7 +278,7 @@ export function FoundersSection() {
 						<div
 							className={cn(
 								'rounded-xl border px-3 py-2 text-xs',
-								incompleteCount === 0 ? 'border-emerald-800 bg-emerald-900/30 text-emerald-400' : 'border-amber-800 bg-amber-900/30 text-amber-400'
+								incompleteCount === 0 ? 'border-(--success)/30 bg-(--success-light) text-(--success)' : 'border-(--warning)/30 bg-(--warning-light) text-(--warning)'
 							)}
 						>
 							<p className="font-semibold uppercase tracking-wide">Profile completion</p>
@@ -287,7 +287,7 @@ export function FoundersSection() {
 						<div
 							className={cn(
 								'rounded-xl border px-3 py-2 text-xs',
-								invalidEmailCount === 0 ? 'border-emerald-800 bg-emerald-900/30 text-emerald-400' : 'border-rose-800 bg-rose-900/30 text-rose-400'
+								invalidEmailCount === 0 ? 'border-(--success)/30 bg-(--success-light) text-(--success)' : 'border-(--error)/30 bg-(--error-light) text-(--error)'
 							)}
 						>
 							<p className="font-semibold uppercase tracking-wide">Email format</p>

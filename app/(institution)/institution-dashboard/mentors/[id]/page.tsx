@@ -117,7 +117,7 @@ export default function MentorDetailPage() {
 			<DashboardSidebar>
 				<div className="p-8">
 					<Card className="p-8 text-center">
-						<p className="text-red-400 mb-4">{error || 'Mentor not found'}</p>
+						<p className="text-(--error) mb-4">{error || 'Mentor not found'}</p>
 						<Button onClick={() => router.push('/institution-dashboard/mentors')}>Back to Mentors</Button>
 					</Card>
 				</div>
@@ -143,7 +143,7 @@ export default function MentorDetailPage() {
 						<Button onClick={() => router.push(`/institution-dashboard/mentors/${mentorId}/edit`)}>
 							Edit Mentor
 						</Button>
-						<Button variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={handleDelete} disabled={deleting}>
+						<Button variant="ghost" className="text-(--error) hover:opacity-80 hover:bg-(--error-light)" onClick={handleDelete} disabled={deleting}>
 							{deleting ? 'Removing...' : 'Delete'}
 						</Button>
 					</div>

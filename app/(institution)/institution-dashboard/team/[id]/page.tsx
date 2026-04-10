@@ -60,7 +60,7 @@ export default function TeamMemberDetailPage() {
 	if (error || !member) {
 		return (
 			<DashboardSidebar>
-				<div className="p-8"><Card className="p-8 text-center"><p className="text-red-400 mb-4">{error || 'Member not found'}</p><Button onClick={() => router.push('/institution-dashboard/team')}>Back to Team</Button></Card></div>
+				<div className="p-8"><Card className="p-8 text-center"><p className="text-(--error) mb-4">{error || 'Member not found'}</p><Button onClick={() => router.push('/institution-dashboard/team')}>Back to Team</Button></Card></div>
 			</DashboardSidebar>
 		);
 	}
@@ -74,7 +74,7 @@ export default function TeamMemberDetailPage() {
 						Back to Team
 					</button>
 					{member.role !== 'admin' && (
-						<Button variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={handleRemove} disabled={deleting}>
+						<Button variant="ghost" className="text-(--error) hover:opacity-80 hover:bg-(--error-light)" onClick={handleRemove} disabled={deleting}>
 							{deleting ? 'Removing...' : 'Remove Member'}
 						</Button>
 					)}

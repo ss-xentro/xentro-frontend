@@ -231,7 +231,7 @@ export default function RecycleBinPage() {
 									<Button
 										variant="ghost"
 										size="sm"
-										className="text-blue-300 hover:text-blue-200 hover:bg-blue-500/10"
+										className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 hover:bg-blue-500/10"
 										onClick={() => handleRestore(apiType, item.id)}
 										disabled={actionLoading === `restore-${item.id}`}
 									>
@@ -247,7 +247,7 @@ export default function RecycleBinPage() {
 									<Button
 										variant="ghost"
 										size="sm"
-										className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+										className="text-(--error) hover:opacity-80 hover:bg-(--error-light)"
 										onClick={() => handlePermanentDelete(apiType, item.id)}
 										disabled={actionLoading === `delete-${item.id}`}
 									>

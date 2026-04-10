@@ -341,7 +341,7 @@ export default function AccountSettings({
 								</label>
 								<Input value={settings?.email || ""} disabled />
 								{settings?.emailVerified && (
-									<span className="text-xs text-emerald-400 mt-1 inline-flex items-center gap-1">
+									<span className="text-xs text-(--success) mt-1 inline-flex items-center gap-1">
 										<AppIcon name="check" className="w-3 h-3" /> Verified
 									</span>
 								)}

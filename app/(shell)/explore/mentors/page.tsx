@@ -43,7 +43,7 @@ function VerifiedBadge({
 }) {
 	if (verified) {
 		return (
-			<span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+			<span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-(--success-light) text-(--success) border border-(--success)/25">
 				<svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
 					<path
 						fillRule="evenodd"

@@ -49,10 +49,10 @@ type Booking = {
 };
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; icon: string }> = {
-    pending: { bg: 'bg-amber-500/10 border border-amber-500/20', text: 'text-amber-400', icon: 'clock' },
-    confirmed: { bg: 'bg-emerald-500/10 border border-emerald-500/20', text: 'text-emerald-400', icon: 'check-circle-2' },
-    cancelled: { bg: 'bg-red-500/10 border border-red-500/20', text: 'text-red-400', icon: 'x-circle' },
-    completed: { bg: 'bg-blue-500/10 border border-blue-500/20', text: 'text-blue-400', icon: 'award' },
+    pending: { bg: 'bg-(--warning-light) border border-(--warning)/20', text: 'text-(--warning)', icon: 'clock' },
+    confirmed: { bg: 'bg-(--success-light) border border-(--success)/20', text: 'text-(--success)', icon: 'check-circle-2' },
+    cancelled: { bg: 'bg-(--error-light) border border-(--error)/20', text: 'text-(--error)', icon: 'x-circle' },
+    completed: { bg: 'bg-blue-500/10 border border-blue-500/20', text: 'text-blue-600 dark:text-blue-400', icon: 'award' },
 };
 
 export default function SessionsPage() {

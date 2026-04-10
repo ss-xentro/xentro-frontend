@@ -155,7 +155,7 @@ export default function MentorRequestsPage() {
 												<button
 													onClick={() => handleRespond(req.id, 'accepted')}
 													disabled={actionLoading === req.id}
-													className="px-4 py-2 text-xs font-medium rounded-lg bg-green-600 hover:bg-green-600 text-white transition-colors disabled:opacity-50"
+													className="px-4 py-2 text-xs font-medium rounded-lg bg-(--success) hover:opacity-90 text-white transition-colors disabled:opacity-50"
 												>
 													{actionLoading === req.id ? 'Processing...' : 'Accept'}
 												</button>
@@ -170,8 +170,8 @@ export default function MentorRequestsPage() {
 										) : (
 											<span
 												className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full ${req.status === 'accepted'
-													? 'bg-green-500/10 text-green-400 border border-green-500/20'
-													: 'bg-red-500/10 text-red-400 border border-red-500/20'
+													? 'bg-(--success-light) text-(--success) border border-(--success)/20'
+													: 'bg-(--error-light) text-(--error) border border-(--error)/20'
 													}`}
 											>
 												{req.status === 'accepted' ? (

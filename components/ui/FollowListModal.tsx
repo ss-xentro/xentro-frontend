@@ -211,7 +211,7 @@ export function FollowListModal({
 						</button>
 						<button
 							onClick={handleConfirmUnfollow}
-							className="px-3 py-1 rounded-lg text-xs font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors"
+							className="px-3 py-1 rounded-lg text-xs font-semibold bg-(--error) text-white hover:opacity-90 transition-colors"
 						>
 							Unfollow
 						</button>
