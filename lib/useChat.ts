@@ -54,10 +54,14 @@ const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000, 30000];
 async function fetchWsToken(): Promise<string | null> {
 	try {
 		const res = await fetch('/api/auth/ws-token');
-		if (!res.ok) return null;
+		if (!res.ok) {
+			console.warn('[useChat] ws-token fetch failed:', res.status);
+			return null;
+		}
 		const data = await res.json();
 		return data.token ?? null;
-	} catch {
+	} catch (err) {
+		console.warn('[useChat] ws-token fetch error:', err);
 		return null;
 	}
 }
@@ -95,7 +99,13 @@ export function useChat({ roomId, currentUserId, onPresenceUpdate, onNewMessage 
 		if (wsRef.current && (wsRef.current.readyState === WebSocket.CONNECTING || wsRef.current.readyState === WebSocket.OPEN)) return;
 
 		const token = await fetchWsToken();
-		if (!token) return;
+		if (!token) {
+			// Retry with exponential backoff (token may not be available yet)
+			const delay = RECONNECT_DELAYS[Math.min(retriesRef.current, RECONNECT_DELAYS.length - 1)];
+			retriesRef.current += 1;
+			timerRef.current = setTimeout(() => connect(), delay);
+			return;
+		}
 
 		const ws = new WebSocket(`${wsBase}/ws/chat/${roomId}/`);
 
