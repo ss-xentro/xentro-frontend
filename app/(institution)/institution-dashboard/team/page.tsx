@@ -20,9 +20,9 @@ interface TeamMember {
 }
 
 const roleColors: Record<string, string> = {
-  admin: 'bg-purple-500/20 text-purple-200',
-  manager: 'bg-blue-500/20 text-blue-200',
-  ambassador: 'bg-green-500/20 text-green-200',
+  admin: 'bg-purple-500/20 text-purple-600 dark:text-purple-200',
+  manager: 'bg-blue-500/20 text-blue-600 dark:text-blue-200',
+  ambassador: 'bg-green-500/20 text-green-600 dark:text-green-200',
   viewer: 'bg-(--accent-light) text-(--primary-light)',
 };
 

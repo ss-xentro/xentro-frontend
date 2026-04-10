@@ -70,8 +70,8 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 				<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${user.isDeleted
 					? 'bg-(--accent-light) text-(--secondary-light)'
 					: user.isActive
-						? 'bg-green-500/20 text-green-200'
-						: 'bg-red-500/20 text-red-200'
+						? 'bg-green-500/20 text-green-600 dark:text-green-200'
+						: 'bg-red-500/20 text-red-600 dark:text-red-200'
 					}`}>
 					{user.isDeleted ? 'Deleted' : user.isActive ? 'Active' : 'Disabled'}
 				</span>

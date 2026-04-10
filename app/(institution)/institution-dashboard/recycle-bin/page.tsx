@@ -178,7 +178,7 @@ export default function RecycleBinPage() {
 								{folder.label}
 								{count > 0 && (
 									<span
-										className={`ml-1 px-2 py-0.5 rounded-full text-xs font-semibold ${isActive ? 'bg-blue-500/30 text-blue-200' : 'bg-(--accent-light) text-(--primary-light)'
+										className={`ml-1 px-2 py-0.5 rounded-full text-xs font-semibold ${isActive ? 'bg-blue-500/30 text-blue-600 dark:text-blue-200' : 'bg-(--accent-light) text-(--primary-light)'
 											}`}
 									>
 										{count}

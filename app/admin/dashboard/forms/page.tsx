@@ -42,10 +42,10 @@ const FORM_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   draft: { bg: 'bg-(--accent-light)', text: 'text-(--primary-light)', label: 'Draft' },
-  submitted: { bg: 'bg-blue-500/20', text: 'text-blue-200', label: 'Submitted' },
-  under_review: { bg: 'bg-yellow-500/20', text: 'text-yellow-200', label: 'Under Review' },
-  approved: { bg: 'bg-green-500/20', text: 'text-green-200', label: 'Approved' },
-  rejected: { bg: 'bg-red-500/20', text: 'text-red-200', label: 'Rejected' },
+  submitted: { bg: 'bg-blue-500/20', text: 'text-blue-600 dark:text-blue-200', label: 'Submitted' },
+  under_review: { bg: 'bg-yellow-500/20', text: 'text-yellow-600 dark:text-yellow-200', label: 'Under Review' },
+  approved: { bg: 'bg-green-500/20', text: 'text-green-600 dark:text-green-200', label: 'Approved' },
+  rejected: { bg: 'bg-red-500/20', text: 'text-red-600 dark:text-red-200', label: 'Rejected' },
   withdrawn: { bg: 'bg-(--accent-light)', text: 'text-(--secondary-light)', label: 'Withdrawn' },
 };
 

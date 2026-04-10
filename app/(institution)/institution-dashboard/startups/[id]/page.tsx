@@ -157,12 +157,12 @@ export default function StartupDetailPage() {
 							<div className="flex items-center gap-3 mb-1">
 								<h1 className="text-2xl font-bold text-(--primary)">{startup.name}</h1>
 								{startup.stage && (
-									<span className="px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-200 rounded">
+									<span className="px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-600 dark:text-blue-200 rounded">
 										{stageLabels[startup.stage] || startup.stage}
 									</span>
 								)}
 								{startup.status && (
-									<span className={`px-2 py-1 text-xs font-medium rounded ${startup.status === 'public' ? 'bg-green-500/20 text-green-200' : 'bg-(--accent-light) text-(--primary-light)'}`}>
+									<span className={`px-2 py-1 text-xs font-medium rounded ${startup.status === 'public' ? 'bg-green-500/20 text-green-600 dark:text-green-200' : 'bg-(--accent-light) text-(--primary-light)'}`}>
 										{startup.status}
 									</span>
 								)}
@@ -236,7 +236,7 @@ export default function StartupDetailPage() {
 								<p className="text-xs font-medium text-(--secondary) mb-3">Sectors</p>
 								<div className="flex flex-wrap gap-2">
 									{startup.sectors.map((s, i) => (
-										<span key={i} className="px-3 py-1 text-sm font-medium bg-blue-500/20 text-blue-200 rounded-full">{s}</span>
+										<span key={i} className="px-3 py-1 text-sm font-medium bg-blue-500/20 text-blue-600 dark:text-blue-200 rounded-full">{s}</span>
 									))}
 								</div>
 							</div>
@@ -246,7 +246,7 @@ export default function StartupDetailPage() {
 								<p className="text-xs font-medium text-(--secondary) mb-3">SDG Focus</p>
 								<div className="flex flex-wrap gap-2">
 									{startup.sdgs.map((s, i) => (
-										<span key={i} className="px-3 py-1 text-sm font-medium bg-green-500/20 text-green-200 rounded-full">{s}</span>
+										<span key={i} className="px-3 py-1 text-sm font-medium bg-green-500/20 text-green-600 dark:text-green-200 rounded-full">{s}</span>
 									))}
 								</div>
 							</div>

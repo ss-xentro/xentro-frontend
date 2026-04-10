@@ -110,9 +110,9 @@ export default function ApprovedDashboard({ application, institution, stats, onE
 							<p className="text-sm text-(--secondary)">Your institution is live on the platform</p>
 						</div>
 						<div className="flex items-center gap-2">
-							<span className="px-3 py-1 rounded-full bg-green-500/20 text-green-200 text-sm font-medium flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Published</span>
+							<span className="px-3 py-1 rounded-full bg-green-500/20 text-green-600 dark:text-green-200 text-sm font-medium flex items-center gap-1"><AppIcon name="check" className="w-3.5 h-3.5" /> Published</span>
 							{institution?.verified && (
-								<span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-200 text-sm font-medium flex items-center gap-1">
+								<span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-200 text-sm font-medium flex items-center gap-1">
 									<AppIcon name="check" className="w-3.5 h-3.5" /> Verified Badge
 								</span>
 							)}

@@ -164,14 +164,14 @@ export default function MentorDetailPage() {
 							{mentor.occupation && <p className="text-(--primary-light) mt-1">{mentor.occupation}</p>}
 							{mentor.user_email && <p className="text-sm text-(--secondary) mt-1">{mentor.user_email}</p>}
 							<div className="flex items-center gap-3 mt-3">
-								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.verified ? 'bg-green-500/20 text-green-200' : 'bg-yellow-500/20 text-yellow-200'}`}>
+								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.verified ? 'bg-green-500/20 text-green-600 dark:text-green-200' : 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-200'}`}>
 									{mentor.verified ? 'Verified' : 'Pending'}
 								</span>
-								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.status === 'approved' || mentor.status === 'active' ? 'bg-blue-500/20 text-blue-200' : 'bg-(--accent-light) text-(--primary)'}`}>
+								<span className={`px-2 py-1 rounded-full text-xs font-medium ${mentor.status === 'approved' || mentor.status === 'active' ? 'bg-blue-500/20 text-blue-600 dark:text-blue-200' : 'bg-(--accent-light) text-(--primary)'}`}>
 									{mentor.status}
 								</span>
 								{mentor.profile_completed && (
-									<span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-200">
+									<span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-600 dark:text-purple-200">
 										Profile Complete
 									</span>
 								)}
@@ -195,7 +195,7 @@ export default function MentorDetailPage() {
 						<h3 className="text-sm font-semibold text-(--primary) mb-3">Expertise Areas</h3>
 						<div className="flex flex-wrap gap-2">
 							{expertiseList.map((exp, idx) => (
-								<span key={idx} className="px-3 py-1 text-sm font-medium bg-blue-500/20 text-blue-200 rounded-full">{exp}</span>
+								<span key={idx} className="px-3 py-1 text-sm font-medium bg-blue-500/20 text-blue-600 dark:text-blue-200 rounded-full">{exp}</span>
 							))}
 						</div>
 					</Card>

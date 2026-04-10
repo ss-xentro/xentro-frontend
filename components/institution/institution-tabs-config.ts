@@ -58,15 +58,15 @@ export const TAB_LABELS: { key: TabKey; label: string }[] = [
 ];
 
 export const ROLE_LABELS: Record<string, { label: string; color: string }> = {
-	owner: { label: 'Owner', color: 'bg-purple-500/20 text-purple-200' },
-	admin: { label: 'Admin', color: 'bg-blue-500/20 text-blue-200' },
-	manager: { label: 'Manager', color: 'bg-green-500/20 text-green-200' },
+	owner: { label: 'Owner', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-200' },
+	admin: { label: 'Admin', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-200' },
+	manager: { label: 'Manager', color: 'bg-green-500/20 text-green-600 dark:text-green-200' },
 	viewer: { label: 'Member', color: 'bg-(--accent-light) text-(--primary)' },
 };
 
 export const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-	planning: { label: 'Planning', color: 'bg-blue-500/20 text-blue-200' },
-	active: { label: 'Active', color: 'bg-green-500/20 text-green-200' },
+	planning: { label: 'Planning', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-200' },
+	active: { label: 'Active', color: 'bg-green-500/20 text-green-600 dark:text-green-200' },
 	completed: { label: 'Completed', color: 'bg-(--accent-light) text-(--primary)' },
-	'on-hold': { label: 'On Hold', color: 'bg-yellow-500/20 text-yellow-200' },
+	'on-hold': { label: 'On Hold', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-200' },
 };

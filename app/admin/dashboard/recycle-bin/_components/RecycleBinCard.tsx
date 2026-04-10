@@ -46,10 +46,10 @@ export default function RecycleBinCard({ user, actionLoading, onRestore, onDelet
 							})}
 						</span>
 						<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${user.daysRemaining <= 7
-								? 'bg-red-500/20 text-red-200'
+								? 'bg-red-500/20 text-red-600 dark:text-red-200'
 								: user.daysRemaining <= 14
-									? 'bg-yellow-500/20 text-yellow-200'
-									: 'bg-green-500/20 text-green-200'
+									? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-200'
+									: 'bg-green-500/20 text-green-600 dark:text-green-200'
 							}`}>
 							{user.daysRemaining} day{user.daysRemaining !== 1 ? 's' : ''} remaining
 						</span>

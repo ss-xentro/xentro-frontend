@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Enable class-based dark: variant (next-themes sets class="dark" on <html>) */
+@variant dark (&:is(.dark *));
+
 /* ========================================
    Aptos Font Family
 ======================================== */

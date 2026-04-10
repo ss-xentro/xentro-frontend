@@ -19,9 +19,9 @@ interface TeamMemberDetail {
 }
 
 const roleColors: Record<string, string> = {
-	admin: 'bg-purple-500/20 text-purple-200',
-	manager: 'bg-blue-500/20 text-blue-200',
-	ambassador: 'bg-green-500/20 text-green-200',
+	admin: 'bg-purple-500/20 text-purple-600 dark:text-purple-200',
+	manager: 'bg-blue-500/20 text-blue-600 dark:text-blue-200',
+	ambassador: 'bg-green-500/20 text-green-600 dark:text-green-200',
 	viewer: 'bg-(--accent-light) text-(--primary)',
 };
 
@@ -92,7 +92,7 @@ export default function TeamMemberDetailPage() {
 								<span className={`px-3 py-1 rounded-full text-xs font-medium ${roleColors[member.role] || 'bg-(--accent-light) text-(--primary)'}`}>
 									{member.role}
 								</span>
-								<span className={`px-3 py-1 rounded-full text-xs font-medium ${member.isActive ? 'bg-green-500/20 text-green-200' : 'bg-red-500/20 text-red-200'}`}>
+								<span className={`px-3 py-1 rounded-full text-xs font-medium ${member.isActive ? 'bg-green-500/20 text-green-600 dark:text-green-200' : 'bg-red-500/20 text-red-600 dark:text-red-200'}`}>
 									{member.isActive ? 'Active' : 'Inactive'}
 								</span>
 							</div>

@@ -114,7 +114,7 @@ export default function InstitutionVerificationRequestsPage() {
 											</p>
 										)}
 									</div>
-									<span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-200">
+									<span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-600 dark:text-amber-200">
 										Pending
 									</span>
 								</div>

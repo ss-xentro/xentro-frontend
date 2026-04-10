@@ -20,15 +20,15 @@ interface Program {
 }
 
 const typeLabels: Record<string, { label: string; color: string }> = {
-    accelerator: { label: 'Accelerator', color: 'bg-purple-500/20 text-purple-200' },
-    incubator: { label: 'Incubator', color: 'bg-blue-500/20 text-blue-200' },
-    incubation: { label: 'Incubation', color: 'bg-blue-500/20 text-blue-200' },
-    acceleration: { label: 'Acceleration', color: 'bg-purple-500/20 text-purple-200' },
-    bootcamp: { label: 'Bootcamp', color: 'bg-orange-500/20 text-orange-200' },
-    fellowship: { label: 'Fellowship', color: 'bg-green-500/20 text-green-200' },
-    workshop: { label: 'Workshop', color: 'bg-yellow-500/20 text-yellow-200' },
-    mentorship: { label: 'Mentorship', color: 'bg-pink-500/20 text-pink-200' },
-    competition: { label: 'Competition', color: 'bg-indigo-500/20 text-indigo-200' },
+    accelerator: { label: 'Accelerator', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-200' },
+    incubator: { label: 'Incubator', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-200' },
+    incubation: { label: 'Incubation', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-200' },
+    acceleration: { label: 'Acceleration', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-200' },
+    bootcamp: { label: 'Bootcamp', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-200' },
+    fellowship: { label: 'Fellowship', color: 'bg-green-500/20 text-green-600 dark:text-green-200' },
+    workshop: { label: 'Workshop', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-200' },
+    mentorship: { label: 'Mentorship', color: 'bg-pink-500/20 text-pink-600 dark:text-pink-200' },
+    competition: { label: 'Competition', color: 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-200' },
     other: { label: 'Other', color: 'bg-(--accent-light) text-(--primary-light)' },
 };
 

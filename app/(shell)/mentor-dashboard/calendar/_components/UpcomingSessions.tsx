@@ -46,13 +46,13 @@ export default function UpcomingSessions({ bookings, onAction }: UpcomingSession
 										<div className="flex gap-1">
 											<button
 												onClick={() => onAction(b.id, 'confirmed')}
-												className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-200 rounded hover:bg-emerald-200 transition-colors"
+												className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-600 dark:text-emerald-200 rounded hover:bg-emerald-200 transition-colors"
 											>
 												Accept
 											</button>
 											<button
 												onClick={() => onAction(b.id, 'cancelled')}
-												className="text-xs px-2 py-1 bg-red-500/20 text-red-200 rounded hover:bg-red-200 transition-colors"
+												className="text-xs px-2 py-1 bg-red-500/20 text-red-600 dark:text-red-200 rounded hover:bg-red-200 transition-colors"
 											>
 												Decline
 											</button>

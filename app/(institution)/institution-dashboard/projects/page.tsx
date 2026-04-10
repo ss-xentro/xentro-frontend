@@ -8,10 +8,10 @@ import { queryKeys } from '@/lib/queries/keys';
 import { toast } from 'sonner';
 
 const statusLabels: Record<string, { label: string; color: string }> = {
-  planning: { label: 'Planning', color: 'bg-blue-500/20 text-blue-200' },
-  active: { label: 'Active', color: 'bg-green-500/20 text-green-200' },
+  planning: { label: 'Planning', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-200' },
+  active: { label: 'Active', color: 'bg-green-500/20 text-green-600 dark:text-green-200' },
   completed: { label: 'Completed', color: 'bg-(--accent-light) text-(--primary-light)' },
-  'on-hold': { label: 'On Hold', color: 'bg-yellow-500/20 text-yellow-200' },
+  'on-hold': { label: 'On Hold', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-200' },
 };
 
 export default function ProjectsPage() {

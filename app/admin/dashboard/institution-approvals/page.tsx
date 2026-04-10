@@ -10,9 +10,9 @@ import { useApiQuery } from '@/lib/queries';
 import { queryKeys } from '@/lib/queries/keys';
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-500/20 text-yellow-200',
-  approved: 'bg-green-500/20 text-green-200',
-  rejected: 'bg-red-500/20 text-red-200',
+  pending: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-200',
+  approved: 'bg-green-500/20 text-green-600 dark:text-green-200',
+  rejected: 'bg-red-500/20 text-red-600 dark:text-red-200',
 };
 
 export default function InstitutionApprovalsPage() {

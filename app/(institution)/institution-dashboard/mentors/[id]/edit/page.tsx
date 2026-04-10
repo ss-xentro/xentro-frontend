@@ -148,10 +148,10 @@ export default function EditMentorPage() {
 							<p className="text-sm text-(--secondary)">{userEmail}</p>
 						</div>
 						<div className="flex items-center gap-2">
-							<span className={`px-2 py-1 rounded-full text-xs font-medium ${verified ? 'bg-green-500/20 text-green-200' : 'bg-yellow-500/20 text-yellow-200'}`}>
+							<span className={`px-2 py-1 rounded-full text-xs font-medium ${verified ? 'bg-green-500/20 text-green-600 dark:text-green-200' : 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-200'}`}>
 								{verified ? 'Verified' : 'Pending'}
 							</span>
-							<span className={`px-2 py-1 rounded-full text-xs font-medium ${status === 'approved' || status === 'active' ? 'bg-blue-500/20 text-blue-200' : 'bg-(--accent-light) text-(--primary)'}`}>
+							<span className={`px-2 py-1 rounded-full text-xs font-medium ${status === 'approved' || status === 'active' ? 'bg-blue-500/20 text-blue-600 dark:text-blue-200' : 'bg-(--accent-light) text-(--primary)'}`}>
 								{status}
 							</span>
 						</div>
