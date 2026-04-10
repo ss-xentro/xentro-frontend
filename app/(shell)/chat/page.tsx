@@ -858,7 +858,7 @@ export default function ChatPage() {
 						>
 							Requests
 							{requests.length > 0 && (
-								<span className="ml-1.5 inline-flex items-center justify-center min-w-4 h-4 text-[10px] font-bold bg-amber-500 text-white rounded-full px-1">
+								<span className="ml-1.5 inline-flex items-center justify-center min-w-4 h-4 text-[10px] font-bold bg-(--warning) text-amber-950 rounded-full px-1">
 									{requests.length}
 								</span>
 							)}

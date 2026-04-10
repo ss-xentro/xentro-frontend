@@ -240,7 +240,7 @@ export default function SessionsPage() {
                 >
                     Upcoming
                     {pendingCount > 0 && (
-                        <span className="inline-flex items-center justify-center min-w-5 h-5 text-[10px] font-bold bg-amber-500 text-white rounded-full px-1.5">
+                        <span className="inline-flex items-center justify-center min-w-5 h-5 text-[10px] font-bold bg-(--warning) text-amber-950 rounded-full px-1.5">
                             {pendingCount}
                         </span>
                     )}

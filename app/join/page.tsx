@@ -74,10 +74,10 @@ export default function JoinPage() {
         </div>
         <Link
           href="/login"
-          className="px-4 py-2 rounded-lg border border-(--border) text-white font-medium relative overflow-hidden transition-colors duration-200 group"
+          className="px-4 py-2 rounded-lg border border-(--border) text-(--primary) font-medium relative overflow-hidden transition-colors duration-200 group"
           style={{ position: 'relative' }}
         >
-          <span className="relative z-10 transition-colors duration-200 group-hover:text-black">Log in</span>
+          <span className="relative z-10 transition-colors duration-200 group-hover:text-(--background)">Log in</span>
           <span
             className="absolute inset-0 z-0 bg-(--primary) opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-lg group-hover:rounded-2xl"
             style={{ transitionProperty: 'opacity, background-color, border-radius' }}
@@ -137,17 +137,17 @@ export default function JoinPage() {
                   </div>
 
                   <div className="relative z-10 flex flex-col h-full">
-                    <div className={`mb-2 sm:mb-3 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}> 
+                    <div className={`mb-2 sm:mb-3 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}>
                       <div className="w-8 h-8 sm:w-8 sm:h-8 [&>svg]:w-full [&>svg]:h-full">
                         {role.icon}
                       </div>
                     </div>
 
-                    <h3 className={`text-lg sm:text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}> 
+                    <h3 className={`text-lg sm:text-lg md:text-2xl font-bold mb-1 md:mb-2 ${selectedRole === role.id ? 'text-(--background)' : 'text-(--primary)'}`}>
                       {role.title}
                     </h3>
 
-                    <p className={`text-sm sm:text-xs md:text-sm mb-0 md:mb-6 flex-1 leading-snug ${selectedRole === role.id ? 'text-(--secondary-light)' : 'text-(--secondary-light)'}`}> 
+                    <p className={`text-sm sm:text-xs md:text-sm mb-0 md:mb-6 flex-1 leading-snug ${selectedRole === role.id ? 'text-(--secondary-light)' : 'text-(--secondary-light)'}`}>
                       {role.description}
                     </p>
                   </div>
@@ -157,10 +157,10 @@ export default function JoinPage() {
                 <div className={`transition-all duration-300 overflow-hidden ${selectedRole === role.id ? 'max-h-10 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'}`}>
                   <Link
                     href={LOGIN_DESTINATIONS[role.id]}
-                    className="block text-center text-xs text-white hover:text-(--primary) transition-colors duration-200"
+                    className="block text-center text-xs text-(--secondary) hover:text-(--primary) transition-colors duration-200"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <span className="text-(--secondary-light)">Already have an account?</span> <span className="font-medium underline text-white">Log in →</span>
+                    <span className="text-(--secondary-light)">Already have an account?</span> <span className="font-medium underline text-(--primary)">Log in →</span>
                   </Link>
                 </div>
               </div>
@@ -176,17 +176,15 @@ export default function JoinPage() {
                 ${selectedRole ? 'bg-(--primary) text-(--background) hover:bg-(--primary-light) cursor-pointer' : 'bg-(--border) text-(--secondary) cursor-not-allowed'}`}
             >
               <span
-                className={`transition-all duration-300 ease-out ${
-                  selectedRole ? 'translate-x-[-0.75rem] opacity-100' : 'translate-x-0 opacity-100'
-                } mx-auto`}
+                className={`transition-all duration-300 ease-out ${selectedRole ? 'translate-x-[-0.75rem] opacity-100' : 'translate-x-0 opacity-100'
+                  } mx-auto`}
                 style={{ display: 'block', minWidth: '80px', textAlign: 'center', willChange: 'transform, opacity' }}
               >
                 Continue
               </span>
               <span
-                className={`absolute right-5 top-1/2 -translate-y-1/2 transition-all duration-300 ease-out ${
-                  selectedRole ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'
-                }`}
+                className={`absolute right-5 top-1/2 -translate-y-1/2 transition-all duration-300 ease-out ${selectedRole ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'
+                  }`}
                 style={{ willChange: 'transform, opacity' }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -207,17 +205,15 @@ export default function JoinPage() {
             ${selectedRole ? 'bg-(--primary) text-(--background) cursor-pointer' : 'bg-(--border) text-(--secondary) cursor-not-allowed'}`}
         >
           <span
-            className={`transition-all duration-300 ease-out ${
-              selectedRole ? 'translate-x-[-0.75rem] opacity-100' : 'translate-x-0 opacity-100'
-            } mx-auto`}
+            className={`transition-all duration-300 ease-out ${selectedRole ? 'translate-x-[-0.75rem] opacity-100' : 'translate-x-0 opacity-100'
+              } mx-auto`}
             style={{ display: 'block', minWidth: '80px', textAlign: 'center', willChange: 'transform, opacity' }}
           >
             Continue
           </span>
           <span
-            className={`absolute right-5 top-1/2 -translate-y-1/2 transition-all duration-300 ease-out ${
-              selectedRole ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'
-            }`}
+            className={`absolute right-5 top-1/2 -translate-y-1/2 transition-all duration-300 ease-out ${selectedRole ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'
+              }`}
             style={{ willChange: 'transform, opacity' }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
