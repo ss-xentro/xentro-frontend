@@ -16,7 +16,7 @@ export const queryKeys = {
 	// ── Notifications ──
 	notifications: {
 		all: ['notifications'] as const,
-		list: (filter: string) => ['notifications', filter] as const,
+		list: (params: Record<string, string | number>) => ['notifications', params] as const,
 	},
 
 	// ── Institution ──
