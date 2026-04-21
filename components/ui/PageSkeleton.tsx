@@ -5,18 +5,48 @@ import { Card } from '@/components/ui/Card';
 
 interface PageSkeletonProps {
 	className?: string;
+	variant?: 'lines' | 'cards';
+	count?: number;
 }
 
 /**
  * Full-page skeleton for dashboard pages loading inside DashboardSidebar.
+ * - Default (variant="lines"): animated line placeholders.
+ * - variant="cards": grid of skeleton cards controlled by `count`.
  * Replaces repeated animate-pulse blocks in edit/detail pages.
  */
-export function PageSkeleton({ className }: PageSkeletonProps) {
+export function PageSkeleton({ className, variant = 'lines', count = 3 }: PageSkeletonProps) {
+	if (variant === 'cards') {
+		return (
+			<div
+				className={cn('grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-8', className)}
+				role="status"
+				aria-live="polite"
+				aria-label="Loading"
+			>
+				{Array.from({ length: count }, (_, i) => (
+					<div key={i} className="animate-pulse rounded-xl border border-(--border) bg-(--surface) p-6 space-y-3">
+						<div className="h-6 bg-(--surface-hover) rounded w-1/2" />
+						<div className="h-4 bg-(--surface-hover) rounded w-2/3" />
+						<div className="h-4 bg-(--surface-hover) rounded w-1/3" />
+					</div>
+				))}
+			</div>
+		);
+	}
+
 	return (
-		<div className={cn('p-8', className)}>
+		<div className={cn('p-8', className)} role="status" aria-live="polite" aria-label="Loading">
 			<div className="animate-pulse space-y-4">
 				<div className="h-8 bg-(--accent-light) rounded w-1/4" />
 				<div className="h-4 bg-(--accent-light) rounded w-1/3" />
+				{count > 2 && (
+					<>
+						{Array.from({ length: count - 2 }, (_, i) => (
+							<div key={i} className="h-4 bg-(--surface-hover) rounded w-1/2" />
+						))}
+					</>
+				)}
 			</div>
 		</div>
 	);

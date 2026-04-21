@@ -40,6 +40,7 @@ export function getNavItems(role: UserRole): NavItem[] {
 			return [
 				{ name: 'Overview', href: '/mentor-dashboard', icon: icons.overview },
 				{ name: 'Profile', href: '/mentor-dashboard/profile', icon: icons.profile },
+				{ name: 'Packages', href: '/mentor-dashboard/packages', icon: icons.bolt },
 				{ name: 'Sessions', href: '/mentor-dashboard/sessions', icon: icons.calendar },
 				{ name: 'Mentees', href: '/mentor-dashboard/mentees', icon: icons.team },
 				{ name: 'Requests', href: '/mentor-dashboard/requests', icon: icons.addPerson },

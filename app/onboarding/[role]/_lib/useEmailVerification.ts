@@ -70,11 +70,21 @@ export function useEmailVerification(isCompletionFlow: boolean) {
 		};
 	}, [data.primaryContactEmail, isCompletionFlow]);
 
-	// Poll for magic link verification
+	// Poll for magic link verification (5s interval, 5-minute max = 60 attempts)
 	useEffect(() => {
 		if (!magicLinkSent || emailVerified) return;
 
+		let attempts = 0;
+		const MAX_ATTEMPTS = 60;
+
 		const pollInterval = setInterval(async () => {
+			attempts += 1;
+			if (attempts >= MAX_ATTEMPTS) {
+				clearInterval(pollInterval);
+				setMagicLinkSent(false);
+				setFeedback({ type: 'error', message: 'Verification timed out. Please request a new link.' });
+				return;
+			}
 			try {
 				const res = await fetch('/api/auth/magic-link/status/', {
 					method: 'POST',
@@ -90,7 +100,7 @@ export function useEmailVerification(isCompletionFlow: boolean) {
 			} catch {
 				// Silently retry on next interval
 			}
-		}, 3000);
+		}, 5000);
 
 		return () => clearInterval(pollInterval);
 	}, [magicLinkSent, emailVerified, data.primaryContactEmail]);

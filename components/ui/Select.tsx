@@ -12,7 +12,7 @@ interface SelectOption {
 interface SelectProps {
     value: string;
     onChange: (value: string) => void;
-    options: SelectOption[];
+    options: ReadonlyArray<SelectOption>;
     placeholder?: string;
     label?: string;
     error?: string;

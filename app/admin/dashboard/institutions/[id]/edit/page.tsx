@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, Input, Textarea, Select, Button, Badge, VerifiedBadge, FileUpload } from '@/components/ui';
 import { institutionTypeLabels, Institution } from '@/lib/types';
@@ -23,30 +23,17 @@ export default function EditInstitutionPage() {
   const [saving, setSaving] = useState(false);
   const [institution, setInstitution] = useState<Institution | null>(null);
 
-  const { isLoading: loading, error: queryError } = useApiQuery<{ institution: Institution }>(
+  const { data: instData, isLoading: loading, error: queryError } = useApiQuery<{ institution: Institution }>(
     queryKeys.admin.institutionDetail(id),
     `/api/institutions/${id}`,
-    {
-      requestOptions: { role: 'admin' },
-      enabled: !!id,
-      // Seed the local state when the query succeeds
-      // We use onSuccess-like pattern via select isn't ideal; instead use the data directly
-    },
+    { requestOptions: { role: 'admin' }, enabled: !!id },
   );
 
-  // Seed institution state from query data
-  const { data: instData } = useApiQuery<{ institution: Institution }>(
-    queryKeys.admin.institutionDetail(id),
-    `/api/institutions/${id}`,
-    {
-      requestOptions: { role: 'admin' },
-      enabled: !!id,
-    },
-  );
-  // Only seed once
-  if (instData?.institution && !institution) {
-    setInstitution(instData.institution);
-  }
+  useEffect(() => {
+    if (instData?.institution && !institution) {
+      setInstitution(instData.institution);
+    }
+  }, [instData?.institution]);
 
   const error = queryError?.message ?? null;
 

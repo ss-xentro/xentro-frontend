@@ -311,10 +311,11 @@ export default function UnifiedLoginPage() {
                                     <Input
                                         type="email"
                                         label="Email Address"
-
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
+                                        aria-required="true"
+                                        autoComplete="email"
                                         autoFocus
                                     />
 
@@ -348,10 +349,12 @@ export default function UnifiedLoginPage() {
                                 <Input
                                     type="text"
                                     label="One-Time Password"
-
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                                     required
+                                    aria-required="true"
+                                    autoComplete="one-time-code"
+                                    inputMode="numeric"
                                     autoFocus
                                     maxLength={6}
                                 />

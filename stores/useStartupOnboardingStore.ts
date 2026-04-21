@@ -191,3 +191,27 @@ export const useStartupOnboardingStore = create<StartupOnboardingStore>()(
         }
     )
 );
+
+// ── Selector hooks (avoid full-store re-renders) ──
+
+export const useStartupOnboardingData = () =>
+    useStartupOnboardingStore((s) => s.data);
+
+export const useStartupOnboardingStep = () =>
+    useStartupOnboardingStore((s) => s.currentStep);
+
+export const useStartupOnboardingActions = () =>
+    useStartupOnboardingStore((s) => ({
+        updateData: s.updateData,
+        setStep: s.setStep,
+        reset: s.reset,
+        addFounder: s.addFounder,
+        updateFounder: s.updateFounder,
+        removeFounder: s.removeFounder,
+        addTeamMember: s.addTeamMember,
+        updateTeamMember: s.updateTeamMember,
+        removeTeamMember: s.removeTeamMember,
+        toggleSector: s.toggleSector,
+        toggleWhyXentro: s.toggleWhyXentro,
+        resetToSignupDraft: s.resetToSignupDraft,
+    }));

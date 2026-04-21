@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -13,6 +13,7 @@ import { currencies } from '@/lib/types';
 import { getCurrencySymbol } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useApiQuery, useApiMutation, queryKeys } from '@/lib/queries';
+import { PageSkeleton } from '@/components/ui/PageSkeleton';
 
 // Reusing options from onboarding (should be shared constants)
 const stages = [
@@ -48,6 +49,8 @@ export default function StartupSettingsPage() {
     const [isCoverUploading, setIsCoverUploading] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [formData, setFormData] = useState<any>(null);
+    const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const DRAFT_KEY = 'xentro_startup_profile_draft';
 
     // ── Fetch startup data via TanStack Query ──
     const { data: queryData, isLoading } = useApiQuery<any>(
@@ -66,6 +69,42 @@ export default function StartupSettingsPage() {
     const startupId = queryData?.data?.startup?.id;
     const queryUpdatedAt = queryData?.data?.startup?.updatedAt;
 
+    // Restore draft from localStorage when query data first loads
+    useEffect(() => {
+        if (!queryData?.data?.startup) return;
+        try {
+            const raw = localStorage.getItem(DRAFT_KEY);
+            if (!raw) return;
+            const draft = JSON.parse(raw) as { id?: string; data: any };
+            if (draft.id === queryData.data.startup.id) {
+                setFormData(draft.data);
+                setIsEditMode(true);
+                toast.info('Unsaved draft restored — save or discard your changes.');
+            } else {
+                localStorage.removeItem(DRAFT_KEY);
+            }
+        } catch {
+            localStorage.removeItem(DRAFT_KEY);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [!!queryData?.data?.startup]);
+
+    // Auto-save draft to localStorage while in edit mode (debounced 1s)
+    useEffect(() => {
+        if (!isEditMode || !formData || !startupId) return;
+        if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = setTimeout(() => {
+            try {
+                localStorage.setItem(DRAFT_KEY, JSON.stringify({ id: startupId, data: formData }));
+            } catch {
+                // quota exceeded — ignore silently
+            }
+        }, 1000);
+        return () => {
+            if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+        };
+    }, [formData, isEditMode, startupId]);
+
     // When query data arrives or refreshes (and we're not editing), sync to form
     if (!isEditMode && queryData?.data?.startup && formData !== null) {
         // Only clear formData so we use query data directly
@@ -80,6 +119,7 @@ export default function StartupSettingsPage() {
         mutationOptions: {
             onSuccess: () => {
                 toast.success('Changes saved successfully.');
+                localStorage.removeItem(DRAFT_KEY);
                 setIsEditMode(false);
                 setFormData(null);
             },
@@ -105,6 +145,12 @@ export default function StartupSettingsPage() {
         setIsEditMode(true);
     };
 
+    const cancelEditMode = () => {
+        localStorage.removeItem(DRAFT_KEY);
+        setIsEditMode(false);
+        setFormData(null);
+    };
+
     // Proxy setData calls to setFormData
     const setData = (valOrFn: any) => {
         if (typeof valOrFn === 'function') {
@@ -125,7 +171,7 @@ export default function StartupSettingsPage() {
         return d.toLocaleDateString();
     };
 
-    if (isLoading) return <div className="p-8 text-center text-(--secondary)">Loading...</div>;
+    if (isLoading) return <PageSkeleton />;
     if (!data) return <div className="p-8 text-center text-error">Startup not found</div>;
 
     return (
@@ -140,7 +186,7 @@ export default function StartupSettingsPage() {
                 {canEdit && (
                     <div className="flex items-center gap-2">
                         {isEditMode && (
-                            <Button type="button" variant="secondary" onClick={() => setIsEditMode(false)}>
+                            <Button type="button" variant="secondary" onClick={cancelEditMode}>
                                 Cancel
                             </Button>
                         )}

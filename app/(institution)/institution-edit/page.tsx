@@ -77,8 +77,10 @@ export default function EditInstitutionPage() {
     return (
       <DashboardSidebar>
         <main className="min-h-screen bg-background py-16 px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-(--secondary)">Loading...</p>
+          <div className="max-w-3xl mx-auto space-y-4 animate-pulse">
+            <div className="h-8 bg-(--surface-hover) rounded w-1/3" />
+            <div className="h-4 bg-(--surface-hover) rounded w-2/3" />
+            <div className="h-64 bg-(--surface-hover) rounded" />
           </div>
         </main>
       </DashboardSidebar>

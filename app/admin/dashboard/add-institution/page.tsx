@@ -7,6 +7,7 @@ import { OnboardingFormData, InstitutionType, OperatingMode, SDGFocus, SectorFoc
 import api from '@/lib/api-client';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/keys';
+import { toast } from 'sonner';
 
 // Import all slides
 import InstitutionTypeSlide from '@/components/onboarding/InstitutionTypeSlide';
@@ -56,6 +57,28 @@ export default function AddInstitutionPage() {
     const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
     const [, setSubmitting] = useState(false);
 
+    // Restore draft from localStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('xentro_admin_institution_draft');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                setFormData(parsed);
+                toast.info('Draft restored from previous session');
+            } catch {}
+        }
+    }, []);
+
+    // Auto-save draft 1s after last formData change
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (formData.name || formData.type) {
+                localStorage.setItem('xentro_admin_institution_draft', JSON.stringify(formData));
+            }
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [formData]);
+
     const updateFormData = <K extends keyof OnboardingFormData>(
         key: K,
         value: OnboardingFormData[K]
@@ -97,9 +120,8 @@ export default function AddInstitutionPage() {
     };
 
     const handleSaveDraft = () => {
-        // Save to localStorage or API
-        console.log('Saving draft:', formData);
-        // TODO: persist to API when admin draft endpoint is available
+        localStorage.setItem('xentro_admin_institution_draft', JSON.stringify(formData));
+        toast.success('Draft saved locally');
     };
 
     const handlePublish = async () => {
@@ -129,10 +151,11 @@ export default function AddInstitutionPage() {
             });
 
             queryClient.invalidateQueries({ queryKey: queryKeys.admin.institutions() });
-            alert('Institution published successfully!');
+            localStorage.removeItem('xentro_admin_institution_draft');
+            toast.success('Institution published successfully!');
             router.push('/admin/dashboard/institutions');
         } catch (err) {
-            alert((err as Error).message);
+            toast.error((err as Error).message);
         } finally {
             setSubmitting(false);
         }
@@ -303,6 +326,7 @@ export default function AddInstitutionPage() {
                         variant="ghost"
                         onClick={handleBack}
                         disabled={currentStep === 1}
+                        aria-label="Go to previous step"
                     >
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -313,12 +337,14 @@ export default function AddInstitutionPage() {
                         <Button
                             variant="secondary"
                             onClick={handleSaveDraft}
+                            aria-label="Save draft locally"
                         >
                             Save Draft
                         </Button>
                         <Button
                             onClick={handleNext}
                             disabled={!canProceed()}
+                            aria-label={`Continue to step ${currentStep + 1}`}
                         >
                             Continue
                             <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

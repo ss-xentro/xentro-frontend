@@ -12,6 +12,7 @@ interface UserRowProps {
 export default function UserRow({ user, toggling, onToggleActive, onDelete }: UserRowProps) {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [confirmDelete, setConfirmDelete] = useState(false);
+	const [confirmDisable, setConfirmDisable] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -19,6 +20,7 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 			if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
 				setMenuOpen(false);
 				setConfirmDelete(false);
+				setConfirmDisable(false);
 			}
 		};
 		if (menuOpen) document.addEventListener('mousedown', handleClick);
@@ -26,8 +28,19 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 	}, [menuOpen]);
 
 	const handleToggle = () => {
+		if (user.isActive) {
+			// Disabling requires confirmation; enabling does not
+			setConfirmDisable(true);
+			return;
+		}
 		onToggleActive(user.id, user.isActive);
 		setMenuOpen(false);
+	};
+
+	const handleConfirmDisable = () => {
+		onToggleActive(user.id, user.isActive);
+		setMenuOpen(false);
+		setConfirmDisable(false);
 	};
 
 	const handleDelete = () => {
@@ -96,25 +109,46 @@ export default function UserRow({ user, toggling, onToggleActive, onDelete }: Us
 
 					{menuOpen && (
 						<div className="absolute right-0 mt-1 w-40 bg-(--surface) rounded-lg shadow-lg border border-(--border) py-1 z-50">
-							<button
-								onClick={handleToggle}
-								disabled={toggling === user.id}
-								className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors disabled:opacity-50 ${user.isActive
-									? 'text-amber-600 hover:bg-amber-500/15'
-									: 'text-green-600 hover:bg-green-500/15'
-									}`}
-							>
-								{user.isActive ? (
-									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-									</svg>
-								) : (
-									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-									</svg>
-								)}
-								{toggling === user.id ? '...' : user.isActive ? 'Disable' : 'Enable'}
-							</button>
+							{confirmDisable ? (
+								<div className="px-4 py-2 border-b border-(--border-light)">
+									<p className="text-xs text-(--secondary-light) mb-2">Disable this user?</p>
+									<div className="flex gap-2">
+										<button
+											onClick={handleConfirmDisable}
+											disabled={toggling === user.id}
+											className="flex-1 px-2 py-1 rounded text-xs font-medium bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50"
+										>
+											Yes
+										</button>
+										<button
+											onClick={() => setConfirmDisable(false)}
+											className="flex-1 px-2 py-1 rounded text-xs font-medium border border-(--border) text-(--secondary-light) hover:bg-(--accent-subtle)"
+										>
+											No
+										</button>
+									</div>
+								</div>
+							) : (
+								<button
+									onClick={handleToggle}
+									disabled={toggling === user.id}
+									className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors disabled:opacity-50 ${user.isActive
+										? 'text-amber-600 hover:bg-amber-500/15'
+										: 'text-green-600 hover:bg-green-500/15'
+										}`}
+								>
+									{user.isActive ? (
+										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+										</svg>
+									) : (
+										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+										</svg>
+									)}
+									{toggling === user.id ? '...' : user.isActive ? 'Disable' : 'Enable'}
+								</button>
+							)}
 
 							{confirmDelete ? (
 								<div className="px-4 py-2 border-t border-(--border-light)">

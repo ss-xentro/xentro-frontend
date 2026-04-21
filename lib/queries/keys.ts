@@ -39,6 +39,8 @@ export const queryKeys = {
 		recycleBin: () => ['institution', 'recycleBin'] as const,
 		endorsements: (params?: Record<string, string>) => ['institution', 'endorsements', params] as const,
 		profile: () => ['institution', 'profile'] as const,
+		events: () => ['institution', 'events'] as const,
+		eventDetail: (id: string) => ['institution', 'event', id] as const,
 	},
 
 	// ── Mentor ──

@@ -1,25 +1,4 @@
-export const STAGE_OPTIONS = [
-	{ value: 'ideation', label: 'Ideation' },
-	{ value: 'pre_seed_prototype', label: 'Pre seed / Prototype' },
-	{ value: 'seed_mvp', label: 'Seed / MVP' },
-	{ value: 'early_traction', label: 'Early Traction' },
-	{ value: 'growth', label: 'Growth' },
-	{ value: 'scaling', label: 'Scaling' },
-];
-
-export const STATUS_OPTIONS = [
-	{ value: 'public', label: 'Public' },
-	{ value: 'private', label: 'Private' },
-];
-
-export const FUNDING_ROUND_OPTIONS = [
-	{ value: 'bootstrapped', label: 'Bootstrapped' },
-	{ value: 'pre_seed', label: 'Pre-Seed' },
-	{ value: 'seed', label: 'Seed' },
-	{ value: 'series_a', label: 'Series A' },
-	{ value: 'series_b_plus', label: 'Series B+' },
-	{ value: 'unicorn', label: 'Unicorn' },
-];
+export { STAGE_OPTIONS, STATUS_OPTIONS, FUNDING_ROUND_OPTIONS } from '@/lib/constants';
 
 export interface StartupFormData {
 	name: string;

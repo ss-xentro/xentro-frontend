@@ -1,11 +1,4 @@
-export const STAGE_OPTIONS = [
-	{ value: 'ideation', label: 'Ideation', description: 'Validating the concept', icon: 'lightbulb' },
-	{ value: 'pre_seed_prototype', label: 'Pre seed / Prototype', description: 'Building the first version', icon: 'wrench' },
-	{ value: 'seed_mvp', label: 'Seed / MVP', description: 'Building the MVP', icon: 'code' },
-	{ value: 'early_traction', label: 'Early Traction', description: 'First users / revenue', icon: 'trending-up' },
-	{ value: 'growth', label: 'Growth', description: 'Scaling product & team', icon: 'rocket' },
-	{ value: 'scaling', label: 'Scaling', description: 'Expanding markets', icon: 'globe' },
-] as const;
+export { STAGE_OPTIONS } from '@/lib/constants';
 
 export const WHY_XENTRO_OPTIONS = [
 	{

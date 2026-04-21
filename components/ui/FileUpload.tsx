@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { ImageCropper } from "./ImageCropper";
 import { MediaPreview } from "./MediaPreview";
 import { getSessionToken } from "@/lib/auth-utils";
+import { compressImage } from "@/lib/image-utils";
 
 interface FileUploadProps {
 	value?: string | null;
@@ -18,6 +19,7 @@ interface FileUploadProps {
 	entityId?: string;
 	enableCrop?: boolean;
 	aspectRatio?: number; // e.g., 1 for square, 16/9 for landscape
+	label?: string; // accessible label for the file input
 }
 
 export function FileUpload({
@@ -32,6 +34,7 @@ export function FileUpload({
 	entityId,
 	enableCrop = false,
 	aspectRatio = 1,
+	label = "Upload file",
 }: FileUploadProps) {
 	const [isDragging, setIsDragging] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -100,7 +103,8 @@ export function FileUpload({
 				setImageToCrop(localPreview);
 				setShowCropModal(true);
 			} else {
-				await uploadFile(file);
+				const compressed = await compressImage(file, maxSize);
+				await uploadFile(compressed);
 			}
 		},
 		[enableCrop, maxSize, accept],
@@ -158,7 +162,8 @@ export function FileUpload({
 		setShowCropModal(false);
 		setImageToCrop(null);
 		revokeCropObjectUrl();
-		await uploadFile(croppedFile);
+		const compressed = await compressImage(croppedFile, maxSize);
+		await uploadFile(compressed);
 	};
 
 	const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -341,6 +346,7 @@ export function FileUpload({
 						accept={accept}
 						onChange={handleInputChange}
 						className="hidden"
+						aria-label={label}
 					/>
 					<div className="flex flex-col items-center">
 						<div className="w-12 h-12 mb-4 rounded-full bg-(--accent-light) flex items-center justify-center">
